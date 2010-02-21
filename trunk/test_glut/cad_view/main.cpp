@@ -1,0 +1,486 @@
+
+//#pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"")
+
+#if defined(__VISUALC__)
+#pragma warning( disable : 4786 ) 
+#endif
+#define for if(0);else for
+
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <assert.h>
+#include <math.h>
+#include <stdlib.h>
+#include <cstdlib> //(exit)
+
+#if defined(__APPLE__) && defined(__MACH__)
+#  include <OpenGL/glut.h>
+#else
+#  include <GL/glut.h>
+#endif
+
+#include "delfem/camera.h"
+#include "delfem/drawer_gl_utility.h"
+#include "delfem/serialize.h"
+//#include "delfem/cad_obj2d.h"
+#include "delfem/cad_obj2d.h"
+#include "delfem/cad/brep2d.h"
+#include "delfem/drawer_cad.h"
+
+Com::View::CCamera mvp_trans;
+double mov_begin_x, mov_begin_y;
+int press_button;
+//View::CDrawerCAD* pDrawerCad = 0;
+Com::View::CDrawerArray drawer_ary;
+
+void RenderBitmapString(float x, float y, void *font,char *string)
+{
+  char *c;
+  ::glRasterPos2f(x, y);
+  for (c=string; *c != '\0'; c++) {
+	  ::glutBitmapCharacter(font, *c);
+  }
+}
+
+void ShowFPS()
+{
+	int* font=(int*)GLUT_BITMAP_8_BY_13;
+	static char s_fps[32];
+	{
+		static int frame, timebase;
+		int time;
+		frame++;
+		time=glutGet(GLUT_ELAPSED_TIME);
+		if (time - timebase > 500) {
+			sprintf(s_fps,"FPS:%4.2f",frame*1000.0/(time-timebase));
+			timebase = time;
+			frame = 0;
+		}
+	}
+	char s_tmp[32];
+
+	GLint viewport[4];
+	::glGetIntegerv(GL_VIEWPORT,viewport);
+	const int win_w = viewport[2];
+	const int win_h = viewport[3];
+
+	::glMatrixMode(GL_PROJECTION);
+	::glPushMatrix();
+	::glLoadIdentity();
+	::gluOrtho2D(0, win_w, 0, win_h);
+	::glMatrixMode(GL_MODELVIEW);
+	::glPushMatrix();
+	::glLoadIdentity();
+	::glScalef(1, -1, 1);
+	::glTranslatef(0, -win_h, 0);
+//	::glDisable(GL_LIGHTING);
+	::glDisable(GL_DEPTH_TEST);
+	::glColor3d(1.0, 0.0, 0.0);
+	strcpy(s_tmp,"DelFEM demo");
+	RenderBitmapString(10,15, (void*)font, s_tmp);
+	::glColor3d(0.0, 0.0, 1.0);
+	strcpy(s_tmp,"Press \"space\" key!");
+	RenderBitmapString(120,15, (void*)font, s_tmp);
+	::glColor3d(0.0, 0.0, 0.0);
+	RenderBitmapString(10,30, (void*)font, s_fps);
+//	::glEnable(GL_LIGHTING);
+	::glEnable(GL_DEPTH_TEST);
+	::glPopMatrix();
+	::glMatrixMode(GL_PROJECTION);
+	::glPopMatrix();
+	::glMatrixMode(GL_MODELVIEW);
+}
+
+void myGlutResize(int w, int h)
+{
+	mvp_trans.SetWindowAspect((double)w/h);
+	glViewport(0, 0, w, h);
+	::glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	Com::View::SetProjectionTransform(mvp_trans);
+	glutPostRedisplay();
+}
+
+void myGlutDisplay(void)
+{
+//	::glClearColor(0.2, .7, 0.7, 1.0);
+	::glClearColor(1.0, 1.0, 1.0, 1.0);
+	::glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+	::glEnable(GL_DEPTH_TEST);
+
+	::glEnable(GL_POLYGON_OFFSET_FILL );
+	::glPolygonOffset( 1.1, 4.0 );
+
+	::glMatrixMode(GL_MODELVIEW);
+	::glLoadIdentity();
+	Com::View::SetModelViewTransform(mvp_trans);
+
+	drawer_ary.Draw();
+	ShowFPS();
+
+	glutSwapBuffers();
+}
+
+void myGlutIdle(){
+	::glutPostRedisplay();
+}
+
+void myGlutMotion( int x, int y ){
+	GLint viewport[4];
+	::glGetIntegerv(GL_VIEWPORT,viewport);
+	const int win_w = viewport[2];
+	const int win_h = viewport[3];
+	const double mov_end_x = (2.0*x-win_w)/win_w;
+	const double mov_end_y = (win_h-2.0*y)/win_h;
+	if( press_button == GLUT_MIDDLE_BUTTON ){
+		mvp_trans.MouseRotation(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
+	}
+	else if( press_button == GLUT_RIGHT_BUTTON ){
+		mvp_trans.MousePan(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
+	}
+	mov_begin_x = mov_end_x;
+	mov_begin_y = mov_end_y;
+	::glutPostRedisplay();
+}
+
+void myGlutMouse(int button, int state, int x, int y){
+	GLint viewport[4];
+	::glGetIntegerv(GL_VIEWPORT,viewport);
+	const int win_w = viewport[2];
+	const int win_h = viewport[3];
+	mov_begin_x = (2.0*x-win_w)/win_w;
+	mov_begin_y = (win_h-2.0*y)/win_h;
+	press_button = button;
+	if( button == GLUT_LEFT_BUTTON && state == GLUT_DOWN ){
+		const unsigned int size_buffer = 2048;
+		unsigned int selec_buffer[size_buffer];
+		Com::View::PickPre(size_buffer,selec_buffer, x,y,5,5, mvp_trans);
+		drawer_ary.DrawSelection();
+		std::vector<Com::View::SSelectedObject> aSelecObj
+			= Com::View::PickPost(selec_buffer, x,y, mvp_trans );
+		drawer_ary.ClearSelected();
+		if( aSelecObj.size() > 0 ){
+			drawer_ary.AddSelected( aSelecObj[0].name );
+		}
+	}
+}
+
+bool SetNewProblem()
+{
+	const unsigned int nprob = 10;
+	static unsigned int iprob = 0;
+
+	Cad::CCadObj2D cad_2d;
+	if( iprob == 0 )
+	{
+		unsigned int id_l0;
+ 		{	// Make model
+			std::vector<Com::CVector2D> vec_ary;
+			vec_ary.resize(4);
+			vec_ary[0] = Com::CVector2D(0.0,0.0);
+			vec_ary[1] = Com::CVector2D(1.0,0.0);
+			vec_ary[2] = Com::CVector2D(1.0,1.0);
+			vec_ary[3] = Com::CVector2D(0.0,1.0);
+			id_l0 = cad_2d.AddPolygon( vec_ary );
+		}
+		const unsigned int id_v5 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.5,0.5));
+		const unsigned int id_v6 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.5,0.8));
+		const unsigned int id_v7 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.8,0.5));
+		const unsigned int id_v8 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.5,0.2));
+		const unsigned int id_v9 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.2,0.5));
+		cad_2d.ConnectVertex_Line(id_v5,id_v6);	
+		cad_2d.ConnectVertex_Line(id_v5,id_v7);	
+		cad_2d.ConnectVertex_Line(id_v5,id_v8);	
+		cad_2d.ConnectVertex_Line(id_v5,id_v9);
+		{
+			Com::CSerializer fout("hoge.txt",false);
+			cad_2d.Serialize(fout);
+		}
+		{
+			Com::CSerializer fin( "hoge.txt",true);
+			cad_2d.Serialize(fin);
+		}
+		drawer_ary.Clear();
+		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
+		drawer_ary.InitTrans(mvp_trans);
+	}
+	else if( iprob == 1 )
+	{
+ 		{	// Make model
+			std::vector<Com::CVector2D> vec_ary;
+			vec_ary.resize(6);
+			vec_ary[0] = Com::CVector2D(0.0,0.0);
+			vec_ary[1] = Com::CVector2D(2.0,0.0);
+			vec_ary[2] = Com::CVector2D(2.0,1.0);
+			vec_ary[3] = Com::CVector2D(1.0,1.0);
+			vec_ary[4] = Com::CVector2D(1.0,2.0);
+			vec_ary[5] = Com::CVector2D(0.0,2.0);
+			const unsigned int id_l0 = cad_2d.AddPolygon( vec_ary );
+		}
+		{	// ファイルに書き出す
+			Com::CSerializer fout("hoge.txt",false);
+			cad_2d.Serialize(fout);
+		}
+		{	// ファイルから読み込む
+			Com::CSerializer fin( "hoge.txt",true);
+			cad_2d.Serialize(fin);
+		}
+		drawer_ary.Clear();
+		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
+		drawer_ary.InitTrans(mvp_trans);
+	}
+	else if( iprob == 2 )
+	{
+		unsigned int id_l0;
+ 		{	// Make model
+			std::vector<Com::CVector2D> vec_ary;
+			vec_ary.resize(4);
+			vec_ary[0] = Com::CVector2D(0.0,0.0);
+			vec_ary[1] = Com::CVector2D(1.0,0.0);
+			vec_ary[2] = Com::CVector2D(1.0,0.4);
+			vec_ary[3] = Com::CVector2D(0.0,0.4);
+			id_l0 = cad_2d.AddPolygon( vec_ary );
+		}
+//		cad_2d.SetCurve_Arc(1,true,-0.2);
+//		cad_2d.SetCurve_Arc(2,true, -0.5);
+		cad_2d.SetCurve_Arc(3,false, 0);
+//		cad_2d.SetCurve_Arc(4,true, -0.5);
+		{	// ファイルに書き出す
+			Com::CSerializer fout("hoge.txt",false);
+			cad_2d.Serialize(fout);
+		}
+		{	// ファイルから読み込む
+			Com::CSerializer fin( "hoge.txt",true);
+			cad_2d.Serialize(fin);
+		}
+		drawer_ary.Clear();
+		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
+		drawer_ary.InitTrans(mvp_trans);
+	}
+	else if( iprob == 3 )	// AddPolygonを使わずに形をつくる
+	{
+		const unsigned int id_v1 = cad_2d.AddVertex(Cad::NOT_SET,0,Com::CVector2D(0,0));
+		const unsigned int id_v2 = cad_2d.AddVertex(Cad::NOT_SET,0,Com::CVector2D(1,0));
+		cad_2d.ConnectVertex_Line(id_v1,id_v2);
+		const unsigned int id_v3 = cad_2d.AddVertex(Cad::NOT_SET,0,Com::CVector2D(1,1));
+		cad_2d.ConnectVertex_Line(id_v2,id_v3);
+		const unsigned int id_v4 = cad_2d.AddVertex(Cad::NOT_SET,0,Com::CVector2D(0,1));
+		cad_2d.ConnectVertex_Line(id_v4,id_v3);
+		const unsigned int id_v5 = cad_2d.AddVertex(Cad::EDGE,2,Com::CVector2D(1,0.5));
+		const unsigned int id_v7 = cad_2d.AddVertex(Cad::NOT_SET,0,Com::CVector2D(0.5,0.5));
+		cad_2d.ConnectVertex_Line(id_v5,id_v7);
+		const unsigned int id_v6 = cad_2d.AddVertex(Cad::NOT_SET,0,Com::CVector2D(1.5,0.5));
+		cad_2d.ConnectVertex_Line(id_v5,id_v6);
+		cad_2d.ConnectVertex_Line(id_v4,id_v1);	// ループができる
+//		cad_2d.ConnectVertex_Line(id_v2,id_v6);
+		drawer_ary.Clear();
+		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
+		drawer_ary.InitTrans(mvp_trans);
+	}
+	else if( iprob == 4 )
+	{
+		unsigned int id_l0;
+ 		{	// Make model
+			std::vector<Com::CVector2D> vec_ary;
+			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
+			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
+			vec_ary.push_back( Com::CVector2D(1.0,1.0) );
+			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
+			id_l0 = cad_2d.AddPolygon( vec_ary );
+		}
+//		const unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.5,0.5));
+		const unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.5,0.2));
+		const unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.8,0.5));
+		const unsigned int id_v4 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.5,0.8));
+		const unsigned int id_v5 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.2,0.5));
+		cad_2d.ConnectVertex_Line(id_v2,id_v3);
+		cad_2d.ConnectVertex_Line(id_v3,id_v4);
+		cad_2d.ConnectVertex_Line(id_v4,id_v5);
+		cad_2d.ConnectVertex_Line(id_v5,id_v2);
+		drawer_ary.Clear();
+		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
+		drawer_ary.InitTrans(mvp_trans);
+	}
+	else if( iprob == 5 )
+	{	// ひっくり返ったループを与える
+		unsigned int id_l0;
+ 		{	// Make model
+			std::vector<Com::CVector2D> vec_ary;
+			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
+			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
+			vec_ary.push_back( Com::CVector2D(1.0,1.0) );
+			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
+			id_l0 = cad_2d.AddPolygon( vec_ary );
+		}
+		drawer_ary.Clear();
+		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
+		drawer_ary.InitTrans(mvp_trans);
+	}
+	else if( iprob == 6 )
+	{	// ループの中にループ
+		unsigned int id_l0;
+ 		{	// Make model
+			std::vector<Com::CVector2D> vec_ary;
+			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
+			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
+			vec_ary.push_back( Com::CVector2D(1.0,1.0) );
+			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
+			id_l0 = cad_2d.AddPolygon( vec_ary );
+		}
+		{
+			std::vector<Com::CVector2D> vec_ary;
+			vec_ary.push_back( Com::CVector2D(0.3,0.1) );
+			vec_ary.push_back( Com::CVector2D(0.9,0.1) );
+			vec_ary.push_back( Com::CVector2D(0.9,0.7) );
+			cad_2d.AddPolygon( vec_ary, id_l0 );
+		}
+		{
+			std::vector<Com::CVector2D> vec_ary;
+			vec_ary.push_back( Com::CVector2D(0.1,0.9) );
+			vec_ary.push_back( Com::CVector2D(0.7,0.9) );
+			vec_ary.push_back( Com::CVector2D(0.1,0.3) );
+			cad_2d.AddPolygon( vec_ary, id_l0 );
+		}
+		unsigned int id_e0 = cad_2d.ConnectVertex_Line(1,3);
+		cad_2d.RemoveElement(Cad::EDGE,id_e0);
+		////////////////
+		drawer_ary.Clear();
+		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
+		drawer_ary.InitTrans(mvp_trans);
+	}
+	else if( iprob == 7 )
+	{	// ループの中にループ
+		unsigned int id_l0;
+ 		{	// Make model
+			std::vector<Com::CVector2D> vec_ary;
+			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
+			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
+			vec_ary.push_back( Com::CVector2D(1.0,1.0) );
+			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
+			id_l0 = cad_2d.AddPolygon( vec_ary );
+		}
+		unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.9,0.7) );
+		unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.9,0.1) );
+		unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.3,0.1) );
+		cad_2d.ConnectVertex_Line(id_v1,id_v2);
+		cad_2d.ConnectVertex_Line(id_v2,id_v3);
+		cad_2d.ConnectVertex_Line(id_v3,id_v1);
+		////////////////
+		{
+			unsigned int id_e0 = cad_2d.ConnectVertex_Line(id_v2,2);
+			cad_2d.RemoveElement(Cad::EDGE,id_e0);
+		}
+		{
+			unsigned int id_e0 = cad_2d.ConnectVertex_Line(2,id_v2);
+			cad_2d.RemoveElement(Cad::EDGE,id_e0);
+		}
+		////////////////
+		drawer_ary.Clear();
+		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
+		drawer_ary.InitTrans(mvp_trans);
+	}
+	else if( iprob == 8 ){
+		Cad::CCadObj2D cad_2d;
+		unsigned int id_e3, id_e4;
+		{
+			std::vector<Com::CVector2D> vec_ary;
+			vec_ary.push_back( Com::CVector2D(0.0, 0.0) );	// 1
+			vec_ary.push_back( Com::CVector2D(1.0, 0.0) );	// 2
+			vec_ary.push_back( Com::CVector2D(1.5, 0.0) );	// 3
+			vec_ary.push_back( Com::CVector2D(2.0, 0.0) );	// 4
+			vec_ary.push_back( Com::CVector2D(2.0, 1.0) );	// 5
+			vec_ary.push_back( Com::CVector2D(1.5, 1.0) );	// 6
+			vec_ary.push_back( Com::CVector2D(1.0, 1.0) );	// 7
+			vec_ary.push_back( Com::CVector2D(0.0, 1.0) );	// 8
+			unsigned int id_l0 = cad_2d.AddPolygon( vec_ary );
+			unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l0, Com::CVector2D(0.5,0.5) );
+			unsigned int id_e1 = cad_2d.ConnectVertex_Line(2,7);
+			unsigned int id_e2 = cad_2d.ConnectVertex_Line(3,6);
+			unsigned int id_v2 = cad_2d.AddVertex(Cad::EDGE,id_e1, Com::CVector2D(1.0,0.5) );
+			unsigned int id_v3 = cad_2d.AddVertex(Cad::EDGE,1,     Com::CVector2D(0.5,0.0) );
+			id_e3 = cad_2d.ConnectVertex_Line(id_v1,id_v2);
+			id_e4 = cad_2d.ConnectVertex_Line(id_v1,id_v3);
+		}
+		////////////////
+		drawer_ary.Clear();
+		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
+		drawer_ary.InitTrans(mvp_trans);
+	}
+	else if( iprob == 9 )
+	{	// ループの中にループ
+		unsigned int id_l0;
+ 		{	// Make model
+			std::vector<Com::CVector2D> vec_ary;
+			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
+			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
+			vec_ary.push_back( Com::CVector2D(1.0,1.0) );
+			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
+			id_l0 = cad_2d.AddPolygon( vec_ary );
+		}
+		unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.2,0.7) );
+		unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.2,0.3) );
+		unsigned int id_e0 = cad_2d.ConnectVertex_Line(id_v1,id_v2);
+		unsigned int id_v3 = cad_2d.AddVertex(Cad::EDGE,id_e0, Com::CVector2D(0.2,0.5) );
+		unsigned int id_v4 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.5,0.5) );
+		unsigned int id_v5 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.7,0.5) );
+		unsigned int id_e1 = cad_2d.ConnectVertex_Line(id_v3,id_v4);
+		unsigned int id_e2 = cad_2d.ConnectVertex_Line(id_v4,id_v5);
+		cad_2d.RemoveElement(Cad::EDGE,id_e1);
+		////////////////
+		drawer_ary.Clear();
+		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
+		drawer_ary.InitTrans(mvp_trans);
+	}
+	
+	::glMatrixMode(GL_PROJECTION);
+	::glLoadIdentity();
+	Com::View::SetProjectionTransform(mvp_trans);
+
+	iprob++;
+	if( iprob == nprob ) iprob=0;
+
+	return true;
+}
+
+void myGlutKeyboard(unsigned char key, int x, int y)
+{
+  switch (key) {
+  case 'q':
+  case 'Q':
+  case '\033':  /* '\033' は ESC の ASCII コード */
+	  exit(0);
+	  break;
+  case ' ':
+	  SetNewProblem();
+	  break;
+  default:
+    break;
+  }
+}
+
+int main(int argc,char* argv[])
+{
+	// Initailze GLUT
+	::glutInitWindowPosition(200,200);
+	::glutInitWindowSize(400, 300);
+	::glutInit(&argc, argv);	
+    ::glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGBA|GLUT_DEPTH);
+	::glutCreateWindow("Cad View");
+
+	// Set callback function
+	::glutMotionFunc(myGlutMotion);
+	::glutMouseFunc(myGlutMouse);
+	::glutDisplayFunc(myGlutDisplay);
+	::glutReshapeFunc(myGlutResize);
+	::glutKeyboardFunc(myGlutKeyboard);
+	::glutIdleFunc(myGlutIdle);
+
+	std::cout << "スペースキーで問題が切り替わります" << std::endl;
+	SetNewProblem();
+
+	// Enter main loop
+	::glutMainLoop();
+	return 0;
+}

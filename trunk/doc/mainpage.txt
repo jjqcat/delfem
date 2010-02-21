@@ -1,0 +1,349 @@
+/*! @mainpage 
+
+<br><br><br>
+
+@section DelFEMとは
+
+DelFEMは誰でも簡単に数値解析を行うことができることを目標としたC++の有限要素法ライブラリです．簡単なモデラー、メッシュ生成機能、可視化機能がついています．
+
+@subsection 特徴
+
+@li シームレスなモデリングとメッシュ生成，解析，可視化の接続
+@li リアルタイム性
+@li 柔軟性の高い有限要素法解析機能
+@li 高い移植性(ポータビリティ)
+
+
+@subsection ダウンロード
+
+SourceForge.JPのページからダウンロードできます．
+
+@sa Source Forge.JPのDelFEMのページ  http://sourceforge.jp/projects/delfem/
+
+
+@subsection 支援
+
+IPA未踏ユース２００８年度上半期の支援をうけて作られています．<BR>
+
+
+
+@sa 「インタラクティブなＵＩ備えた統合型設計解析ソフトウェアの開発」： http://www.ipa.go.jp/jinzai/mitou/2008/2008_1/youth/gaiyou/t-02.html
+
+
+
+@subsection ライセンス形態
+
+なるべく沢山の人に有限要素法を"理解して"使ってもらることを目指して，オープンソフトウェアでの開発を行っています．
+
+"DelFEMはLGPLライセンスversion3に基づいて配布しています"
+
+@subsubsection できること
+
+@li 配布せずに，個人や会社内で利用することには何の制約もありません．
+@li 動的リンクを用いる場合ならLGPLソフトウェアから以外でも，本体部分のソースを公開する必要なく配布することができます．
+
+@subsubsection しなければならないこと
+
+@li DelFEMを使用していることを明記しなければなりません。
+@li 配布を求められた際にDelFEMの配布を行う義務があります。
+@li DelFEM自体に手を加えた場合には、手を加えた部分のソースコードの公開が必要です。
+@li スタティックリンクした際には、独自開発部分のソースコードを配布するか、独自開発部分のオブジェクトを配布する必要があります。
+@li 作成したアプリケーションについて、リバースエンジニアリングを禁止してはなりません。
+
+その他，オープンソースのメリットについては以下に詳しくまとまっています．
+
+
+@sa 何故、オープンソースなのか？ :  http://www.jp.redhat.com/opensource/os_jp.html 
+
+LGPLについて，詳しくは以下を参考にしてください．
+
+@sa GNU 劣等一般公衆利用許諾契約書 : http://www.opensource.jp/lesser/lgpl.ja.html
+
+@subsection 使わせていただいたソース
+
+以下のソースを使わせていただいています．
+
+@sa "Uglyfont" Soji Yamakawaさん作 : http://homepage3.nifty.com/ysflight/uglyfont/uglyfontj.html
+
+どうもありがとうございます！
+
+@subsection 貢献してくれた方々
+
+@sa PENGUINITIS様：  http://www.geocities.jp/penguinitis2002/
+
+各種環境でのビルド，開発環境の構築方法，インタラクティブな３D梁の変形デモなどなどについてWebページを作って教えて頂きました．
+
+<br>
+@sa malibu-bulldog様： http://d.hatena.ne.jp/malibu-bulldog/
+
+Ubuntuでのビルドについて教えて頂きました．
+
+その他，色々な人からアドバイスを頂いたり助けてもらいました．どうもありがとうございます！
+
+@subsection 参考
+
+@li 開発者による有限要素法の解説ページ :  http://ums.futene.net
+@li 開発者のブログ : http://d.hatena.ne.jp/etopirika5/
+@li 開発者の研究のページ : http://www-ui.is.s.u-tokyo.ac.jp/~ume/
+@li 開発者のDelFEMに関するYoutube投稿動画 : http://www.youtube.com/profile?user=umet55&view=videos
+
+
+@section ビルド方法
+
+@subsection VisualStudioを用いたビルド
+
+ライブラリ単体でビルドするのではなく，プログラムと一緒にビルドするような仕様になっています．
+
+開発プロジェクトに 静的ライブラリ(DelFEM/lib/stlib_*)をインポートして，依存関係を設定して下さい．
+
+詳しいやり方はサンプルプログラム(DelFEM/test_glut/*)にならって下さい．
+
+
+@subsection MinGWを用いたビルド
+
+@li MinGWのインストールされたディレクトリの中のMinGW/include/の下にdelfemという名前のフォルダを作る．
+@li 作成したMinGW/include/delfemのフォルダの下にDelFEM/include/delfemの内容をコピーする．
+@li DelFEM/MakefileをMakeする
+@li makeして生成されるDelFEM/lib/libdfm.aをMinGW/lib/以下にコピーする．
+
+以上の作業は，コマンドプロンプトでコマンドを打つ替りにバッチファイルDelFEM/make_with_mingw.batを実行しても実現されます．
+
+
+@section サンプルプログラム
+
+GLUTを用いたサンプルプログラムが以下のディレクトリの中にあります．
+
+>DelFEM/Test_glut/
+
+
+@subsection GLUT
+
+サンプルプログラムは基本的なUIに対応するために，ＯＳ非依存のＧＵＩライブラリであるGLUTを用いています．
+
+GLUTは以下のURLからダウンロードして下さい
+
+@sa http://www.xmission.com/~nate/glut.html 
+
+GLUTの解説については以下が参考になります．
+
+@sa http://www.wakayama-u.ac.jp/~tokoi/opengl/libglut.html GLUTによる「手抜き」OpenGL入門
+
+@sa http://wisdom.sakura.ne.jp/system/opengl/ OpenGL入門
+
+
+@subsection サンプルの解説
+各サンプルの説明は次のとおりです．
+
+各サンプルプログラムはスペースキーで問題設定が切り替わるようになっています．
+
+
+@subsection プログラムの流れ
+
+大抵のプログラムの流れは以下のようになっています．
+
+@li CCadObj2Dクラスを使って形状を作る
+@li CMesher2Dクラスを使ってCCadObj2Dからメッシュを切る
+@li CFieldWorldをCMesher2Dから初期化する．
+@li 方程式クラスに場を設定
+@li 方程式に物性値を設定
+@li 方程式に境界条件を設定
+@li 可視化のための描画オブジェクトを設定
+@li 方程式クラスを使って方程式を解く
+@li 描画の更新
+
+
+@subsubsection 非定常のStVenant-Kirchhoff体の例
+
+St.Venant-Kirchhoff体(幾何学的非線形性を考慮した材料的に線形な物体)を動的に解くようなプログラムで，DelFEMを使う部分は以下のようになります．
+
+@code
+ // 実装例（初期化時）
+ 
+ Cad::CCadObj2D cad_2d;
+ {  // 形状を作る(5*1の矩形領域)
+    std::vector<CVector2D> vec_ary;
+    vec_ary.push_back( CVector2D(0.0,0.0) );
+    vec_ary.push_back( CVector2D(5.0,0.0) );
+    vec_ary.push_back( CVector2D(5.0,1.0) );
+    vec_ary.push_back( CVector2D(0.0,1.0) );
+    cad_2d.AddPolygon( vec_ary );
+ }
+ Fem::Field::CFieldWorld world;
+ world.InitializeFromMesh( Msh::CMesh2D(cad_2d,0.2) );　 // メッシュを生成して有限要素法に渡す
+ // 方程式オブジェクトの初期化
+ Fem::Eqn::CEqnSystem_Solid2D solid;	// ２Ｄ固体方程式オブジェクト
+ solid.SetDomain(world);			// 解析領域を指定する
+ solid.SetStationary(false)		// 準静的解析
+ solid.SetGerometricalNonlinear(true); // 幾何学的非線形性を考慮する(St.Venant-Kirchhoff体)
+ solid.SetYoungPoisson(10.0,0.3,true);	// ヤング率を設定
+ solid.SetRho(1.0);　// 質量密度を設定
+ solid.SetTimeIntegrationParameter(dt); // 時間刻みを設定
+ // 境界条件の設定
+ const CIDConvEAMshCad conv = world.GetIDConverter();	// CADのIDとメッシュのＩＤの変換機
+ unsigned int id_field_bc0 = solid.AddFixElemAry(conv.GetIdEA_fromCad(2,1),world);	// 境界条件の場を切り出す
+ unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(4,1),world);	// 境界条件の場を切り出す
+ {  // 境界条件を指定した場に正弦関数で値が変化するで固定境界条件を設定する
+    CField& bc1_field = world.GetField(id_field_bc0);
+    bc1_field.SetValue("sin(t*PI*2*0.05)", 1, world,true);
+ }
+ // 描画の設定
+ id_field_disp = solid.GetIDField_Val();	// 変位場のＩＤ
+ drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world) );	// 可視化リストに面を追加
+ drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );	// 可視化リストに変形後の辺を追加
+ drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) ); // 可視化リストに変形前の辺を追加
+@endcode
+
+@code
+ // 実装例（描画時）
+ 
+ cur_time += dt;　// 現在時間の更新
+ world.FieldValueExec(cur_time); // 固定境界条件が設定されている場の値を更新
+ solid.Solve(world);　// 有限要素法を解く
+ drawer_ary.Update(world);　// 可視化データの更新
+ drawer_ary.Draw();　// 描画
+@endcode
+
+非定常のSt.Venant-Kirchhoff体を解くようなプログラムの実装例
+
+
+
+これをOpenGLが使えるGUIライブラリ(GLUTなど)に組み込むことで，結果をリアルタイムで表示できます．下は上のプログラムの実行結果の一コマです．
+
+@image html stvenant_nonstat.jpg St.Venant-Kirchhoff体解析プログラムの実行結果の一コマ
+
+
+@subsubsection キャビティフローの解析Re1000
+
+@code
+ // 実装例(初期化時) 
+ Cad::CCadObj2D cad_2d;
+ {  // 正方形のモデルを作る
+    std::vector<CVector2D> vec_ary;
+    vec_ary.push_back( CVector2D(-0.5,-0.5) );
+    vec_ary.push_back( CVector2D( 0.5,-0.5) );
+    vec_ary.push_back( CVector2D( 0.5, 0.5) );
+    vec_ary.push_back( CVector2D(-0.5, 0.5) );
+    cad_2d.AddPolygon( vec_ary );
+ }
+ Fem::Field::CFieldWorld world;
+ world.InitializeFromMesh( Msh::CMesh2D(cad_2d,0.04) );
+ const Fem::Field::CIDConvEAMshCad& conv = world.GetIDConverter(); // CADと要素配列のID変換機の取得
+ fluid.SetDomain(world);	// 方程式オブジェクトに解析場所(この場合はモデル全体)を指定
+ // 流体にパラメータを設定
+ fluid.SetRho(0.02);	// 質量密度の設定
+ fluid.SetMyu(0.00001);	// 粘性係数の設定
+ fluid.SetNavierStokes();　// Naiver-Stokes方程式を解く
+ fluid.SetStationary(false,world);　// 非定常問題の解析
+ dt = 0.5;
+ fluid.SetTimeIntegrationParameter(dt); // 時間刻みを設定
+ // 境界条件を設定
+ unsigned int id_field_bc0  // 流速場の部分場(CadのEdgeのID=3)を生成して固定境界条件の値を設定
+     = fluid.AddFixElemAry(conv.GetIdEA_fromCad(3,1),world);
+ {  // 部分場(流速)のｘ方向の流速に正弦波上の値を設定
+    CField& bc0_field_velo = world.GetField(id_field_bc0);
+    bc0_field_velo.SetVelocity("0.5*sin(0.05*t)", 0, world,true);
+ }
+ unsigned int id_field_bc1;
+ {  // 流速場の部分場(CadのEdgeのID=1,2,4)を生成して固定境界条件にする
+    std::vector<unsigned int> id_ea_bc1;
+    id_ea_bc1.push_back(conv.GetIdEA_fromCad(1,1));
+    id_ea_bc1.push_back(conv.GetIdEA_fromCad(2,1));
+    id_ea_bc1.push_back(conv.GetIdEA_fromCad(4,1));
+    id_field_bc1 = fluid.AddFixElemAry(id_ea_bc1,world);
+ }
+ // 可視化の設定
+ unsigned int id_field_velo  = fluid.GetIDField_Velo();		// 流速場のID
+ drawer_ary.PushBack( new View::CDrawerVector(id_field_velo,world) );
+ drawer_ary.PushBack( new View::CDrawerFaceContour(id_field_press,world) );
+@endcode
+
+@code
+ // 実装例(描画時)
+ cur_time += dt;　// 現在時間の更新
+ world.FieldValueExec(cur_time); // 固定境界条件が設定されている場の値を更新
+ solid.Solve(world);　// 有限要素法を解く
+ drawer_ary.Update(world);　// 可視化データの更新
+ drawer_ary.Draw();　// 描画
+@endcode
+
+これをOpenGLが使えるGUIライブラリ(GLUTなど)に組み込むことで，結果をリアルタイムで表示できます．下は上のプログラムの実行結果の一コマです．
+
+@image html cavity.jpg キャビティ解析プログラムの実行結果の一コマ
+
+*/
+
+/*!
+@namespace Fem
+@brief 有限要素法，名前空間
+
+@namespace Cad
+@brief CAD名前空間
+
+@namespace Cad::View
+@brief CADの可視化の名前空間
+
+@namespace Fem::Eqn
+@brief 有限要素法離散化された方程式の名前空間
+
+@namespace Fem::Field
+@brief 有限要素法離散場の名前空間
+
+@namespace Fem::Field::View
+@brief 有限要素法で離散化された場を可視化する名前空間
+
+@namespace Fem::Ls
+@brief 有限要素法で生成される連立一次方程式の名前空間
+
+@namespace Msh
+@brief メッシュ名前空間
+
+@mamespace Msh::View
+@brief メッシュを可視化する名前空間
+
+@namespace Com
+@brief 共有名前空間
+
+@namespace Com::View
+@brief 共有，可視化名前空間
+
+@namespace MatVec
+@brief 行列ベクトル名前空間
+
+@namespace Sol
+@brief 連立一次ソルバ名前空間
+
+
+
+
+
+
+@defgroup CAD 形状定義モジュール
+
+@defgroup Msh メッシュモジュール
+
+@defgroup Msh2D ２次元メッシュモジュール
+@ingroup Msh
+
+@defgroup Msh3D ３次元メッシュモジュール
+@ingroup Msh
+
+
+@defgroup Fem 有限要素法モジュール
+
+@defgroup FemEqnObj 方程式オブジェクトモジュール
+@ingroup Fem
+
+@defgroup FemEqnSystem 連成方程式オブジェクトモジュール
+@ingroup Fem
+
+@defgroup FemEqnMargeFunction 方程式をマージする関数モジュール
+@ingroup Fem
+
+@defgroup FemLs 有限要素法の連立一次方程式モジュール
+@ingroup Fem
+
+@defgroup LsSol 連立一次方程式とそのソルバモジュール
+
+@defgroup MatVec 行列とベクトルモジュール
+
+*/
