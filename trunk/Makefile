@@ -9,7 +9,7 @@ else
 endif
 
 OBJS = drawer.o drawer_gl_utility.o quaternion.o uglyfont.o vector3d.o \
-	cad_obj2d.o cad_elem2d.o drawer_cad.o brep.o\
+	cad_obj2d.o cad_elem2d.o drawer_cad.o brep.o brep2d.o\
 	drawer_msh.o mesh3d.o mesher2d.o mesher3d.o\
 	meshkernel2d.o meshkernel3d.o mesh3d_extrude.o\
 	drawer_field.o drawer_field_face.o drawer_field_edge.o drawer_field_vector.o elem_ary.o eval.o field.o field_world.o node_ary.o\
