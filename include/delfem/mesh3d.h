@@ -21,8 +21,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 @brief ３次元メッシュクラス(Msh::CMesh3D)のインターフェース
 @author Nobuyuki Umetani
 */
-#if !defined(MSH_3D_H)
-#define MSH_3D_H
+#if !defined(MESH_3D_H)
+#define MESH_3D_H
 
 #if defined(__VISUALC__)
 #pragma warning( disable : 4786 )
@@ -50,11 +50,11 @@ namespace Msh{
 //! 頂点構造体
 struct SVertex3D{
 public:
-	SVertex3D() : m_ID(0), m_id_cad(0), m_id_msh_before_extrude(0), inum_extrude(0){}
+	SVertex3D() : id(0), id_cad(0), id_msh_before_extrude(0), inum_extrude(0){}
 public:
-	unsigned int m_ID;	//!< ID
-	unsigned int m_id_cad;	//!< CADの頂点ID（CADに関連されてなければ０）
-	unsigned int m_id_msh_before_extrude;
+	unsigned int id;	//!< ID
+	unsigned int id_cad;	//!< CADの頂点ID（CADに関連されてなければ０）
+	unsigned int id_msh_before_extrude;
     unsigned int inum_extrude;   //!< 突き出されてない(0), 底面(1), 側面(2), 上面(3) {０か奇数になるはず}
 	unsigned int v;	//!< 点のID，今は一つだけだけど、そのうち配列にして複数扱えるようにしたいな。
 };
@@ -62,11 +62,11 @@ public:
 //! 線要素配列
 class CBarAry3D{
 public:
-	CBarAry3D() : m_ID(0), m_id_cad(0), m_id_msh_before_extrude(0), inum_extrude(0){}
+	CBarAry3D() : id(0), id_cad(0), id_msh_before_extrude(0), inum_extrude(0){}
 public:
-	unsigned int m_ID;	//!< ID
-	unsigned int m_id_cad;	//!< CADの頂点ID（CADに関連されてなければ０）
-	unsigned int m_id_msh_before_extrude;
+	unsigned int id;	//!< ID
+	unsigned int id_cad;	//!< CADの頂点ID（CADに関連されてなければ０）
+	unsigned int id_msh_before_extrude;
     unsigned int inum_extrude;   //!< 突き出されてない(0), 底面(1), 側面(2), 上面(3)
 	std::vector<SBar> m_aBar;	//!< ３次元線分要素配列
 };
@@ -74,11 +74,11 @@ public:
 //! ４面体配列クラス	
 class CTetAry{
 public:
-	CTetAry() : m_ID(0), m_id_cad(0), m_id_msh_before_extrude(0), inum_extrude(0){}
+	CTetAry() : id(0), id_cad(0), id_msh_before_extrude(0), inum_extrude(0){}
 public:
-	unsigned int m_ID;	//!< ID
-	unsigned int m_id_cad;	//!< CADの頂点ID（CADに関連されてなければ０）
-	unsigned int m_id_msh_before_extrude;
+	unsigned int id;	//!< ID
+	unsigned int id_cad;	//!< CADの頂点ID（CADに関連されてなければ０）
+	unsigned int id_msh_before_extrude;
     unsigned int inum_extrude;   //!< 突き出されてない(0), 底面(1), 側面(2), 上面(3)
 	std::vector<STet> m_aTet;	//!< ３次元四面体要素配列
 };
@@ -86,11 +86,11 @@ public:
 //! 六面体配列クラス
 class CHexAry{
 public:
-	CHexAry() : m_ID(0), m_id_cad(0), m_id_msh_before_extrude(0), inum_extrude(0){}
+	CHexAry() : id(0), id_cad(0), id_msh_before_extrude(0), inum_extrude(0){}
 public:
-	unsigned int m_ID;	//!< ID
-	unsigned int m_id_cad;	//!< CADの頂点ID（CADに関連されてなければ０）
-	unsigned int m_id_msh_before_extrude;
+	unsigned int id;	//!< ID
+	unsigned int id_cad;	//!< CADの頂点ID（CADに関連されてなければ０）
+	unsigned int id_msh_before_extrude;
     unsigned int inum_extrude;  //!< 突き出されてない(0), 底面(1), 側面(2), 上面(3)
 	std::vector<SHex> m_aHex;	//!< ３次元６面体要素配列
 };
@@ -98,11 +98,11 @@ public:
 //! ３次元三角形配列クラス
 class CTriAry3D{
 public:
-	CTriAry3D() : m_ID(0), m_id_cad(0), m_id_msh_before_extrude(0), inum_extrude(0){}
+	CTriAry3D() : id(0), id_cad(0), id_msh_before_extrude(0), inum_extrude(0){}
 public:
-	unsigned int m_ID;	//!< ID
-	unsigned int m_id_cad;	//!< CADの頂点ID（CADに関連されてなければ０）
-	unsigned int m_id_msh_before_extrude;
+	unsigned int id;	//!< ID
+	unsigned int id_cad;	//!< CADの頂点ID（CADに関連されてなければ０）
+	unsigned int id_msh_before_extrude;
     unsigned int inum_extrude;  //!< 突き出されてない(0), 底面(1), 側面(2), 上面(3)
 	std::vector<STri3D> m_aTri;	//!< ３次元３角形要素配列
 };
@@ -110,11 +110,11 @@ public:
 //! ３次元４角形配列クラス
 class CQuadAry3D{
 public:
-	CQuadAry3D() : m_ID(0), m_id_cad(0), m_id_msh_before_extrude(0), inum_extrude(0){}	// IDを０で初期化しないと、GetMaxIDが失敗する
+	CQuadAry3D() : id(0), id_cad(0), id_msh_before_extrude(0), inum_extrude(0){}	// IDを０で初期化しないと、GetMaxIDが失敗する
 public:
-	unsigned int m_ID;	//!< ID
-	unsigned int m_id_cad;	//!< CADの頂点ID（CADに関連されてなければ０）
-	unsigned int m_id_msh_before_extrude;
+	unsigned int id;	//!< ID
+	unsigned int id_cad;	//!< CADの頂点ID（CADに関連されてなければ０）
+	unsigned int id_msh_before_extrude;
     unsigned int inum_extrude;  //!< 突き出されてない(0), 底面(1), 側面(2), 上面(3)
 	std::vector<SQuad3D> m_aQuad;	//!< ３次元４角形要素配列
 };
@@ -122,7 +122,7 @@ public:
 ////////////////////////////////
 
 //! ３次元メッシュクラス
-class CMesh3D  : public CMesh_Interface
+class CMesh3D  : public IMesh
 {
 public:
 	CMesh3D(){}
@@ -139,19 +139,21 @@ public:
 		}
 	}
 	virtual void GetInfo(unsigned int id_msh, 
-        unsigned int& id_cad, unsigned int& id_msh_be, unsigned int& inum_ext) const
+        unsigned int& id_cad, unsigned int& id_msh_be, unsigned int& inum_ext,
+		int& ilayer) const
     { 
 		const int itype = m_ElemType[id_msh];
 		const int iloc = m_ElemLoc[id_msh];
-		if(      itype == 0 ){ id_cad=m_aVertex[ iloc].m_id_cad;  id_msh_be=m_aVertex[ iloc].m_id_msh_before_extrude;  inum_ext=m_aVertex[ iloc].inum_extrude; }
-		else if( itype == 1 ){ id_cad=m_aBarAry[ iloc].m_id_cad;  id_msh_be=m_aBarAry[ iloc].m_id_msh_before_extrude;  inum_ext=m_aBarAry[ iloc].inum_extrude; }
-        else if( itype == 2 ){ id_cad=m_aTriAry[ iloc].m_id_cad;  id_msh_be=m_aTriAry[ iloc].m_id_msh_before_extrude;  inum_ext=m_aTriAry[ iloc].inum_extrude; }
-        else if( itype == 3 ){ id_cad=m_aQuadAry[iloc].m_id_cad;  id_msh_be=m_aQuadAry[iloc].m_id_msh_before_extrude;  inum_ext=m_aQuadAry[iloc].inum_extrude; }
-        else if( itype == 4 ){ id_cad=m_aTetAry[ iloc].m_id_cad;  id_msh_be=m_aTetAry[ iloc].m_id_msh_before_extrude;  inum_ext=m_aTetAry[ iloc].inum_extrude; }
-        else if( itype == 5 ){ id_cad=m_aHexAry[ iloc].m_id_cad;  id_msh_be=m_aHexAry[ iloc].m_id_msh_before_extrude;  inum_ext=m_aHexAry[ iloc].inum_extrude; }
+		if(      itype == 0 ){ id_cad=m_aVertex[ iloc].id_cad;  id_msh_be=m_aVertex[ iloc].id_msh_before_extrude;  inum_ext=m_aVertex[ iloc].inum_extrude; }
+		else if( itype == 1 ){ id_cad=m_aBarAry[ iloc].id_cad;  id_msh_be=m_aBarAry[ iloc].id_msh_before_extrude;  inum_ext=m_aBarAry[ iloc].inum_extrude; }
+        else if( itype == 2 ){ id_cad=m_aTriAry[ iloc].id_cad;  id_msh_be=m_aTriAry[ iloc].id_msh_before_extrude;  inum_ext=m_aTriAry[ iloc].inum_extrude; }
+        else if( itype == 3 ){ id_cad=m_aQuadAry[iloc].id_cad;  id_msh_be=m_aQuadAry[iloc].id_msh_before_extrude;  inum_ext=m_aQuadAry[iloc].inum_extrude; }
+        else if( itype == 4 ){ id_cad=m_aTetAry[ iloc].id_cad;  id_msh_be=m_aTetAry[ iloc].id_msh_before_extrude;  inum_ext=m_aTetAry[ iloc].inum_extrude; }
+        else if( itype == 5 ){ id_cad=m_aHexAry[ iloc].id_cad;  id_msh_be=m_aHexAry[ iloc].id_msh_before_extrude;  inum_ext=m_aHexAry[ iloc].inum_extrude; }
 		else{ assert(0); }
+		ilayer = 0;	// ３次元メッシュは層構造を持たないので
 	}
-	virtual MSH_TYPE GetConnectivity(std::vector<int>& lnods, unsigned int id_msh ) const;
+	virtual MSH_TYPE GetConnectivity(unsigned int id_msh, std::vector<int>& lnods) const;
 	virtual std::vector<unsigned int> GetIncludeElemIDAry(unsigned int id) const{
 		{	// エラーの場合は空の配列を返す
 			std::vector<unsigned int> id_ary;

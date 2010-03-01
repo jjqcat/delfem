@@ -55,17 +55,18 @@ enum MSH_TYPE{
 @brief メッシュインターフェースクラス
 @ingroup Msh
 */
-class  CMesh_Interface
+class  IMesh
 {
 public:
 	//! 座標の次元を得る
 	virtual unsigned int GetDimention() const = 0;
 	virtual void GetInfo(unsigned int id_msh,
-        unsigned int& id_cad, unsigned int& id_msh_before_ext, unsigned int& inum_ext) const = 0;
+        unsigned int& id_cad_part, unsigned int& id_msh_before_ext, unsigned int& inum_ext,
+		int& ilayer) const = 0;
 	//! 座標の配列を得る
 	virtual void GetCoord(std::vector<double>& coord) const = 0;
 	//! コネクティビティの配列を得る
-	virtual MSH_TYPE GetConnectivity(std::vector<int>& lnods, unsigned int id_msh ) const = 0;
+	virtual MSH_TYPE GetConnectivity(unsigned int id_msh, std::vector<int>& lnods) const = 0;
 	//! 要素配列IDの配列得る
 	virtual std::vector<unsigned int> GetAry_ID() const = 0;
 	//! 包含関係を得る
@@ -73,24 +74,25 @@ public:
 };
 
 //! ２次元メッシュを３次元に射影したメッシュのクラス
-class CMeshProjector2Dto3D : public CMesh_Interface
+class CMeshProjector2Dto3D : public IMesh
 {
 public:
-    CMeshProjector2Dto3D(CMesh_Interface& msh_input) : msh_2d(msh_input){
+    CMeshProjector2Dto3D(IMesh& msh_input) : msh_2d(msh_input){
         if( msh_input.GetDimention() != 2 ){ is_valid = false; }
         else{ is_valid = true; }
     }
 public:
-    virtual unsigned int GetDimention() const{
+    virtual unsigned int GetDimention() const {
         if( !is_valid ){ return 0; }
         return 3;
     }
 	virtual void GetInfo(unsigned int id_msh,
-        unsigned int& id_cad, unsigned int& id_msh_before_ext, unsigned int& inum_ext) const{
-        if( !is_valid ){ id_cad = 0; id_msh_before_ext = 0; inum_ext = 0; return; }
-        msh_2d.GetInfo(id_msh,id_cad,id_msh_before_ext,inum_ext);
+        unsigned int& id_cad, unsigned int& id_msh_before_ext, unsigned int& inum_ext,
+		int& ilayer ) const {
+        if( !is_valid ){ id_cad=0; id_msh_before_ext=0; inum_ext=0; ilayer=0; return; }
+        msh_2d.GetInfo(id_msh,id_cad,id_msh_before_ext,inum_ext,ilayer);
     }
-    virtual void GetCoord(std::vector<double>& coord) const{
+    virtual void GetCoord(std::vector<double>& coord) const {
         if( !is_valid ){ coord.clear(); return; }
         std::vector<double> co2;
         msh_2d.GetCoord(co2);
@@ -104,9 +106,9 @@ public:
             coord[ino*3+2] = 0;
         }
     }
-    virtual MSH_TYPE GetConnectivity(std::vector<int>& lnods, unsigned int id_msh ) const{
+    virtual MSH_TYPE GetConnectivity(unsigned int id_msh, std::vector<int>& lnods) const{
         if( !is_valid ){ lnods.clear(); return (MSH_TYPE)0;}
-        return msh_2d.GetConnectivity(lnods,id_msh);
+        return msh_2d.GetConnectivity(id_msh,lnods);
     }
     virtual std::vector<unsigned int> GetAry_ID() const{
         if( !is_valid ){
@@ -124,7 +126,7 @@ public:
     }
 private:
     bool is_valid;
-    const CMesh_Interface& msh_2d;
+    const IMesh& msh_2d;
 };
 
 // @}

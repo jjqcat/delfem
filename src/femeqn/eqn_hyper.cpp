@@ -23,7 +23,7 @@ using namespace MatVec;
 // íËèÌ
 
 bool AddLinSys_Hyper3D_HEX100100_000010(
-        Fem::Eqn::CLinearSystem_EqnInterface& ls, 
+        Fem::Eqn::ILinearSystem_Eqn& ls, 
 		double c1, double c2,
 		double rho, double g_x, double g_y, double g_z,
 		const unsigned int id_field_disp, const unsigned int id_field_lambda,
@@ -31,7 +31,7 @@ bool AddLinSys_Hyper3D_HEX100100_000010(
 		const unsigned int id_ea);
 
 bool AddLinSys_Hyper2D_P1bP1(
-        Fem::Eqn::CLinearSystem_EqnInterface& ls, 
+        Fem::Eqn::ILinearSystem_Eqn& ls, 
 		double c1, double c2,
 		double rho, double g_x, double g_y,
 		const unsigned int id_field_disp, const unsigned int id_field_lambda,
@@ -40,7 +40,7 @@ bool AddLinSys_Hyper2D_P1bP1(
 
 bool AddLinSys_Hyper3D_NonStatic_NewmarkBeta_HEX100100_000010(
 		double dt, double gamma, double beta, 
-        Fem::Eqn::CLinearSystem_EqnInterface& ls, 
+        Fem::Eqn::ILinearSystem_Eqn& ls, 
 		double lambda, double myu,
 		double rho, double g_x, double g_y, double g_z,
 		const unsigned int id_field_disp, const unsigned int id_field_lambda,
@@ -53,7 +53,7 @@ bool AddLinSys_Hyper3D_NonStatic_NewmarkBeta_HEX100100_000010(
 
 // íËèÌ
 bool Fem::Eqn::AddLinSys_Hyper2D_Static(
-        Fem::Eqn::CLinearSystem_EqnInterface& ls,
+        Fem::Eqn::ILinearSystem_Eqn& ls,
 		double c1, double c2,
 		double  rho, double g_x, double g_y,
 		const unsigned int id_field_disp, const unsigned int id_field_lambda,
@@ -86,7 +86,7 @@ bool Fem::Eqn::AddLinSys_Hyper2D_Static(
 }
 
 bool Fem::Eqn::AddLinSys_Hyper3D_Static(
-        Fem::Eqn::CLinearSystem_EqnInterface& ls,
+        Fem::Eqn::ILinearSystem_Eqn& ls,
 		double c1, double c2,
 		double  rho, double g_x, double g_y, double g_z,
 		const unsigned int id_field_disp, const unsigned int id_field_lambda,
@@ -123,7 +123,7 @@ bool Fem::Eqn::AddLinSys_Hyper3D_Static(
 
 bool Fem::Eqn::AddLinSys_Hyper3D_NonStatic_NewmarkBeta(
         double dt, double gamma, double beta, 
-        Fem::Eqn::CLinearSystem_EqnInterface& ls,
+        Fem::Eqn::ILinearSystem_Eqn& ls,
 		double c1, double c2,
 		double  rho, double g_x, double g_y, double g_z,
 		const unsigned int id_field_disp, const unsigned int id_field_lambda,
@@ -313,7 +313,7 @@ void MakeStressConstitute_Hyper2D(
 
 
 bool AddLinSys_Hyper2D_P1bP1(
-        Fem::Eqn::CLinearSystem_EqnInterface& ls, 
+        Fem::Eqn::ILinearSystem_Eqn& ls, 
 		double c1, double c2,
 		double  rho, double g_x, double g_y,
 		const unsigned int id_field_disp, const unsigned int id_field_lambda,
@@ -869,7 +869,7 @@ void MakeStressConstitute_Hyper3D(
 
 
 bool AddLinSys_Hyper3D_HEX100100_000010(
-        Fem::Eqn::CLinearSystem_EqnInterface& ls, 
+        Fem::Eqn::ILinearSystem_Eqn& ls, 
 		double c1, double c2,
 		double  rho, double g_x, double g_y, double g_z,
 		const unsigned int id_field_disp, const unsigned int id_field_lambda,
@@ -1085,7 +1085,7 @@ bool AddLinSys_Hyper3D_HEX100100_000010(
 
 bool AddLinSys_Hyper3D_NonStatic_NewmarkBeta_HEX100100_000010(
 		double dt, double gamma, double beta,
-        Fem::Eqn::CLinearSystem_EqnInterface& ls, 
+        Fem::Eqn::ILinearSystem_Eqn& ls, 
 		double c1, double c2,
 		double  rho, double g_x, double g_y, double g_z,
 		const unsigned int id_field_disp, const unsigned int id_field_lambda,

@@ -49,7 +49,7 @@ using namespace MatVec;
 // íËèÌ
 
 bool AddLinSys_StVenant2D_Static_P1(
-        Fem::Eqn::CLinearSystem_EqnInterface& ls,
+        Fem::Eqn::ILinearSystem_Eqn& ls,
 		double lambda, double myu,
 		double rho, double g_x, double g_y,
 		const unsigned int id_field_disp, const CFieldWorld& world, 
@@ -60,7 +60,7 @@ bool AddLinSys_StVenant2D_Static_P1(
 
 bool AddLinSys_StVenant2D_NonStatic_NewmarkBeta_P1(
 		double dt, double gamma, double beta,
-        Fem::Eqn::CLinearSystem_EqnInterface& ls,
+        Fem::Eqn::ILinearSystem_Eqn& ls,
 		double lambda, double myu,
 		double rho, double g_x, double g_y,
 		const unsigned int id_field_disp, const CFieldWorld& world, 
@@ -74,14 +74,14 @@ bool AddLinSys_StVenant2D_NonStatic_NewmarkBeta_P1(
 // íËèÌ
 
 bool AddLinSys_StVenant3D_Static_P1(
-        Fem::Eqn::CLinearSystem_EqnInterface& ls,
+        Fem::Eqn::ILinearSystem_Eqn& ls,
 		double lambda, double myu,
 		double rho, double g_x, double g_y, double g_z,
 		const unsigned int id_field_disp, const CFieldWorld& world, 
 		const unsigned int id_ea );
 
 bool AddLinSys_StVenant3D_Static_Q1(
-        Fem::Eqn::CLinearSystem_EqnInterface& ls,
+        Fem::Eqn::ILinearSystem_Eqn& ls,
 		double lambda, double myu,
 		double rho, double g_x, double g_y, double g_z,
 		const unsigned int id_field_disp, const CFieldWorld& world, 
@@ -93,7 +93,7 @@ bool AddLinSys_StVenant3D_Static_Q1(
 
 bool AddLinSys_StVenant3D_NonStatic_NewmarkBeta_P1(
 		double dt, double gamma, double beta,
-        Fem::Eqn::CLinearSystem_EqnInterface& ls,
+        Fem::Eqn::ILinearSystem_Eqn& ls,
 		double lambda, double myu,
 		double rho, double g_x, double g_y, double g_z,
 		const unsigned int id_field_disp, const CFieldWorld& world, 
@@ -104,7 +104,7 @@ bool AddLinSys_StVenant3D_NonStatic_NewmarkBeta_P1(
 ////////////////////////////////////////////////////////////////
 
 bool Fem::Eqn::AddLinSys_StVenant2D_Static(
-        Fem::Eqn::CLinearSystem_EqnInterface& ls,
+        Fem::Eqn::ILinearSystem_Eqn& ls,
 		double lambda, double myu,
 		double  rho, double g_x, double g_y,
 		const CFieldWorld& world,
@@ -146,7 +146,7 @@ bool Fem::Eqn::AddLinSys_StVenant2D_Static(
 // îÒíËèÌ
 bool Fem::Eqn::AddLinSys_StVenant2D_NonStatic_NewmarkBeta(
 		double dt, double gamma, double beta,
-        Fem::Eqn::CLinearSystem_EqnInterface& ls,
+        Fem::Eqn::ILinearSystem_Eqn& ls,
 		double lambda, double myu,
 		double  rho, double g_x, double g_y,
 		const Fem::Field::CFieldWorld& world,
@@ -192,7 +192,7 @@ bool Fem::Eqn::AddLinSys_StVenant2D_NonStatic_NewmarkBeta(
 
 
 bool Fem::Eqn::AddLinSys_StVenant3D_Static(
-        Fem::Eqn::CLinearSystem_EqnInterface& ls,
+        Fem::Eqn::ILinearSystem_Eqn& ls,
 		double lambda, double myu,
 		double  rho, double g_x, double g_y, double g_z,
 		const CFieldWorld& world,
@@ -239,7 +239,7 @@ bool Fem::Eqn::AddLinSys_StVenant3D_Static(
 // îÒíËèÌ
 bool Fem::Eqn::AddLinSys_StVenant3D_NonStatic_NewmarkBeta(
 		double dt, double gamma, double beta,
-        Fem::Eqn::CLinearSystem_EqnInterface& ls,
+        Fem::Eqn::ILinearSystem_Eqn& ls,
 		double lambda, double myu,
 		double  rho, double g_x, double g_y, double g_z,
 		const Fem::Field::CFieldWorld& world,
@@ -397,7 +397,7 @@ void AddElemMatFin_StVenant2D(
 
 
 bool AddLinSys_StVenant2D_Static_P1(
-        Fem::Eqn::CLinearSystem_EqnInterface& ls,
+        Fem::Eqn::ILinearSystem_Eqn& ls,
 		double lambda, double myu,
 		double  rho, double g_x, double g_y,
 		const unsigned int id_field_disp, const CFieldWorld& world, 
@@ -514,7 +514,7 @@ bool AddLinSys_StVenant2D_Static_P1(
 
 bool AddLinSys_StVenant2D_NonStatic_NewmarkBeta_P1(
 		double gamma, double beta, double dt,
-        Fem::Eqn::CLinearSystem_EqnInterface& ls,
+        Fem::Eqn::ILinearSystem_Eqn& ls,
 		double lambda, double myu,
 		double rho, double g_x, double g_y,
 		const unsigned int id_field_disp, const CFieldWorld& world, 
@@ -803,7 +803,7 @@ void SetElemMatFin_StVenant3D(
 
 
 bool AddLinSys_StVenant3D_Static_P1(
-        Fem::Eqn::CLinearSystem_EqnInterface& ls,
+        Fem::Eqn::ILinearSystem_Eqn& ls,
 		double lambda, double myu,
 		double  rho, double g_x, double g_y, double g_z,
 		const unsigned int id_field_disp, const CFieldWorld& world, 
@@ -910,7 +910,7 @@ bool AddLinSys_StVenant3D_Static_P1(
 
 
 bool AddLinSys_StVenant3D_Static_Q1(
-        Fem::Eqn::CLinearSystem_EqnInterface& ls,
+        Fem::Eqn::ILinearSystem_Eqn& ls,
 		double lambda, double myu,
 		double  rho, double g_x, double g_y, double g_z,
 		const unsigned int id_field_disp, const CFieldWorld& world, 
@@ -1032,7 +1032,7 @@ bool AddLinSys_StVenant3D_Static_Q1(
 
 bool AddLinSys_StVenant3D_NonStatic_NewmarkBeta_P1(
 		double gamma, double beta, double dt,
-        Fem::Eqn::CLinearSystem_EqnInterface& ls,
+        Fem::Eqn::ILinearSystem_Eqn& ls,
 		double lambda, double myu,
 		double rho, double g_x, double g_y, double g_z,
 		const unsigned int id_field_disp, const CFieldWorld& world, 

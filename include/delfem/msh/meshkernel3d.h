@@ -288,7 +288,7 @@ public:
 	CPoint3D( const CPoint3D& rhs ) 
         : p(rhs.p), e(rhs.e),poel(rhs.poel),old_p(rhs.old_p){}
 	CPoint3D(double x, double y, double z) 
-		: p(x,y,z), e(-1), poel(-1), old_p(-1){}
+        : p(x,y,z), e(-1), poel(0), old_p(-1){}
 	bool operator < (const CPoint3D& rhs){
 		if( fabs( this->p.x - rhs.p.x ) > 1.0e-5 ){
 			return this->p.x < rhs.p.x;

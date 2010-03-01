@@ -119,7 +119,7 @@ void myGlutDisplay(void)
 	::glEnable(GL_DEPTH_TEST);
 
 	::glEnable(GL_POLYGON_OFFSET_FILL );
-	::glPolygonOffset( 1.1, 4.0 );
+	::glPolygonOffset( 1.1f, 4.0f );
    
 	::glMatrixMode(GL_MODELVIEW);
 	::glLoadIdentity();
@@ -213,18 +213,15 @@ bool SetNewProblem()
 	else if( iprob == 2 )
 	{
 		Msh::CMesher2D mesh_2d;
-		std::cout << "hoge0" << std::endl;
 		mesh_2d.ReadFromFile_GiDMsh("../input_file/rect_quad.msh");
 		{	// ファイル保存
 			Com::CSerializer fout("hoge.txt",false);
 			mesh_2d.Serialize(fout);
 		}
-		std::cout << "hoge1" << std::endl;
 		{	// ファイル読み込み
 			Com::CSerializer fin( "hoge.txt",true);
 			mesh_2d.Serialize(fin);
 		}
-		std::cout << "hoge2" << std::endl;
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh2D(mesh_2d) );
 		drawer_ary.InitTrans( mvp_trans );

@@ -234,6 +234,7 @@ std::vector<unsigned int> CBRep::FindHalfEdge_Vertex(const unsigned int& id_v) c
 }
 
 
+// 浮遊点の削除
 bool CBRep::KVEL(const unsigned int id_uv_rem)
 {
 	unsigned int id_he_rem, id_ul_rem;
@@ -251,16 +252,18 @@ bool CBRep::KVEL(const unsigned int id_uv_rem)
 	{
 		const CUseLoop& ul = m_UseLoopSet.GetObj(id_ul_rem);
 		id_ul_p = ul.id_ul_p;
-		assert( m_UseLoopSet.IsObjID(id_ul_p) );
-		const CUseLoop& ul_p = m_UseLoopSet.GetObj(id_ul_p);
-		assert( ul_p.id_ul_p == 0 );
-		assert( ul_p.id_ul_c != 0 );
+		if( id_ul_p != 0 ){
+			assert( m_UseLoopSet.IsObjID(id_ul_p) );
+			const CUseLoop& ul_p = m_UseLoopSet.GetObj(id_ul_p);
+			assert( ul_p.id_ul_p == 0 );
+			assert( ul_p.id_ul_c != 0 );
+		}
 	}
 
 	// Leave Imput Check Section
 	////////////////////////////////
 
-	{	// 子ループリストからid_ul_remを削除
+	if( id_ul_p != 0 ){	// 子ループリストからid_ul_remを削除
 		unsigned int id_ul = id_ul_p;
 		for(;;){
 			CUseLoop& ul =m_UseLoopSet.GetObj(id_ul);
@@ -1505,8 +1508,8 @@ bool CBRep::MEV(unsigned int& id_he_add1,unsigned int& id_he_add2, unsigned int&
 	
 
 // id_heの起点を消去して２つの辺を１つにする。
-bool CBRep::KVE( unsigned int& id_he1 ){
-
+bool CBRep::KVE( unsigned int& id_he1 )
+{
 	unsigned int id_uv1;
 	unsigned int id_he2;
 	{
@@ -1535,14 +1538,14 @@ bool CBRep::KVE( unsigned int& id_he1 ){
 		id_ul1 =  he1.id_ul;
 		id_he1b = he1.id_he_b;
 		id_he1f = he1.id_he_f;
-		{	// Assert ルーティン
+		{	// Assert ルーティン he1b
 			assert( m_HalfEdgeSet.IsObjID(id_he1b) );
 			const CHalfEdge& he1b = m_HalfEdgeSet.GetObj(id_he1b);
 			assert( he1b.id == id_he1b );
 			assert( he1b.id_he_f == id_he1 );
 			assert( he1b.id_ul == id_ul1 );
 		}
-		{	// Assert ルーティン
+		{	// Assert ルーティン he1f
 			assert( m_HalfEdgeSet.IsObjID(id_he1f) );
 			const CHalfEdge& he1f = m_HalfEdgeSet.GetObj(id_he1f);
 			assert( he1f.id == id_he1f );
@@ -1550,9 +1553,7 @@ bool CBRep::KVE( unsigned int& id_he1 ){
 			assert( he1f.id_ul == id_ul1 );
 			assert( he1f.id_uv == id_uv2 );
 		}
-		{
-			assert( m_UseLoopSet.IsObjID(id_ul1) );
-		}
+		assert( m_UseLoopSet.IsObjID(id_ul1) );
 	}
 
 	unsigned int id_he2b, id_he2f, id_ul2;
@@ -1564,14 +1565,14 @@ bool CBRep::KVE( unsigned int& id_he1 ){
 		id_ul2 = he2.id_ul;
 		id_he2b = he2.id_he_b;
 		id_he2f = he2.id_he_f;
-		{	// Assert ルーティン
+		{	// Assert ルーティン he2b
 			assert( m_HalfEdgeSet.IsObjID(id_he2b) );
 			const CHalfEdge& he2b = m_HalfEdgeSet.GetObj(id_he2b);
 			assert( he2b.id == id_he2b );
 			assert( he2b.id_he_f == id_he2 );
 			assert( he2b.id_ul == id_ul2 );
 		}
-		{	// Assert ルーティン
+		{	// Assert ルーティン he2f
 			assert( m_HalfEdgeSet.IsObjID(id_he2f) );
 			const CHalfEdge& he2f = m_HalfEdgeSet.GetObj(id_he2f);
 			assert( he2f.id == id_he2f );
@@ -1579,9 +1580,7 @@ bool CBRep::KVE( unsigned int& id_he1 ){
 			assert( he2f.id_ul == id_ul2 );
 			assert( he2f.id_uv == id_uv1 );
 		}
-		{
-			assert( m_UseLoopSet.IsObjID(id_ul2) );
-		}
+		assert( m_UseLoopSet.IsObjID(id_ul2) );
 	}
 
 	{	// he1bとhe2fが向かい合っているかをチェック
@@ -1601,23 +1600,23 @@ bool CBRep::KVE( unsigned int& id_he1 ){
 	////////////////////////////////
 
 	if( id_he1 != id_he2b ){	// uv2が端点でなかった場合
-		{
-			CHalfEdge& he1b = m_HalfEdgeSet.GetObj(id_he1b);
-			he1b.id_he_f = id_he1f;
-		}
-		{
-			CHalfEdge& he2f = m_HalfEdgeSet.GetObj(id_he2f);
-			he2f.id_uv = id_uv2;
-			he2f.id_he_b = id_he2b;
-		}
-		{
-			CHalfEdge& he1f = m_HalfEdgeSet.GetObj(id_he1f);
-			he1f.id_he_b = id_he1b;
-		}
-		{
-			CHalfEdge& he2b = m_HalfEdgeSet.GetObj(id_he2b);
-			he2b.id_he_f = id_he2f;
-		}
+        {
+            CHalfEdge& he1b = m_HalfEdgeSet.GetObj(id_he1b);
+            he1b.id_he_f = id_he1f;
+        }
+        {
+            CHalfEdge& he2f = m_HalfEdgeSet.GetObj(id_he2f);
+            he2f.id_uv = id_uv2;
+            he2f.id_he_b = id_he2b;
+        }
+        {
+            CHalfEdge& he1f = m_HalfEdgeSet.GetObj(id_he1f);
+            he1f.id_he_b = id_he1b;
+        }
+        {
+            CHalfEdge& he2b = m_HalfEdgeSet.GetObj(id_he2b);
+            he2b.id_he_f = id_he2f;
+        }
 	}
 	else{	// uv2が端点の場合
 		assert( id_he2 == id_he1f );

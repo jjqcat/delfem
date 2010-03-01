@@ -21,8 +21,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 @author Nobuyuki Umetani
 */
 
-#if !defined(SOLVER_INTERFACE_H)
-#define SOLVER_INTERFACE_H
+#if !defined(LINEARSYSTEM_INTERFACE_SOLVER_H)
+#define LINEARSYSTEM_INTERFACE_SOLVER_H
 
 #if defined(__VISUALC__)
 #pragma warning( disable : 4786 )
@@ -30,13 +30,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include <assert.h>
 
-namespace Sol{
+namespace LsSol{
 
 /*! 
 @brief 連立一次方程式クラス
 @ingroup LsSol
 */
-class CLinearSystem_SolInterface
+class ILinearSystem_Sol
 {
 public:
 	////////////////////////////////
@@ -60,7 +60,7 @@ public:
 @brief 連立一次方程式と前処理行列クラスの抽象クラス
 @ingroup LsSol
 */
-class CLinearSystemPreconditioner_SolInterface
+class ILinearSystemPreconditioner_Sol
 {
 public:
 	////////////////////////////////

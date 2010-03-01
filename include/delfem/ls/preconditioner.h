@@ -110,7 +110,7 @@ private:
 @brief 連立一次方程式と前処理クラスの抽象クラス
 @ingroup LsSol
 */
-class CLinearSystemPreconditioner : public Sol::CLinearSystemPreconditioner_SolInterface
+class CLinearSystemPreconditioner : public LsSol::ILinearSystemPreconditioner_Sol
 {
 public:
     CLinearSystemPreconditioner( CLinearSystem& ls, CPreconditioner& prec )

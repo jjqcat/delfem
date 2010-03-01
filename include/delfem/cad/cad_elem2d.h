@@ -143,7 +143,10 @@ public:
 	static double FindNearestPointParameter_Line_Point(const Com::CVector2D& po_c,
 		const Com::CVector2D& po_s, const Com::CVector2D& po_e);
 
+	// 現在の辺が２つに分割されて，一端がedge_aに入る
 	bool Split(Cad::CEdge2D& edge_a, const Com::CVector2D& pa);
+	// is_add_aheadはe1がこの辺の前にあるか，is_same_dirはe1がこの辺と同じ向きか
+	bool ConnectEdge(const Cad::CEdge2D& e1, bool is_add_ahead, bool is_same_dir);
 private:
 	//! 線分と円弧の交錯を判定する
 	int NumCross_Arc_LineSeg(const Com::CVector2D& po_s1, const Com::CVector2D& po_e1) const;

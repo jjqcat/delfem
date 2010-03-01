@@ -23,12 +23,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "delfem/ls/solver_ls_iter.h"
 #include "delfem/ls/linearsystem_interface_solver.h"
 
-using namespace Sol;
+using namespace LsSol;
 
 ////////////////////////////////////////////////////////////////
 // Solve Matrix with CG Methods
 ////////////////////////////////////////////////////////////////
-bool Sol::Solve_CG(double& conv_ratio, unsigned int& num_iter, Sol::CLinearSystem_SolInterface& ls)
+bool LsSol::Solve_CG(double& conv_ratio, unsigned int& num_iter, LsSol::ILinearSystem_Sol& ls)
 {
 	const unsigned int max_iter = num_iter;
 	const double tolerance = conv_ratio;
@@ -97,8 +97,8 @@ bool Sol::Solve_CG(double& conv_ratio, unsigned int& num_iter, Sol::CLinearSyste
 }
 
 
-bool Sol::Solve_PCG(double& conv_ratio, unsigned int& iteration,
-                Sol::CLinearSystemPreconditioner_SolInterface& ls)
+bool LsSol::Solve_PCG(double& conv_ratio, unsigned int& iteration,
+                LsSol::ILinearSystemPreconditioner_Sol& ls)
 {
 
 	const double conv_ratio_tol = conv_ratio;
@@ -171,7 +171,8 @@ bool Sol::Solve_PCG(double& conv_ratio, unsigned int& iteration,
 ////////////////////////////////////////////////////////////////
 // Solve Matrix with CG Methods
 ////////////////////////////////////////////////////////////////
-bool Sol::Solve_BiCGSTAB(double& conv_ratio, unsigned int& num_iter, Sol::CLinearSystem_SolInterface& ls)
+bool LsSol::Solve_BiCGSTAB(double& conv_ratio, unsigned int& num_iter, 
+						   LsSol::ILinearSystem_Sol& ls)
 {
 	const unsigned int max_iter = num_iter;
 	const double tolerance = conv_ratio;
@@ -284,8 +285,8 @@ bool Sol::Solve_BiCGSTAB(double& conv_ratio, unsigned int& num_iter, Sol::CLinea
 ////////////////////////////////////////////////////////////////
 // Solve Matrix with BiCGSTAB Methods
 ////////////////////////////////////////////////////////////////
-bool Sol::Solve_PBiCGSTAB(double& conv_ratio, unsigned int& num_iter, 
-                          Sol::CLinearSystemPreconditioner_SolInterface& ls)
+bool LsSol::Solve_PBiCGSTAB(double& conv_ratio, unsigned int& num_iter, 
+                          LsSol::ILinearSystemPreconditioner_Sol& ls)
 {
 	const double conv_ratio_tol = conv_ratio;	
 	const unsigned int max_iter = num_iter;

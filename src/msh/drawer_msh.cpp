@@ -147,7 +147,7 @@ Msh::View::CDrawPart::CDrawPart(const Msh::CTetAry& TetAry)
 	height = 0;
 	is_selected = false; is_shown = true; 
 //	this->id_cad = TetAry.m_CadLoopID;
-	this->id_msh = TetAry.m_ID;			assert( id_msh != 0 );
+	this->id_msh = TetAry.id;			assert( id_msh != 0 );
 	this->type_elem = 4;
 
 	////////////////////////////////
@@ -196,8 +196,8 @@ CDrawPart::CDrawPart(const Msh::CHexAry& HexAry)
     r = 0.8; g = 0.8; b = 0.8;
 	height = 0;
 //	this->id_cad = TetAry.m_CadLoopID;
-//	std::cout << HexAry.m_ID << std::endl;
-	this->id_msh = HexAry.m_ID;			assert( id_msh != 0 );
+//	std::cout << HexAry.id << std::endl;
+	this->id_msh = HexAry.id;			assert( id_msh != 0 );
 	this->type_elem = 5;
 
 	const unsigned int nfacehex = 6;
@@ -253,7 +253,7 @@ CDrawPart::CDrawPart(const Msh::CQuadAry3D& QuadAry)
     r = 0.8; g = 0.8; b = 0.8;
 	height = 0;
 //	this->id_cad = QuadAry.m_CadLoopID;
-	this->id_msh = QuadAry.m_ID;			assert( id_msh != 0 );
+	this->id_msh = QuadAry.id;			assert( id_msh != 0 );
 	this->type_elem = 3;
 	////////////////
 	nelem = QuadAry.m_aQuad.size();
@@ -292,8 +292,8 @@ CDrawPart::CDrawPart(const Msh::CQuadAry2D& QuadAry)
 	is_selected = false; is_shown = true; 
     r = 0.8; g = 0.8; b = 0.8;
 	height = 0;
-	this->id_cad = QuadAry.m_CadLoopID;
-	this->id_msh = QuadAry.m_ID;			assert( id_msh != 0 );
+	this->id_cad = QuadAry.id_l_cad;
+	this->id_msh = QuadAry.id;			assert( id_msh != 0 );
 	this->type_elem = 3;
 	////////////////
 	nelem = QuadAry.m_aQuad.size();
@@ -331,8 +331,8 @@ CDrawPart::CDrawPart(const Msh::CTriAry2D& TriAry)
     r = 0.8; g = 0.8; b = 0.8;
 	height = 0;
 	pIA_Elem = 0; pIA_Edge = 0;
-	this->id_cad = TriAry.m_CadLoopID;
-	this->id_msh = TriAry.m_ID;			assert( id_msh != 0 );
+	this->id_cad = TriAry.id_l_cad;
+	this->id_msh = TriAry.id; assert( id_msh != 0 );
 	this->type_elem = 2;
 	////////////////
 	nelem = TriAry.m_aTri.size();
@@ -364,7 +364,7 @@ CDrawPart::CDrawPart(const Msh::CTriAry3D& TriAry)
     r = 0.8; g = 0.8; b = 0.8;
 	height = 0;
 	pIA_Elem = 0; pIA_Edge = 0;
-	this->id_msh = TriAry.m_ID;			assert( id_msh != 0 );
+	this->id_msh = TriAry.id;			assert( id_msh != 0 );
 	this->type_elem = 2;
 	////////////////
 	nelem = TriAry.m_aTri.size();
@@ -396,8 +396,8 @@ CDrawPart::CDrawPart(const Msh::CBarAry& BarAry)
     r = 0.8; g = 0.8; b = 0.8;
 	height = 0;
 	pIA_Elem = 0; pIA_Edge = 0;
-	this->id_cad = BarAry.m_CadEdgeID;
-	this->id_msh = BarAry.m_ID;			assert( id_msh != 0 );
+	this->id_cad = BarAry.id_e_cad;
+	this->id_msh = BarAry.id; assert( id_msh != 0 );
 	this->type_elem = 1;
 
 	////////////////
@@ -416,8 +416,8 @@ CDrawPart::CDrawPart(const Msh::CBarAry3D& BarAry)
 	height = 0;
 	pIA_Elem = 0; pIA_Edge = 0;
 	this->type_elem = 1;
-	this->id_cad = BarAry.m_id_cad;
-	this->id_msh = BarAry.m_ID;			assert( id_msh != 0 );
+	this->id_cad = BarAry.id_cad;
+	this->id_msh = BarAry.id;			assert( id_msh != 0 );
 	////////////////
 	nelem = BarAry.m_aBar.size();
 	pIA_Elem = new unsigned int [nelem*2];
@@ -697,12 +697,12 @@ bool CDrawerMsh2D::Set(const Msh::CMesher2D &mesh)
 {
 	this->sutable_rot_mode = 1;	// DrawMode 1 : 2D
 
-	int ilayer_min, ilayer_max;
+    int ilayer_min=0, ilayer_max=0;
 	{
 		bool is_inited = false;
 		const std::vector<Msh::CTriAry2D>& aTriAry = mesh.GetTriArySet();
 		for(unsigned int itri=0;itri<aTriAry.size();itri++){
-			unsigned int ilayer = aTriAry[itri].ilayer;
+            int ilayer = aTriAry[itri].ilayer;
 			if( is_inited ){
 				ilayer_min = ( ilayer < ilayer_min ) ? ilayer : ilayer_min;
 				ilayer_max = ( ilayer > ilayer_max ) ? ilayer : ilayer_max;
@@ -715,7 +715,7 @@ bool CDrawerMsh2D::Set(const Msh::CMesher2D &mesh)
 		}
 		const std::vector<Msh::CQuadAry2D>& aQuadAry = mesh.GetQuadArySet();
 		for(unsigned int iquad=0;iquad<aQuadAry.size();iquad++){
-			unsigned int ilayer = aQuadAry[iquad].ilayer;
+            int ilayer = aQuadAry[iquad].ilayer;
 			if( is_inited ){
 				ilayer_min = ( ilayer < ilayer_min ) ? ilayer : ilayer_min;
 				ilayer_max = ( ilayer > ilayer_max ) ? ilayer : ilayer_max;
@@ -755,11 +755,11 @@ bool CDrawerMsh2D::Set(const Msh::CMesher2D &mesh)
 		for(unsigned int ibar=0;ibar<aBarAry.size();ibar++){
 			double height = 0;
 			{
-				const unsigned int id_msh_l = aBarAry[ibar].m_ID_lr[0];
-				const unsigned int id_msh_r = aBarAry[ibar].m_ID_lr[1];
+				const unsigned int id_msh_l = aBarAry[ibar].id_lr[0];
+				const unsigned int id_msh_r = aBarAry[ibar].id_lr[1];
 				unsigned int ilayer = ilayer_min;
 				if( mesh.IsID(id_msh_l) ){
-					unsigned int ilayer_l;
+                    unsigned int ilayer_l=0;
 					{
 						unsigned int nelem, iloc, id_cad;
 						MSH_TYPE type;
@@ -776,7 +776,7 @@ bool CDrawerMsh2D::Set(const Msh::CMesher2D &mesh)
 					ilayer =  ( ilayer_l > ilayer )	? ilayer_l : ilayer;
 				}
 				if( mesh.IsID(id_msh_r) ){
-					unsigned int ilayer_r;
+                    unsigned int ilayer_r=0;
 					{
 						unsigned int nelem, iloc, id_cad;
 						MSH_TYPE type;
@@ -805,8 +805,8 @@ bool CDrawerMsh2D::Set(const Msh::CMesher2D &mesh)
 		const std::vector<Msh::SVertex>& aVertex = mesh.GetVertexAry();
 		for(unsigned int iver=0;iver<aVertex.size();iver++){
 			CDrawPart_MshVertex dpv;
-			dpv.id_cad = aVertex[iver].m_CadVertexID;
-			dpv.id_msh = aVertex[iver].m_ID;
+			dpv.id_cad = aVertex[iver].id_v_cad;
+			dpv.id_msh = aVertex[iver].id;
 			dpv.id_v = aVertex[iver].v;
 			dpv.is_selected = false;
 			this->m_DrawPartCadVertex.push_back( dpv );
@@ -1026,8 +1026,8 @@ bool CDrawerMsh3D::Set(const Msh::CMesh3D &mesh)
 		const std::vector<Msh::SVertex3D>& aVertex = mesh.GetVertexAry();
 		for(unsigned int iver=0;iver<aVertex.size();iver++){
 			CDrawPart_MshVertex dpv;
-			dpv.id_msh = aVertex[iver].m_ID;
-			dpv.id_cad = aVertex[iver].m_id_cad;
+			dpv.id_msh = aVertex[iver].id;
+			dpv.id_cad = aVertex[iver].id_cad;
 			dpv.id_v = aVertex[iver].v;
 			dpv.is_selected = false;
 			this->m_DrawPartCadVertex.push_back( dpv );

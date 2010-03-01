@@ -62,22 +62,22 @@ unsigned int Msh::CMesh3D::FindMaxID() const
 	unsigned int max_id = 0;
 	{	// 要素IDの最大値を求める
 		for(unsigned int ia=0;ia<m_aVertex.size();ia++){
-			if( max_id < m_aVertex[ia].m_ID ) max_id = m_aVertex[ia].m_ID;
+			if( max_id < m_aVertex[ia].id ) max_id = m_aVertex[ia].id;
 		}
 		for(unsigned int ia=0;ia<m_aBarAry.size();ia++){
-			if( max_id < m_aBarAry[ia].m_ID ) max_id = m_aBarAry[ia].m_ID;
+			if( max_id < m_aBarAry[ia].id ) max_id = m_aBarAry[ia].id;
 		}
 		for(unsigned int ia=0;ia<m_aTriAry.size();ia++){
-			if( max_id < m_aTriAry[ia].m_ID ) max_id = m_aTriAry[ia].m_ID;
+			if( max_id < m_aTriAry[ia].id ) max_id = m_aTriAry[ia].id;
 		}
 		for(unsigned int ia=0;ia<m_aQuadAry.size();ia++){
-			if( max_id < m_aQuadAry[ia].m_ID ) max_id = m_aQuadAry[ia].m_ID;
+			if( max_id < m_aQuadAry[ia].id ) max_id = m_aQuadAry[ia].id;
 		}
 		for(unsigned int ia=0;ia<m_aTetAry.size();ia++){
-			if( max_id < m_aTetAry[ia].m_ID ) max_id = m_aTetAry[ia].m_ID;
+			if( max_id < m_aTetAry[ia].id ) max_id = m_aTetAry[ia].id;
 		}
 		for(unsigned int ia=0;ia<m_aHexAry.size();ia++){
-			if( max_id < m_aHexAry[ia].m_ID ) max_id = m_aHexAry[ia].m_ID;
+			if( max_id < m_aHexAry[ia].id ) max_id = m_aHexAry[ia].id;
 		}
 	}
 	return max_id;
@@ -90,40 +90,40 @@ unsigned int Msh::CMesh3D::GetFreeObjID()
 	{	// このIDが使われているかどうかを示すハッシュを作る
 		is_used_flg_ary.resize( max_id+1, 0 );
 		for(unsigned int ia=0;ia<m_aVertex.size();ia++){
-			if( m_aVertex[ia].m_ID == 0 ) continue;
-			assert( is_used_flg_ary[ m_aVertex[ia].m_ID ] == 0 );
-			assert( m_aVertex[ia].m_ID <= max_id );
-			is_used_flg_ary[ m_aVertex[ia].m_ID ] = 1;
+			if( m_aVertex[ia].id == 0 ) continue;
+			assert( is_used_flg_ary[ m_aVertex[ia].id ] == 0 );
+			assert( m_aVertex[ia].id <= max_id );
+			is_used_flg_ary[ m_aVertex[ia].id ] = 1;
 		}
 		for(unsigned int ia=0;ia<m_aBarAry.size();ia++){
-			if( m_aBarAry[ia].m_ID == 0 ) continue;
-			assert( is_used_flg_ary[ m_aBarAry[ia].m_ID ] == 0 );
-			assert( m_aBarAry[ia].m_ID <= max_id );
-			is_used_flg_ary[ m_aBarAry[ia].m_ID ] = 1;
+			if( m_aBarAry[ia].id == 0 ) continue;
+			assert( is_used_flg_ary[ m_aBarAry[ia].id ] == 0 );
+			assert( m_aBarAry[ia].id <= max_id );
+			is_used_flg_ary[ m_aBarAry[ia].id ] = 1;
 		}
 		for(unsigned int ia=0;ia<m_aTriAry.size();ia++){
-			if( m_aTriAry[ia].m_ID == 0 ) continue;
-			assert( is_used_flg_ary[ m_aTriAry[ia].m_ID ] == 0 );
-			assert( m_aTriAry[ia].m_ID <= max_id );
-			is_used_flg_ary[ m_aTriAry[ia].m_ID ] = 1;
+			if( m_aTriAry[ia].id == 0 ) continue;
+			assert( is_used_flg_ary[ m_aTriAry[ia].id ] == 0 );
+			assert( m_aTriAry[ia].id <= max_id );
+			is_used_flg_ary[ m_aTriAry[ia].id ] = 1;
 		}
 		for(unsigned int ia=0;ia<m_aQuadAry.size();ia++){
-			if( m_aQuadAry[ia].m_ID == 0 ) continue;
-			assert( is_used_flg_ary[ m_aQuadAry[ia].m_ID ] == 0 );
-			assert( m_aQuadAry[ia].m_ID <= max_id );
-			is_used_flg_ary[ m_aQuadAry[ia].m_ID ] = 1;
+			if( m_aQuadAry[ia].id == 0 ) continue;
+			assert( is_used_flg_ary[ m_aQuadAry[ia].id ] == 0 );
+			assert( m_aQuadAry[ia].id <= max_id );
+			is_used_flg_ary[ m_aQuadAry[ia].id ] = 1;
 		}
 		for(unsigned int ia=0;ia<m_aTetAry.size();ia++){
-			if( m_aTetAry[ia].m_ID == 0 ) continue;
-			assert( is_used_flg_ary[ m_aTetAry[ia].m_ID ] == 0 );
-			assert( m_aTetAry[ia].m_ID <= max_id );
-			is_used_flg_ary[ m_aTetAry[ia].m_ID ] = 1;
+			if( m_aTetAry[ia].id == 0 ) continue;
+			assert( is_used_flg_ary[ m_aTetAry[ia].id ] == 0 );
+			assert( m_aTetAry[ia].id <= max_id );
+			is_used_flg_ary[ m_aTetAry[ia].id ] = 1;
 		}
 		for(unsigned int ia=0;ia<m_aHexAry.size();ia++){
-			if( m_aHexAry[ia].m_ID == 0 ) continue;
-			assert( is_used_flg_ary[ m_aHexAry[ia].m_ID ] == 0 );
-			assert( m_aHexAry[ia].m_ID <= max_id );
-			is_used_flg_ary[ m_aHexAry[ia].m_ID ] = 1;
+			if( m_aHexAry[ia].id == 0 ) continue;
+			assert( is_used_flg_ary[ m_aHexAry[ia].id ] == 0 );
+			assert( m_aHexAry[ia].id <= max_id );
+			is_used_flg_ary[ m_aHexAry[ia].id ] = 1;
 		}
 	}
 	for(unsigned int i=1;i<is_used_flg_ary.size();i++){
@@ -146,27 +146,27 @@ bool Msh::CMesh3D::IsID(unsigned int id) const
 	assert( iloc >= 0 );
 	if( itype == 0 ){
 		assert( m_aVertex.size() > (unsigned int)iloc );
-		assert( m_aVertex[iloc].m_ID == id );
+		assert( m_aVertex[iloc].id == id );
 	}
 	else if( itype == 1 ){
 		assert( m_aBarAry.size() > (unsigned int)iloc );
-		assert( m_aBarAry[iloc].m_ID == id );
+		assert( m_aBarAry[iloc].id == id );
 	}
 	else if( itype == 2 ){
 		assert( m_aTriAry.size() > (unsigned int)iloc );
-		assert( m_aTriAry[iloc].m_ID == id );
+		assert( m_aTriAry[iloc].id == id );
 	}
 	else if( itype == 3 ){
 		assert( m_aQuadAry.size() > (unsigned int)iloc );
-		assert( m_aQuadAry[iloc].m_ID == id );
+		assert( m_aQuadAry[iloc].id == id );
 	}
 	else if( itype == 4 ){
 		assert( m_aTetAry.size() > (unsigned int)iloc );
-		assert( m_aTetAry[iloc].m_ID == id );
+		assert( m_aTetAry[iloc].id == id );
 	}
 	else if( itype == 5 ){
 		assert( m_aHexAry.size() > (unsigned int)iloc );
-		assert( m_aHexAry[iloc].m_ID == id );
+		assert( m_aHexAry[iloc].id == id );
 	}
 	return true;
 }
@@ -183,39 +183,39 @@ void Msh::CMesh3D::MakeElemLocationType()
 	this->m_ElemType.resize(max_id+1,-1);
 	////////////////
 	for(unsigned int iver=0;iver<m_aVertex.size();iver++){
-		unsigned int id0 = m_aVertex[iver].m_ID;
+		unsigned int id0 = m_aVertex[iver].id;
 		m_ElemLoc[id0] = iver;
 		m_ElemType[id0] = 0;
 	}
 	for(unsigned int ibarary=0;ibarary<m_aBarAry.size();ibarary++){
-		unsigned int id0 = m_aBarAry[ibarary].m_ID;
+		unsigned int id0 = m_aBarAry[ibarary].id;
 		m_ElemLoc[id0] = ibarary;
 		m_ElemType[id0] = 1;
 	}
 	for(unsigned int itriary=0;itriary<m_aTriAry.size();itriary++){
-		unsigned int id0 = m_aTriAry[itriary].m_ID;
+		unsigned int id0 = m_aTriAry[itriary].id;
 		m_ElemLoc[id0] = itriary;
 		m_ElemType[id0] = 2;
 	}
 	for(unsigned int ia=0;ia<m_aQuadAry.size();ia++){
-		unsigned int id0 = m_aQuadAry[ia].m_ID;
+		unsigned int id0 = m_aQuadAry[ia].id;
 		m_ElemLoc[id0] = ia;
 		m_ElemType[id0] = 3;
 	}
 	for(unsigned int itetary=0;itetary<m_aTetAry.size();itetary++){
-		unsigned int id0 = m_aTetAry[itetary].m_ID;
+		unsigned int id0 = m_aTetAry[itetary].id;
 		m_ElemLoc[id0] = itetary;
 		m_ElemType[id0] = 4;
 	}
 	for(unsigned int ihexary=0;ihexary<m_aHexAry.size();ihexary++){
-		unsigned int id0 = m_aHexAry[ihexary].m_ID;
+		unsigned int id0 = m_aHexAry[ihexary].id;
 		m_ElemLoc[id0] = ihexary;
 		m_ElemType[id0] = 5;
 	}
 }
 
 
-Msh::MSH_TYPE Msh::CMesh3D::GetConnectivity(std::vector<int>& lnods, unsigned int id_msh ) const
+Msh::MSH_TYPE Msh::CMesh3D::GetConnectivity(unsigned int id_msh, std::vector<int>& lnods) const
 {
 	assert( this->IsID(id_msh) );
 	MSH_TYPE msh_type;
@@ -325,8 +325,8 @@ bool Msh::CMesh3D::Serialize( Com::CSerializer& arch )
 			const unsigned int iver = m_aVertex.size();
 			m_aVertex.resize( m_aVertex.size()+1 );
 			SVertex3D& Ver = m_aVertex[iver];
-			Ver.m_ID = id;
-			Ver.m_id_cad = id_cad;
+			Ver.id = id;
+			Ver.id_cad = id_cad;
 			Ver.v = iv;
 		}
 		for(unsigned int iaBar=0;iaBar<(unsigned int)naBar;iaBar++){
@@ -338,8 +338,8 @@ bool Msh::CMesh3D::Serialize( Com::CSerializer& arch )
 			const unsigned int ibar_ary = m_aBarAry.size();
 			m_aBarAry.resize( m_aBarAry.size()+1 );
 			CBarAry3D& aBar = m_aBarAry[ibar_ary];
-			aBar.m_ID = id;
-			aBar.m_id_cad = id_cad;
+			aBar.id = id;
+			aBar.id_cad = id_cad;
 			aBar.m_aBar.resize(nbar);
 			for(int ibar=0;ibar<nbar;ibar++){
 				int tmp_ibar,iv0,iv1;
@@ -359,7 +359,7 @@ bool Msh::CMesh3D::Serialize( Com::CSerializer& arch )
 			const unsigned int itri_ary = m_aTriAry.size();
 			m_aTriAry.resize( m_aTriAry.size()+1 );
 			CTriAry3D& aTri = m_aTriAry[itri_ary];
-			aTri.m_ID = id;
+			aTri.id = id;
 			aTri.m_aTri.resize(ntri);
 			for(int itri=0;itri<ntri;itri++){
 				int tmp_itri,iv0,iv1,iv2;
@@ -380,7 +380,7 @@ bool Msh::CMesh3D::Serialize( Com::CSerializer& arch )
 			const unsigned int iquad_ary = m_aQuadAry.size();
 			m_aQuadAry.resize( m_aQuadAry.size()+1 );
 			CQuadAry3D& aQuad = m_aQuadAry[iquad_ary];
-			aQuad.m_ID = id;
+			aQuad.id = id;
 			aQuad.m_aQuad.resize(nquad);
 			for(int iquad=0;iquad<nquad;iquad++){
 				int tmp_iquad,iv0,iv1,iv2,iv3;
@@ -402,7 +402,7 @@ bool Msh::CMesh3D::Serialize( Com::CSerializer& arch )
 			const unsigned int itet_ary = m_aQuadAry.size();
 			m_aTetAry.resize( m_aTetAry.size()+1 );
 			CTetAry& aTet = m_aTetAry[itet_ary];
-			aTet.m_ID = id;
+			aTet.id = id;
 			aTet.m_aTet.resize(ntet);
 			for(int itet=0;itet<ntet;itet++){
 				int tmp_itet,iv0,iv1,iv2,iv3;
@@ -424,7 +424,7 @@ bool Msh::CMesh3D::Serialize( Com::CSerializer& arch )
 			const unsigned int ihex_ary = m_aHexAry.size();
 			m_aHexAry.resize( m_aHexAry.size()+1 );
 			CHexAry& aHex = m_aHexAry[ihex_ary];
-			aHex.m_ID = id;
+			aHex.id = id;
 			aHex.m_aHex.resize(nhex);
 			for(int ihex=0;ihex<nhex;ihex++){
 				int tmp_ihex,iv0,iv1,iv2,iv3,iv4,iv5,iv6,iv7;
@@ -496,8 +496,8 @@ bool Msh::CMesh3D::Serialize( Com::CSerializer& arch )
 			for(unsigned int iver=0;iver<m_aVertex.size();iver++){
 				arch.Out("$$$$\n");
 				arch.Out("VER\n");
-				arch.Out("%d\n",m_aVertex[iver].m_ID);
-				arch.Out("%d\n",m_aVertex[iver].m_id_cad);
+				arch.Out("%d\n",m_aVertex[iver].id);
+				arch.Out("%d\n",m_aVertex[iver].id_cad);
 				arch.Out("%d\n",m_aVertex[iver].v);
 			}
 		}
@@ -505,8 +505,8 @@ bool Msh::CMesh3D::Serialize( Com::CSerializer& arch )
 			for(unsigned int ibar_ary=0;ibar_ary<m_aBarAry.size();ibar_ary++){
 				arch.Out("$$$$\n");
 				arch.Out("BAR\n");
-				arch.Out("%d\n",m_aBarAry[ibar_ary].m_ID);
-				arch.Out("%d\n",m_aBarAry[ibar_ary].m_id_cad);
+				arch.Out("%d\n",m_aBarAry[ibar_ary].id);
+				arch.Out("%d\n",m_aBarAry[ibar_ary].id_cad);
 				arch.Out("%d\n",m_aBarAry[ibar_ary].m_aBar.size());
 				const std::vector<SBar>& aBar = m_aBarAry[ibar_ary].m_aBar;
 				for(unsigned int ibar=0;ibar<aBar.size();ibar++){
@@ -518,7 +518,7 @@ bool Msh::CMesh3D::Serialize( Com::CSerializer& arch )
 			for(unsigned int itri_ary=0;itri_ary<m_aTriAry.size();itri_ary++){
 				arch.Out("$$$$\n");
 				arch.Out("TRI\n");
-				arch.Out("%d\n",m_aTriAry[itri_ary].m_ID);
+				arch.Out("%d\n",m_aTriAry[itri_ary].id);
 				arch.Out("%d\n",0);
 				arch.Out("%d\n",m_aTriAry[itri_ary].m_aTri.size());
 				const std::vector<STri3D>& aTri = m_aTriAry[itri_ary].m_aTri;
@@ -531,7 +531,7 @@ bool Msh::CMesh3D::Serialize( Com::CSerializer& arch )
 			for(unsigned int iquad_ary=0;iquad_ary<m_aQuadAry.size();iquad_ary++){
 				arch.Out("$$$$\n");
 				arch.Out("QUAD\n");
-				arch.Out("%d\n",m_aQuadAry[iquad_ary].m_ID);
+				arch.Out("%d\n",m_aQuadAry[iquad_ary].id);
 				arch.Out("%d\n",0);
 				arch.Out("%d\n",m_aQuadAry[iquad_ary].m_aQuad.size());
 				const std::vector<SQuad3D>& aQuad = m_aQuadAry[iquad_ary].m_aQuad;
@@ -544,7 +544,7 @@ bool Msh::CMesh3D::Serialize( Com::CSerializer& arch )
 			for(unsigned int itet_ary=0;itet_ary<m_aTetAry.size();itet_ary++){
 				arch.Out("$$$$\n");
 				arch.Out("TET\n");
-				arch.Out("%d\n",m_aTetAry[itet_ary].m_ID);
+				arch.Out("%d\n",m_aTetAry[itet_ary].id);
 				arch.Out("%d\n",0);
 				arch.Out("%d\n",m_aTetAry[itet_ary].m_aTet.size());
 				const std::vector<STet>& aTet = m_aTetAry[itet_ary].m_aTet;
@@ -557,7 +557,7 @@ bool Msh::CMesh3D::Serialize( Com::CSerializer& arch )
 			for(unsigned int ihex_ary=0;ihex_ary<m_aHexAry.size();ihex_ary++){
 				arch.Out("$$$$\n");
 				arch.Out("HEX\n");
-				arch.Out("%d\n",m_aHexAry[ihex_ary].m_ID);
+				arch.Out("%d\n",m_aHexAry[ihex_ary].id);
 				arch.Out("%d\n",0);
 				arch.Out("%d\n",m_aHexAry[ihex_ary].m_aHex.size());
 				const std::vector<SHex>& aHex = m_aHexAry[ihex_ary].m_aHex;
@@ -705,7 +705,7 @@ bool Msh::CMesh3D::ReadFromFile_GiDMsh(const std::string& file_name)
 		const unsigned int nhex = counter;
 		m_aHexAry.resize(1);
 //		m_aHexAry[0].m_CadLoopID = 0;
-		m_aHexAry[0].m_ID = 1;
+		m_aHexAry[0].id = 1;
 		m_aHexAry[0].m_aHex.resize(nhex);
 		for(unsigned int ihex=0;ihex<nhex;ihex++){
 			m_aHexAry[0].m_aHex[ihex].v[0] = tmp_buffer[ihex*8  ];
@@ -743,7 +743,7 @@ bool Msh::CMesh3D::ReadFromFile_GiDMsh(const std::string& file_name)
 		const unsigned int ntet = counter;
 		m_aTetAry.resize(1);
 //		m_aTetAry[0].m_CadLoopID = 0;
-		m_aTetAry[0].m_ID = 1;
+		m_aTetAry[0].id = 1;
 		m_aTetAry[0].m_aTet.resize(ntet);
 		for(unsigned int itet=0;itet<ntet;itet++){
 			m_aTetAry[0].m_aTet[itet].v[0] = tmp_buffer[itet*4  ];
@@ -774,7 +774,7 @@ bool Msh::CMesh3D::ReadFromFile_GiDMsh(const std::string& file_name)
 				m_aTriAry[icolor].m_aTri[icnt0].v[2] = aTriBound[itri].v[2];
 				icnt0++;
 			}
-			m_aTriAry[icolor].m_ID = 2+icolor;
+			m_aTriAry[icolor].id = 2+icolor;
 			m_include_relation[1].push_back(2+icolor);
 		}
 		/*
@@ -812,7 +812,7 @@ bool Msh::CMesh3D::ReadFromFile_GiDMsh(const std::string& file_name)
 				}
 			}
 //			std::cout << icolor0 << " " << icolor1 << std::endl;
-			m_aBarAry[icolor].m_ID = 2+nColorTri+icolor;
+			m_aBarAry[icolor].id = 2+nColorTri+icolor;
 			m_include_relation[1].push_back(2+nColorTri+icolor);
 			m_include_relation[2+icolor0].push_back(2+nColorTri+icolor);
 			m_include_relation[2+icolor1].push_back(2+nColorTri+icolor);
@@ -839,7 +839,7 @@ bool Msh::CMesh3D::ReadFromFile_GiDMsh(const std::string& file_name)
 		const unsigned int ntri = counter;
 		m_aTriAry.resize(1);
 //		m_aTriAry[0].m_CadLoopID = 0;
-		m_aTriAry[0].m_ID = 1;
+		m_aTriAry[0].id = 1;
 		m_aTriAry[0].m_aTri.resize(ntri);
 		for(unsigned int itri=0;itri<ntri;itri++){
 			m_aTriAry[0].m_aTri[itri].v[0] = tmp_buffer[itri*3  ];
@@ -869,7 +869,7 @@ bool Msh::CMesh3D::ReadFromFile_GiDMsh(const std::string& file_name)
 				m_aBarAry[icolor].m_aBar[icnt0].v[1] = aBarBound[ibar].v[1];
 				icnt0++;
 			}
-			m_aBarAry[icolor].m_ID = 2+icolor;
+			m_aBarAry[icolor].id = 2+icolor;
 			m_include_relation[1].push_back(2+icolor);
 		}*/
 	}
@@ -942,7 +942,7 @@ bool Msh::CMesh3D::ReadFromFile_TetgenMsh(const std::string& file_name){
         std::cout << nelem << " " << nnoel << std::endl;
 		const unsigned int ntet = nelem;
 		m_aTetAry.resize(1);
-		m_aTetAry[0].m_ID = 1;
+		m_aTetAry[0].id = 1;
 		m_aTetAry[0].m_aTet.resize(ntet);
 		for(unsigned int ielem=0;ielem<(unsigned int)nelem;ielem++){
 			fgets(stmp1,buff_size,fp);
@@ -978,7 +978,7 @@ bool Msh::CMesh3D::ReadFromFile_TetgenMsh(const std::string& file_name){
 				m_aTriAry[icolor].m_aTri[icnt0].v[2] = aTriBound[itri].v[2];
 				icnt0++;
 			}
-			m_aTriAry[icolor].m_ID = 2+icolor;
+			m_aTriAry[icolor].id = 2+icolor;
 			m_include_relation[1].push_back(2+icolor);
 		}
 		/*
@@ -1016,7 +1016,7 @@ bool Msh::CMesh3D::ReadFromFile_TetgenMsh(const std::string& file_name){
 				}
 			}
 //			std::cout << icolor0 << " " << icolor1 << std::endl;
-			m_aBarAry[icolor].m_ID = 2+nColorTri+icolor;
+			m_aBarAry[icolor].id = 2+nColorTri+icolor;
 			m_include_relation[1].push_back(2+nColorTri+icolor);
 			m_include_relation[2+icolor0].push_back(2+nColorTri+icolor);
 			m_include_relation[2+icolor1].push_back(2+nColorTri+icolor);

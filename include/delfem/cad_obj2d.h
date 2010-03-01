@@ -96,13 +96,7 @@ public:
 
 	////////////////////////////////
 	// Getメソッド
-/*
-	//! ID:id_vの頂点を囲む辺とループのIDの配列を返す場合
-	virtual bool GetSurroundingObject_Vertex(const unsigned int& id_v, 
-		std::vector<unsigned int>& aEdgeID, std::vector<unsigned int>& aLoopID ) const;
-	//! ID:id_lのループと外側で辺で接するループの配列
-	virtual bool GetSurroundingObject_LoopOuterEdge(const unsigned int& id_l, std::vector<unsigned int>& aLoopID ) const;
-*/
+
 	//! ID:id_lのループを構成する頂点や辺をめぐるイテレータを返す関数
     virtual std::auto_ptr<Cad::ICad2D::CItrLoop> GetItrLoop(unsigned int id_l) const{
         return std::auto_ptr<Cad::ICad2D::CItrLoop>( new CItrLoop(this,id_l) );	// インスタンスを生成
@@ -260,7 +254,7 @@ protected:
 	// この半辺の属するループはこの半直線と重なっている。
 	// id_vが浮遊点の場合は浮遊点周りのループが帰る
 	CBRep2D::CItrVertex FindCorner_HalfLine(unsigned int id_v, const Com::CVector2D& point) const;
-	bool CheckLoopIntersection(const std::vector<Cad::CEdge2D>& aEdge, unsigned int id_l=0) const;
+	bool CheckLoopIntersection(unsigned int id_l=0) const;
 	double GetArea_ItrLoop(ICad2D::CItrLoop& itrl) const;
 protected:
 	////////////////

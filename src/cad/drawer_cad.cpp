@@ -212,8 +212,8 @@ CDrawerRubberBand::CDrawerRubberBand(const Cad::ICad2D& cad,
 
 bool CDrawer_Cad2D::CDrawPart::Set(const Msh::CTriAry2D& TriAry)
 {
-	this->id_cad = TriAry.m_CadLoopID;	assert( id_cad != 0 );
-	this->id_msh = TriAry.m_ID;			assert( id_msh != 0 );
+	this->id_cad = TriAry.id_l_cad;	assert( id_cad != 0 );
+	this->id_msh = TriAry.id;		assert( id_msh != 0 );
 	this->itype  = Cad::LOOP;
 	////////////////
 	npoel = 3;
@@ -232,8 +232,8 @@ bool CDrawer_Cad2D::CDrawPart::Set(const Msh::CTriAry2D& TriAry)
 
 bool CDrawer_Cad2D::CDrawPart::Set(const Msh::CBarAry& BarAry)
 {
-	this->id_cad = BarAry.m_CadEdgeID;	assert( id_cad != 0 );
-	this->id_msh = BarAry.m_ID;			assert( id_msh != 0 );
+	this->id_cad = BarAry.id_e_cad;	assert( id_cad != 0 );
+	this->id_msh = BarAry.id;		assert( id_msh != 0 );
 	this->itype  = Cad::EDGE;
 	////////////////
 	npoel = 2;
@@ -285,6 +285,7 @@ bool CDrawer_Cad2D::UpdateCAD_TopologyGeometry(const Cad::ICad2D &cad_2d)
 	{
 		const std::vector<unsigned int>& aIdL = cad_2d.GetAryElemID(Cad::LOOP);
 		{
+			assert( aIdL.size() > 0 );
 			unsigned int id_l0 = aIdL[0];
 			ilayer_min = cad_2d.GetLayer_Loop(id_l0);
 			ilayer_max = ilayer_min;
@@ -301,7 +302,7 @@ bool CDrawer_Cad2D::UpdateCAD_TopologyGeometry(const Cad::ICad2D &cad_2d)
 	{	// 面をセット
 		const std::vector<Msh::CTriAry2D>& aTriAry = mesh.GetTriArySet();
         for(unsigned int ita=0;ita<aTriAry.size();ita++){
-            const unsigned int id_l = aTriAry[ita].m_CadLoopID;
+            const unsigned int id_l = aTriAry[ita].id_l_cad;
 			double height = 0;
 			{
 				unsigned int ilayer = cad_2d.GetLayer_Loop(id_l);
@@ -332,7 +333,7 @@ bool CDrawer_Cad2D::UpdateCAD_TopologyGeometry(const Cad::ICad2D &cad_2d)
 	{	// 辺をセット
 		const std::vector<Msh::CBarAry>& aBarAry = mesh.GetBarArySet();
         for(unsigned int ibar=0;ibar<aBarAry.size();ibar++){
-            const unsigned int id_e = aBarAry[ibar].m_CadEdgeID;
+            const unsigned int id_e = aBarAry[ibar].id_e_cad;
 			double height = 0;
 			{
 				unsigned int id_l_l, id_l_r;
@@ -379,7 +380,7 @@ bool CDrawer_Cad2D::UpdateCAD_TopologyGeometry(const Cad::ICad2D &cad_2d)
 		const std::vector<Msh::SVertex>& aVertex = mesh.GetVertexAry();
 		assert( aVertex.size() > 0 );
 		for(unsigned int iver=0;iver<aVertex.size();iver++){
-			const unsigned int id_v_cad = aVertex[iver].m_CadVertexID;
+			const unsigned int id_v_cad = aVertex[iver].id_v_cad;
 			int ilayer = ilayer_min;
 			for(std::auto_ptr<Cad::ICad2D::CItrVertex> itrv = cad_2d.GetItrVertex(id_v_cad);!itrv->IsEnd();(*itrv)++){
 				unsigned int id_l0 = itrv->GetIdLoop();
@@ -390,7 +391,7 @@ bool CDrawer_Cad2D::UpdateCAD_TopologyGeometry(const Cad::ICad2D &cad_2d)
 			const double height = (ilayer-ilayer_min+0.1)*layer_height;
 			CDrawPart_CadVertex dpv;
 			dpv.id_cad = id_v_cad;
-			dpv.id_msh = aVertex[iver].m_ID;
+			dpv.id_msh = aVertex[iver].id;
 			dpv.id_v = aVertex[iver].v;
 			dpv.is_selected = false;
 			dpv.is_show = true;

@@ -96,20 +96,20 @@ bool Msh::CMesh3D_Extrude::Extrude_Quad(const CMesher2D& msh_2d, const double he
 		const std::vector<SVertex>& aVer2d = msh_2d.GetVertexAry();
 		m_aVertex.resize( nVer2d*2 );
 		for(unsigned int iver=0;iver<nVer2d;iver++){    // 底面を作る
-			m_aVertex[iver].m_id_cad                = aVer2d[iver].m_CadVertexID;
-			m_aVertex[iver].m_id_msh_before_extrude = aVer2d[iver].m_ID;
+			m_aVertex[iver].id_cad                = aVer2d[iver].id_v_cad;
+			m_aVertex[iver].id_msh_before_extrude = aVer2d[iver].id;
 			m_aVertex[iver].inum_extrude = 1;
 			const unsigned int id0 = GetFreeObjID(); 
-			m_aVertex[iver].m_ID = id0; 
+			m_aVertex[iver].id = id0; 
 			m_aVertex[iver].v = aVer2d[iver].v;
 			id_ary_3d[iver] = id0;
 		}
 		for(unsigned int iver=0;iver<nVer2d;iver++){    // 上面を作る
-			m_aVertex[nVer2d+iver].m_id_cad                = aVer2d[iver].m_CadVertexID;
-			m_aVertex[nVer2d+iver].m_id_msh_before_extrude = aVer2d[iver].m_ID;
+			m_aVertex[nVer2d+iver].id_cad                = aVer2d[iver].id_v_cad;
+			m_aVertex[nVer2d+iver].id_msh_before_extrude = aVer2d[iver].id;
 			m_aVertex[nVer2d+iver].inum_extrude = 3;
 			const unsigned int id0 = GetFreeObjID();
-			m_aVertex[nVer2d+iver].m_ID = id0;
+			m_aVertex[nVer2d+iver].id = id0;
 			m_aVertex[nVer2d+iver].v = aVer2d[iver].v+nNo2d*ndiv;
 			id_ary_3d[nVer2d+iver] = id0;
 		}
@@ -120,11 +120,11 @@ bool Msh::CMesh3D_Extrude::Extrude_Quad(const CMesher2D& msh_2d, const double he
 		m_aBarAry.resize( nBarAry2d*2+nVer2d );
 		// 下の辺を作る
 		for(unsigned int ibar_ary=0;ibar_ary<nBarAry2d;ibar_ary++){
-			m_aBarAry[ibar_ary].m_id_cad                = msh_2d.GetBarArySet()[ibar_ary].m_CadEdgeID;
-			m_aBarAry[ibar_ary].m_id_msh_before_extrude = msh_2d.GetBarArySet()[ibar_ary].m_ID;
+			m_aBarAry[ibar_ary].id_cad                = msh_2d.GetBarArySet()[ibar_ary].id_e_cad;
+			m_aBarAry[ibar_ary].id_msh_before_extrude = msh_2d.GetBarArySet()[ibar_ary].id;
 			m_aBarAry[ibar_ary].inum_extrude = 1;
 			const unsigned int id0 = GetFreeObjID();
-			m_aBarAry[ibar_ary].m_ID = id0;
+			m_aBarAry[ibar_ary].id = id0;
             {
 			    const std::vector<SBar>& aBar2d = msh_2d.GetBarArySet()[ibar_ary].m_aBar;
 			    std::vector<SBar>& aBar_d = m_aBarAry[ibar_ary*2  ].m_aBar;
@@ -138,11 +138,11 @@ bool Msh::CMesh3D_Extrude::Extrude_Quad(const CMesher2D& msh_2d, const double he
 		}
 		// 上の辺を作る
 		for(unsigned int ibar_ary=0;ibar_ary<nBarAry2d;ibar_ary++){
-			m_aBarAry[nBarAry2d+ibar_ary].m_id_cad                = msh_2d.GetBarArySet()[ibar_ary].m_CadEdgeID;
-			m_aBarAry[nBarAry2d+ibar_ary].m_id_msh_before_extrude = msh_2d.GetBarArySet()[ibar_ary].m_ID;
+			m_aBarAry[nBarAry2d+ibar_ary].id_cad                = msh_2d.GetBarArySet()[ibar_ary].id_e_cad;
+			m_aBarAry[nBarAry2d+ibar_ary].id_msh_before_extrude = msh_2d.GetBarArySet()[ibar_ary].id;
 			m_aBarAry[nBarAry2d+ibar_ary].inum_extrude = 3;
 			const unsigned int id0 = GetFreeObjID();
-			m_aBarAry[nBarAry2d+ibar_ary].m_ID = id0;
+			m_aBarAry[nBarAry2d+ibar_ary].id = id0;
             {
 			    const std::vector<SBar>& aBar2d = msh_2d.GetBarArySet()[ibar_ary].m_aBar;
 			    std::vector<SBar>& aBar_u = m_aBarAry[ibar_ary*2+1].m_aBar;
@@ -156,12 +156,12 @@ bool Msh::CMesh3D_Extrude::Extrude_Quad(const CMesher2D& msh_2d, const double he
 		}
 		// 垂直辺を作る
 		for(unsigned int iver=0;iver<nVer2d;iver++){
-    		m_aBarAry[nBarAry2d*2+iver].m_id_cad                = aVer2d[iver].m_CadVertexID;
-			m_aBarAry[nBarAry2d*2+iver].m_id_msh_before_extrude = aVer2d[iver].m_ID;
+    		m_aBarAry[nBarAry2d*2+iver].id_cad                = aVer2d[iver].id_v_cad;
+			m_aBarAry[nBarAry2d*2+iver].id_msh_before_extrude = aVer2d[iver].id;
 			m_aBarAry[nBarAry2d*2+iver].inum_extrude = 2;
 			const unsigned int iv2d = aVer2d[iver].v;
 			const unsigned int id0 = GetFreeObjID();
-			m_aBarAry[nBarAry2d*2+iver].m_ID = id0;
+			m_aBarAry[nBarAry2d*2+iver].id = id0;
             {
 			    std::vector<SBar>& aBar = m_aBarAry[nBarAry2d*2+iver].m_aBar;
 			    aBar.resize(ndiv);
@@ -182,11 +182,11 @@ bool Msh::CMesh3D_Extrude::Extrude_Quad(const CMesher2D& msh_2d, const double he
 			const std::vector<SQuad2D>& aQuad2d = aQuadAry2D[0].m_aQuad;
 			const unsigned int nNo2d = msh_2d.GetVectorAry().size();
 			{	// 下の三角形
-				m_aQuadAry[0].m_id_cad                = aQuadAry2D[0].m_CadLoopID;
-				m_aQuadAry[0].m_id_msh_before_extrude = aQuadAry2D[0].m_ID;
+				m_aQuadAry[0].id_cad                = aQuadAry2D[0].id_l_cad;
+				m_aQuadAry[0].id_msh_before_extrude = aQuadAry2D[0].id;
 				m_aQuadAry[0].inum_extrude = 1;
 				const unsigned int id0 = GetFreeObjID();
-				m_aQuadAry[0].m_ID = id0;
+				m_aQuadAry[0].id = id0;
 				std::vector<SQuad3D>& aQuad = m_aQuadAry[0].m_aQuad;
 				aQuad.resize( aQuad2d.size() );
 				for(unsigned int iquad=0;iquad<aQuad.size();iquad++){
@@ -198,11 +198,11 @@ bool Msh::CMesh3D_Extrude::Extrude_Quad(const CMesher2D& msh_2d, const double he
 				id_ary_3d[nVer2d*2+  nBarAry2d*2+nVer2d  ] = id0;
 			}
 			{	// 上の三角形配列
-				m_aQuadAry[1].m_id_cad                = aQuadAry2D[0].m_CadLoopID;
-				m_aQuadAry[1].m_id_msh_before_extrude = aQuadAry2D[0].m_ID;
+				m_aQuadAry[1].id_cad                = aQuadAry2D[0].id_l_cad;
+				m_aQuadAry[1].id_msh_before_extrude = aQuadAry2D[0].id;
 				m_aQuadAry[1].inum_extrude = 3;
 				const unsigned int id0 = GetFreeObjID();
-				m_aQuadAry[1].m_ID = id0;
+				m_aQuadAry[1].id = id0;
 				std::vector<SQuad3D>& aQuad = m_aQuadAry[1].m_aQuad;
 				aQuad.resize( aQuad2d.size() );
 				for(unsigned int iquad=0;iquad<aQuad.size();iquad++){
@@ -220,11 +220,11 @@ bool Msh::CMesh3D_Extrude::Extrude_Quad(const CMesher2D& msh_2d, const double he
 			const unsigned int nBar2d = aBar2d.size();
 			std::vector<SQuad3D>& aQuad = m_aQuadAry[nQuadAry2d*2+ibar_ary].m_aQuad;
 			aQuad.resize( nBar2d*ndiv );
-			m_aQuadAry[nQuadAry2d*2+ibar_ary].m_id_cad                = msh_2d.GetBarArySet()[ibar_ary].m_CadEdgeID;
-			m_aQuadAry[nQuadAry2d*2+ibar_ary].m_id_msh_before_extrude = msh_2d.GetBarArySet()[ibar_ary].m_ID;
+			m_aQuadAry[nQuadAry2d*2+ibar_ary].id_cad                = msh_2d.GetBarArySet()[ibar_ary].id_e_cad;
+			m_aQuadAry[nQuadAry2d*2+ibar_ary].id_msh_before_extrude = msh_2d.GetBarArySet()[ibar_ary].id;
 			m_aQuadAry[nQuadAry2d*2+ibar_ary].inum_extrude = 2;
 			const unsigned int id0 = GetFreeObjID();
-			m_aQuadAry[nQuadAry2d*2+ibar_ary].m_ID = id0;
+			m_aQuadAry[nQuadAry2d*2+ibar_ary].id = id0;
 			for(unsigned int idiv=0;idiv<ndiv;idiv++){
 			for(unsigned int ibar=0;ibar<aBar2d.size();ibar++){
 				aQuad[idiv*nBar2d+ibar].v[0] = aBar2d[ibar].v[0]+nNo2d*idiv;
@@ -243,11 +243,11 @@ bool Msh::CMesh3D_Extrude::Extrude_Quad(const CMesher2D& msh_2d, const double he
 		m_aHexAry.resize(nQuadAry2d);
 		const std::vector<SQuad2D>& aQuad     = aQuadAry2D[0].m_aQuad;
 		const unsigned int nQuad2d = aQuad.size();
-		m_aHexAry[0].m_id_cad                = aQuadAry2D[0].m_CadLoopID;
-		m_aHexAry[0].m_id_msh_before_extrude = aQuadAry2D[0].m_ID;
+		m_aHexAry[0].id_cad                = aQuadAry2D[0].id_l_cad;
+		m_aHexAry[0].id_msh_before_extrude = aQuadAry2D[0].id;
 		m_aHexAry[0].inum_extrude = 2;
 		const unsigned int id0 = GetFreeObjID();
-		m_aHexAry[0].m_ID = id0;
+		m_aHexAry[0].id = id0;
 		std::vector<SHex>& aHex = m_aHexAry[0].m_aHex;
 		aHex.resize( aQuad.size()*ndiv );
 		for(unsigned int idiv=0;idiv<ndiv;idiv++){
@@ -294,7 +294,7 @@ bool Msh::CMesh3D_Extrude::Extrude_Quad(const CMesher2D& msh_2d, const double he
 			const unsigned int id_bar_u_3d = id_ary_3d[nVer2d*2+  nBarAry2d+ibar2d]; // 上辺
 			const unsigned int id_quad_3d  = id_ary_3d[nVer2d*2+  nBarAry2d*2+nVer2d+  nQuadAry2d*2+ibar2d]; // 垂直面
 
-			const unsigned int id_bar_2d = msh_2d.GetBarArySet()[ibar2d].m_ID;
+			const unsigned int id_bar_2d = msh_2d.GetBarArySet()[ibar2d].id;
 			std::vector<unsigned int> id_ary_inc = msh_2d.GetIncludeElemIDAry(id_bar_2d);
 			for(unsigned int iinc=0;iinc<id_ary_inc.size();iinc++){
 				const unsigned int id_inc = id_ary_inc[iinc];
@@ -321,7 +321,7 @@ bool Msh::CMesh3D_Extrude::Extrude_Quad(const CMesher2D& msh_2d, const double he
 			const unsigned int id_quad_u_3d = id_ary_3d[nVer2d*2+  nBarAry2d*2+nVer2d+  iquad2d+nQuadAry2d];
 			const unsigned int id_hex_3d    = id_ary_3d[nVer2d*2+  nBarAry2d*2+nVer2d+  nQuadAry2d*2       + nBarAry2d + iquad2d];
 
-			const unsigned int id_quad_2d = msh_2d.GetQuadArySet()[iquad2d].m_ID;
+			const unsigned int id_quad_2d = msh_2d.GetQuadArySet()[iquad2d].id;
 			std::vector<unsigned int> id_ary_inc = msh_2d.GetIncludeElemIDAry(id_quad_2d);
 			for(unsigned int iinc=0;iinc<id_ary_inc.size();iinc++){
 				const unsigned int id_inc = id_ary_inc[iinc];
@@ -395,8 +395,8 @@ bool Msh::CMesh3D_Extrude::MakeDirectionFlagForExtrusion(const CMesher2D& msh_2d
 		for(unsigned int ibar_ary=0;ibar_ary<nBarAry;ibar_ary++){
 			const std::vector<SBar>& aBar = msh_2d.GetBarArySet()[ibar_ary].m_aBar;
 			bar_flg_ary[ibar_ary].resize(aBar.size(),0);
-			int idmshl = msh_2d.GetBarArySet()[ibar_ary].m_ID_lr[0];
-			int idmshr = msh_2d.GetBarArySet()[ibar_ary].m_ID_lr[1];
+			int idmshl = msh_2d.GetBarArySet()[ibar_ary].id_lr[0];
+			int idmshr = msh_2d.GetBarArySet()[ibar_ary].id_lr[1];
 			assert( idmshl==0 || idmshl==-1 || msh_2d.IsID(idmshl) );
 			assert( idmshr==0 || idmshr==-1 || msh_2d.IsID(idmshr) );
 		}
@@ -636,20 +636,20 @@ bool Msh::CMesh3D_Extrude::Extrude_Tri(const CMesher2D& msh_2d, const double hei
 		const std::vector<SVertex>& aVer2d = msh_2d.GetVertexAry();
 		m_aVertex.resize( nVer2d*2 );
 		for(unsigned int iver=0;iver<nVer2d;iver++){    // 底面を作る
-			m_aVertex[iver].m_id_cad = aVer2d[iver].m_CadVertexID;
-			m_aVertex[iver].m_id_msh_before_extrude = aVer2d[iver].m_ID;
+			m_aVertex[iver].id_cad = aVer2d[iver].id_v_cad;
+			m_aVertex[iver].id_msh_before_extrude = aVer2d[iver].id;
 			m_aVertex[iver].inum_extrude = 1;
 			const unsigned int id0 = GetFreeObjID(); 
-			m_aVertex[iver].m_ID = id0; 
+			m_aVertex[iver].id = id0; 
 			m_aVertex[iver].v = aVer2d[iver].v;
 			id_ary_3d[iver] = id0;
 		}
 		for(unsigned int iver=0;iver<nVer2d;iver++){    // 上面を作る
-			m_aVertex[nVer2d+iver].m_id_cad = aVer2d[iver].m_CadVertexID;
-			m_aVertex[nVer2d+iver].m_id_msh_before_extrude = aVer2d[iver].m_ID;
+			m_aVertex[nVer2d+iver].id_cad = aVer2d[iver].id_v_cad;
+			m_aVertex[nVer2d+iver].id_msh_before_extrude = aVer2d[iver].id;
 			m_aVertex[nVer2d+iver].inum_extrude = 3;
 			const unsigned int id0 = GetFreeObjID();
-			m_aVertex[nVer2d+iver].m_ID = id0;
+			m_aVertex[nVer2d+iver].id = id0;
 			m_aVertex[nVer2d+iver].v = aVer2d[iver].v+nNo2d*ndiv;
 			id_ary_3d[nVer2d+iver] = id0;
 		}
@@ -659,11 +659,11 @@ bool Msh::CMesh3D_Extrude::Extrude_Tri(const CMesher2D& msh_2d, const double hei
 		m_aBarAry.resize( nBarAry2d*2+nVer2d );
 		// 下の辺の領域を確保
 		for(unsigned int ibar_ary=0;ibar_ary<nBarAry2d;ibar_ary++){
-			m_aBarAry[ibar_ary].m_id_cad = msh_2d.GetBarArySet()[ibar_ary].m_CadEdgeID;
-			m_aBarAry[ibar_ary].m_id_msh_before_extrude = msh_2d.GetBarArySet()[ibar_ary].m_ID;
+			m_aBarAry[ibar_ary].id_cad = msh_2d.GetBarArySet()[ibar_ary].id_e_cad;
+			m_aBarAry[ibar_ary].id_msh_before_extrude = msh_2d.GetBarArySet()[ibar_ary].id;
 			m_aBarAry[ibar_ary].inum_extrude = 1;
 			const unsigned int id0 = GetFreeObjID();
-			m_aBarAry[ibar_ary].m_ID = id0;
+			m_aBarAry[ibar_ary].id = id0;
 			const std::vector<SBar>& aBar2d = msh_2d.GetBarArySet()[ibar_ary].m_aBar;
             {
 			    std::vector<SBar>& aBar_d = m_aBarAry[ibar_ary*2  ].m_aBar;
@@ -677,11 +677,11 @@ bool Msh::CMesh3D_Extrude::Extrude_Tri(const CMesher2D& msh_2d, const double hei
 		}
 		// 上の辺の領域を確保
 		for(unsigned int ibar_ary=0;ibar_ary<nBarAry2d;ibar_ary++){
-			m_aBarAry[nBarAry2d+ibar_ary].m_id_cad = msh_2d.GetBarArySet()[ibar_ary].m_CadEdgeID;
-			m_aBarAry[nBarAry2d+ibar_ary].m_id_msh_before_extrude = msh_2d.GetBarArySet()[ibar_ary].m_ID;
+			m_aBarAry[nBarAry2d+ibar_ary].id_cad = msh_2d.GetBarArySet()[ibar_ary].id_e_cad;
+			m_aBarAry[nBarAry2d+ibar_ary].id_msh_before_extrude = msh_2d.GetBarArySet()[ibar_ary].id;
 			m_aBarAry[nBarAry2d+ibar_ary].inum_extrude = 3;
 			const unsigned int id0 = GetFreeObjID();
-			m_aBarAry[nBarAry2d+ibar_ary].m_ID = id0;
+			m_aBarAry[nBarAry2d+ibar_ary].id = id0;
 			const std::vector<SBar>& aBar2d = msh_2d.GetBarArySet()[ibar_ary].m_aBar;
             {
 			    std::vector<SBar>& aBar_u = m_aBarAry[ibar_ary*2+1].m_aBar;
@@ -696,11 +696,11 @@ bool Msh::CMesh3D_Extrude::Extrude_Tri(const CMesher2D& msh_2d, const double hei
 		// 周囲の辺を確保
 		const std::vector<SVertex>& aVer2d = msh_2d.GetVertexAry();
 		for(unsigned int iver=0;iver<nVer2d;iver++){
-    		m_aBarAry[nBarAry2d*2+iver].m_id_cad = aVer2d[iver].m_CadVertexID;
-			m_aBarAry[nBarAry2d*2+iver].m_id_msh_before_extrude = aVer2d[iver].m_ID;
+    		m_aBarAry[nBarAry2d*2+iver].id_cad = aVer2d[iver].id_v_cad;
+			m_aBarAry[nBarAry2d*2+iver].id_msh_before_extrude = aVer2d[iver].id;
 			m_aBarAry[nBarAry2d*2+iver].inum_extrude = 2;
 			const unsigned int id0 = GetFreeObjID();
-			m_aBarAry[nBarAry2d*2+iver].m_ID = id0;
+			m_aBarAry[nBarAry2d*2+iver].id = id0;
             {
 			    std::vector<SBar>& aBar = m_aBarAry[nBarAry2d*2+iver].m_aBar;
 			    aBar.resize(ndiv);
@@ -724,21 +724,21 @@ bool Msh::CMesh3D_Extrude::Extrude_Tri(const CMesher2D& msh_2d, const double hei
 			const std::vector<STri2D>& aTri2d = aTriAry2D[0].m_aTri;
 			const unsigned int nNo2d = msh_2d.GetVectorAry().size();
 			{	// 下の三角形
-				m_aTriAry[0].m_id_cad = aTriAry2D[0].m_CadLoopID;
-				m_aTriAry[0].m_id_msh_before_extrude = aTriAry2D[0].m_ID;
+				m_aTriAry[0].id_cad = aTriAry2D[0].id_l_cad;
+				m_aTriAry[0].id_msh_before_extrude = aTriAry2D[0].id;
 				m_aTriAry[0].inum_extrude = 1;
 				const unsigned int id0 = GetFreeObjID();
-				m_aTriAry[0].m_ID = id0;
+				m_aTriAry[0].id = id0;
 				std::vector<STri3D>& aTri = m_aTriAry[0].m_aTri;
 				aTri.resize( aTri2d.size() );
 				id_ary_3d[nVer2d*2+  nBarAry2d*2+nVer2d  ] = id0;
 			}
 			{	// 上の三角形配列
-				m_aTriAry[1].m_id_cad = aTriAry2D[0].m_CadLoopID;
-				m_aTriAry[1].m_id_msh_before_extrude = aTriAry2D[0].m_ID;
+				m_aTriAry[1].id_cad = aTriAry2D[0].id_l_cad;
+				m_aTriAry[1].id_msh_before_extrude = aTriAry2D[0].id;
 				m_aTriAry[1].inum_extrude = 3;
 				const unsigned int id0 = GetFreeObjID();
-				m_aTriAry[1].m_ID = id0;
+				m_aTriAry[1].id = id0;
 				std::vector<STri3D>& aTri = m_aTriAry[1].m_aTri;
 				aTri.resize( aTri2d.size() );
 				id_ary_3d[nVer2d*2+  nBarAry2d*2+nVer2d+  nTriAry2d] = id0;
@@ -752,11 +752,11 @@ bool Msh::CMesh3D_Extrude::Extrude_Tri(const CMesher2D& msh_2d, const double hei
 			    std::vector<STri3D>& aTri = m_aTriAry[nTriAry2d*2+ibar_ary].m_aTri;
 			    aTri.resize( nBar2d*ndiv*2 );
             }
-			m_aTriAry[nTriAry2d*2+ibar_ary].m_id_cad = msh_2d.GetBarArySet()[ibar_ary].m_CadEdgeID;
-			m_aTriAry[nTriAry2d*2+ibar_ary].m_id_msh_before_extrude = msh_2d.GetBarArySet()[ibar_ary].m_ID;
+			m_aTriAry[nTriAry2d*2+ibar_ary].id_cad = msh_2d.GetBarArySet()[ibar_ary].id_e_cad;
+			m_aTriAry[nTriAry2d*2+ibar_ary].id_msh_before_extrude = msh_2d.GetBarArySet()[ibar_ary].id;
 			m_aTriAry[nTriAry2d*2+ibar_ary].inum_extrude = 2;
 			const unsigned int id0 = GetFreeObjID();
-			m_aTriAry[nTriAry2d*2+ibar_ary].m_ID = id0;
+			m_aTriAry[nTriAry2d*2+ibar_ary].id = id0;
 			id_ary_3d[nVer2d*2+  nBarAry2d*2+nVer2d+  nTriAry2d*2+ibar_ary] = id0;
 		}
 	}
@@ -768,11 +768,11 @@ bool Msh::CMesh3D_Extrude::Extrude_Tri(const CMesher2D& msh_2d, const double hei
 		m_aTetAry.resize(nTriAry2d);
 		const std::vector<STri2D>& aTri = aTriAry2D[0].m_aTri;
 		const unsigned int nTri2d = aTri.size();
-		m_aTetAry[0].m_id_cad = aTriAry2D[0].m_CadLoopID;
-		m_aTetAry[0].m_id_msh_before_extrude = aTriAry2D[0].m_ID;
+		m_aTetAry[0].id_cad = aTriAry2D[0].id_l_cad;
+		m_aTetAry[0].id_msh_before_extrude = aTriAry2D[0].id;
 		m_aTetAry[0].inum_extrude = 2;
 		const unsigned int id0 = GetFreeObjID();
-		m_aTetAry[0].m_ID = id0;
+		m_aTetAry[0].id = id0;
 		std::vector<STet>& aTet = m_aTetAry[0].m_aTet;
 		aTet.resize( aTri.size()*3*ndiv );
 		id_ary_3d[nVer2d*2+  nBarAry2d*2+nVer2d+  nTriAry2d*2+nBarAry2d  ] = id0;
@@ -809,7 +809,7 @@ bool Msh::CMesh3D_Extrude::Extrude_Tri(const CMesher2D& msh_2d, const double hei
 			const unsigned int id_bar_u_3d = id_ary_3d[nVer2d*2+  nBarAry2d+ibar2d];
 			const unsigned int id_tri_3d   = id_ary_3d[nVer2d*2+  nBarAry2d*2+nVer2d+  nTriAry2d*2+ibar2d];
 
-			const unsigned int id_bar_2d = msh_2d.GetBarArySet()[ibar2d].m_ID;
+			const unsigned int id_bar_2d = msh_2d.GetBarArySet()[ibar2d].id;
 			std::vector<unsigned int> id_ary_inc = msh_2d.GetIncludeElemIDAry(id_bar_2d);
 			for(unsigned int iinc=0;iinc<id_ary_inc.size();iinc++){
 				const unsigned int id_inc = id_ary_inc[iinc];
@@ -835,7 +835,7 @@ bool Msh::CMesh3D_Extrude::Extrude_Tri(const CMesher2D& msh_2d, const double hei
 			const unsigned int id_tri_u_3d = id_ary_3d[nVer2d*2+  nBarAry2d*2+nVer2d+  nTriAry2d+itri2d];
 			const unsigned int id_tet_3d   = id_ary_3d[nVer2d*2+  nBarAry2d*2+nVer2d+  nTriAry2d*2+nBarAry2d+  itri2d];
 
-			const unsigned int id_tri_2d = msh_2d.GetTriArySet()[itri2d].m_ID;
+			const unsigned int id_tri_2d = msh_2d.GetTriArySet()[itri2d].id;
 			std::vector<unsigned int> id_ary_inc = msh_2d.GetIncludeElemIDAry(id_tri_2d);
 			for(unsigned int iinc=0;iinc<id_ary_inc.size();iinc++){
 				const unsigned int id_inc = id_ary_inc[iinc];

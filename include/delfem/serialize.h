@@ -33,6 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <vector>
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdarg.h>
 #include <cstring> //(strlen)
 
@@ -43,23 +44,22 @@ class CSerializer
 {
 public:
 	CSerializer(std::string fname, bool is_loading, bool isnt_binary = true)
+		: m_buff_size(512)
 	{
 		m_file_name = fname;
 		m_is_loading = is_loading;
 		m_is_open = false;
 		m_isnt_binary = isnt_binary;
+		m_idepth = 1;
 		////////////////
 		m_pos = 0;
 		if( !is_loading ){
 			fp = fopen(m_file_name.c_str(),"w");
 			fclose(fp);
 		}
-		m_buff_size = 512;
-		m_buffer = new char [m_buff_size];
 	}
 	~CSerializer(){
 		this->Close();
-		delete[] m_buffer;
 	}
 	bool IsLoading(){ return m_is_loading; }
 	void Get(const char* format,...){
@@ -126,6 +126,35 @@ public:
 		vfprintf(fp,format,ap);
 		va_end(ap);
 	}
+	void ReadDepthClassName(char* class_name, unsigned int buff_size){
+		assert( m_is_loading );
+		if( !m_is_open ){
+			if( m_isnt_binary ){ fp = fopen(m_file_name.c_str(),"r");  }
+			else{                fp = fopen(m_file_name.c_str(),"rb"); }
+			::fseek(fp,m_pos,SEEK_SET);
+			m_is_open = true;
+		}
+		fgets(m_buffer,m_buff_size,fp);
+		assert( m_buffer[0] == '#' );
+		const unsigned int idepth0 = atoi(m_buffer+1);
+		assert( m_idepth == idepth0 );
+		fgets(class_name,buff_size,fp);
+	}
+	void WriteDepthClassName(const char* class_name){
+		assert( !m_is_loading );
+		if( !m_is_open ){
+			if( m_isnt_binary ){ fp = fopen(m_file_name.c_str(),"a");  }
+			else{                fp = fopen(m_file_name.c_str(),"ab"); }
+			m_is_open = true;
+		}
+		fprintf(fp,"#%d\n",m_idepth);
+		fprintf(fp,"%s\n",class_name);
+	}
+	void ShiftDepth( bool is_add ){
+		if( is_add ){ m_idepth++; return; }
+		assert( m_idepth > 1 );
+		m_idepth -= 1;
+	}
 	void Close(){
 		if( m_is_open ){ fclose(fp); }
 		m_is_open = false;
@@ -139,8 +168,10 @@ private:
 	FILE* fp;
 	long m_pos;
 	////////////////
-	int m_buff_size;
-	char* m_buffer;
+	const int m_buff_size;	// init as 512 in the constructor
+	char m_buffer[512];
+	////////////////
+	unsigned int m_idepth;
 };
 
 }	// end namespace Com;

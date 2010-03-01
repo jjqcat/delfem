@@ -45,7 +45,7 @@ namespace Field{
 namespace Eqn{
 
 //! ˜A—§ˆêŸ•û’ö®ƒNƒ‰ƒX
-class CLinearSystem_EqnInterface
+class ILinearSystem_Eqn
 {
 public:
     virtual MatVec::CMat_BlkCrs& GetMatrix(

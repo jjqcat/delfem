@@ -113,7 +113,6 @@ public:
 		this->gamma = gamma;
 		this->dt = dt;
 	}
-
 	double GetGamma(){ return gamma; }
 	double GetDt(){ return dt; }
 

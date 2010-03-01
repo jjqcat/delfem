@@ -26,24 +26,23 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "delfem/ls/linearsystem_interface_solver.h"
 
-namespace Sol{
-	
+namespace LsSol{
 /*! 
 @addtogroup LsSol
 */
 //@{
 //! CG法
 bool Solve_CG(double& conv_ratio, unsigned int& num_iter, 
-			  CLinearSystem_SolInterface& ls);
+		ILinearSystem_Sol& ls);
 //! 前処理付きCG法			  
 bool Solve_PCG(double& conv_ratio,unsigned int& iteration, 
-			   CLinearSystemPreconditioner_SolInterface& lsp);
+		ILinearSystemPreconditioner_Sol& lsp);
 //! BiCGSTAB法
 bool Solve_BiCGSTAB(double& conv_ratio, unsigned int& num_iter, 
-                    CLinearSystem_SolInterface& ls);
+        ILinearSystem_Sol& ls);
 //! 前処理付きBiCGSTAB法                    
 bool Solve_PBiCGSTAB(double& conv_ratio, unsigned int& num_iter, 
-                     CLinearSystemPreconditioner_SolInterface& ls);
+		ILinearSystemPreconditioner_Sol& ls);
 //@}
 }
 

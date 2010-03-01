@@ -464,11 +464,11 @@ bool CEqnSystem_Fluid2D::Solve(Fem::Field::CFieldWorld& world)
 		if( is_asym ){
 			assert( !this->m_IsStationary );
             LsSol::CLinearSystemPreconditioner lsp((*pLS).m_ls,*pPrec);
-			Sol::Solve_PBiCGSTAB(conv_ratio,max_iter,lsp);
+			LsSol::Solve_PBiCGSTAB(conv_ratio,max_iter,lsp);
 		}
 		else{
             LsSol::CLinearSystemPreconditioner lsp((*pLS).m_ls,*pPrec);
-			Sol::Solve_PCG(conv_ratio,max_iter,lsp);	// Solve with Preconditioned Conjugate Gradient
+			LsSol::Solve_PCG(conv_ratio,max_iter,lsp);	// Solve with Preconditioned Conjugate Gradient
 		}
 		this->m_aItrNormRes.clear();
 		m_aItrNormRes.push_back( std::make_pair(max_iter,conv_ratio) );
@@ -664,7 +664,7 @@ bool CEqn_Fluid3D::Solve(Fem::Field::CFieldWorld& world)
 		double conv_ratio = 1.0e-6;
 		unsigned int max_iter = 1000;
         LsSol::CLinearSystemPreconditioner lsp((*pLS).m_ls,*pPrec);
-		Sol::Solve_PCG(conv_ratio,max_iter,lsp);	// Solve with Preconditioned Conjugate Gradient
+		LsSol::Solve_PCG(conv_ratio,max_iter,lsp);	// Solve with Preconditioned Conjugate Gradient
 //		Fem::Sol::Solve_CG(conv_ratio,max_iter,ls);		// Solve with Conjugate Gradient
 //		std::cout << max_iter << " " << conv_ratio << std::endl;
 		m_aItrNormRes.clear();

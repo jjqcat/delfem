@@ -584,7 +584,6 @@ bool CBRep2D::AssertValid() const
 	return true;
 }
 
-
 unsigned int CBRep2D::AddVertex_Loop(unsigned int id_l)
 {
 	unsigned int id_ul = 0;
@@ -609,13 +608,14 @@ bool CBRep2D::GetIdVertex_Edge(unsigned int id_e, unsigned int& id_v1, unsigned 
 	unsigned int id_he;
 	{
 		std::map<unsigned int,unsigned int>::const_iterator itr = map_e2he.find(id_e);
+        if( itr==map_e2he.end() ) return false;
 		id_he = itr->second;
 	}
-	if( !this->m_BRep.IsID_HalfEdge(id_he) ) return false;
+    assert( this->m_BRep.IsID_HalfEdge(id_he) );
 	const Cad::CHalfEdge& he = m_BRep.GetHalfEdge(id_he);
 	id_v1 = he.id_uv;
 	unsigned int id_he_f = he.id_he_f;
-	if( !this->m_BRep.IsID_HalfEdge(id_he_f) ) return false;
+    assert( this->m_BRep.IsID_HalfEdge(id_he_f) );
 	const Cad::CHalfEdge& he_f = m_BRep.GetHalfEdge(id_he_f);
 	id_v2 = he_f.id_uv;
 	return true;
@@ -1184,7 +1184,7 @@ bool CBRep2D::RemoveVertex(unsigned int id_v)
 		assert( m_BRep.IsID_UseVertex(id_uv2) );
 		unsigned int id_he_remove1 = id_he1;
 //		unsigned int id_he_replace1 = he1.id_he_b;
-		if( !m_BRep.KVE(id_he_remove1) ) assert(0);
+        if( !m_BRep.KVE(id_he_remove1) ) assert(0);
 		assert( m_BRep.AssertValid_Use()==0 );
 		map_e2he.erase(id_e1);
     }
@@ -1211,12 +1211,10 @@ bool CBRep2D::Serialize( Com::CSerializer& arch )
 {
 	if( arch.IsLoading() ){	// 読み込み時の処理
 		this->Clear();
-		char stmp1[256];
-		arch.Get("%s",stmp1);
-		assert( strncmp(stmp1,"$$$$$$$$",8)==0 );
-		arch.Get("%s",stmp1);
-		if( strncmp(stmp1,"BRep2D",6)!=0 ) return true;
-		////////////////
+		const unsigned int buff_size = 256;
+		char class_name[buff_size];
+		arch.ReadDepthClassName(class_name,buff_size);
+		if( strncmp(class_name,"BRep2D",6)!=0 ) return true;
 		{
 			int ne;
 			arch.Get("%d",&ne);
@@ -1247,9 +1245,10 @@ bool CBRep2D::Serialize( Com::CSerializer& arch )
 			this->m_BRep.m_UseLoopSet.Reserve(nul*2);
 		}
 		////////////////////////////////////////////////
+		arch.ShiftDepth(true);
         for(int iuv=0;iuv<nuv;iuv++){
-			arch.Get("%s",stmp1);	assert( strncmp(stmp1,"$$$$",4)==0 );
-			arch.Get("%s",stmp1);	assert( strncmp(stmp1,"UV",3)  ==0 );
+			arch.ReadDepthClassName(class_name,buff_size);
+			assert( strncmp(class_name,"CUseVertex",10)  ==0 );
 			int id;		arch.Get("%d",&id);		assert( id>0 );
 			int id_v;	arch.Get("%d",&id_v);	assert( id_v>0 );
 			int id_he;	arch.Get("%d",&id_he);	assert( id_he>0 );
@@ -1258,10 +1257,10 @@ bool CBRep2D::Serialize( Com::CSerializer& arch )
 			m_BRep.SetVertexIDtoUseVertex(id,id_v);
 		}
         for(int ihe=0;ihe<nhe;ihe++){
-			arch.Get("%s",stmp1);	assert( strncmp(stmp1,"$$$$",4)==0 );
-			arch.Get("%s",stmp1);	assert( strncmp(stmp1,"HE",3)  ==0 );
+			arch.ReadDepthClassName(class_name,buff_size);
+			assert( strncmp(class_name,"CHalfEdge",9)==0 );
 			int id;				arch.Get("%d",&id);				assert( id>0 );
-			int id_e;			arch.Get("%d",&id_e);			assert( id_e>0 );
+            int id_e;			arch.Get("%d",&id_e);			assert( id_e>=0 );
 			int i_is_same_dir;	arch.Get("%d",&i_is_same_dir);	assert( i_is_same_dir>=0 );
 			int id_uv;			arch.Get("%d",&id_uv);			assert( id_uv>0 );
 			int id_he_f, id_he_ccw, id_he_o;
@@ -1274,8 +1273,8 @@ bool CBRep2D::Serialize( Com::CSerializer& arch )
 			m_BRep.SetEdgeIDtoHalfEdge(id,id_e,is_same_dir);
 		}
         for(int iul=0;iul<nul;iul++){
-			arch.Get("%s",stmp1);	assert( strncmp(stmp1,"$$$$",4)==0 );
-			arch.Get("%s",stmp1);	assert( strncmp(stmp1,"UL",2)  ==0 );
+			arch.ReadDepthClassName(class_name,buff_size);
+			assert( strncmp(class_name,"CUseLoop",8)==0 );
 			int id;			arch.Get("%d",&id);			assert( id>0 );
 			int id_l;		arch.Get("%d",&id_l);		assert( id_l>=0 );
 			int id_he;		arch.Get("%d",&id_he);		assert( id_he>0 );
@@ -1285,13 +1284,13 @@ bool CBRep2D::Serialize( Com::CSerializer& arch )
 			assert( tmp_id == id );
 			m_BRep.SetLoopIDtoUseLoop(id,id_l);
 		}
-//		this->AssertValid();
+		arch.ShiftDepth(false);
+		this->AssertValid();
 		return true;
 	}
 	else{ // 書き込み時の処理
         // クラスの名前の指定，サイズの指定
-		arch.Out("$$$$$$$$\n");
-		arch.Out("BRep2D\n");
+		arch.WriteDepthClassName("BRep2D");
 		{
 			arch.Out("%d\n",map_e2he.size());
 			std::map<unsigned int,unsigned int>::const_iterator itr = map_e2he.begin();
@@ -1311,6 +1310,7 @@ bool CBRep2D::Serialize( Com::CSerializer& arch )
 			}
 		}
 		arch.Out("%d %d %d\n",this->m_BRep.m_UseVertexSet.GetAry_ObjID().size(), this->m_BRep.m_HalfEdgeSet.GetAry_ObjID().size(),this->m_BRep.m_UseLoopSet.GetAry_ObjID().size());
+		arch.ShiftDepth(true);
 		////////////////
         // UseVertexの出力
         {
@@ -1320,8 +1320,7 @@ bool CBRep2D::Serialize( Com::CSerializer& arch )
 				assert( m_BRep.IsID_UseVertex(id_uv) );
 				const CUseVertex& uv = m_BRep.GetUseVertex(id_uv);
 				assert( uv.id == id_uv );
-				arch.Out("$$$$\n");
-				arch.Out("UV\n");
+				arch.WriteDepthClassName("CUseVertex");
 				arch.Out("%d\n",id_uv);
 				arch.Out("%d\n",uv.id_v);
 				arch.Out("%d\n",uv.id_he);
@@ -1335,8 +1334,7 @@ bool CBRep2D::Serialize( Com::CSerializer& arch )
 				assert( m_BRep.IsID_HalfEdge(id_he) );
 				const CHalfEdge& he = m_BRep.GetHalfEdge(id_he);
 				assert( he.id == id_he );
-				arch.Out("$$$$\n");
-				arch.Out("HE\n");
+				arch.WriteDepthClassName("CHalfEdge");
 				arch.Out("%d\n",id_he);
 				arch.Out("%d\n",he.id_e);
 				arch.Out("%d\n",(int)he.is_same_dir);
@@ -1353,8 +1351,7 @@ bool CBRep2D::Serialize( Com::CSerializer& arch )
 				assert( m_BRep.IsID_UseLoop(id_ul) );
 				const CUseLoop& ul = m_BRep.GetUseLoop(id_ul);
 				assert( ul.id == id_ul );
-				arch.Out("$$$$\n");
-				arch.Out("UL\n");
+				arch.WriteDepthClassName("CUseLoop");
 				arch.Out("%d\n",id_ul);
 				arch.Out("%d\n",ul.id_l);
 				arch.Out("%d\n",ul.id_he);
@@ -1362,6 +1359,7 @@ bool CBRep2D::Serialize( Com::CSerializer& arch )
 				arch.Out("%d\n",ul.id_ul_p);
 			}
 		}
+		arch.ShiftDepth(false);
 	}
 	return true;
 }
