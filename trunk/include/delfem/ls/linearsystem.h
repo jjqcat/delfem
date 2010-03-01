@@ -48,7 +48,7 @@ namespace LsSol{
 @brief ˜A—§ˆêŸ•û’ö®ƒNƒ‰ƒX
 @ingroup LsSol
 */
-class CLinearSystem : public Sol::CLinearSystem_SolInterface
+class CLinearSystem : public LsSol::ILinearSystem_Sol
 {
 public:
     //! default constructer

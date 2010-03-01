@@ -24,7 +24,6 @@
 #include "delfem/camera.h"
 #include "delfem/drawer_gl_utility.h"
 #include "delfem/serialize.h"
-//#include "delfem/cad_obj2d.h"
 #include "delfem/cad_obj2d.h"
 #include "delfem/cad/brep2d.h"
 #include "delfem/drawer_cad.h"
@@ -32,7 +31,6 @@
 Com::View::CCamera mvp_trans;
 double mov_begin_x, mov_begin_y;
 int press_button;
-//View::CDrawerCAD* pDrawerCad = 0;
 Com::View::CDrawerArray drawer_ary;
 
 void RenderBitmapString(float x, float y, void *font,char *string)
@@ -111,7 +109,7 @@ void myGlutDisplay(void)
 	::glEnable(GL_DEPTH_TEST);
 
 	::glEnable(GL_POLYGON_OFFSET_FILL );
-	::glPolygonOffset( 1.1, 4.0 );
+	::glPolygonOffset( 1.1f, 4.0f );
 
 	::glMatrixMode(GL_MODELVIEW);
 	::glLoadIdentity();
@@ -169,8 +167,8 @@ void myGlutMouse(int button, int state, int x, int y){
 
 bool SetNewProblem()
 {
-	const unsigned int nprob = 10;
-	static unsigned int iprob = 0;
+	const unsigned int nprob = 12;
+	static unsigned int iprob = 11;
 
 	Cad::CCadObj2D cad_2d;
 	if( iprob == 0 )
@@ -433,7 +431,57 @@ bool SetNewProblem()
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
 		drawer_ary.InitTrans(mvp_trans);
 	}
+	else if( iprob == 10 )
+	{
+		unsigned int id_l0;
+ 		{	// Make model
+			std::vector<Com::CVector2D> vec_ary;
+			vec_ary.resize(4);
+			vec_ary[0] = Com::CVector2D(0.0,0.0);
+			vec_ary[1] = Com::CVector2D(1.0,0.0);
+			vec_ary[2] = Com::CVector2D(1.0,1.0);
+			vec_ary[3] = Com::CVector2D(0.0,1.0);
+			id_l0 = cad_2d.AddPolygon( vec_ary );
+		}
+		unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,0,Com::CVector2D(1.1,0));
+		cad_2d.RemoveElement(Cad::VERTEX,id_v1);
+		////////////////
+		drawer_ary.Clear();
+		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
+		drawer_ary.InitTrans(mvp_trans);
+	}
+	else if( iprob == 11 ){
+		{	// ê≥ï˚å`Ç…ãÈå`ÇÃåä
+            std::vector<Com::CVector2D> vec_ary;
+            vec_ary.push_back( Com::CVector2D(0.0,0.0) );
+            vec_ary.push_back( Com::CVector2D(1.0,0.0) );
+            vec_ary.push_back( Com::CVector2D(1.0,1.0) );
+            vec_ary.push_back( Com::CVector2D(0.0,1.0) );
+			cad_2d.AddPolygon( vec_ary );
+		}
+		{
+			std::vector<Com::CVector2D> aRelCo;
+			aRelCo.push_back( Com::CVector2D(0.25, -0.1) );
+			aRelCo.push_back( Com::CVector2D( 0.5, -0.0) );
+			aRelCo.push_back( Com::CVector2D(0.75, -0.1) );
+			cad_2d.SetCurve_Polyline(1,aRelCo);
+		}
+		cad_2d.SetCurve_Arc(2,true,-1);
+		{
+			std::vector<Com::CVector2D> aRelCo;
+			aRelCo.push_back( Com::CVector2D(+0.02, 0.75) );
+			aRelCo.push_back( Com::CVector2D(-0.20, 0.50) );
+			aRelCo.push_back( Com::CVector2D(+0.02, 0.25) );
+			cad_2d.SetCurve_Polyline(4,aRelCo);
+		}
+		cad_2d.RemoveElement(Cad::VERTEX,1);
+		////////////////
+		drawer_ary.Clear();
+		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
+		drawer_ary.InitTrans(mvp_trans);
+	}
 	
+	////////////////
 	::glMatrixMode(GL_PROJECTION);
 	::glLoadIdentity();
 	Com::View::SetProjectionTransform(mvp_trans);

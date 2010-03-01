@@ -8,7 +8,7 @@
 
 namespace Fem{
 namespace Eqn{
-	class CLinearSystem_EqnInterface;
+	class ILinearSystem_Eqn;
 }
 namespace Field{
 	class CField;
@@ -17,7 +17,7 @@ namespace Field{
 namespace Eqn{
     // íËèÌ
 	bool AddLinSys_Hyper2D_Static(
-        Fem::Eqn::CLinearSystem_EqnInterface& ls,
+        Fem::Eqn::ILinearSystem_Eqn& ls,
 		double lambda, double myu,
 		double  rho, double g_x, double g_y,
 		const unsigned int id_field_disp, const unsigned int id_field_lambda,
@@ -26,7 +26,7 @@ namespace Eqn{
 
 	// íËèÌ
 	bool AddLinSys_Hyper3D_Static(
-		Fem::Eqn::CLinearSystem_EqnInterface& ls,
+		Fem::Eqn::ILinearSystem_Eqn& ls,
 		double lambda, double myu,
 		double  rho, double g_x, double g_y, double g_z,
 		const unsigned int id_field_disp, const unsigned int id_field_lambda,
@@ -36,7 +36,7 @@ namespace Eqn{
 		// íËèÌ
 	bool AddLinSys_Hyper3D_NonStatic_NewmarkBeta(
 		double dt, double gamma, double beta,
-		Fem::Eqn::CLinearSystem_EqnInterface& ls,
+		Fem::Eqn::ILinearSystem_Eqn& ls,
 		double lambda, double myu,
 		double  rho, double g_x, double g_y, double g_z,    
 		const unsigned int id_field_disp, const unsigned int id_field_lambda,

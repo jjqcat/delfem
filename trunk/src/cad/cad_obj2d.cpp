@@ -127,7 +127,7 @@ CEdge2D& CCadObj2D::GetEdge(unsigned int id_e)
 
 bool CCadObj2D::GetIdVertex_Edge(unsigned int &id_v_s, unsigned int& id_v_e, unsigned int id_e) const
 {
-	m_BRep.IsElemID(Cad::EDGE,id_e);
+    assert( m_BRep.IsElemID(Cad::EDGE,id_e) );
 	return m_BRep.GetIdVertex_Edge(id_e,id_v_s,id_v_e);
 }
 
@@ -207,8 +207,9 @@ double CCadObj2D::GetArea_ItrLoop(ICad2D::CItrLoop& itrl) const
 	double area = 0.0;
 	for(itrl.Begin();!itrl.IsEnd();itrl++){
 		unsigned int id_e;   bool is_same_dir;
-		itrl.GetIdEdge(id_e,is_same_dir);
-		assert( this->IsElemID(Cad::EDGE,id_e) );
+        itrl.GetIdEdge(id_e,is_same_dir);
+        if( !this->IsElemID(Cad::EDGE,id_e) ) return 0;
+        assert( this->IsElemID(Cad::EDGE,id_e) );
 		const CEdge2D& e = this->GetEdge(id_e);
 		assert( ((is_same_dir) ? e.id_v_s : e.id_v_e) == itrl.GetIdVertex() );
 		assert( ((is_same_dir) ? e.id_v_e : e.id_v_s) == itrl.GetIdVertex_Ahead() );
@@ -345,8 +346,7 @@ int CCadObj2D::CheckLoop(unsigned int id_l) const
 {
 //    std::cout << "Check Loop " << id_l << std::endl;
     {	// ループの自己干渉を調べる
-		std::vector<Cad::CEdge2D> aEdge;
-		if( this->CheckLoopIntersection(aEdge,id_l) ){ return 1; }
+		if( this->CheckLoopIntersection(id_l) ){ return 1; }
 	}
 	{	// 親ループの面積が正で子ループの面積が負であることを調べる
 		for(CBRep2D::CItrLoop itrl=m_BRep.GetItrLoop(id_l);!itrl.IsEndChild();itrl.ShiftChildLoop()){
@@ -572,8 +572,7 @@ unsigned int CCadObj2D::ConnectVertex(CEdge2D edge)
 		}
 	}
     else{	// 外の領域に切った場合に，新しいループが自己干渉している場合はこのループは無し
-		std::vector<Cad::CEdge2D> aEdge;
-        if( this->CheckLoopIntersection(aEdge,id_l_add) ){
+        if( this->CheckLoopIntersection(id_l_add) ){
 			m_BRep.SetHoleLoop(id_l_add);
 			assert( this->AssertValid()==0 );
 			return id_e_add;
@@ -590,7 +589,6 @@ unsigned int CCadObj2D::ConnectVertex(CEdge2D edge)
 	assert( this->AssertValid()==0 );
 	return id_e_add;
 }
-
 
 bool CCadObj2D::RemoveElement(Cad::CAD_ELEM_TYPE itype, unsigned int id)
 {
@@ -645,38 +643,59 @@ bool CCadObj2D::RemoveElement(Cad::CAD_ELEM_TYPE itype, unsigned int id)
 		assert( this->AssertValid()==0 );
 		return true;
 	}
-	else if( itype == Cad::VERTEX ){ 
+	else if( itype == Cad::VERTEX )
+	{ 
 		CBRep2D::CItrVertex itrv = m_BRep.GetItrVertex(id);
 		if( itrv.CountEdge() == 2 ){
 			unsigned int id_e1,id_e2;   bool btmp1, btmp2;
 			itrv.GetIdEdge_Ahead( id_e1,btmp1); 
 			itrv.GetIdEdge_Behind(id_e2,btmp2);
-			{			
-				const unsigned int id_v1 = m_BRep.GetIdVertex_Edge(id_e1,!btmp1);
-				const unsigned int id_v2 = m_BRep.GetIdVertex_Edge(id_e2,!btmp2);		
-				assert( m_BRep.GetIdVertex_Edge(id_e1,btmp1) == id );
-				assert( m_BRep.GetIdVertex_Edge(id_e2,btmp2) == id );
-				std::vector<CEdge2D> aEdge;
+			CEdge2D e_tmp = this->GetEdge(id_e1);
+            {
+                const unsigned int id_v1 = m_BRep.GetIdVertex_Edge(id_e1,!btmp1);
+                const unsigned int id_v2 = m_BRep.GetIdVertex_Edge(id_e2,!btmp2);
+                assert( m_BRep.GetIdVertex_Edge(id_e1,btmp1) == id );
+                assert( m_BRep.GetIdVertex_Edge(id_e2,btmp2) == id );
+                e_tmp.ConnectEdge(this->GetEdge(id_e2),!btmp1,btmp1!=btmp2);
+                if( btmp1 ){ e_tmp.id_v_s = id_v2; e_tmp.po_s = this->GetVertexCoord(id_v2); }
+                else{        e_tmp.id_v_e = id_v2; e_tmp.po_e = this->GetVertexCoord(id_v2); }
+            }
+            ////////////////
+            {   // 辺がとe_tmpが交差していないかを全ての辺について調べる
+                const unsigned int ipo0 = e_tmp.id_v_s;
+                const unsigned int ipo1 = e_tmp.id_v_e;
+				// edge_iのバウンディングボックスを取得
+				double x_min_i, x_max_i, y_min_i, y_max_i;
+				e_tmp.GetBoundingBox(x_min_i,x_max_i, y_min_i,y_max_i);
 				const std::vector<unsigned int>& aIdE = m_BRep.GetAryElemID(Cad::EDGE);
-				for(unsigned int iie=0;iie<aIdE.size();iie++){
-					const unsigned int id_e = aIdE[iie];
-					if( id_e == id_e2 ) continue;
-					const CEdge2D& e = this->GetEdge(id_e);
-					if( id_e == id_e1 ){
-						const CVector2D& v2 = this->GetVertexCoord(id_v2);
-						if( btmp1 ){ e.id_v_s = id_v2; e.po_s = v2; }
-						else{        e.id_v_e = id_v2; e.po_e = v2; }
+				for(unsigned int ije=0;ije<aIdE.size();ije++){
+					const unsigned int id_je = aIdE[ije];
+                    if( id_je == id_e2 || id_je == id_e1 ) continue;
+					const CEdge2D& e_j = this->GetEdge(id_je);
+					const unsigned int jpo0 = e_j.id_v_s;
+					const unsigned int jpo1 = e_j.id_v_e;			
+					if( (ipo0-jpo0)*(ipo0-jpo1)*(ipo1-jpo0)*(ipo1-jpo1) != 0 ){ // 共有点が無い場合
+						// edge_jのバウンディングボックスを取得
+						double x_min_j, x_max_j, y_min_j, y_max_j;
+						e_j.GetBoundingBox(x_min_j,x_max_j, y_min_j,y_max_j);
+						if( x_min_j > x_max_i || x_max_j < x_min_i ) continue;	// 交錯がありえないパターンを除外
+						if( y_min_j > y_max_i || y_max_j < y_min_i ) continue;	// 上に同じ				
+						if( !e_tmp.IsCrossEdge(e_j) ){ continue; } // 交点が無いか判断する
+						return true;
 					}
-					aEdge.push_back(e);
-				}				
-				if( CheckEdgeIntersection(aEdge) == 1 ){
-					return false;
+                    else if( ipo0 == jpo0 && ipo1 == jpo1 ){ if( e_tmp.IsCrossEdge_ShareBothPoints(e_j,true ) == 1 ){ return false; } }
+                    else if( ipo0 == jpo1 && ipo1 == jpo0 ){ if( e_tmp.IsCrossEdge_ShareBothPoints(e_j,false) == 1 ){ return false; } }
+                    else if( ipo0 == jpo0 ){ if( e_tmp.IsCrossEdge_ShareOnePoint(e_j, true, true)==1 ){ return false; } }
+                    else if( ipo0 == jpo1 ){ if( e_tmp.IsCrossEdge_ShareOnePoint(e_j, true,false)==1 ){ return false; } }
+                    else if( ipo1 == jpo0 ){ if( e_tmp.IsCrossEdge_ShareOnePoint(e_j,false, true)==1 ){ return false; } }
+                    else if( ipo1 == jpo1 ){ if( e_tmp.IsCrossEdge_ShareOnePoint(e_j,false,false)==1 ){ return false; } }
 				}
 			}
 			if( !m_BRep.RemoveVertex(id) ){ return false; }
-			assert( m_BRep.IsElemID(Cad::EDGE,id_e1) );
+            assert(  m_BRep.IsElemID(Cad::EDGE,id_e1) );
 			assert( !m_BRep.IsElemID(Cad::EDGE,id_e2) );
 			m_EdgeSet.DeleteObj(id_e2);
+			this->GetEdge(id_e1) = e_tmp;
 			m_VertexSet.DeleteObj(id);
 			assert( this->AssertValid()==0 );
 			return true;
@@ -960,7 +979,7 @@ FAILURE:
 }
 
 // id_lが存在しない(0)場合は全ての辺について干渉チェックを行う
-bool CCadObj2D::CheckLoopIntersection(const std::vector<Cad::CEdge2D>& aEdge, unsigned int id_l) const
+bool CCadObj2D::CheckLoopIntersection(unsigned int id_l) const
 {
 	std::vector<unsigned int> aIdEdge;
     if( m_BRep.IsElemID(Cad::LOOP,id_l) ){
@@ -975,58 +994,34 @@ bool CCadObj2D::CheckLoopIntersection(const std::vector<Cad::CEdge2D>& aEdge, un
 	}
 	else{ aIdEdge = this->GetAryElemID(Cad::EDGE); }
 
-	for(unsigned int ie=0;ie<aEdge.size();ie++){
-		const unsigned int id_v_s = aEdge[ie].id_v_s;
-		const unsigned int id_v_e = aEdge[ie].id_v_e;
-		aEdge[ie].po_s = this->GetVertexCoord(id_v_s);
-		aEdge[ie].po_e = this->GetVertexCoord(id_v_e);
-	}
-	////////////////
-	const unsigned int nide = aIdEdge.size();
-	const unsigned int ne = nide + aEdge.size();
+	const unsigned int ne = aIdEdge.size();
 	for(unsigned int ie=0;ie<ne;ie++){
-        const CEdge2D& e_i = ( ie < nide ) ? this->GetEdge( aIdEdge[ie] ) : aEdge[ie-nide];
+        const CEdge2D& e_i = this->GetEdge( aIdEdge[ie] );
 		if( e_i.IsCrossEdgeSelf() ){ return true; }
 		const unsigned int ipo0 = e_i.id_v_s; 
 		const unsigned int ipo1 = e_i.id_v_e;
 		// edge_iのバウンディングボックスを取得
 		double x_min_i, x_max_i, y_min_i, y_max_i;
 		e_i.GetBoundingBox(x_min_i,x_max_i, y_min_i,y_max_i);
-		////////////////
 		for(unsigned int je=ie+1;je<ne;je++){
-            const CEdge2D& e_j = ( je < nide ) ? this->GetEdge( aIdEdge[je] ) : aEdge[je-nide];
+            const CEdge2D& e_j = this->GetEdge( aIdEdge[je] );
 			const unsigned int jpo0 = e_j.id_v_s;
-			const unsigned int jpo1 = e_j.id_v_e;
-			// 共有点が無い場合
-			if( (ipo0-jpo0)*(ipo0-jpo1)*(ipo1-jpo0)*(ipo1-jpo1) != 0 ){
-				// BoundingBoxを用いて，交錯しないパターンを除外
+			const unsigned int jpo1 = e_j.id_v_e;			
+			if( (ipo0-jpo0)*(ipo0-jpo1)*(ipo1-jpo0)*(ipo1-jpo1) != 0 ){ // 共有点が無い場合
 				// edge_jのバウンディングボックスを取得
 				double x_min_j, x_max_j, y_min_j, y_max_j;
 				e_j.GetBoundingBox(x_min_j,x_max_j, y_min_j,y_max_j);
 				if( x_min_j > x_max_i || x_max_j < x_min_i ) continue;	// 交錯がありえないパターンを除外
-				if( y_min_j > y_max_i || y_max_j < y_min_i ) continue;	// 上に同じ
-				// 交点が無いか判断する
-				if( !e_i.IsCrossEdge(e_j) ){ continue; }
+				if( y_min_j > y_max_i || y_max_j < y_min_i ) continue;	// 上に同じ				
+				if( !e_i.IsCrossEdge(e_j) ){ continue; } // 交点が無いか判断する
                 return true;
 			}
-			else if( ipo0 == jpo0 && ipo1 == jpo1 ){
-				if( e_i.IsCrossEdge_ShareBothPoints(e_j,true) == 1 ){ return true; }
-			}
-			else if( ipo0 == jpo1 && ipo1 == jpo0 ){
-				if( e_i.IsCrossEdge_ShareBothPoints(e_j,false) == 1 ){ return true; }
-			}
-			else if( ipo0 == jpo0 ){ 
-				if( e_i.IsCrossEdge_ShareOnePoint(e_j, true, true)==1 ){ return true; }
-			}
-			else if( ipo0 == jpo1 ){ 
-				if( e_i.IsCrossEdge_ShareOnePoint(e_j, true,false)==1 ){ return true; }
-			}
-			else if( ipo1 == jpo0 ){ 
-				if( e_i.IsCrossEdge_ShareOnePoint(e_j,false, true)==1 ){ return true; }
-			}
-			else if( ipo1 == jpo1 ){ 
-				if( e_i.IsCrossEdge_ShareOnePoint(e_j,false,false)==1 ){ return true; }
-			}
+            else if( ipo0 == jpo0 && ipo1 == jpo1){ if( e_i.IsCrossEdge_ShareBothPoints(e_j,true ) == 1 ){ return true; } }
+            else if( ipo0 == jpo1 && ipo1 == jpo0){ if( e_i.IsCrossEdge_ShareBothPoints(e_j,false) == 1 ){ return true; } }
+            else if( ipo0 == jpo0 ){ if( e_i.IsCrossEdge_ShareOnePoint(e_j, true, true)==1 ){ return true; } }
+            else if( ipo0 == jpo1 ){ if( e_i.IsCrossEdge_ShareOnePoint(e_j, true,false)==1 ){ return true; } }
+            else if( ipo1 == jpo0 ){ if( e_i.IsCrossEdge_ShareOnePoint(e_j,false, true)==1 ){ return true; } }
+            else if( ipo1 == jpo1 ){ if( e_i.IsCrossEdge_ShareOnePoint(e_j,false,false)==1 ){ return true; } }
 		}
 	}
 	return false;
@@ -1041,7 +1036,6 @@ bool CCadObj2D::WriteToFile_dxf(const std::string& file_name) const
 		assert(0);
 		return false;
 	}
-
 	// オブジェクトのBoundingBoxを得る
 	double x_min,x_max,  y_min,y_max;
 	{
@@ -1063,7 +1057,6 @@ bool CCadObj2D::WriteToFile_dxf(const std::string& file_name) const
 			y_max = ( y_max > y_max0 ) ? y_max : y_max0;
 		}
 	}
-
 	// ヘッダーセクション
 	fprintf(fp, "  0\nSECTION\n");
 	fprintf(fp, "  2\nHEADER\n");
@@ -1071,17 +1064,14 @@ bool CCadObj2D::WriteToFile_dxf(const std::string& file_name) const
 	fprintf(fp, "  9\n$EXTMIN\n  10\n%lf\n  20\n%lf\n",x_min,y_min);
 	fprintf(fp, "  9\n$EXTMAX\n  10\n%lf\n  20\n%lf\n",x_max,y_max);
 	fprintf(fp, "  0\nENDSEC\n");
-
 	// テーブルセクション
 	fprintf(fp, "  0\nSECTION\n");
 	fprintf(fp, "  2\nTABLES\n");
 	fprintf(fp, "  0\nENDSEC\n");
-
 	// ブロックセクション
 	fprintf(fp, "  0\nSECTION\n");
 	fprintf(fp, "  2\nBLOCKS\n");
 	fprintf(fp, "  0\nENDSEC\n");
-
 	// エンティティセクション
 	fprintf(fp,"  0\nSECTION\n");
 	fprintf(fp,"  2\nENTITIES\n");
@@ -1092,8 +1082,7 @@ bool CCadObj2D::WriteToFile_dxf(const std::string& file_name) const
         std::auto_ptr<Cad::ICad2D::CItrLoop> pItr = this->GetItrLoop(id_l);
 		for(;;){
             for(;!pItr->IsEnd();(*pItr)++){
-				bool is_same_dir;
-				unsigned int id_e;
+				bool is_same_dir;   unsigned int id_e;
 				if( !pItr->GetIdEdge(id_e,is_same_dir) ){ assert(0); fclose(fp); return false; }
 				unsigned int id_vs, id_ve;
 				this->GetIdVertex_Edge(id_vs, id_ve,id_e);
@@ -1109,14 +1098,11 @@ bool CCadObj2D::WriteToFile_dxf(const std::string& file_name) const
 					fprintf(fp,"  21\n%lf\n",pe.y);
 				}
 				else if( this->GetEdgeCurveType(id_e) == 1 ){
-					const CEdge2D& edge = this->m_EdgeSet.GetObj(id_e);
-					edge.po_s = ps;
-					edge.po_e = pe;
-					CVector2D pc;
-					double r;
+					const CEdge2D& edge = this->GetEdge(id_e);
+					CVector2D pc;	double r;
+					edge.GetCenterRadius(pc,r);
 					double d1, d2;
 					{
-						edge.GetCenterRadius(pc,r);
 						CVector2D vs = ps - pc;
 						CVector2D ve = pe - pc;
 						double ds = atan2(vs.y,vs.x); ds = ds * 180.0 / 3.14159265; if( ds < 0.0 ) ds += 360;
@@ -1155,11 +1141,11 @@ bool CCadObj2D::Serialize( Com::CSerializer& arch )
 {
 	if( arch.IsLoading() ){	// 読み込み時の処理
 		this->Clear();
-		char stmp1[256];
-		arch.Get("%s",stmp1);
-		assert( strncmp(stmp1,"$$$$$$$$",8)==0 );
-		arch.Get("%s",stmp1);
-		if( strncmp(stmp1,"CadObj2D",8)!=0 ) return true;
+		////////////////
+		const unsigned int buff_size = 256; 
+		char class_name[buff_size];
+		arch.ReadDepthClassName(class_name,buff_size);
+		if( strncmp(class_name,"CadObj2D",8) != 0 ) return false;
 		int nv, ne, nl;
 		{
 			arch.Get("%d%d%d",&nv, &ne, &nl);
@@ -1168,18 +1154,19 @@ bool CCadObj2D::Serialize( Com::CSerializer& arch )
 			m_EdgeSet.Reserve(ne*2);
 			m_LoopSet.Reserve(nl*2);
 		}
+		arch.ShiftDepth(true);
 		////////////////////////////////////////////////
         for(int iv=0;iv<nv;iv++){
-			arch.Get("%s",stmp1);	assert( strncmp(stmp1,"$$$$",4)==0 );
-			arch.Get("%s",stmp1);	assert( strncmp(stmp1,"V2D",3) ==0 );
+			arch.ReadDepthClassName(class_name,buff_size);
+			assert( strncmp(class_name,"CVertex2D",9) == 0 );
 			int id;		arch.Get("%d",&id);		assert( id>0 );
 			double x,y;	arch.Get("%lf%lf",&x,&y);
 			int tmp_id = m_VertexSet.AddObj( std::make_pair(id,CVertex2D(CVector2D(x,y) )) );
 			assert(tmp_id==id);
 		}
         for(int ie=0;ie<ne;ie++){
-			arch.Get("%s",stmp1);	assert( strncmp(stmp1,"$$$$",4)==0 );
-			arch.Get("%s",stmp1);	assert( strncmp(stmp1,"E2D",3) ==0 );
+			arch.ReadDepthClassName(class_name,buff_size);
+			assert( strncmp(class_name,"CEdge2D",7) == 0 );
 			int id;				arch.Get("%d",&id);					assert( id>0 );
 			int id_v_s,id_v_e;	arch.Get("%d%d",&id_v_s,&id_v_e);	assert( id_v_s>0 && id_v_e>0 );
             int itype;			arch.Get("%d",&itype);				assert( itype == 0 || itype == 1 || itype == 2);
@@ -1204,8 +1191,8 @@ bool CCadObj2D::Serialize( Com::CSerializer& arch )
 			assert( tmp_id == id );            
 		}
         for(int il=0;il<nl;il++){
-			arch.Get("%s",stmp1);	assert( strncmp(stmp1,"$$$$",4)==0 );
-			arch.Get("%s",stmp1);	assert( strncmp(stmp1,"L2D",3) ==0 );
+			arch.ReadDepthClassName(class_name,buff_size);
+			assert( strncmp(class_name,"CLoop2D",7) == 0 );
             int id;         arch.Get("%d",&id);		assert( id>0 );
 			int ilayer;		arch.Get("%d",&ilayer);
             double c[3];    arch.Get("%lf%lf%lf",&c[0],&c[1],&c[2]);
@@ -1217,15 +1204,14 @@ bool CCadObj2D::Serialize( Com::CSerializer& arch )
 		}
 		m_BRep.Serialize(arch);
 		this->AssertValid();
+		arch.ShiftDepth(false);
 		return true;
 	}
 	else{ // 書き込み時の処理
         // クラスの名前の指定，サイズの指定
-        {
-			arch.Out("$$$$$$$$\n");
-			arch.Out("CadObj2D\n");
-			arch.Out("%d %d %d\n",m_VertexSet.GetAry_ObjID().size(), m_EdgeSet.GetAry_ObjID().size(),m_LoopSet.GetAry_ObjID().size());
-		}
+		arch.WriteDepthClassName("CadObj2D");
+		arch.Out("%d %d %d\n",m_VertexSet.GetAry_ObjID().size(), m_EdgeSet.GetAry_ObjID().size(),m_LoopSet.GetAry_ObjID().size());
+		arch.ShiftDepth(true);
         // Vertex2Dの出力
         {
 			const std::vector<unsigned int>& id_ary = m_VertexSet.GetAry_ObjID();
@@ -1233,8 +1219,7 @@ bool CCadObj2D::Serialize( Com::CSerializer& arch )
 				const unsigned int id_v = id_ary[iid];
 				assert( m_VertexSet.IsObjID(id_v) );
 				const CVertex2D& v = m_VertexSet.GetObj(id_v);
-				arch.Out("$$$$\n");
-				arch.Out("V2D\n");
+				arch.WriteDepthClassName("CVertex2D");
 				arch.Out("%d\n",id_v);
 				arch.Out("%lf %lf\n",v.point.x,v.point.y);
 			}
@@ -1246,8 +1231,7 @@ bool CCadObj2D::Serialize( Com::CSerializer& arch )
 				const unsigned int id_e = id_ary[iid];
 				assert( m_EdgeSet.IsObjID(id_e) );
 				const CEdge2D& e = m_EdgeSet.GetObj(id_e);
-				arch.Out("$$$$\n");
-				arch.Out("E2D\n");
+				arch.WriteDepthClassName("CEdge2D");
 				arch.Out("%d\n",id_e);
 				arch.Out("%d %d\n",e.id_v_s,e.id_v_e);
 				arch.Out("%d\n",e.itype);
@@ -1266,14 +1250,14 @@ bool CCadObj2D::Serialize( Com::CSerializer& arch )
 				const unsigned int id_l = id_ary[iid];
 				assert( m_LoopSet.IsObjID(id_l) );
 				const CLoop2D& l = m_LoopSet.GetObj(id_l);
-				arch.Out("$$$$\n");
-				arch.Out("L2D\n");
+				arch.WriteDepthClassName("CLoop2D");
 				arch.Out("%d\n",id_l);
 				arch.Out("%d\n",l.ilayer);
                 arch.Out("%lf %lf %lf\n",l.m_color[0],l.m_color[1],l.m_color[2]);
 			}
 		}
 		m_BRep.Serialize(arch);
+		arch.ShiftDepth(false);
 	}
 	return true;
 }

@@ -68,16 +68,16 @@ unsigned int CMesher2D::FindMaxID() const
 	unsigned int max_id = 0;
 	{	// 要素IDの最大値を求める
 		for(unsigned int iver=0;iver<m_aVertex.size();iver++){
-			if( max_id < m_aVertex[iver].m_ID ) max_id = m_aVertex[iver].m_ID;
+			if( max_id < m_aVertex[iver].id ) max_id = m_aVertex[iver].id;
 		}
 		for(unsigned int ibarary=0;ibarary<m_aBarAry.size();ibarary++){
-			if( max_id < m_aBarAry[ibarary].m_ID ) max_id = m_aBarAry[ibarary].m_ID;
+			if( max_id < m_aBarAry[ibarary].id ) max_id = m_aBarAry[ibarary].id;
 		}
 		for(unsigned int itriary=0;itriary<m_aTriAry.size();itriary++){
-			if( max_id < m_aTriAry[itriary].m_ID ) max_id = m_aTriAry[itriary].m_ID;
+			if( max_id < m_aTriAry[itriary].id ) max_id = m_aTriAry[itriary].id;
 		}
 		for(unsigned int iquadary=0;iquadary<m_aQuadAry.size();iquadary++){
-			if( max_id < m_aQuadAry[iquadary].m_ID ) max_id = m_aQuadAry[iquadary].m_ID;
+			if( max_id < m_aQuadAry[iquadary].id ) max_id = m_aQuadAry[iquadary].id;
 		}
 	}
 	return max_id;
@@ -89,24 +89,24 @@ unsigned int CMesher2D::GetFreeObjID(){
 	{	// このIDが使われているかどうかを示すハッシュを作る
 		is_used_flg_ary.resize( max_id+1, 0 );
 		for(unsigned int iver=0;iver<m_aVertex.size();iver++){
-			assert( is_used_flg_ary[ m_aVertex[iver].m_ID ] == 0 );
-			assert( m_aVertex[iver].m_ID >= 1 && m_aVertex[iver].m_ID <= max_id );
-			is_used_flg_ary[ m_aVertex[iver].m_ID ] = 1;
+			assert( is_used_flg_ary[ m_aVertex[iver].id ] == 0 );
+			assert( m_aVertex[iver].id >= 1 && m_aVertex[iver].id <= max_id );
+			is_used_flg_ary[ m_aVertex[iver].id ] = 1;
 		}
 		for(unsigned int ibarary=0;ibarary<m_aBarAry.size();ibarary++){
-			assert( is_used_flg_ary[ m_aBarAry[ibarary].m_ID ] == 0 );
-			assert( m_aBarAry[ibarary].m_ID >= 1 && m_aBarAry[ibarary].m_ID <= max_id );
-			is_used_flg_ary[ m_aBarAry[ibarary].m_ID ] = 1;
+			assert( is_used_flg_ary[ m_aBarAry[ibarary].id ] == 0 );
+			assert( m_aBarAry[ibarary].id >= 1 && m_aBarAry[ibarary].id <= max_id );
+			is_used_flg_ary[ m_aBarAry[ibarary].id ] = 1;
 		}
 		for(unsigned int itriary=0;itriary<m_aTriAry.size();itriary++){
-			assert( is_used_flg_ary[ m_aTriAry[itriary].m_ID ] == 0 );
-			assert( m_aTriAry[itriary].m_ID >= 1 && m_aTriAry[itriary].m_ID <= max_id );
-			is_used_flg_ary[ m_aTriAry[itriary].m_ID ] = 1;
+			assert( is_used_flg_ary[ m_aTriAry[itriary].id ] == 0 );
+			assert( m_aTriAry[itriary].id >= 1 && m_aTriAry[itriary].id <= max_id );
+			is_used_flg_ary[ m_aTriAry[itriary].id ] = 1;
 		}
 		for(unsigned int iquadary=0;iquadary<m_aQuadAry.size();iquadary++){
-			assert( is_used_flg_ary[ m_aQuadAry[iquadary].m_ID ] == 0 );
-			assert( m_aQuadAry[iquadary].m_ID >= 1 && m_aQuadAry[iquadary].m_ID <= max_id );
-			is_used_flg_ary[ m_aQuadAry[iquadary].m_ID ] = 1;
+			assert( is_used_flg_ary[ m_aQuadAry[iquadary].id ] == 0 );
+			assert( m_aQuadAry[iquadary].id >= 1 && m_aQuadAry[iquadary].id <= max_id );
+			is_used_flg_ary[ m_aQuadAry[iquadary].id ] = 1;
 		}
 	}
 	assert( is_used_flg_ary[0] == 0 );
@@ -130,19 +130,19 @@ bool CMesher2D::IsID(unsigned int id) const
 	assert( iloc >= 0 );
 	if( itype == 0 ){
 		assert( m_aVertex.size() > (unsigned int)iloc );
-		assert( m_aVertex[iloc].m_ID == id );
+		assert( m_aVertex[iloc].id == id );
 	}
 	else if( itype == 1 ){
 		assert( m_aBarAry.size() > (unsigned int)iloc );
-		assert( m_aBarAry[iloc].m_ID == id );
+		assert( m_aBarAry[iloc].id == id );
 	}
 	else if( itype == 2 ){
 		assert( m_aTriAry.size() > (unsigned int)iloc );
-		assert( m_aTriAry[iloc].m_ID == id );
+		assert( m_aTriAry[iloc].id == id );
 	}
 	else if( itype == 3 ){
 		assert( m_aQuadAry.size() > (unsigned int)iloc );
-		assert( m_aQuadAry[iloc].m_ID == id );
+		assert( m_aQuadAry[iloc].id == id );
 	}
 	return true;
 }
@@ -161,7 +161,7 @@ bool CMesher2D::GetMshInfo(unsigned int id, unsigned int& nelem, MSH_TYPE& msh_t
 		{
             assert( iloc < m_aVertex.size() );
 			const SVertex& vertex = this->m_aVertex[iloc];
-			id_cad = vertex.m_CadVertexID;
+			id_cad = vertex.id_v_cad;
 			nelem = 1;
 			msh_type = VERTEX;
 			break;
@@ -170,7 +170,7 @@ bool CMesher2D::GetMshInfo(unsigned int id, unsigned int& nelem, MSH_TYPE& msh_t
 		{
             assert( iloc < m_aBarAry.size() );
 			const CBarAry& aBar = this->m_aBarAry[iloc];
-			id_cad = aBar.m_CadEdgeID;
+			id_cad = aBar.id_e_cad;
 			nelem = aBar.m_aBar.size();
 			msh_type = BAR;
 			break;
@@ -179,7 +179,7 @@ bool CMesher2D::GetMshInfo(unsigned int id, unsigned int& nelem, MSH_TYPE& msh_t
 		{
             assert( iloc < m_aTriAry.size() );
 			const CTriAry2D& aTri = this->m_aTriAry[iloc];
-			id_cad = aTri.m_CadLoopID;
+			id_cad = aTri.id_l_cad;
 			nelem = aTri.m_aTri.size();
 			msh_type = TRI;
 			break;
@@ -188,7 +188,7 @@ bool CMesher2D::GetMshInfo(unsigned int id, unsigned int& nelem, MSH_TYPE& msh_t
 		{
             assert( iloc < m_aQuadAry.size() );
 			const CQuadAry2D& aQuad = this->m_aQuadAry[iloc];
-			id_cad = aQuad.m_CadLoopID;
+			id_cad = aQuad.id_l_cad;
 			nelem = aQuad.m_aQuad.size();
 			msh_type = QUAD;
 			break;
@@ -201,7 +201,7 @@ bool CMesher2D::GetMshInfo(unsigned int id, unsigned int& nelem, MSH_TYPE& msh_t
 }
 
 
-MSH_TYPE CMesher2D::GetConnectivity(std::vector<int>& lnods, unsigned int id_msh ) const
+MSH_TYPE CMesher2D::GetConnectivity(unsigned int id_msh,std::vector<int>& lnods) const
 {
 	assert( this->IsID(id_msh) );
 	MSH_TYPE msh_type;
@@ -259,8 +259,8 @@ unsigned int CMesher2D::GetElemID_FromCadID(unsigned int id_cad, Cad::CAD_ELEM_T
 	switch(itype_cad){
 	case Cad::VERTEX:
 		for(unsigned int iver=0;iver<m_aVertex.size();iver++){
-			if( m_aVertex[iver].m_CadVertexID == id_cad ){
-				unsigned int id_msh = m_aVertex[iver].m_ID;
+			if( m_aVertex[iver].id_v_cad == id_cad ){
+				unsigned int id_msh = m_aVertex[iver].id;
                 assert( m_ElemLoc[id_msh] == (int)iver );
 				assert( m_ElemType[id_msh] == 0 );
 				return id_msh;
@@ -269,8 +269,8 @@ unsigned int CMesher2D::GetElemID_FromCadID(unsigned int id_cad, Cad::CAD_ELEM_T
 		break;
 	case Cad::EDGE:
 		for(unsigned int ibar=0;ibar<m_aBarAry.size();ibar++){
-			if( m_aBarAry[ibar].m_CadEdgeID == id_cad ){
-				unsigned int id_msh = m_aBarAry[ibar].m_ID;
+			if( m_aBarAry[ibar].id_e_cad == id_cad ){
+				unsigned int id_msh = m_aBarAry[ibar].id;
                 assert( m_ElemLoc[id_msh] == (int)ibar );
 				assert( m_ElemType[id_msh] == 1 );
 				return id_msh;
@@ -279,16 +279,16 @@ unsigned int CMesher2D::GetElemID_FromCadID(unsigned int id_cad, Cad::CAD_ELEM_T
 		break;
 	case Cad::LOOP:
 		for(unsigned int itri=0;itri<m_aTriAry.size();itri++){
-			if( m_aTriAry[itri].m_CadLoopID == id_cad ){ 
-				unsigned int id_msh = m_aTriAry[itri].m_ID;
+			if( m_aTriAry[itri].id_l_cad == id_cad ){ 
+				unsigned int id_msh = m_aTriAry[itri].id;
                 assert( m_ElemLoc[id_msh] == (int)itri );
 				assert( m_ElemType[id_msh] == 2 );
 				return id_msh;
 			}
 		}
 		for(unsigned int iquad=0;iquad<m_aQuadAry.size();iquad++){
-			if( m_aQuadAry[iquad].m_CadLoopID == id_cad ){ 
-				unsigned int id_msh = m_aTriAry[iquad].m_ID;
+			if( m_aQuadAry[iquad].id_l_cad == id_cad ){ 
+				unsigned int id_msh = m_aTriAry[iquad].id;
                 assert( m_ElemLoc[id_msh] == (int)iquad );
 				assert( m_ElemType[id_msh] == 3 );
 				return id_msh;
@@ -311,10 +311,10 @@ bool CMesher2D::FindElemLocType_CadIDType(
 	switch(itype_cad){
 	case Cad::VERTEX:
 		for(unsigned int iver=0;iver<m_aVertex.size();iver++){
-			if( m_aVertex[iver].m_CadVertexID == id_cad ){
+			if( m_aVertex[iver].id_v_cad == id_cad ){
 				iloc = iver;
 				itype = 0;
-				unsigned int id_msh = m_aVertex[iver].m_ID;
+				unsigned int id_msh = m_aVertex[iver].id;
                 assert( m_ElemLoc[id_msh]  == (int)iloc );
                 assert( m_ElemType[id_msh] == (int)itype );
 				return true;
@@ -323,10 +323,10 @@ bool CMesher2D::FindElemLocType_CadIDType(
 		break;
 	case Cad::EDGE:
 		for(unsigned int ibar=0;ibar<m_aBarAry.size();ibar++){
-			if( m_aBarAry[ibar].m_CadEdgeID == id_cad ){
+			if( m_aBarAry[ibar].id_e_cad == id_cad ){
 				iloc = ibar;
 				itype = 1; 
-				unsigned int id_msh = m_aBarAry[ibar].m_ID;
+				unsigned int id_msh = m_aBarAry[ibar].id;
                 assert( m_ElemLoc[id_msh]  == (int)iloc );
                 assert( m_ElemType[id_msh] == (int)itype );
 				return true;
@@ -335,20 +335,20 @@ bool CMesher2D::FindElemLocType_CadIDType(
 		break;
 	case Cad::LOOP:
 		for(unsigned int itri=0;itri<m_aTriAry.size();itri++){
-			if( m_aTriAry[itri].m_CadLoopID == id_cad ){ 
+			if( m_aTriAry[itri].id_l_cad == id_cad ){ 
 				iloc = itri;
 				itype = 2;
-				unsigned int id_msh = m_aTriAry[itri].m_ID;
+				unsigned int id_msh = m_aTriAry[itri].id;
                 assert( m_ElemLoc[id_msh]  == (int)iloc );
                 assert( m_ElemType[id_msh] == (int)itype );
 				return true;
 			}
 		}
 		for(unsigned int iquad=0;iquad<m_aQuadAry.size();iquad++){
-			if( m_aQuadAry[iquad].m_CadLoopID == id_cad ){ 
+			if( m_aQuadAry[iquad].id_l_cad == id_cad ){ 
 				iloc = iquad;
 				itype = 3;
-				unsigned int id_msh = m_aQuadAry[iquad].m_ID;
+				unsigned int id_msh = m_aQuadAry[iquad].id;
                 assert( m_ElemLoc[id_msh]  == (int)iloc );
                 assert( m_ElemType[id_msh] == (int)itype );
 				return true;
@@ -373,22 +373,22 @@ void CMesher2D::MakeElemLocationType()
 	this->m_ElemType.resize(max_id+1,-1);
 	////////////////
 	for(unsigned int iver=0;iver<m_aVertex.size();iver++){
-		unsigned int id0 = m_aVertex[iver].m_ID;
+		unsigned int id0 = m_aVertex[iver].id;
 		m_ElemLoc[id0] = iver;
 		m_ElemType[id0] = 0;
 	}
 	for(unsigned int ibarary=0;ibarary<m_aBarAry.size();ibarary++){
-		unsigned int id0 = m_aBarAry[ibarary].m_ID;
+		unsigned int id0 = m_aBarAry[ibarary].id;
 		m_ElemLoc[id0] = ibarary;
 		m_ElemType[id0] = 1;
 	}
 	for(unsigned int itriary=0;itriary<m_aTriAry.size();itriary++){
-		unsigned int id0 = m_aTriAry[itriary].m_ID;
+		unsigned int id0 = m_aTriAry[itriary].id;
 		m_ElemLoc[id0] = itriary;
 		m_ElemType[id0] = 2;
 	}
 	for(unsigned int iquadary=0;iquadary<m_aQuadAry.size();iquadary++){
-		unsigned int id0 = m_aQuadAry[iquadary].m_ID;
+		unsigned int id0 = m_aQuadAry[iquadary].id;
 		m_ElemLoc[id0] = iquadary;
 		m_ElemType[id0] = 3;
 	}
@@ -451,7 +451,7 @@ int CMesher2D::CheckMesh()
 	{	// Check ID Overlap
 		unsigned int max_id = 0;
 		for(unsigned int iver=0;iver<m_aVertex.size();iver++){
-			const unsigned int id0 = m_aVertex[iver].m_ID;
+			const unsigned int id0 = m_aVertex[iver].id;
 			if( max_id < id0 ) max_id = id0;
 			assert( this->m_ElemType.size() > id0 );
 			assert( this->m_ElemType[id0] == 0 );
@@ -460,10 +460,10 @@ int CMesher2D::CheckMesh()
             assert( iloc0 == (int)iver );
 			assert( this->m_aVertex.size() > (unsigned int)iloc0 );
 			const SVertex& ver0 = this->m_aVertex[iloc0];
-			assert( ver0.m_ID == id0 );
+			assert( ver0.id == id0 );
 		}
 		for(unsigned int ibarary=0;ibarary<m_aBarAry.size();ibarary++){
-			const unsigned int id0 = m_aBarAry[ibarary].m_ID;
+			const unsigned int id0 = m_aBarAry[ibarary].id;
 			if( max_id < id0 ) max_id = id0;
 			assert( this->m_ElemType.size() > id0 );
 			assert( this->m_ElemType[id0] == 1 );
@@ -472,10 +472,10 @@ int CMesher2D::CheckMesh()
             assert( iloc0 == (int)ibarary );
 			assert( this->m_aBarAry.size() > (unsigned int)iloc0 );
 			const CBarAry& ver0 = this->m_aBarAry[iloc0];
-			assert( ver0.m_ID == id0 );
+			assert( ver0.id == id0 );
 		}
 		for(unsigned int itriary=0;itriary<m_aTriAry.size();itriary++){
-			const unsigned int id0 = m_aTriAry[itriary].m_ID;
+			const unsigned int id0 = m_aTriAry[itriary].id;
 			if( max_id < id0 ) max_id = id0;
 			assert( this->m_ElemType.size() > id0 );
 			assert( this->m_ElemType[id0] == 2 );
@@ -484,10 +484,10 @@ int CMesher2D::CheckMesh()
             assert( iloc0 == (int)itriary );
 			assert( this->m_aTriAry.size() > (unsigned int)iloc0 );
 			const CTriAry2D& ver0 = this->m_aTriAry[iloc0];
-			assert( ver0.m_ID == id0 );
+			assert( ver0.id == id0 );
 		}
 		for(unsigned int iquadary=0;iquadary<m_aQuadAry.size();iquadary++){
-			const unsigned int id0 = m_aQuadAry[iquadary].m_ID;
+			const unsigned int id0 = m_aQuadAry[iquadary].id;
 			if( max_id < id0 ) max_id = id0;
 			assert( this->m_ElemType.size() > id0 );
 			assert( this->m_ElemType[id0] == 3 );
@@ -496,33 +496,33 @@ int CMesher2D::CheckMesh()
             assert( iloc0 == (int)iquadary );
 			assert( this->m_aQuadAry.size() > (unsigned int)iloc0 );
 			const CQuadAry2D& ver0 = this->m_aQuadAry[iloc0];
-			assert( ver0.m_ID == id0 );
+			assert( ver0.id == id0 );
 		}
 		assert( max_id == this->FindMaxID() );
 		std::vector<unsigned int> is_used_flg_ary;
 		is_used_flg_ary.resize( max_id+1, 0 );
 		for(unsigned  int iver=0;iver<m_aVertex.size();iver++){
-			assert( is_used_flg_ary[ m_aVertex[iver].m_ID ] == 0 );
-			is_used_flg_ary[ m_aVertex[iver].m_ID ] = 1;
+			assert( is_used_flg_ary[ m_aVertex[iver].id ] == 0 );
+			is_used_flg_ary[ m_aVertex[iver].id ] = 1;
 		}
 		for(unsigned int ibarary=0;ibarary<m_aBarAry.size();ibarary++){
-			assert( is_used_flg_ary[ m_aBarAry[ibarary].m_ID ] == 0 );
-			is_used_flg_ary[ m_aBarAry[ibarary].m_ID ] = 1;
+			assert( is_used_flg_ary[ m_aBarAry[ibarary].id ] == 0 );
+			is_used_flg_ary[ m_aBarAry[ibarary].id ] = 1;
 		}
 		for(unsigned int itriary=0;itriary<m_aTriAry.size();itriary++){
-			assert( is_used_flg_ary[ m_aTriAry[itriary].m_ID ] == 0 );
-			is_used_flg_ary[ m_aTriAry[itriary].m_ID ] = 1;
+			assert( is_used_flg_ary[ m_aTriAry[itriary].id ] == 0 );
+			is_used_flg_ary[ m_aTriAry[itriary].id ] = 1;
 		}
 		assert( is_used_flg_ary[0] == 0 );
 	}
 	for(unsigned int iver=0;iver<m_aVertex.size();iver++){
-		assert( IsID( m_aVertex[iver].m_ID ) );
+		assert( IsID( m_aVertex[iver].id ) );
 	}
 	for(unsigned int ibarary=0;ibarary<m_aBarAry.size();ibarary++){
-		assert( IsID( m_aBarAry[ibarary].m_ID ) );
+		assert( IsID( m_aBarAry[ibarary].id ) );
 	}
 	for(unsigned int itriary=0;itriary<m_aTriAry.size();itriary++){
-		assert( IsID( m_aTriAry[itriary].m_ID ) );
+		assert( IsID( m_aTriAry[itriary].id ) );
 	}
 	{
 		for(unsigned int ind=0;ind<m_ElemLoc.size();ind++){
@@ -533,11 +533,11 @@ int CMesher2D::CheckMesh()
 	}
 	////////////////////////////////	
 	for(unsigned int ibarary=0;ibarary<m_aBarAry.size();ibarary++){
-		const unsigned int id_msh_bar = m_aBarAry[ibarary].m_ID;
+		const unsigned int id_msh_bar = m_aBarAry[ibarary].id;
 		const int iloc_bar = this->m_ElemLoc[id_msh_bar];
 		const std::vector<SBar>& aBar = this->m_aBarAry[iloc_bar].m_aBar;
 		for(unsigned int isidebar=0;isidebar<2;isidebar++){
-			int id_msh_adj = this->m_aBarAry[iloc_bar].m_ID_lr[isidebar];
+			int id_msh_adj = this->m_aBarAry[iloc_bar].id_lr[isidebar];
 			if( id_msh_adj <= 0 ) continue;	// 外部と接している場合
 			const int iloc_adj = this->m_ElemLoc[id_msh_adj];
 			if( this->m_ElemType[id_msh_adj] == 2 ){	// 三角形と接している場合
@@ -577,7 +577,7 @@ void CMesher2D::SmoothingMesh_Delaunay(unsigned int& num_flip)
 	// 境界における要素との整合性をとる
 	for(unsigned int itriary=0;itriary<m_aTriAry.size();itriary++){
 		std::vector<STri2D>& aTri = m_aTriAry[itriary].m_aTri;		
-		unsigned int id_this_loop = m_aTriAry[itriary].m_ID;
+		unsigned int id_this_loop = m_aTriAry[itriary].id;
 		for(unsigned int itri=0;itri<aTri.size();itri++){
 		for(unsigned int ifatri=0;ifatri<3;ifatri++){
 			if( aTri[itri].g2[ifatri] < 0 ) continue;
@@ -590,20 +590,20 @@ void CMesher2D::SmoothingMesh_Delaunay(unsigned int& num_flip)
 			if( itype0 == 1 ){
 				assert( (unsigned int)iloc0 < this->m_aBarAry.size() );
 				CBarAry& bar_ary = m_aBarAry[iloc0];
-				assert( bar_ary.m_ID == id0 );
+				assert( bar_ary.id == id0 );
 				assert( iele0 < bar_ary.m_aBar.size() );
 				SBar& bar = bar_ary.m_aBar[iele0];
 				const unsigned int iver0 = aTri[itri].v[ noelTriEdge[ifatri][0] ];
 				const unsigned int iver1 = aTri[itri].v[ noelTriEdge[ifatri][1] ];
 				if( iver0 == bar.v[0] && iver1 == bar.v[1] ){
-                    assert( bar_ary.m_ID_lr[0] == id_this_loop );
+                    assert( bar_ary.id_lr[0] == id_this_loop );
 					bar.s2[0] = itri;
 					bar.r2[0] = ifatri;
 					aTri[itri].r2[ifatri] = 0;
 				}
 				else{
 					assert( iver0 == bar.v[1] && iver1 == bar.v[0] );
-                    assert( bar_ary.m_ID_lr[1] == id_this_loop );
+                    assert( bar_ary.id_lr[1] == id_this_loop );
 					bar.s2[1] = itri;
 					bar.r2[1] = ifatri;
 					aTri[itri].r2[ifatri] = 1;
@@ -748,7 +748,11 @@ bool CMesher2D::Tessalate_Edge(
 	*/
 
 	unsigned int id_v_s, id_v_e;
-	if( !cad_2d.GetIdVertex_Edge(id_v_s,id_v_e,id_e) ) assert(0);
+    assert( cad_2d.IsElemID(Cad::EDGE,id_e) );
+    if( !cad_2d.GetIdVertex_Edge(id_v_s,id_v_e,id_e) ){
+        std::cout << "error edge : " << id_e << std::endl;
+        assert(0);
+    }
 
 	unsigned int ip_s, ip_e;
 	unsigned int id_msh_s, id_msh_e;
@@ -758,12 +762,12 @@ bool CMesher2D::Tessalate_Edge(
 		assert(itype==0 && iloc<m_aVertex.size());
 		const Msh::SVertex& pvs = m_aVertex[iloc];
 		ip_s = pvs.v;
-		id_msh_s = pvs.m_ID;
+		id_msh_s = pvs.id;
 		if( !this->FindElemLocType_CadIDType(iloc,itype,id_v_e,Cad::VERTEX) ) assert(0);
 		assert(itype==0 && iloc<m_aVertex.size());
 		const Msh::SVertex& pve = m_aVertex[iloc];
 		ip_e = pve.v;
-		id_msh_e = pve.m_ID;
+		id_msh_e = pve.id;
 	}
 
 //	unsigned int curve_type = cad_2d.GetEdgeCurveType(id_e);
@@ -793,13 +797,13 @@ bool CMesher2D::Tessalate_Edge(
         ipo_ary[ndiv] = ip_e;
     }
     {
-        ref_bar_ary.m_ID = id_new_elem_ary;
-        ref_bar_ary.m_CadEdgeID = id_e;
+        ref_bar_ary.id = id_new_elem_ary;
+        ref_bar_ary.id_e_cad = id_e;
         ref_bar_ary.m_aBar.resize(ndiv);
-		ref_bar_ary.m_ID_se[0] = id_msh_s;
-		ref_bar_ary.m_ID_se[1] = id_msh_e;
-        ref_bar_ary.m_ID_lr[0] = 0;
-        ref_bar_ary.m_ID_lr[1] = 0;
+		ref_bar_ary.id_se[0] = id_msh_s;
+		ref_bar_ary.id_se[1] = id_msh_e;
+        ref_bar_ary.id_lr[0] = 0;
+        ref_bar_ary.id_lr[1] = 0;
         for(unsigned int ibar=0;ibar<ndiv;ibar++){
             ref_bar_ary.m_aBar[ibar].v[0] = ipo_ary[ibar];
             ref_bar_ary.m_aBar[ibar].v[1] = ipo_ary[ibar+1];
@@ -837,12 +841,12 @@ bool CMesher2D::MakeMesh_Edge(
 		assert(itype==0 && iloc<m_aVertex.size());
 		const Msh::SVertex& pvs = m_aVertex[iloc];
 		ip_s = pvs.v;
-		id_msh_s = pvs.m_ID;
+		id_msh_s = pvs.id;
 		if( !this->FindElemLocType_CadIDType(iloc,itype,id_v_e,Cad::VERTEX) ) assert(0);
 		assert(itype==0 && iloc<m_aVertex.size());
 		const Msh::SVertex& pve = m_aVertex[iloc];
 		ip_e = pve.v;
-		id_msh_e = pve.m_ID;
+		id_msh_e = pve.id;
 	}
 
 	unsigned int id_new_elem_ary = this->GetFreeObjID();
@@ -870,12 +874,12 @@ bool CMesher2D::MakeMesh_Edge(
         ipo_ary[ndiv] = ip_e;
     }
     {
-        ref_bar_ary.m_ID = id_new_elem_ary;
-        ref_bar_ary.m_CadEdgeID = id_e;
-		ref_bar_ary.m_ID_se[0] = id_msh_s;
-		ref_bar_ary.m_ID_se[1] = id_msh_e;
-        ref_bar_ary.m_ID_lr[0] = 0;
-        ref_bar_ary.m_ID_lr[1] = 0;
+        ref_bar_ary.id = id_new_elem_ary;
+        ref_bar_ary.id_e_cad = id_e;
+		ref_bar_ary.id_se[0] = id_msh_s;
+		ref_bar_ary.id_se[1] = id_msh_e;
+        ref_bar_ary.id_lr[0] = 0;
+        ref_bar_ary.id_lr[1] = 0;
         ref_bar_ary.m_aBar.resize(ndiv);
         for(unsigned int ibar=0;ibar<ndiv;ibar++){
             ref_bar_ary.m_aBar[ibar].v[0] = ipo_ary[ibar];
@@ -933,7 +937,7 @@ bool CMesher2D::Tesselate_Loop(
 					assert( iloc < m_aBarAry.size() );
 					assert( itype == 1 );
 					const Msh::CBarAry& BarAry = m_aBarAry[iloc];
-					assert( BarAry.m_CadEdgeID == id_e );
+					assert( BarAry.id_e_cad == id_e );
 					const std::vector<SBar>& aBar = BarAry.m_aBar;
 					for(unsigned int ibar=0;ibar<aBar.size();ibar++){ 
 						vec2po[ aBar[ibar].v[0] ] = 1;
@@ -1085,9 +1089,9 @@ bool CMesher2D::Tesselate_Loop(
 			assert( iloc < m_aBarAry.size() );
 			assert( itype == 1 );
 			const Msh::CBarAry& BarAry = m_aBarAry[iloc];
-			assert( id_e == BarAry.m_CadEdgeID );
+			assert( id_e == BarAry.id_e_cad );
 			const std::vector<SBar>& aBar = BarAry.m_aBar;
-			const unsigned int id_elem_bar = BarAry.m_ID;
+			const unsigned int id_elem_bar = BarAry.id;
 			assert( id_elem_bar != id_new_tri_ary );
 			for(unsigned int ibar=0;ibar<aBar.size();ibar++){
 				for(;;){ // EdgeをFlipしたら同じ辺について繰り返す				
@@ -1178,9 +1182,9 @@ bool CMesher2D::Tesselate_Loop(
 			assert( iloc < m_aBarAry.size() );
 			assert( itype == 1 );
 			Msh::CBarAry& BarAry = m_aBarAry[iloc];
-			assert( id_e == BarAry.m_CadEdgeID );
+			assert( id_e == BarAry.id_e_cad );
 			std::vector<SBar>& aBar = BarAry.m_aBar;
-			const unsigned int id_elem_bar = BarAry.m_ID;
+			const unsigned int id_elem_bar = BarAry.id;
 			assert( id_elem_bar != id_new_tri_ary );
 			for(unsigned int ibar=0;ibar<aBar.size();ibar++){					
 				unsigned int ipoi0,ipoi1; // ipoi0は左周りのbarの始点、ipoi1は終点
@@ -1199,13 +1203,13 @@ bool CMesher2D::Tesselate_Loop(
 				const unsigned int ied0 = 3 - inotri0 - inotri1;
 				// 辺要素の隣接情報を作る
 				if( is_same_dir ){	
-                    assert( BarAry.m_ID_lr[0] == id_new_tri_ary || BarAry.m_ID_lr[0] == 0 );
-					BarAry.m_ID_lr[0] = id_new_tri_ary;
+                    assert( BarAry.id_lr[0] == id_new_tri_ary || BarAry.id_lr[0] == 0 );
+					BarAry.id_lr[0] = id_new_tri_ary;
 					aBar[ibar].s2[0]=itri0; aBar[ibar].r2[0]=ied0; 
 				}
 				else{				
-                    assert( BarAry.m_ID_lr[1] == id_new_tri_ary || BarAry.m_ID_lr[1] == 0 );
-					BarAry.m_ID_lr[1] = id_new_tri_ary;
+                    assert( BarAry.id_lr[1] == id_new_tri_ary || BarAry.id_lr[1] == 0 );
+					BarAry.id_lr[1] = id_new_tri_ary;
 					aBar[ibar].s2[1]=itri0; aBar[ibar].r2[1]=ied0; 
 				}
 			}
@@ -1231,11 +1235,11 @@ bool CMesher2D::Tesselate_Loop(
 			assert( iloc < m_aBarAry.size() );
 			assert( itype == 1 );
 			const Msh::CBarAry& BarAry = m_aBarAry[iloc];
-			assert( id_e == BarAry.m_CadEdgeID );
+			assert( id_e == BarAry.id_e_cad );
 			const std::vector<SBar>& aBar = BarAry.m_aBar;
-			const unsigned int id_elem_bar = BarAry.m_ID;
+			const unsigned int id_elem_bar = BarAry.id;
 			assert( id_elem_bar != id_new_tri_ary );
-            if( BarAry.m_ID_lr[0] == id_new_tri_ary ){	// 左側を切り離す
+            if( BarAry.id_lr[0] == id_new_tri_ary ){	// 左側を切り離す
 				for(unsigned int ibar=0;ibar<aBar.size();ibar++){
 					const SBar& bar = aBar[ibar];
 					const unsigned int itri0 = bar.s2[0];
@@ -1249,7 +1253,7 @@ bool CMesher2D::Tesselate_Loop(
 						const unsigned int itri1 = aTri[itri0].s2[ied0];
                         const unsigned int ied1 = (unsigned int)relTriTri[ (int)aTri[itri0].r2[ied0] ][ied0];
 						assert( aTri[itri1].s2[ied1] == itri0 );
-                        if( BarAry.m_ID_lr[1] != id_new_tri_ary ){	// 外側の要素を切り離す
+                        if( BarAry.id_lr[1] != id_new_tri_ary ){	// 外側の要素を切り離す
 							assert( aTri[itri1].s2[ied1] == itri0 );
 							aTri[itri1].g2[ied1] = -1;
 						}
@@ -1266,7 +1270,7 @@ bool CMesher2D::Tesselate_Loop(
 					}
 				}
 			}			
-            if( BarAry.m_ID_lr[1] == id_new_tri_ary ){	// 辺の右側を切り離す
+            if( BarAry.id_lr[1] == id_new_tri_ary ){	// 辺の右側を切り離す
 				for(unsigned int ibar=0;ibar<aBar.size();ibar++){
 					const SBar& bar = aBar[ibar];
 					const unsigned int itri0 = bar.s2[1];
@@ -1279,7 +1283,7 @@ bool CMesher2D::Tesselate_Loop(
 						assert( ied1 < 3 );
                         assert( (int)aTri[itri0].v[noelTriEdge[ied0][0]]==vec2po[bar.v[1]] );
                         assert( (int)aTri[itri0].v[noelTriEdge[ied0][1]]==vec2po[bar.v[0]] );
-                        if( BarAry.m_ID_lr[0] != id_new_tri_ary ){	// 外側の要素を切り離す
+                        if( BarAry.id_lr[0] != id_new_tri_ary ){	// 外側の要素を切り離す
 							assert( aTri[itri1].s2[ied1] == itri0 );
 							aTri[itri1].g2[ied1] = -1;
 						}
@@ -1322,15 +1326,15 @@ bool CMesher2D::Tesselate_Loop(
 				assert( itype == 1 );
 				assert( iloc < m_aBarAry.size() );
 				const Msh::CBarAry& BarAry = m_aBarAry[iloc];
-				assert( id_e == BarAry.m_CadEdgeID );
+				assert( id_e == BarAry.id_e_cad );
 				const std::vector<SBar>& aBar = BarAry.m_aBar;
-                if(      BarAry.m_ID_lr[0] == id_new_tri_ary ){
+                if(      BarAry.id_lr[0] == id_new_tri_ary ){
 					for(unsigned int ibar=0;ibar<aBar.size();ibar++){
 						itri0_ker = aBar[ibar].s2[0];
 						break;
 					}
 				}
-                else if( BarAry.m_ID_lr[1] == id_new_tri_ary ){
+                else if( BarAry.id_lr[1] == id_new_tri_ary ){
 					for(unsigned int ibar=0;ibar<aBar.size();ibar++){
 						itri0_ker = aBar[ibar].s2[1];
 						break;
@@ -1397,12 +1401,12 @@ bool CMesher2D::Tesselate_Loop(
 				assert( iloc < m_aBarAry.size() );
 				assert( itype == 1 );
 				Msh::CBarAry& BarAry = m_aBarAry[iloc];
-				assert( id_e == BarAry.m_CadEdgeID );
+				assert( id_e == BarAry.id_e_cad );
 				std::vector<SBar>& aBar = BarAry.m_aBar;
-				const unsigned int id_elem_bar = BarAry.m_ID;
+				const unsigned int id_elem_bar = BarAry.id;
 				assert( id_elem_bar != id_new_tri_ary );
 				unsigned int iside = ( is_same_dir ) ? 0 : 1;
-				assert( BarAry.m_ID_lr[iside] == id_new_tri_ary );
+				assert( BarAry.id_lr[iside] == id_new_tri_ary );
 				for(unsigned int ibar=0;ibar<aBar.size();ibar++){
 					SBar& bar = aBar[ibar];
 					int itri_s0 = bar.s2[iside];
@@ -1459,8 +1463,8 @@ bool CMesher2D::Tesselate_Loop(
 		unsigned int itriary = m_aTriAry.size();
 		m_aTriAry.resize( m_aTriAry.size()+1 );
 		m_aTriAry[ itriary ].m_aTri = aTri_in;
-		m_aTriAry[ itriary ].m_CadLoopID = id_l;
-		m_aTriAry[ itriary ].m_ID = id_new_tri_ary;
+		m_aTriAry[ itriary ].id_l_cad = id_l;
+		m_aTriAry[ itriary ].id = id_new_tri_ary;
 		m_aTriAry[ itriary ].ilayer = cad_2d.GetLayer_Loop(id_l);
 		this->m_ElemType.resize(id_new_tri_ary+1,-1);
 		this->m_ElemLoc.resize(id_new_tri_ary+1);
@@ -1653,7 +1657,7 @@ bool CMesher2D::MakeMesh_Loop(
 		assert( itype == 2 );
 		assert( iloc < m_aTriAry.size() );
 		const CTriAry2D& TriAry = m_aTriAry[iloc];
-		id_this_loop = TriAry.m_ID;
+		id_this_loop = TriAry.id;
 	}
 
 	{	// 境界における要素との整合性をとる
@@ -1669,20 +1673,20 @@ bool CMesher2D::MakeMesh_Loop(
 				if( itype0 == 1 ){
 					assert( (unsigned int)iloc0 < this->m_aBarAry.size() );
 					CBarAry& bar_ary = m_aBarAry[iloc0];
-					assert( bar_ary.m_ID == id0 );
+					assert( bar_ary.id == id0 );
 					assert( iele0 < bar_ary.m_aBar.size() );
 					SBar& bar = bar_ary.m_aBar[iele0];
 					const unsigned int iver0 = aTri[itri].v[ noelTriEdge[ifatri][0] ];
 					const unsigned int iver1 = aTri[itri].v[ noelTriEdge[ifatri][1] ];
 					if( iver0 == bar.v[0] && iver1 == bar.v[1] ){
-                        assert( bar_ary.m_ID_lr[0] == id_this_loop );
+                        assert( bar_ary.id_lr[0] == id_this_loop );
 						bar.s2[0] = itri;
 						bar.r2[0] = ifatri;
 						aTri[itri].r2[ifatri] = 0;
 					}
 					else{
 						assert( iver0 == bar.v[1] && iver1 == bar.v[0] );
-                        assert( bar_ary.m_ID_lr[1] == id_this_loop );
+                        assert( bar_ary.id_lr[1] == id_this_loop );
 						bar.s2[1] = itri;
 						bar.r2[1] = ifatri;
 						aTri[itri].r2[ifatri] = 1;
@@ -1701,7 +1705,7 @@ bool CMesher2D::MakeMesh_Loop(
 		if( !this->FindElemLocType_CadIDType(iloc,itype, id_cad_l,Cad::LOOP) ) assert(0);
 		assert( itype == 2 );
 		assert( iloc < m_aTriAry.size() );
-		assert( m_aTriAry[iloc].m_CadLoopID == id_cad_l );
+		assert( m_aTriAry[iloc].id_l_cad == id_cad_l );
 		m_aTriAry[iloc].m_aTri = aTri;
 	}
 
@@ -1726,8 +1730,8 @@ bool CMesher2D::Tesselate_LoopAround(
 			aVec2D.push_back(vec2d);
 			{
 				Msh::SVertex v;
-				v.m_CadVertexID = id_v;
-				v.m_ID = id_add;
+				v.id_v_cad = id_v;
+				v.id = id_add;
 				v.v = aVec2D.size()-1;
 				this->m_aVertex.push_back(v);
 			}
@@ -1777,8 +1781,8 @@ bool CMesher2D::Tesselation(const Cad::ICad2D& cad_2d, const std::vector<unsigne
 			aVec2D.push_back(vec2d);
 			{
 				Msh::SVertex tmp_ver;
-				tmp_ver.m_ID = id_add;
-				tmp_ver.m_CadVertexID = id_v;
+				tmp_ver.id = id_add;
+				tmp_ver.id_v_cad = id_v;
 				tmp_ver.v = aVec2D.size()-1;
 				this->m_aVertex.push_back( tmp_ver );
 			}
@@ -1855,8 +1859,8 @@ bool CMesher2D::Meshing_ElemLength(
 			aVec2D.push_back(vec2d);
 			{
 				Msh::SVertex tmp_ver;
-				tmp_ver.m_ID = id_add;
-				tmp_ver.m_CadVertexID = id_v;
+				tmp_ver.id = id_add;
+				tmp_ver.id_v_cad = id_v;
 				tmp_ver.v = aVec2D.size()-1;
 				this->m_aVertex.push_back( tmp_ver );
 			}
@@ -1950,11 +1954,11 @@ bool CMesher2D::GetTriMesh_Around(
 		int ibarary0 = m_ElemLoc[id_msh_bar0];
         assert( ibarary0 >= 0 && ibarary0 < (int)m_aBarAry.size() );
 		const std::vector<SBar>& aBar = m_aBarAry[ibarary0].m_aBar;
-		assert( id_msh_bar0 == m_aBarAry[ibarary0].m_ID );
+		assert( id_msh_bar0 == m_aBarAry[ibarary0].id );
 		////////////////////////////////
 		ivec_cent = aBar[ibar0].v[inobar0];
 		const unsigned int iside0 = ( is_left ) ? 0 : 1;
-		id_msh_tri0 = m_aBarAry[ibarary0].m_ID_lr[iside0];
+		id_msh_tri0 = m_aBarAry[ibarary0].id_lr[iside0];
 		itri0 = aBar[ibar0].s2[iside0];
 		ied0  = aBar[ibar0].r2[iside0];
 		int itriary0 = m_ElemLoc[id_msh_tri0];
@@ -1995,14 +1999,14 @@ bool CMesher2D::GetTriMesh_Around(
 			const std::vector<SBar>& aBar_adj = m_aBarAry[(unsigned int)iloc_adj].m_aBar;
 			const unsigned int ibar_adj  = aTri0[itri0].s2[inotri_d];
 			const unsigned int iside_adj = aTri0[itri0].r2[inotri_d];
-            assert( (int)m_aBarAry[(unsigned int)iloc_adj].m_ID_lr[iside_adj] == id_msh_tri0 );
+            assert( (int)m_aBarAry[(unsigned int)iloc_adj].id_lr[iside_adj] == id_msh_tri0 );
 			assert( aBar_adj[ibar_adj].s2[iside_adj] == itri0 );
 			assert( aBar_adj[ibar_adj].r2[iside_adj] == inotri_d );
 			const unsigned int jside_adj = 1-iside_adj;
-            if( m_aBarAry[(unsigned int)iloc_adj].m_ID_lr[jside_adj] == 0 ){    // 一周しない(外側にぶつかった)
+            if( m_aBarAry[(unsigned int)iloc_adj].id_lr[jside_adj] == 0 ){    // 一周しない(外側にぶつかった)
                 return false;
             }
-			id_msh_tri1 = m_aBarAry[(unsigned int)iloc_adj].m_ID_lr[jside_adj];
+			id_msh_tri1 = m_aBarAry[(unsigned int)iloc_adj].id_lr[jside_adj];
             assert( id_msh_tri1 >= 0 && id_msh_tri1 < (int)m_ElemType.size() );
 			assert( m_ElemType[id_msh_tri1] == 2 );
 			itri1 = aBar_adj[ibar_adj].s2[jside_adj];
@@ -2092,8 +2096,8 @@ bool CMesher2D::GetClipedMesh(
         if( ibarary<0 || ibarary>=(int)m_aBarAry.size() ){ return false; }
         const CBarAry& BarAry = m_aBarAry[ibarary];
         {
-            unsigned int id_msh_l = BarAry.m_ID_lr[0];
-            unsigned int id_msh_r = BarAry.m_ID_lr[1];
+            unsigned int id_msh_l = BarAry.id_lr[0];
+            unsigned int id_msh_r = BarAry.id_lr[1];
             if( aTriId2Inc[id_msh_l]==-1 ) continue;
             if( aTriId2Inc[id_msh_r]==-1 ) continue;
         }
@@ -2214,15 +2218,10 @@ bool CMesher2D::Serialize( Com::CSerializer& arch )
 {
 	if( arch.IsLoading() ){	// 読み込み時の処理
         CMesher2D::Clear();
-		char stmp1[256];
-		arch.Get("%s",stmp1);	assert( strncmp(stmp1,"$$$$$$$$",8)==0 );
-		arch.Get("%s",stmp1);	assert( strncmp(stmp1,"CMesh2D",   5)==0 );
-		int naVer, naBar, naTri, naQuad;
-		arch.Get("%d%d%d%d",&naVer,&naBar,&naTri,&naQuad);
-        assert( naVer>=0 && naBar>=0 && naTri>=0 && naQuad>=0 );
+		const unsigned int buff_size = 256;
+		char class_name[buff_size];
+		arch.ReadDepthClassName(class_name,buff_size);
 		{
-			arch.Get("%s",stmp1);	assert( strncmp(stmp1,"$$$$", 4)==0 );	
-			arch.Get("%s",stmp1);	assert( strncmp(stmp1,"VEC2D",5)==0 );
 			int nvec, ndim;	arch.Get("%d%d",&nvec,&ndim);	assert(nvec>0 && (ndim>0&&ndim<4) );
 			this->aVec2D.resize(nvec);
             for(unsigned int ivec=0;ivec<(unsigned int)nvec;ivec++){
@@ -2233,30 +2232,34 @@ bool CMesher2D::Serialize( Com::CSerializer& arch )
 				aVec2D[ivec].y = y;
 			}
 		}
+		int naVer, naBar, naTri, naQuad;
+		arch.Get("%d%d%d%d",&naVer,&naBar,&naTri,&naQuad);
+        assert( naVer>=0 && naBar>=0 && naTri>=0 && naQuad>=0 );
+		arch.ShiftDepth(true);
         for(unsigned int iaVer=0;iaVer<(unsigned int)naVer;iaVer++){
-			arch.Get("%s",stmp1);	assert( strncmp(stmp1,"$$$$", 4)==0 );
-			arch.Get("%s",stmp1);	assert( strncmp(stmp1,"VER",  3)==0 );
+			arch.ReadDepthClassName(class_name,buff_size);
+			assert( strncmp(class_name,"SVertex",7)==0 );
 			int id;		arch.Get("%d",&id);		assert(id>0);
 			int id_cad;	arch.Get("%d",&id_cad);	assert(id_cad>=0);
 			int iv;		arch.Get("%d",&iv);		assert(iv>=0);
 			const unsigned int iver = m_aVertex.size();
 			m_aVertex.resize( m_aVertex.size()+1 );
 			SVertex& Ver = m_aVertex[iver];
-			Ver.m_ID = id;
-			Ver.m_CadVertexID = id_cad;
+			Ver.id = id;
+			Ver.id_v_cad = id_cad;
 			Ver.v = iv;
 		}
         for(unsigned int iaBar=0;iaBar<(unsigned int)naBar;iaBar++){
-			arch.Get("%s",stmp1);	assert( strncmp(stmp1,"$$$$", 4)==0 );
-			arch.Get("%s",stmp1);	assert( strncmp(stmp1,"BAR",  3)==0 );
+			arch.ReadDepthClassName(class_name,buff_size);
+			assert( strncmp(class_name,"CBarAry",7)==0 );
 			int id;		arch.Get("%d",&id);		assert(id>0);
 			int id_cad;	arch.Get("%d",&id_cad);	assert(id_cad>=0);
 			int nbar;	arch.Get("%d",&nbar);	assert(nbar>0);
 			const unsigned int ibar_ary = m_aBarAry.size();
 			m_aBarAry.resize( m_aBarAry.size()+1 );
 			CBarAry& aBar = m_aBarAry[ibar_ary];
-			aBar.m_ID = id;
-			aBar.m_CadEdgeID = id_cad;
+			aBar.id = id;
+			aBar.id_e_cad = id_cad;
 			aBar.m_aBar.resize(nbar);
 			for(int ibar=0;ibar<nbar;ibar++){
 				int tmp_ibar,iv0,iv1;
@@ -2268,16 +2271,16 @@ bool CMesher2D::Serialize( Com::CSerializer& arch )
 			}
 		}
         for(unsigned int iaTri=0;iaTri<(unsigned int)naTri;iaTri++){
-			arch.Get("%s",stmp1);	assert( strncmp(stmp1,"$$$$", 4)==0 );
-			arch.Get("%s",stmp1);	assert( strncmp(stmp1,"TRI",  3)==0 );
+			arch.ReadDepthClassName(class_name,buff_size);
+			assert( strncmp(class_name,"CTriAry2D",9)==0 );
 			int id;		arch.Get("%d",&id);		assert(id>0);
 			int id_cad;	arch.Get("%d",&id_cad);	assert(id_cad>=0);
 			int ntri;	arch.Get("%d",&ntri);	assert(ntri>0);
 			const unsigned int itri_ary = m_aTriAry.size();
 			m_aTriAry.resize( m_aTriAry.size()+1 );
 			CTriAry2D& aTri = m_aTriAry[itri_ary];
-			aTri.m_ID = id;
-			aTri.m_CadLoopID = id_cad;
+			aTri.id = id;
+			aTri.id_l_cad = id_cad;
 			aTri.m_aTri.resize(ntri);
 			for(int itri=0;itri<ntri;itri++){
 				int tmp_itri,iv0,iv1,iv2;
@@ -2290,16 +2293,16 @@ bool CMesher2D::Serialize( Com::CSerializer& arch )
 			}
 		}
         for(unsigned int iaQuad=0;iaQuad<(unsigned int)naQuad;iaQuad++){
-			arch.Get("%s",stmp1);	assert( strncmp(stmp1,"$$$$", 4)==0 );
-			arch.Get("%s",stmp1);	assert( strncmp(stmp1,"QUAD", 4)==0 );
+			arch.ReadDepthClassName(class_name,buff_size);
+			assert( strncmp(class_name,"CQuadAry2D",10)==0 );
 			int id;		arch.Get("%d",&id);		assert(id>0);
 			int id_cad;	arch.Get("%d",&id_cad);	assert(id_cad>=0);
 			int nquad;	arch.Get("%d",&nquad);	assert(nquad>0);
 			const unsigned int iquad_ary = m_aQuadAry.size();
 			m_aQuadAry.resize( m_aQuadAry.size()+1 );
 			CQuadAry2D& aQuad = m_aQuadAry[iquad_ary];
-			aQuad.m_ID = id;
-			aQuad.m_CadLoopID = id_cad;
+			aQuad.id = id;
+			aQuad.id_l_cad = id_cad;
 			aQuad.m_aQuad.resize(nquad);
 			for(int iquad=0;iquad<nquad;iquad++){
 				int tmp_iquad,iv0,iv1,iv2,iv3;
@@ -2314,37 +2317,30 @@ bool CMesher2D::Serialize( Com::CSerializer& arch )
 		}
 		this->MakeElemLocationType();
 		assert( this->CheckMesh() == 0 );
+		arch.ShiftDepth(false);
 		return true;
 	}
 	else{ // 書き込み時の処理	
-		{	// ヘッダを書き込む
-			arch.Out("$$$$$$$$\n");
-			arch.Out("CMesh2D\n");
-			arch.Out("%d %d %d %d\n",m_aVertex.size(), m_aBarAry.size(), m_aTriAry.size(), m_aQuadAry.size() );
+		arch.WriteDepthClassName("CMesher2D");
+		arch.Out("%d %d\n",aVec2D.size(),2);
+		for(unsigned int ivec=0;ivec<aVec2D.size();ivec++){
+			arch.Out("%d %lf %lf\n",ivec,aVec2D[ivec].x,aVec2D[ivec].y);
 		}
-		{	// Vector2Dの出力
-			arch.Out("$$$$\n");
-			arch.Out("VEC2D\n");
-			arch.Out("%d %d\n",aVec2D.size(),2);
-			for(unsigned int ivec=0;ivec<aVec2D.size();ivec++){
-				arch.Out("%d %lf %lf\n",ivec,aVec2D[ivec].x,aVec2D[ivec].y);
-			}
-		}
+		arch.Out("%d %d %d %d\n",m_aVertex.size(), m_aBarAry.size(), m_aTriAry.size(), m_aQuadAry.size() );
+		arch.ShiftDepth(true);
 		{	// Vertexの出力
 			for(unsigned int iver=0;iver<m_aVertex.size();iver++){
-				arch.Out("$$$$\n");
-				arch.Out("VER\n");
-				arch.Out("%d\n",m_aVertex[iver].m_ID);
-				arch.Out("%d\n",m_aVertex[iver].m_CadVertexID);
+				arch.WriteDepthClassName("SVertex");
+				arch.Out("%d\n",m_aVertex[iver].id);
+				arch.Out("%d\n",m_aVertex[iver].id_v_cad);
 				arch.Out("%d\n",m_aVertex[iver].v);
 			}
 		}
 		{	// Barの出力
 			for(unsigned int ibar_ary=0;ibar_ary<m_aBarAry.size();ibar_ary++){
-				arch.Out("$$$$\n");
-				arch.Out("BAR\n");
-				arch.Out("%d\n",m_aBarAry[ibar_ary].m_ID);
-				arch.Out("%d\n",m_aBarAry[ibar_ary].m_CadEdgeID);
+				arch.WriteDepthClassName("CBarAry");
+				arch.Out("%d\n",m_aBarAry[ibar_ary].id);
+				arch.Out("%d\n",m_aBarAry[ibar_ary].id_e_cad);
 				arch.Out("%d\n",m_aBarAry[ibar_ary].m_aBar.size());
 				const std::vector<SBar>& aBar = m_aBarAry[ibar_ary].m_aBar;
 				for(unsigned int ibar=0;ibar<aBar.size();ibar++){
@@ -2354,10 +2350,9 @@ bool CMesher2D::Serialize( Com::CSerializer& arch )
 		}
 		{	// Triの出力
 			for(unsigned int itri_ary=0;itri_ary<m_aTriAry.size();itri_ary++){
-				arch.Out("$$$$\n");
-				arch.Out("TRI\n");
-				arch.Out("%d\n",m_aTriAry[itri_ary].m_ID);
-				arch.Out("%d\n",m_aTriAry[itri_ary].m_CadLoopID);
+				arch.WriteDepthClassName("CTriAry2D");
+				arch.Out("%d\n",m_aTriAry[itri_ary].id);
+				arch.Out("%d\n",m_aTriAry[itri_ary].id_l_cad);
 				arch.Out("%d\n",m_aTriAry[itri_ary].m_aTri.size());
 				const std::vector<STri2D>& aTri = m_aTriAry[itri_ary].m_aTri;
 				for(unsigned int itri=0;itri<aTri.size();itri++){
@@ -2367,10 +2362,9 @@ bool CMesher2D::Serialize( Com::CSerializer& arch )
 		}
 		{	// Quadの出力
 			for(unsigned int iquad_ary=0;iquad_ary<m_aQuadAry.size();iquad_ary++){
-				arch.Out("$$$$\n");
-				arch.Out("QUAD\n");
-				arch.Out("%d\n",m_aQuadAry[iquad_ary].m_ID);
-				arch.Out("%d\n",m_aQuadAry[iquad_ary].m_CadLoopID);
+				arch.WriteDepthClassName("CQuadAry2D");
+				arch.Out("%d\n",m_aQuadAry[iquad_ary].id);
+				arch.Out("%d\n",m_aQuadAry[iquad_ary].id_l_cad);
 				arch.Out("%d\n",m_aQuadAry[iquad_ary].m_aQuad.size());
 				const std::vector<SQuad2D>& aQuad = m_aQuadAry[iquad_ary].m_aQuad;
 				for(unsigned int iquad=0;iquad<aQuad.size();iquad++){
@@ -2378,6 +2372,7 @@ bool CMesher2D::Serialize( Com::CSerializer& arch )
 				}
 			}
 		}
+		arch.ShiftDepth(false);
 	}
 	return true;
 }
@@ -2493,8 +2488,8 @@ bool CMesher2D::ReadFromFile_GiDMsh(const std::string& file_name)
 			m_ElemType.resize(2);
 			m_ElemType[1] = 2;
 			m_aTriAry.resize(1);
-			m_aTriAry[0].m_CadLoopID = 0;
-			m_aTriAry[0].m_ID = 1;
+			m_aTriAry[0].id_l_cad = 0;
+			m_aTriAry[0].id = 1;
 			m_aTriAry[0].m_aTri.resize(ntri);
 			for(unsigned int itri=0;itri<ntri;itri++){
 				m_aTriAry[0].m_aTri[itri].v[0] = tmp_buffer[itri*3  ];
@@ -2540,8 +2535,8 @@ bool CMesher2D::ReadFromFile_GiDMsh(const std::string& file_name)
 			m_ElemType.resize(2);
 			m_ElemType[1] = 3;
 			m_aQuadAry.resize(1);
-			m_aQuadAry[0].m_CadLoopID = 0;
-			m_aQuadAry[0].m_ID = 1;
+			m_aQuadAry[0].id_l_cad = 0;
+			m_aQuadAry[0].id = 1;
 			m_aQuadAry[0].m_aQuad.resize(nquad);
 			for(unsigned int iquad=0;iquad<nquad;iquad++){
 				m_aQuadAry[0].m_aQuad[iquad].v[0] = tmp_buffer[iquad*4  ];
@@ -2574,12 +2569,12 @@ bool CMesher2D::ReadFromFile_GiDMsh(const std::string& file_name)
 			unsigned int id_bar_ary_new = this->GetFreeObjID();
 			m_aBarAry.resize( m_aBarAry.size()+1 );
 			CBarAry& refBarAry = m_aBarAry[ m_aBarAry.size()-1 ];
-			refBarAry.m_ID_lr[0] = 0;
-			refBarAry.m_ID_lr[1] = 0;
-			refBarAry.m_ID_se[0] = 0;
-			refBarAry.m_ID_se[1] = 0;
-			refBarAry.m_ID = id_bar_ary_new;
-			refBarAry.m_CadEdgeID = 0;
+			refBarAry.id_lr[0] = 0;
+			refBarAry.id_lr[1] = 0;
+			refBarAry.id_se[0] = 0;
+			refBarAry.id_se[1] = 0;
+			refBarAry.id = id_bar_ary_new;
+			refBarAry.id_e_cad = 0;
 			const unsigned int nbar = aIndBarAry[iibarary].size();
 			refBarAry.m_aBar.reserve(nbar);
 			for(unsigned int iibar=0;iibar<nbar;iibar++){
@@ -2614,8 +2609,8 @@ bool CMesher2D::ReadFromFile_GiDMsh(const std::string& file_name)
 			unsigned int id_vtx_new = this->GetFreeObjID();
 			m_aVertex.resize( m_aVertex.size()+1 );
 			SVertex& refVertex = m_aVertex[ m_aVertex.size()-1 ];
-			refVertex.m_ID = id_vtx_new;
-			refVertex.m_CadVertexID = 0;
+			refVertex.id = id_vtx_new;
+			refVertex.id_v_cad = 0;
 			refVertex.v = ivec0;
 			{
 				m_ElemLoc.resize(id_vtx_new+1);
@@ -2628,7 +2623,7 @@ bool CMesher2D::ReadFromFile_GiDMsh(const std::string& file_name)
 		}
 		for(unsigned int iibarary=0;iibarary<m_aBarAry.size();iibarary++){
 			CBarAry& barary = m_aBarAry[iibarary];
-			const unsigned int id_bar = barary.m_ID;
+			const unsigned int id_bar = barary.id;
 			const unsigned int iv0 = barary.m_aBar[0].v[0];
 			const unsigned int nbar = barary.m_aBar.size();
 			const unsigned int iv1 = barary.m_aBar[nbar-1].v[1];
@@ -2636,11 +2631,11 @@ bool CMesher2D::ReadFromFile_GiDMsh(const std::string& file_name)
 			std::map<unsigned int,unsigned int>::iterator itr1 = aIndVec2IdVer.find(iv1);
 			assert( itr0 != aIndVec2IdVer.end() );
 			assert( itr1 != aIndVec2IdVer.end() );
-			barary.m_ID_se[0] = itr0->second;
-			barary.m_ID_se[1] = itr1->second;
+			barary.id_se[0] = itr0->second;
+			barary.id_se[1] = itr1->second;
 			if( m_include_relation.size() <= id_bar ){ m_include_relation.resize(id_bar+1); }
-			m_include_relation[id_bar].push_back( barary.m_ID_se[0] );
-			m_include_relation[id_bar].push_back( barary.m_ID_se[1] );
+			m_include_relation[id_bar].push_back( barary.id_se[0] );
+			m_include_relation[id_bar].push_back( barary.id_se[1] );
 		}
 	}
 	return true;

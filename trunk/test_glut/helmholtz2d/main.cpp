@@ -252,7 +252,7 @@ void myGlutDisplay(void)
 	::glEnable(GL_DEPTH_TEST);
 
 	::glEnable(GL_POLYGON_OFFSET_FILL );
-	::glPolygonOffset( 1.1, 4.0 );
+	::glPolygonOffset( 1.1f, 4.0f );
 
 	SetModelViewTransform();
 

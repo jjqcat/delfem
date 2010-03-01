@@ -49,12 +49,11 @@ namespace Field{
 	class CFieldWorld;
 }
 namespace Ls{
-
 /*! 
 @brief 連立一次方程式クラス
 @ingroup FemLs
 */
-class CLinearSystem_Field : public Sol::CLinearSystem_SolInterface, public Eqn::CLinearSystem_EqnInterface
+class CLinearSystem_Field : public LsSol::ILinearSystem_Sol, public Eqn::ILinearSystem_Eqn
 {
 public:
 	//! デフォルトコンストラクタ

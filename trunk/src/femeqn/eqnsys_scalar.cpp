@@ -319,12 +319,12 @@ bool CEqnSystem_Scalar2D::Solve(Fem::Field::CFieldWorld& world)
 		this->MatrixProperty(is_c,is_m,is_asym);
 		if( is_asym ){
             LsSol::CLinearSystemPreconditioner lsp((*pLS).m_ls,*pPrec);
-			Sol::Solve_PBiCGSTAB(conv_ratio,max_iter,lsp);	
+			LsSol::Solve_PBiCGSTAB(conv_ratio,max_iter,lsp);	
 		//	Fem::Sol::Solve_CG(conv_ratio,max_iter,ls);
 		}
 		else{
             LsSol::CLinearSystemPreconditioner lsp((*pLS).m_ls,*pPrec);
-			Sol::Solve_PCG(conv_ratio,max_iter,lsp);	
+			LsSol::Solve_PCG(conv_ratio,max_iter,lsp);	
 		//	Fem::Sol::Solve_CG(conv_ratio,max_iter,ls);
 		}
 		this->m_aItrNormRes.clear();
@@ -566,7 +566,7 @@ bool CEqn_Scalar3D::Solve(Fem::Field::CFieldWorld& world)
 		unsigned int max_iter = 1000;
 		// Solve with Preconditioned Conjugate Gradient
         LsSol::CLinearSystemPreconditioner lsp( (*pLS).m_ls, *pPrec );
-		Sol::Solve_PCG(conv_ratio,max_iter,lsp);
+		LsSol::Solve_PCG(conv_ratio,max_iter,lsp);
 		// Solve with Conjugate Gradient
 		//	Fem::Sol::Solve_CG(conv_ratio,max_iter,ls);
 		this->m_aItrNormRes.clear();

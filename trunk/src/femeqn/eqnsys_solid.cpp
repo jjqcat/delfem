@@ -168,7 +168,7 @@ bool CEqn_Solid3D_Linear::Solve(Fem::Field::CFieldWorld& world)
 				unsigned int max_iter = 1000;
 				// Solve with Preconditioned Conjugate Gradient
                 LsSol::CLinearSystemPreconditioner lsp((*pLS).m_ls,*pPrec);
-				Sol::Solve_PCG(conv_ratio,max_iter,lsp);
+				LsSol::Solve_PCG(conv_ratio,max_iter,lsp);
 				// Solve with Conjugate Gradient
 			//	Fem::Sol::Solve_CG(conv_ratio,max_iter,ls);
 //				std::cout << max_iter << " " << conv_ratio << std::endl;
@@ -197,7 +197,7 @@ bool CEqn_Solid3D_Linear::Solve(Fem::Field::CFieldWorld& world)
 			unsigned int max_iter = 1000;
 			// Solve with Preconditioned Conjugate Gradient
             LsSol::CLinearSystemPreconditioner lsp( (*pLS).m_ls, *pPrec );
-			Sol::Solve_PCG(conv_ratio,max_iter,lsp);	
+			LsSol::Solve_PCG(conv_ratio,max_iter,lsp);	
 			// Solve with Conjugate Gradient
 		//	Fem::Sol::Solve_CG(conv_ratio,max_iter,ls);
 //			std::cout << max_iter << " " << conv_ratio << std::endl;
@@ -646,7 +646,7 @@ bool CEqnSystem_Solid2D::Solve(Fem::Field::CFieldWorld& world)
 				double conv_ratio = 1.0e-6;
 				unsigned int max_iter = 1000;
                 LsSol::CLinearSystemPreconditioner lsp( (*pLS).m_ls, *pPrec );
-				Sol::Solve_PCG(conv_ratio,max_iter,lsp);
+				LsSol::Solve_PCG(conv_ratio,max_iter,lsp);
 				this->m_aItrNormRes.push_back( std::make_pair(max_iter,conv_ratio) );
 //				std::cout << max_iter << " " << conv_ratio << std::endl;
 			}
@@ -689,7 +689,7 @@ bool CEqnSystem_Solid2D::Solve(Fem::Field::CFieldWorld& world)
 			double conv_ratio = 1.0e-6;
 			unsigned int max_iter = 1000;
             LsSol::CLinearSystemPreconditioner lsp( (*pLS).m_ls, *pPrec );
-			Sol::Solve_PCG(conv_ratio,max_iter,lsp);
+			LsSol::Solve_PCG(conv_ratio,max_iter,lsp);
 //			Fem::Sol::Solve_CG(conv_ratio,max_iter,*pLS);
 //			std::cout << max_iter << " " << conv_ratio << std::endl;
 //			m_num_iter = max_iter;

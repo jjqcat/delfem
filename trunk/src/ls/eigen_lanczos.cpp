@@ -1,23 +1,19 @@
-
-
 #if defined(__VISUALC__)
 #pragma warning( disable : 4786 )
 #endif
+#define for if(0); else for
 
 #include <iostream>
 #include <math.h>
 
-#include "Eigen_Lanczos.h"
-#include "LinearSystem.h"
+#include "delfem/ls/eigen_lanczos.h"
+#include "delfem/ls/preconditioner.h"
+#include "delfem/ls/linearsystem.h"
+#include "delfem/ls/solver_ls_iter.h"
 
-#include "SolverLS_Iter.h"
-
-using namespace Fem::Ls;
-using namespace Fem::Sol;
-
-
-
-
+//using namespace Fem::Ls;
+//using namespace Fem::Sol;
+/*
 bool EigenValueHess(const unsigned int h_size, const double* in_hess, double* eval_ary){
 	double* rot = new double [(h_size-1)*2];
 	double* hess = new double [h_size*h_size];
@@ -147,13 +143,6 @@ bool Fem::Sol::ArnoldiQR(Fem::Ls::CLinearSystem_Eigen& ls ){
 
 
 
-
-
-
-
-
-
-
 unsigned int NumSignChangeStrum(double lambda, unsigned int n, const double* aAlBe)
 {
 	unsigned int cnt = 0;
@@ -206,7 +195,8 @@ unsigned int FindLambdaInRange(unsigned int n0, unsigned int n1,
 
 
 
-bool Fem::Sol::EigenValue_Lanczos( unsigned int nlambda, std::vector<double>& aLambda, unsigned int max_iter, 
+bool Fem::Sol::EigenValue_Lanczos( 
+		unsigned int nlambda, std::vector<double>& aLambda, unsigned int max_iter, 
 		Fem::Ls::CLinearSystem_Eigen& ls)
 {
 	ls.ReSizeTmpVecSolver(1);
@@ -297,11 +287,13 @@ bool Fem::Sol::EigenValue_Lanczos( unsigned int nlambda, std::vector<double>& aL
 
 	return true;
 }
+*/
 
-double Fem::Sol::MinimumEigenValueVector_InvPower(Fem::Ls::CLinearSystem_Eigen& ls , 
-												  Fem::Ls::CPreconditioner& pls, 
-												  const std::vector<unsigned int>& aIdVec, 
-												  unsigned int& num_iter )
+double LsSol::MinimumEigenValueVector_InvPower(
+		LsSol::CLinearSystem& ls , 
+		LsSol::CPreconditioner& pls, 
+		const std::vector<unsigned int>& aIdVec, 
+		unsigned int& num_iter )
 {
 	const unsigned int max_iter = num_iter;
 	if( ls.GetTmpVectorArySize() < 3 ){ ls.ReSizeTmpVecSolver(3); }
@@ -343,7 +335,8 @@ double Fem::Sol::MinimumEigenValueVector_InvPower(Fem::Ls::CLinearSystem_Eigen& 
 		{
 			double conv_ratio = 1.0e-3;
 			unsigned int num_iter = 300;
-            Ls::Sol::Solve_PCG(conv_ratio, num_iter, ls, pls);
+            LsSol::CLinearSystemPreconditioner lsp(ls,pls);
+            LsSol::Solve_PCG(conv_ratio, num_iter, lsp);
 			std::cout << "PCG iter : " << num_iter << " " << conv_ratio << std::endl;
 		}
 		// –³Ž‹ƒxƒNƒgƒ‹‚Ì¬•ª‚ðˆø‚­
@@ -360,7 +353,6 @@ double Fem::Sol::MinimumEigenValueVector_InvPower(Fem::Ls::CLinearSystem_Eigen& 
 			ls.SCAL(1.0/norm0,iupd);
 		}
 	}
-
 	num_iter = iiter+1;	// ”½•œ‰ñ”‚ð‘ã“ü
 	return  1.0 / min_eigen;
 }

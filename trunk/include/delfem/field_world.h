@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "delfem/objset.h"		// ID管理テンプレートクラス
 
 namespace Msh{
-	class CMesh_Interface;	
+	class IMesh;	
 }
 
 namespace Fem{
@@ -132,7 +132,7 @@ public:
 	@brief ３次元メッシュから有限要素法補間場を構築
 	@remarks 複数メッシュにも対応できるようにMeshのIDを返したい
 	*/
-	unsigned int AddMesh(const Msh::CMesh_Interface& mesh);
+	unsigned int AddMesh(const Msh::IMesh& mesh);
 
 	unsigned int SetCustomBaseField(unsigned int id_base,
 		std::vector<unsigned int> aIdEA_Inc,
@@ -151,8 +151,8 @@ public:
 	//! 値を全て削除して初期化する
 	void Clear();
 
-	bool UpdateMeshCoord(    const unsigned int id_base, const Msh::CMesh_Interface& mesh);
-	bool UpdateConnectivity( const unsigned int id_base, const Msh::CMesh_Interface& mesh );
+	bool UpdateMeshCoord(    const unsigned int id_base, const Msh::IMesh& mesh);
+	bool UpdateConnectivity( const unsigned int id_base, const Msh::IMesh& mesh );
 	bool UpdateConnectivity_CustomBaseField(const unsigned int id_base,
 		const std::vector<unsigned int>& aIdEA_Inc, 
 		const std::vector< std::vector<int> >& aLnods,

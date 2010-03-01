@@ -63,7 +63,7 @@ namespace Eqn
 @
 */
 bool AddLinSys_StVenant2D_Static(
-		Fem::Eqn::CLinearSystem_EqnInterface& ls,
+		Fem::Eqn::ILinearSystem_Eqn& ls,
 		double lambda, double myu,
 		double rho, double f_x, double f_y,
 		const Fem::Field::CFieldWorld& world,
@@ -79,7 +79,7 @@ bool AddLinSys_StVenant2D_Static(
 */
 bool AddLinSys_StVenant2D_NonStatic_NewmarkBeta(
 		double dt, double gamma_newmark, double beta, 
-        Fem::Eqn::CLinearSystem_EqnInterface& ls,
+        Fem::Eqn::ILinearSystem_Eqn& ls,
 		double lambda, double myu,
 		double rho, double g_x, double g_y,
 		const Fem::Field::CFieldWorld& world,
@@ -101,7 +101,7 @@ bool AddLinSys_StVenant2D_NonStatic_NewmarkBeta(
 @param g_z [in] zï˚å¸ÇÃëÃêœóÕ
 */
 bool AddLinSys_StVenant3D_Static(
-        Fem::Eqn::CLinearSystem_EqnInterface& ls,
+        Fem::Eqn::ILinearSystem_Eqn& ls,
 		double lambda, double myu,
 		double  rho, double g_x, double g_y, double g_z,
 		const Fem::Field::CFieldWorld& world,
@@ -120,7 +120,7 @@ bool AddLinSys_StVenant3D_Static(
 */
 bool AddLinSys_StVenant3D_NonStatic_NewmarkBeta(
 		double dt, double gamma, double beta,
-        Fem::Eqn::CLinearSystem_EqnInterface& ls,
+        Fem::Eqn::ILinearSystem_Eqn& ls,
 		double lambda, double myu,
 		double  rho, double g_x, double g_y, double g_z,
 		const Fem::Field::CFieldWorld& world,

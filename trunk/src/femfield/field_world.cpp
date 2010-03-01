@@ -98,7 +98,7 @@ void CFieldWorld::Clear()
 	m_map_field_conv.clear();
 }
 
-bool CFieldWorld::UpdateMeshCoord(const unsigned int id_base, const Msh::CMesh_Interface& mesh)
+bool CFieldWorld::UpdateMeshCoord(const unsigned int id_base, const Msh::IMesh& mesh)
 {
     assert( this->IsIdField(id_base) );
     if( !this->IsIdField(id_base) ) return false;
@@ -139,9 +139,7 @@ bool CFieldWorld::UpdateMeshCoord(const unsigned int id_base, const Msh::CMesh_I
 	return true;
 }
 
-// 今の所三角形要素のリコネクティングにしか対応していない．
-// 将来ConvをCADから切り離すためにid_cad系は使わずに，mshだけで対応する
-bool CFieldWorld::UpdateConnectivity( const unsigned int id_base, const Msh::CMesh_Interface& mesh )
+bool CFieldWorld::UpdateConnectivity( const unsigned int id_base, const Msh::IMesh& mesh )
 {
 	assert( this->IsIdField(id_base) );
     if( !this->IsIdField(id_base) ) return false;
@@ -167,8 +165,8 @@ bool CFieldWorld::UpdateConnectivity( const unsigned int id_base, const Msh::CMe
 		CElemAry& ea = this->GetEA(id_ea);
         assert( ea.IsSegID(id_es) );
 		const CElemAry::CElemSeg& es = ea.GetSeg(id_es);
-        if( ea.ElemType() == TRI ){
-            Msh::MSH_TYPE type = mesh.GetConnectivity(lnods,id_msh);
+        if(      ea.ElemType() == TRI ){
+            Msh::MSH_TYPE type = mesh.GetConnectivity(id_msh,lnods);
             assert( type == Msh::TRI );
 		    for(unsigned int itri=0;itri<ea.Size();itri++){
 			    for(unsigned int inotri=0;inotri<3;inotri++){
@@ -177,11 +175,21 @@ bool CFieldWorld::UpdateConnectivity( const unsigned int id_base, const Msh::CMe
 			    }
 		    }
         }
+        else if( ea.ElemType() == TET ){
+            Msh::MSH_TYPE type = mesh.GetConnectivity(id_msh,lnods);
+            assert( type == Msh::TET );
+		    for(unsigned int itet=0;itet<ea.Size();itet++){
+			    for(unsigned int inotet=0;inotet<4;inotet++){
+			        int ino0 = lnods[itet*4+inotet];
+				    es.SetNodes(itet,inotet,ino0);
+			    }
+		    }
+        }
 	}
 	return true;
 }
 
-unsigned int CFieldWorld::AddMesh(const Msh::CMesh_Interface& mesh)
+unsigned int CFieldWorld::AddMesh(const Msh::IMesh& mesh)
 {
 	unsigned int id_na, id_ns_co;
 	{
@@ -220,9 +228,10 @@ unsigned int CFieldWorld::AddMesh(const Msh::CMesh_Interface& mesh)
 		for(unsigned int iid=0;iid<aID.size();iid++){
 			const unsigned int id_msh = aID[iid];
 			std::vector<int> lnods;
-			Msh::MSH_TYPE msh_type = mesh.GetConnectivity(lnods,id_msh);
+			Msh::MSH_TYPE msh_type = mesh.GetConnectivity(id_msh,lnods);
 			unsigned int id_cad_part, id_msh_before_ext, inum_ext;
-            mesh.GetInfo(id_msh, id_cad_part, id_msh_before_ext, inum_ext);
+			int ilayer;
+            mesh.GetInfo(id_msh, id_cad_part, id_msh_before_ext, inum_ext, ilayer);
 			unsigned int itype_cad_part;
 			unsigned int nnoel = 0;
 			ELEM_TYPE elem_type;

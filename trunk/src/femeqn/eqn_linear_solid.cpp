@@ -25,18 +25,17 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #pragma warning( disable : 4786 )
 #endif
 
-
-#include "delfem/femeqn/eqn_linear_solid.h"
-
-#include "delfem/femls/linearsystem_field.h"
-#include "delfem/femls/linearsystem_fieldsave.h"
 #include "delfem/matvec/matdia_blkcrs.h"
 #include "delfem/matvec/diamat_blk.h"
 #include "delfem/matvec/vector_blk.h"
+#include "delfem/femls/linearsystem_field.h"
+#include "delfem/femls/linearsystem_fieldsave.h"
+
 #include "delfem/femeqn/ker_emat_tri.h"
 #include "delfem/femeqn/ker_emat_quad.h"
 #include "delfem/femeqn/ker_emat_tet.h"
 #include "delfem/femeqn/ker_emat_hex.h"
+#include "delfem/femeqn/eqn_linear_solid.h"
 
 using namespace Fem::Eqn;
 using namespace Fem::Field;
@@ -51,14 +50,14 @@ using namespace MatVec;
 // ê√ìIñ‚ëË
 
 static bool AddLinSys_LinearSolid2D_Static_P1(
-		CLinearSystem_EqnInterface& ls, 
+		ILinearSystem_Eqn& ls, 
 		double lambda, double myu,
 		double  rho, double g_x, double g_y,
 		unsigned int id_field_val, const CFieldWorld& world,
 		unsigned int id_ea);
 
 static bool AddLinSys_LinearSolid2D_Static_P1b(
-		CLinearSystem_EqnInterface& ls, 
+		ILinearSystem_Eqn& ls, 
 		double lambda, double myu,
 		double  rho, double g_x, double g_y,
 		const unsigned int id_field_val, const CFieldWorld& world,
@@ -75,7 +74,7 @@ static bool AddLinSys_LinearSolid2D_Static_P1_SaveStiffMat(
 // ê√ìIîMâûóÕñ‚ëË
 
 static bool AddLinSys_LinearSolidThermalStress2D_Static_P1(
-		CLinearSystem_EqnInterface& ls, 
+		ILinearSystem_Eqn& ls, 
 		double lambda, double myu,
 		double rho, double g_x, double g_y,
 		double thermoelastic,
@@ -87,7 +86,7 @@ static bool AddLinSys_LinearSolidThermalStress2D_Static_P1(
 
 static bool AddLinSys_LinearSolid2D_NonStatic_NewmarkBeta_P1(				
 		double gamma, double beta, double dt,
-		CLinearSystem_EqnInterface& ls, 
+		ILinearSystem_Eqn& ls, 
 		double lambda, double myu,
 		double  rho, double g_x, double g_y,
 		const unsigned int id_field_val, const CFieldWorld& world,
@@ -108,7 +107,7 @@ static bool AddLinSys_LinearSolid2D_Eigen_P1(
 		unsigned int id_ea);
 
 static bool AddLinSys_LinearSolidThermalStress2D_NonStatic_NewmarkBeta_P1(
-		double dt, double gamma, double beta, CLinearSystem_EqnInterface& ls, 
+		double dt, double gamma, double beta, ILinearSystem_Eqn& ls, 
 		double lambda, double myu, double  rho, double g_x, double g_y, double thermoelastic, 
 		const CFieldWorld& world, const unsigned int id_field_val, const unsigned int id_field_temp,
 		const bool is_initial, 
@@ -123,14 +122,14 @@ static bool AddLinSys_LinearSolidThermalStress2D_NonStatic_NewmarkBeta_P1(
 // íËèÌñ‚ëË
 
 static bool AddLinSys_LinearSolid3D_Static_P1(
-		CLinearSystem_EqnInterface& ls, 
+		ILinearSystem_Eqn& ls, 
 		double lambda, double myu,
 		double rho, double g_x, double g_y, double g_z,
 		const unsigned int id_field_val, const CFieldWorld& world,
 		const unsigned int id_ea);
 
 static bool AddLinSys_LinearSolid3D_Static_Q1(
-		CLinearSystem_EqnInterface& ls, 
+		ILinearSystem_Eqn& ls, 
 		double lambda, double myu,
 		double rho, double g_x, double g_y, double g_z,
 		const unsigned int id_field_val, const CFieldWorld& world,
@@ -148,7 +147,7 @@ static bool AddLinSys_LinearSolid3D_Static_P1(
 
 static bool AddLinSys_LinearSolid3D_NonStatic_NewmarkBeta_P1(				
 		double gamma, double beta, double dt,
-		CLinearSystem_EqnInterface& ls, 
+		ILinearSystem_Eqn& ls, 
 		double lambda, double myu,
 		double  rho, double g_x, double g_y, double g_z,
 		const unsigned int id_field_val, const CFieldWorld& world,
@@ -156,7 +155,7 @@ static bool AddLinSys_LinearSolid3D_NonStatic_NewmarkBeta_P1(
 
 static bool AddLinSys_LinearSolid3D_NonStatic_NewmarkBeta_Q1(				
 		double gamma, double beta, double dt,
-		CLinearSystem_EqnInterface& ls, 
+		ILinearSystem_Eqn& ls, 
 		double lambda, double myu,
 		double  rho, double g_x, double g_y, double g_z,
 		const unsigned int id_field_val, const CFieldWorld& world,
@@ -240,7 +239,7 @@ bool Fem::Eqn::AddLinSys_LinearSolid3D_Static_SaveStiffMat(
 
 // ê√ìI îMâûóÕ ê¸å`íeê´ëÃ
 bool Fem::Eqn::AddLinSys_LinearSolidThermalStress2D_Static(
-		Eqn::CLinearSystem_EqnInterface& ls,
+		Eqn::ILinearSystem_Eqn& ls,
 		double lambda, double myu, double rho, double g_x, double g_y, double thermoelastic, 
 		const Fem::Field::CFieldWorld& world, unsigned int id_field_disp, unsigned int id_field_temp, 
 		unsigned int id_ea )
@@ -288,7 +287,7 @@ bool Fem::Eqn::AddLinSys_LinearSolidThermalStress2D_Static(
 
 
 bool Fem::Eqn::AddLinSys_LinearSolid2D_Static(
-        Eqn::CLinearSystem_EqnInterface& ls,
+        Eqn::ILinearSystem_Eqn& ls,
 		double lambda, double myu,
 		double  rho, double g_x, double g_y,
 		const CFieldWorld& world, const unsigned int id_field_val, 
@@ -499,7 +498,7 @@ bool Fem::Eqn::AddLinSys_LinearSolid3D_Static(
 
 bool Fem::Eqn::AddLinSys_LinearSolid2D_NonStatic_NewmarkBeta(
 		double dt, double gamma, double beta,
-		CLinearSystem_EqnInterface& ls,
+		ILinearSystem_Eqn& ls,
 		double lambda, double myu,
 		double  rho, double g_x, double g_y,
 		const CFieldWorld& world,
@@ -596,7 +595,7 @@ bool Fem::Eqn::AddLinSys_LinearSolidThermalStress2D_NonStatic_NewmarkBeta(
 
 bool Fem::Eqn::AddLinSys_LinearSolid3D_NonStatic_NewmarkBeta(
 		double dt, double gamma, double beta,
-		CLinearSystem_EqnInterface& ls,
+		ILinearSystem_Eqn& ls,
 		double lambda, double myu,
 		double  rho, double g_x, double g_y, double g_z,
 		const CFieldWorld& world,
@@ -640,7 +639,7 @@ bool Fem::Eqn::AddLinSys_LinearSolid3D_NonStatic_NewmarkBeta(
 
 
 static bool AddLinSys_LinearSolid2D_Static_P1(
-		CLinearSystem_EqnInterface& ls, 
+		ILinearSystem_Eqn& ls, 
 		double lambda, double myu,
 		double  rho, double g_x, double g_y,
 		unsigned int id_field_disp, const CFieldWorld& world,
@@ -737,7 +736,7 @@ static bool AddLinSys_LinearSolid2D_Static_P1(
 }
 
 static bool AddLinSys_LinearSolidThermalStress2D_Static_P1(
-		CLinearSystem_EqnInterface& ls, 
+		ILinearSystem_Eqn& ls, 
 		double lambda, double myu,
 		double rho, double g_x, double g_y,
 		double thermoelastic,
@@ -852,7 +851,7 @@ static bool AddLinSys_LinearSolidThermalStress2D_Static_P1(
 }
 
 static bool AddLinSys_LinearSolid2D_Static_P1b(
-		CLinearSystem_EqnInterface& ls, 
+		ILinearSystem_Eqn& ls, 
 		double lambda, double myu,
 		double  rho, double g_x, double g_y,
 		const unsigned int id_field_disp, 
@@ -998,7 +997,7 @@ static bool AddLinSys_LinearSolid2D_Static_P1b(
 }
 
 static bool AddLinSys_LinearSolid3D_Static_P1(
-		CLinearSystem_EqnInterface& ls, 
+		ILinearSystem_Eqn& ls, 
 		double lambda, double myu,
 		double  rho, double g_x, double g_y, double g_z,
 		unsigned int id_field_val, const CFieldWorld& world,
@@ -1504,7 +1503,7 @@ static bool AddLinSys_LinearSolid2D_NonStatic_Save_NewmarkBeta_P1(
 
 
 static bool AddLinSys_LinearSolid2D_NonStatic_NewmarkBeta_P1(				
-		double gamma, double beta, double dt, CLinearSystem_EqnInterface& ls, 
+		double gamma, double beta, double dt, ILinearSystem_Eqn& ls, 
 		double lambda, double myu,
 		double  rho, double g_x, double g_y,
 		const unsigned int id_field_val, const CFieldWorld& world,
@@ -1661,7 +1660,7 @@ static bool AddLinSys_LinearSolid2D_NonStatic_NewmarkBeta_P1(
 }
 
 static bool AddLinSys_LinearSolidThermalStress2D_NonStatic_NewmarkBeta_P1(
-		double dt, double gamma, double beta, CLinearSystem_EqnInterface& ls, 
+		double dt, double gamma, double beta, ILinearSystem_Eqn& ls, 
 		double lambda, double myu, double  rho, double g_x, double g_y, double thermoelastic, 
 		const CFieldWorld& world, const unsigned int id_field_val, const unsigned int id_field_temp,
 		const bool is_initial, 
@@ -1941,7 +1940,7 @@ static bool AddLinSys_LinearSolid3D_Static_P1(
 
 static bool AddLinSys_LinearSolid3D_NonStatic_NewmarkBeta_P1(
 		double gamma, double beta, double dt,
-		CLinearSystem_EqnInterface& ls, 
+		ILinearSystem_Eqn& ls, 
 		double lambda, double myu,
 		double  rho, double g_x, double g_y, double g_z,
 		unsigned int id_field_val, const CFieldWorld& world,
@@ -2108,7 +2107,7 @@ static bool AddLinSys_LinearSolid3D_NonStatic_NewmarkBeta_P1(
 
 static bool AddLinSys_LinearSolid3D_NonStatic_NewmarkBeta_Q1(
 		double gamma, double beta, double dt,
-		CLinearSystem_EqnInterface& ls, 
+		ILinearSystem_Eqn& ls, 
 		double lambda, double myu,
 		double  rho, double g_x, double g_y, double g_z,
 		unsigned int id_field_val, const CFieldWorld& world,
@@ -2280,7 +2279,7 @@ static bool AddLinSys_LinearSolid3D_NonStatic_NewmarkBeta_Q1(
 
 
 static bool AddLinSys_LinearSolid3D_Static_Q1(
-		CLinearSystem_EqnInterface& ls, 
+		ILinearSystem_Eqn& ls, 
 		double lambda, double myu,
 		double  rho, double g_x, double g_y, double g_z,
 		unsigned int id_field_val, const CFieldWorld& world,

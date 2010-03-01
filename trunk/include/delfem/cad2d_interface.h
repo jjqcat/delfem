@@ -79,6 +79,8 @@ public:
 
     //! 辺の両側のループのIDを返す
     virtual bool GetIdLoop_Edge(unsigned int &id_l_l, unsigned int& id_l_r, unsigned int id_e) const = 0;
+	//! 辺の始点と終点の頂点のIDを返す
+	virtual bool GetIdVertex_Edge(unsigned int &id_v_s, unsigned int& id_v_e, unsigned int id_e) const = 0;  
 
 	////////////////////////////////////////////////
 	// 構成要素へのアクセス
@@ -111,9 +113,6 @@ public:
 	// 　　　　is_left_side==trueならこの円弧は始点終点を結ぶ線の始点から見て左側にある．is_left_side==falseなら右側
 	// 　　　　distは円の中心から始点終点を結ぶ線の中点が左側にどれだけ離れているかという値
 	//! @{
-	//! 辺の始点と終点の頂点のIDを返す
-	virtual bool GetIdVertex_Edge(unsigned int &id_v_s, unsigned int& id_v_e, unsigned int id_e) const = 0;  
-
     //ここから省略できそう？(このinterfaceは描画とメッシュ切のためだとして)
     /*!
 	@brief 辺の形状タイプを返す

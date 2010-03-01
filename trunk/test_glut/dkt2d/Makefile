@@ -4,7 +4,7 @@ LDFLAGS =
 INCLUDES =
 LIBS = -ldfm
 ifeq ($(OS),Windows_NT)
-	LIBS_GL = -lfreeglut -lglu32 -lopengl32	# on Windows
+	LIBS_GL = -lfreeglut -lglu32 -lopengl32	# on Windowsx
 else
 	LIBS_GL = -lglut -lGL -lGLU
 endif

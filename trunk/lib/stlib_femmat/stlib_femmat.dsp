@@ -86,6 +86,10 @@ LIB32=link.exe -lib
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=..\..\src\ls\eigen_lanczos.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\ls\linearsystem.cpp
 # End Source File
 # Begin Source File
@@ -158,6 +162,10 @@ SOURCE=..\..\include\delfem\matvec\diamat_blk.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\delfem\ls\eigen_lanczos.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\delfem\matvec\ker_mat.h
 # End Source File
 # Begin Source File
@@ -166,7 +174,19 @@ SOURCE=..\..\include\delfem\ls\linearsystem.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\delfem\femls\linearsystem_field.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\delfem\femls\linearsystem_fieldsave.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\delfem\linearsystem_interface_eqnsys.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\delfem\ls\linearsystem_interface_solver.h
 # End Source File
 # Begin Source File
 
@@ -210,15 +230,15 @@ SOURCE=..\..\include\delfem\ls\solver_interface.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\delfem\ls\solver_ls_iter.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\delfem\matvec\solver_mat_iter.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\include\delfem\matvec\solver_mg.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\delfem\ls\solverls_iter.h
 # End Source File
 # Begin Source File
 

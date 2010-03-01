@@ -242,11 +242,11 @@ bool CEqnSystem_DKT::Solve(Fem::Field::CFieldWorld& world)
 				unsigned int max_iter = 4000;
 				// Solve with Preconditioned Conjugate Gradient
 				if( isnt_direct ){
-					Sol::Solve_CG(conv_ratio,max_iter,*pLS);
+					LsSol::Solve_CG(conv_ratio,max_iter,*pLS);
 				}
 				else{
                     LsSol::CLinearSystemPreconditioner lsp((*pLS).m_ls,*pPrec);
-					Sol::Solve_PCG(conv_ratio,max_iter,lsp);
+					LsSol::Solve_PCG(conv_ratio,max_iter,lsp);
 				}
 				// Solve with Conjugate Gradient
 //				std::cout << max_iter << " " << conv_ratio << std::endl;
@@ -295,11 +295,11 @@ bool CEqnSystem_DKT::Solve(Fem::Field::CFieldWorld& world)
 			double conv_ratio = 1.0e-5;
 			unsigned int max_iter = 4000;
 			if( isnt_direct ){
-				Sol::Solve_CG(conv_ratio,max_iter,*pLS);
+				LsSol::Solve_CG(conv_ratio,max_iter,*pLS);
 			}
 			else{
                 LsSol::CLinearSystemPreconditioner lsp((*pLS).m_ls,*pPrec);
-				Sol::Solve_PCG(conv_ratio,max_iter,lsp);
+				LsSol::Solve_PCG(conv_ratio,max_iter,lsp);
 			}
 			std::cout << max_iter << " " << conv_ratio << std::endl;
 		}

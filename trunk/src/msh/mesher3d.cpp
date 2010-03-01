@@ -114,7 +114,7 @@ bool Msh::CMesher3D::ReadFile_PLY( const std::string& file_name )
 		{
 			// TODO : Quad‚É‚à‘Î‰ž(’iŠK‚ð“¥‚Þ‚Ì‚ª‚¢‚¢‚©‚àD‚Ü‚¸QUAD‚ð‚Q•ªŠ„‚µ‚ÄTRI‚Å‘Î‰ž‚·‚éj
 			this->m_aTriAry.resize(1);
-			m_aTriAry[0].m_ID = 1;
+			m_aTriAry[0].id = 1;
 			m_aTriAry[0].m_aTri.resize(ntri+nquad*2);
 			unsigned int itri0 = 0;
 			for(unsigned int iface=0;iface<nface;iface++){

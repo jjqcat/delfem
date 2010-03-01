@@ -50,7 +50,7 @@ class CFieldWorld;
 
 namespace Eqn{
 
-class CLinearSystem_EqnInterface;
+class ILinearSystem_Eqn;
 
 /*! @defgroup eqn_linear_solid 線形弾性体の方程式をマージする関数群
 @ingroup FemEqnMargeFunction
@@ -63,21 +63,21 @@ class CLinearSystem_EqnInterface;
 
 // 静的線形弾性体
 bool AddLinSys_LinearSolid2D_Static(
-		Eqn::CLinearSystem_EqnInterface& ls,
+		Eqn::ILinearSystem_Eqn& ls,
 		double lambda, double myu, double rho, double g_x, double g_y,
 		const Fem::Field::CFieldWorld& world, unsigned int id_field_disp,
 		unsigned int id_ea = 0 );
 
 // 静的　熱応力　線形弾性体
 bool AddLinSys_LinearSolidThermalStress2D_Static(
-		Eqn::CLinearSystem_EqnInterface& ls,
+		Eqn::ILinearSystem_Eqn& ls,
 		double lambda, double myu, double rho, double g_x, double g_y, 	double thermoelastic, 
 		const Fem::Field::CFieldWorld& world, unsigned int id_field_disp, unsigned int id_field_temp,
 		unsigned int id_ea = 0 );
 
 // 動的線形弾性体
 bool AddLinSys_LinearSolid2D_NonStatic_NewmarkBeta(
-		double dt, double gamma, double beta, Eqn::CLinearSystem_EqnInterface& ls,
+		double dt, double gamma, double beta, Eqn::ILinearSystem_Eqn& ls,
 		double lambda, double myu, double rho, double g_x, double g_y,
 		const Fem::Field::CFieldWorld& world, unsigned int id_field_disp, 
 		bool is_initial = true,
@@ -126,7 +126,7 @@ bool AddLinSys_LinearSolid3D_Static(
 // 動的線形弾性体
 bool AddLinSys_LinearSolid3D_NonStatic_NewmarkBeta(
 		double dt, double gamma, double beta,
-		Eqn::CLinearSystem_EqnInterface& ls,
+		Eqn::ILinearSystem_Eqn& ls,
 		double lambda, double myu,
 		double  rho, double g_x, double g_y, double g_z,
 		const Fem::Field::CFieldWorld& world,

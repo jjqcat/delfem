@@ -52,32 +52,32 @@ namespace Msh{
 //! í∏ì_ç\ë¢ëÃ
 struct SVertex{
 public:
-	SVertex() : m_ID(0), m_CadVertexID(0){}
+	SVertex() : id(0), id_v_cad(0){}
 public:
-	unsigned int m_ID;	//!< ID
-	unsigned int m_CadVertexID;	//!< CADÇÃí∏ì_IDÅiCADÇ…ä÷òAÇ≥ÇÍÇƒÇ»ÇØÇÍÇŒÇOÅj
+	unsigned int id;	//!< ID
+	unsigned int id_v_cad;	//!< CADÇÃí∏ì_IDÅiCADÇ…ä÷òAÇ≥ÇÍÇƒÇ»ÇØÇÍÇŒÇOÅj
 	unsigned int v;	//!< ì_ÇÃID
 };
 
 //! ê¸óvëfîzóÒ
 class CBarAry{
 public:
-	CBarAry() : m_ID(0), m_CadEdgeID(0){}
+	CBarAry() : id(0), id_e_cad(0){}
 public:
-	unsigned int m_ID;	//!< ID
-	unsigned int m_CadEdgeID;	//!< CADÇÃï”IDÅiCADÇ…ä÷òAÇ≥ÇÍÇƒÇ»ÇØÇÍÇŒÇOÅj
-	unsigned int m_ID_se[2];
-	unsigned int m_ID_lr[2];
+	unsigned int id;	//!< ID
+	unsigned int id_e_cad;	//!< CADÇÃï”IDÅiCADÇ…ä÷òAÇ≥ÇÍÇƒÇ»ÇØÇÍÇŒÇOÅj
+	unsigned int id_se[2];
+	unsigned int id_lr[2];
 	std::vector<SBar> m_aBar;	//!< ï”óvëfÇÃîzóÒ
 };
 
 //! ÇQéüå≥ÇRäpå`óvëfîzóÒ
 class CTriAry2D{
 public:
-	CTriAry2D() : m_ID(0), m_CadLoopID(0), ilayer(0){}
+	CTriAry2D() : id(0), id_l_cad(0), ilayer(0){}
 public:
-	unsigned int m_ID;	//!< ID
-	unsigned int m_CadLoopID;	//!< CADÇÃñ IDÅiCADÇ…ä÷òAÇ≥ÇÍÇƒÇ»ÇØÇÍÇŒÇOÅj
+	unsigned int id;	//!< ID
+	unsigned int id_l_cad;	//!< CADÇÃñ IDÅiCADÇ…ä÷òAÇ≥ÇÍÇƒÇ»ÇØÇÍÇŒÇOÅj
 	int ilayer;
 	std::vector<STri2D> m_aTri;	//!< ÇRäpå`óvëfÇÃîzóÒ
 };
@@ -85,10 +85,10 @@ public:
 //! ÇQéüå≥ÇSäpå`óvëfîzóÒ
 class CQuadAry2D{
 public:
-	CQuadAry2D() : m_ID(0), m_CadLoopID(0), ilayer(0){}
+	CQuadAry2D() : id(0), id_l_cad(0), ilayer(0){}
 public:
-	unsigned int m_ID;	//!< ID
-	unsigned int m_CadLoopID;	//!< CADÇÃñ ID(CADÇ…ä÷òAÇ≥ÇÍÇƒÇ»ÇØÇÍÇŒÇO)
+	unsigned int id;	//!< ID
+	unsigned int id_l_cad;	//!< CADÇÃñ ID(CADÇ…ä÷òAÇ≥ÇÍÇƒÇ»ÇØÇÍÇŒÇO)
 	int ilayer;
 	std::vector<SQuad2D> m_aQuad;	//!< ÇSäpå`óvëfÇÃîzóÒ
 };
@@ -102,7 +102,7 @@ public:
 óvëfÇÃéÌóﬁÇ…àÀë∂ÇπÇ∏Ç…í ÇµÇ≈IDÇ™êUÇÁÇÍÇƒÇ¢ÇÈÅD
 ï”óvëfÇ…ä÷ÇµÇƒÇÕÅCCADÇÃï”Ç∆ìØÇ∂å¸Ç´Ç…óvëfî‘çÜèáÇ…ï¿ÇÒÇ≈Ç¢ÇÈÅDÅiâ◊èdã´äEèåèÇ©ÇÁÇÃêßñÒÅj
 */
-class CMesher2D : public CMesh_Interface
+class CMesher2D : public IMesh
 {
 public:
 	//! Ç≈Ç´ÇÈÇæÇØè≠Ç»Ç¢óvëfêîÇ≈ÉÅÉbÉVÉÖÇêÿÇÈ
@@ -129,14 +129,15 @@ public:
 
 	virtual unsigned int GetDimention() const{ return 2; }	//!< ç¿ïWÇÃéüå≥ÅiÇQÅjÇï‘Ç∑
 	virtual void GetInfo(unsigned int id_msh,
-        unsigned int& id_cad, unsigned int& id_msh_before_ext, unsigned int& inum_ext) const
+        unsigned int& id_cad, unsigned int& id_msh_before_ext, unsigned int& inum_ext,
+		int& ilayer) const
     { 
 		const int itype = m_ElemType[id_msh];
 		const int iloc = m_ElemLoc[id_msh];
-		if(      itype == 0 ){ id_cad = m_aVertex[ iloc].m_CadVertexID; }
-		else if( itype == 1 ){ id_cad = m_aBarAry[ iloc].m_CadEdgeID; }
-		else if( itype == 2 ){ id_cad = m_aTriAry[ iloc].m_CadLoopID; }
-        else if( itype == 3 ){ id_cad = m_aQuadAry[iloc].m_CadLoopID; }
+		if(      itype == 0 ){ id_cad = m_aVertex[ iloc].id_v_cad; }
+		else if( itype == 1 ){ id_cad = m_aBarAry[ iloc].id_e_cad; }
+		else if( itype == 2 ){ id_cad = m_aTriAry[ iloc].id_l_cad; }
+        else if( itype == 3 ){ id_cad = m_aQuadAry[iloc].id_l_cad; }
 		else{ assert(0); }
         id_msh_before_ext = 0;
         inum_ext = 0;
@@ -169,7 +170,7 @@ public:
 	/*! ÉÅÉbÉVÉÖÇÃê⁄ë±ä÷åWÇéÊìæÇ∑ÇÈ
 	ÉRÉsÅ[Çñ≥Ç≠ÇµÇΩÉfÅ[É^ÇÃéÛÇØìnÇµÇé¿ëïÇ∑ÇÈó\íË
 	*/
-	MSH_TYPE GetConnectivity(std::vector<int>& lnods, unsigned int id_msh ) const;
+	MSH_TYPE GetConnectivity(unsigned int id_msh,std::vector<int>& lnods) const;
 
 	bool GetClipedMesh(
 		std::vector< std::vector<int> >& lnods_tri, 

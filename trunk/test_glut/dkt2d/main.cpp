@@ -195,7 +195,7 @@ void myGlutDisplay(void)
 	::glEnable(GL_DEPTH_TEST);
 
 	::glEnable(GL_POLYGON_OFFSET_FILL );
-	::glPolygonOffset( 1.1, 4.0 );
+	::glPolygonOffset( 1.1f, 4.0f );
 
 	::glMatrixMode(GL_MODELVIEW);
 	::glLoadIdentity();
@@ -286,7 +286,7 @@ void SetNewProblem()
 		{
 			double tol = 1.0e-6;
 			unsigned int iter = 10000;
-			Sol::Solve_CG(tol,iter,ls);
+			LsSol::Solve_CG(tol,iter,ls);
 //			Fem::Sol::Solve_PCG(tol,iter,ls,prec);
 			std::cout << iter << " " << tol << std::endl;
 		}
@@ -339,7 +339,7 @@ void SetNewProblem()
 		{
 			double tol = 1.0e-6;
 			unsigned int iter = 10000;
-			Sol::Solve_CG(tol,iter,ls);
+			LsSol::Solve_CG(tol,iter,ls);
 //			Fem::Sol::Solve_PCG(tol,iter,ls,prec);
 			std::cout << iter << " " << tol << std::endl;
 		}

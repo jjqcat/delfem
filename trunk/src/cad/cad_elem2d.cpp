@@ -139,7 +139,6 @@ double Cad::CEdge2D::AreaEdge() const
 	return 0;
 }
 
-
 Com::CVector2D Cad::CEdge2D::GetTangentEdge(bool is_s) const {
 	if( this->itype == 0 ){
 		Com::CVector2D d = (is_s ) ? po_e-po_s : po_s-po_e;
@@ -177,7 +176,6 @@ Com::CVector2D Cad::CEdge2D::GetTangentEdge(bool is_s) const {
 	Com::CVector2D v(0,0);
 	return v;
 }
-
 
 //! 入力点から最も近い辺上の点と距離を返す
 Com::CVector2D Cad::CEdge2D::GetNearestPoint(const Com::CVector2D& po_in) const
@@ -388,7 +386,7 @@ bool Cad::CEdge2D::IsCrossEdge_ShareOnePoint(const CEdge2D& e1, bool is_share_s0
 {
 	const Com::CVector2D& po_s1 = e1.po_s;
 	const Com::CVector2D& po_e1 = e1.po_e;
-	if(  is_share_s0 &&  is_share_s1 ){ assert( Com::SquareLength(po_s,po_s1) < 1.0e-20 ); }
+    if(  is_share_s0 &&  is_share_s1 ){ assert( Com::SquareLength(po_s,po_s1) < 1.0e-20 ); }
 	if(  is_share_s0 && !is_share_s1 ){ assert( Com::SquareLength(po_s,po_e1) < 1.0e-20 ); }
 	if( !is_share_s0 &&  is_share_s1 ){ assert( Com::SquareLength(po_e,po_s1) < 1.0e-20 ); }
 	if( !is_share_s0 && !is_share_s1 ){ assert( Com::SquareLength(po_e,po_e1) < 1.0e-20 ); }
@@ -539,7 +537,6 @@ bool Cad::CEdge2D::IsCrossEdge_ShareOnePoint(const CEdge2D& e1, bool is_share_s0
 	}
 	return false;
 }
-
 
 //! 一端が共有された辺同士の交差判定
 bool Cad::CEdge2D::IsCrossEdge_ShareBothPoints(const CEdge2D& e1, bool is_share_s0s1) const
@@ -1081,6 +1078,87 @@ int Cad::CEdge2D::IsDirectionArc(const Com::CVector2D& po) const{
 		}
 	}
 	return -1;
+}
+
+bool Cad::CEdge2D::ConnectEdge(const Cad::CEdge2D& e1, bool is_add_ahead, bool is_same_dir)
+{
+	if(       is_add_ahead &&  is_same_dir ){ assert( id_v_e == e1.id_v_s ); }
+	else if(  is_add_ahead && !is_same_dir ){ assert( id_v_e == e1.id_v_e ); }
+	else if( !is_add_ahead &&  is_same_dir ){ assert( id_v_s == e1.id_v_e ); }
+	else if( !is_add_ahead && !is_same_dir ){ assert( id_v_s == e1.id_v_s ); }
+	if( this->itype == 2 ){		
+		std::vector<Com::CVector2D> aPo0;
+		{
+			const Com::CVector2D& ps = this->po_s;
+			const Com::CVector2D& pe = this->po_e;
+			const Com::CVector2D& h0 = pe-ps;
+			const Com::CVector2D v0(-h0.y,h0.x);
+			const std::vector<double>& relcomsh = this->aRelCoMesh;
+			const unsigned int npo = relcomsh.size()/2;
+			aPo0.resize(npo);
+			for(unsigned ipo=0;ipo<npo;ipo++){
+				aPo0[ipo] = ps + h0*relcomsh[ipo*2+0] + v0*relcomsh[ipo*2+1];
+			}
+		}
+		const double ave_elen = this->GetCurveLength()/(aPo0.size()+1.0);
+		std::vector<Com::CVector2D> aPo1;
+		{
+			const unsigned int ndiv1 = e1.GetCurveLength()/ave_elen;
+			e1.GetCurve_Mesh(aPo1,ndiv1);
+		}
+		std::vector<Com::CVector2D> aPo2;
+		if( is_add_ahead ){
+			aPo2 = aPo0;
+			aPo2.push_back(this->po_e);
+			if( is_same_dir ){
+				for(unsigned int i=0;i<aPo1.size();i++){ aPo2.push_back(aPo1[i]); }
+				this->id_v_e = e1.id_v_e;
+				this->po_e = e1.po_e;
+			}
+			else{
+				for(int i=aPo1.size()-1;i>=0;i--){ aPo2.push_back(aPo1[i]); }
+				this->id_v_e = e1.id_v_s;
+				this->po_e = e1.po_s;
+			}
+		}
+		else{
+			if( is_same_dir ){
+				aPo2 = aPo1;
+				aPo2.push_back(this->po_s);
+				for(unsigned int i=0;i<aPo0.size();i++){ aPo2.push_back(aPo0[i]); }
+				this->id_v_s = e1.id_v_s;
+				this->po_s = e1.po_s;
+			}
+			else{
+				for(int i=aPo1.size()-1;i>=0;i--){ aPo2.push_back(aPo1[i]); }
+				aPo2.push_back(this->po_s);
+				for(unsigned int i=0;i<aPo0.size();i++){ aPo2.push_back(aPo0[i]); }
+				this->id_v_s = e1.id_v_e;
+				this->po_s = e1.po_e;
+			}
+		}
+/*		std::cout << po_s.x << " " << po_s.y << std::endl;
+		for(unsigned int i=0;i<aPo2.size();i++){
+			std::cout << i << " " << aPo2[i].x << " " << aPo2[i].y << std::endl;
+		}
+		std::cout << po_e.x << " " << po_e.y << std::endl;*/
+		{
+			const Com::CVector2D& ps = this->po_s;
+			const Com::CVector2D& pe = this->po_e;
+			const unsigned int npo = aPo2.size();
+			this->aRelCoMesh.resize(npo*2);
+			const double sqlen = Com::SquareLength(pe-ps);
+			const Com::CVector2D& eh = (pe-ps)*(1/sqlen);
+			const Com::CVector2D ev(-eh.y,eh.x);
+			for(unsigned int ipo=0;ipo<npo;ipo++){
+				double x1 = Com::Dot(aPo2[ipo]-ps,eh);
+				double y1 = Com::Dot(aPo2[ipo]-ps,ev);
+				this->aRelCoMesh[ipo*2+0] = x1;
+				this->aRelCoMesh[ipo*2+1] = y1;
+			}
+		}
+	}
+	return true;
 }
 
 bool Cad::CEdge2D::Split(Cad::CEdge2D& edge_a, const Com::CVector2D& pa)
