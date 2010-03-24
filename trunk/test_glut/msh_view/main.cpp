@@ -530,7 +530,7 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(0.0, 0.5) );	// 9
 			unsigned int id_l0 = cad_2d.AddPolygon( vec_ary );
 			unsigned int id_e1 = cad_2d.ConnectVertex_Line(5,9);
-			cad_2d.ShiftLayer(id_l0,true);
+			cad_2d.ShiftLayer_Loop(id_l0,true);
 			const double col[3] = { 0.9, 0.4, 0.4 };
 			cad_2d.SetColor_Loop(id_l0, col);
 			cad_2d.AddVertex(Cad::EDGE,3, Com::CVector2D(1.3,0.5) );

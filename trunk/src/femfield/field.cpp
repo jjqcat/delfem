@@ -65,8 +65,6 @@ static void TriDlDx(double dldx[][2], double const_term[],
 }
 
 
-
-
 CField::CField(
 	unsigned int id_field_parent,	// 親フィールド
 	const std::vector<CElemInterpolation>& aEI, 
@@ -392,6 +390,18 @@ unsigned int CField::GetIdElemSeg(unsigned int id_ea, ELSEG_TYPE elseg_type, boo
 }
 
 
+int CField::GetLayer(unsigned int id_ea) const
+{
+	unsigned int iei;
+	for(iei=0;iei<m_aElemIntp.size();iei++){
+		if( m_aElemIntp[iei].id_ea == id_ea ){ break; }
+	}
+	if( iei == m_aElemIntp.size() ){ return 0; }
+	const CElemInterpolation& ei = m_aElemIntp[iei];
+	return ei.ilayer;
+}
+
+// 最大値最小値を取得する関数
 void CField::GetMinMaxValue(double& min, double& max, const CFieldWorld& world, 
 							unsigned int idof, int fdt) const
 {
@@ -611,168 +621,108 @@ void CField::SetValueRandom(CFieldWorld& world) const
 	}
 }
 
-
 // 数式をセットする
-bool CField::SetValue(std::string str_exp, unsigned int idofns, CFieldWorld& world, bool is_save)
+bool CField::SetValue(std::string str_exp, unsigned int idofns, FIELD_DERIVATION_TYPE fdt,
+					  CFieldWorld& world, bool is_save)
 {		
 	assert( idofns < m_DofSize );
-	if( idofns >= m_DofSize ) return false;
-	if( !(this->GetFieldDerivativeType() & VALUE) ) return false;
+	if( idofns >= m_DofSize ){ assert(0); return false; }
+	if( fdt != VALUE && fdt != VELOCITY && fdt != ACCELERATION ){ assert(0); return false; }
+	if( !(this->GetFieldDerivativeType() & VALUE) && 
+		!(this->GetFieldDerivativeType() & VELOCITY) && 
+		!(this->GetFieldDerivativeType() & ACCELERATION) ){ assert(0); return false; }
 	////////////////
 	CValueFieldDof vfd(str_exp);
 	////////////////
-	if( !this->SetValue(0.0,idofns,VALUE,vfd,world) ) return false;
-	if( is_save ){	// FieldValueExecの度に設定される量なら
-		if( this->m_aValueFieldDof.size()<m_DofSize ){
-			this->m_aValueFieldDof.resize(m_DofSize);
+	if( !this->SetValue(0.0,idofns,fdt,vfd,world) ) return false;
+	if( fdt == VALUE ){
+		if( is_save ){	// FieldValueExecの度に設定される量なら
+			if( this->m_aValueFieldDof.size()<m_DofSize ){
+				this->m_aValueFieldDof.resize(m_DofSize);
+			}
+			m_aValueFieldDof[idofns] = vfd;
 		}
-		m_aValueFieldDof[idofns] = vfd;
+		else{
+			if( this->m_aValueFieldDof.size() >= m_DofSize ){
+				m_aValueFieldDof[idofns].itype = 0;
+			}
+		}
 	}
-	else{
-		if( this->m_aValueFieldDof.size() >= m_DofSize ){
-			m_aValueFieldDof[idofns].itype = 0;
+	else if( fdt == VELOCITY ){
+		if( is_save ){
+			if( this->m_aValueFieldDof.size() < m_DofSize*2 ){
+				this->m_aValueFieldDof.resize(m_DofSize*2);
+			}
+			m_aValueFieldDof[idofns+m_DofSize] = vfd;
+		}
+	}
+	else if( fdt == ACCELERATION ){
+		if( is_save ){
+			if( this->m_aValueFieldDof.size() < m_DofSize*3 ){
+				this->m_aValueFieldDof.resize(m_DofSize*3);
+			}
+			m_aValueFieldDof[idofns+m_DofSize*2] = vfd;
 		}
 	}
 	return true;
 }
 
-// 数式をセットする
-bool CField::SetVelocity(std::string str_exp, unsigned int idofns, CFieldWorld& world, bool is_save)
-{	
-	assert( idofns < m_DofSize );
-	if( idofns >= m_DofSize ) return false;
-	if( !(this->GetFieldDerivativeType() & VELOCITY) ) return false;
-	////////////////
-	CValueFieldDof vfd(str_exp);
-	////////////////
-	if( !this->SetValue(0.0,idofns,VELOCITY,vfd,world) ) return false;
-	if( is_save ){
-		if( this->m_aValueFieldDof.size() < m_DofSize*2 ){
-			this->m_aValueFieldDof.resize(m_DofSize*2);
-		}
-		m_aValueFieldDof[idofns+m_DofSize] = vfd;
-	}
-	return true;
-}
-
-
-bool CField::SetAcceleration(std::string str_exp,unsigned int idofns, CFieldWorld& world, bool is_save)
-{
-	assert( idofns < m_DofSize );
-	if( idofns >= m_DofSize ) return false;
-	if( !(this->GetFieldDerivativeType() & ACCELERATION) ) return false;
-	////////////////
-	CValueFieldDof vfd;
-	vfd.itype = 2;
-	vfd.math_exp = str_exp;
-	////////////////
-	if( !this->SetValue(0.0,idofns,ACCELERATION,vfd,world) ) return false;
-	if( is_save ){
-		if( this->m_aValueFieldDof.size() < m_DofSize*3 ){
-			this->m_aValueFieldDof.resize(m_DofSize*3);
-		}
-		m_aValueFieldDof[idofns+m_DofSize*2] = vfd;
-	}
-	return true;
-}
-
 // 値をセットする
-void CField::SetValue(double val, unsigned int idofns, CFieldWorld& world, bool is_save)
+void CField::SetValue(double val, unsigned int idofns, FIELD_DERIVATION_TYPE fdt,
+					  CFieldWorld& world, bool is_save)
 {
 	assert( idofns < m_DofSize );
-	if( idofns >= m_DofSize ) return;
-	if( !(this->GetFieldDerivativeType() & VALUE) ) return;
+	if( idofns >= m_DofSize ){ assert(0); return; }
+	if( fdt != VALUE && fdt != VELOCITY && fdt != ACCELERATION ){ assert(0); return; }
+	if( !(this->GetFieldDerivativeType() & VALUE ) &&
+		!(this->GetFieldDerivativeType() & VELOCITY ) && 
+		!(this->GetFieldDerivativeType() & ACCELERATION ) ){ assert(0); return; }
 	////////////////
 	CValueFieldDof vfd;
-	vfd.itype = 1;
+	vfd.itype = 1;	// value_type
 	vfd.val = val;
 	////////////////
-	this->SetValue(0.0,idofns,VALUE,vfd,world);
-	if( is_save ){
-		if( this->m_aValueFieldDof.size() < m_DofSize ){
-			this->m_aValueFieldDof.resize(m_DofSize);
+	this->SetValue(0.0,idofns,fdt,vfd,world); // time=0
+	if(      fdt == VALUE ){
+		if( is_save ){
+			if( this->m_aValueFieldDof.size() < m_DofSize ){
+				this->m_aValueFieldDof.resize(m_DofSize);
+			}
+			m_aValueFieldDof[idofns] = vfd;
 		}
-		m_aValueFieldDof[idofns] = vfd;
-	}
-	else{
-		if( this->m_aValueFieldDof.size() >= m_DofSize ){
-			m_aValueFieldDof[idofns].itype = 0;
+		else{
+			if( this->m_aValueFieldDof.size() >= m_DofSize ){
+				m_aValueFieldDof[idofns].itype = 0;
+			}
 		}
 	}
-}
-
-// 値をセットする
-void CField::SetVelocity(double val, unsigned int idofns, CFieldWorld& world, bool is_save)
-{
-	assert( idofns < m_DofSize );
-	if( idofns >= m_DofSize ) return;
-	if( !(this->GetFieldDerivativeType() & VELOCITY) ) return;
-	////////////////
-	CValueFieldDof vfd;
-	vfd.itype = 1;
-	vfd.val = val;
-	////////////////
-	this->SetValue(0.0,idofns,VELOCITY,vfd,world);
-	if( is_save ){
-		if( this->m_aValueFieldDof.size() < m_DofSize*2 ){
-			this->m_aValueFieldDof.resize(m_DofSize*2);
+	else if( fdt == VELOCITY ){
+		if( is_save ){
+			if( this->m_aValueFieldDof.size() < m_DofSize*2 ){
+				this->m_aValueFieldDof.resize(m_DofSize*2);
+			}
+			m_aValueFieldDof[idofns+m_DofSize] = vfd;
 		}
-		m_aValueFieldDof[idofns+m_DofSize] = vfd;
-	}
-}
-
-// 値をセットする
-void CField::SetAcceleration(double val, unsigned int idofns, CFieldWorld& world, bool is_save)
-{
-	assert( idofns < m_DofSize );
-	if( idofns >= m_DofSize ) return;
-	if( !(this->GetFieldDerivativeType() & ACCELERATION) ) return;
-	////////////////
-	CValueFieldDof vfd;
-	vfd.itype = 1;
-	vfd.val = val;
-	////////////////
-	this->SetValue(0.0,idofns,ACCELERATION,vfd,world);
-	if( is_save ){
-		if( this->m_aValueFieldDof.size() < m_DofSize*3 ){
-			this->m_aValueFieldDof.resize(m_DofSize*3);
+		else{
+			if( this->m_aValueFieldDof.size() >= m_DofSize*2 ){
+				m_aValueFieldDof[idofns+m_DofSize].itype = 0;
+			}
 		}
-		m_aValueFieldDof[idofns+m_DofSize*2] = vfd;
 	}
-	else{
-		if( this->m_aValueFieldDof.size() >= m_DofSize*2 ){
-			m_aValueFieldDof[idofns+m_DofSize*2].itype = 0;
+	else if( fdt == ACCELERATION ){
+		if( is_save ){
+			if( this->m_aValueFieldDof.size() < m_DofSize*3 ){
+				this->m_aValueFieldDof.resize(m_DofSize*3);
+			}
+			m_aValueFieldDof[idofns+m_DofSize*2] = vfd;
+		}
+		else{
+			if( this->m_aValueFieldDof.size() >= m_DofSize*3 ){
+				m_aValueFieldDof[idofns+m_DofSize*2].itype = 0;
+			}
 		}
 	}
 }
-
-
-void CField::ScaleVelocity(double scale, CFieldWorld& world)
-{
-	if( !(this->GetFieldDerivativeType() & VELOCITY) ) return;
-
-	assert( world.IsIdNA(m_na_c.id_na_va) );
-	CNodeAry& na = world.GetNA(m_na_c.id_na_va);
-	if( !na.IsSegID(m_na_c.id_ns_ve) ){
-		std::cout << "Valueセグメントがない（速度場に設定しようとしている)" << std::endl;
-		std::cout << "そのうちValueセグメントを追加で作る関数を加える" << std::endl;
-		assert(0);
-	}
-	assert( na.IsSegID(m_na_c.id_ns_ve) );
-	CNodeAry::CNodeSeg& ns_velo = na.GetSeg(m_na_c.id_ns_ve);
-	double value_ns[64];
-	const unsigned int ndofns = ns_velo.GetLength();
-	const unsigned int nnode = na.Size();
-	for(unsigned int inode=0;inode<nnode;inode++){
-		ns_velo.GetValue(inode,value_ns);
-		for(unsigned int idof=0;idof<ndofns;idof++){
-			ns_velo.SetValue(inode,idof,value_ns[idof]*scale);
-		}
-	}
-
-
-}
-
 
 void CField::SetVelocity(unsigned int id_field, CFieldWorld& world){
 	if( !world.IsIdField(id_field) ){
@@ -833,16 +783,6 @@ bool CField::ExecuteValue(double time, CFieldWorld& world){
 		this->SetGradientValue(m_id_field_dep,world);
 		return true;
 	}
-/*	if( m_is_mises ){
-		assert( world.IsIdField(m_id_field_dep) );
-		this->SetMisesStressValue(m_id_field_dep,world);
-		return true;
-	}
-	if( m_is_maxprinciple ){
-		assert( world.IsIdField(m_id_field_dep) );
-		this->SetMaxPrincipleStressValue(m_id_field_dep,world);
-		return true;
-	}*/
 	unsigned int ifd = m_aValueFieldDof.size()  / m_DofSize;
 	if( ifd >= 1 ){	// 値の設定
 		for(unsigned int idof=0;idof<m_DofSize;idof++){
@@ -1267,7 +1207,7 @@ INTERPOLATION_TYPE CField::GetInterpolationType(unsigned int id_ea,const CFieldW
 	if( elem_type == LINE ){
 		if( ei.id_es_c_va != 0 && ei.id_es_b_va == 0 && ei.id_es_e_va==0 ){	     return LINE11; }
 		else{
-			std::cout << "Interpolation Not Defined(Tri)" << std::endl;
+			std::cout << "Error!-->Interpolation Not Defined(Tri)" << std::endl;
 			std::cout << ei.id_es_c_va << " " << ei.id_es_b_va << std::endl;
 			assert(0);
 		}
@@ -1277,7 +1217,7 @@ INTERPOLATION_TYPE CField::GetInterpolationType(unsigned int id_ea,const CFieldW
 		else if( ei.id_es_c_va != 0 && ei.id_es_b_va != 0 && ei.id_es_e_va==0 ){ return TRI1011; }
 		else if( ei.id_es_c_va == 0 && ei.id_es_b_va != 0 && ei.id_es_e_va==0 ){ return TRI1001; }
 		else{
-			std::cout << "Interpolation Not Defined(Tri)" << std::endl;
+			std::cout << "Error!-->Interpolation Not Defined(Tri)" << std::endl;
 			std::cout << ei.id_es_c_va << " " << ei.id_es_b_va << std::endl;
 			assert(0);
 		}
@@ -1593,7 +1533,7 @@ int CField::InitializeFromFile(const std::string& file_name, long& offset)
 			this->m_DofSize = 0;
 		}
 		else{
-			std::cout << "not field type " << std::endl;
+			std::cout << "Error!-->not field type " << std::endl;
 			assert(0);
 		}
 	}

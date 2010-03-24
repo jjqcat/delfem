@@ -17,12 +17,10 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-
 /*! @file
 @brief GLUTの便利な関数，クラス群
 @author Nobuyuki Umetani
 */
-
 
 #if !defined(DRAWER_GL_UTILITY_H)
 #define DRAWER_GL_UTILITY_H
@@ -64,11 +62,14 @@ void PickPre(
 		unsigned int point_x, unsigned int point_y,
 		unsigned int delX, unsigned int delY,
 		const View::CCamera& mvp_trans);
+//		int win_width=-1, int win_height=-1);
+
 //! ピック後処理		
 std::vector<SSelectedObject> PickPost(
 		unsigned int* const select_buffer,
 		unsigned int point_x, unsigned int point_y,
-		const View::CCamera& mvp_trans );
+		const View::CCamera& mvp_trans);
+//		int win_width=-1, int win_height=-1 );
 
 
 //! 座標を描くクラス
@@ -151,7 +152,7 @@ public:
 	virtual void AddSelected(const int selec_flag[]){}
 	virtual void ClearSelected(){}
 private :
-	GLuint m_texName;	// ０なら何もテクスチャが設定されていない
+	unsigned int m_texName;	// ０なら何もテクスチャが設定されていない
 	unsigned int m_texWidth;	// 2のべき乗になってるはず
 	unsigned int m_texHight;	// 2のべき乗になってるはず
 	double x_min,x_max,  y_min,y_max;

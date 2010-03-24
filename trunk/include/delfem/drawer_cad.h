@@ -25,6 +25,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(DRAWER_CAD_H)
 #define DRAWER_CAD_H
 
+#include <vector>
+
 #include "delfem/cad2d_interface.h"
 #include "delfem/drawer.h"
 #include "delfem/vector3d.h"
@@ -115,8 +117,9 @@ public :
 	void GetCadPartID(const int selec_flag[], Cad::CAD_ELEM_TYPE& part_type, unsigned int& part_id);
     void HideEffected(const Cad::ICad2D& cad_2d, Cad::CAD_ELEM_TYPE part_type, unsigned int part_id);
     void ShowEffected(const Cad::ICad2D& cad_2d, Cad::CAD_ELEM_TYPE part_type, unsigned int part_id);
-    void Hide(Cad::CAD_ELEM_TYPE part_type, unsigned int part_id);
-    void Show(Cad::CAD_ELEM_TYPE part_type, unsigned int part_id);
+    void SetIsShow(bool is_show, Cad::CAD_ELEM_TYPE part_type, unsigned int part_id);
+    void SetIsShow(bool is_show, Cad::CAD_ELEM_TYPE part_type, const std::vector<unsigned int>& aIdPart );
+//    void Show(Cad::CAD_ELEM_TYPE part_type, unsigned int part_id);
 private:	
 	////////////////
 	class CDrawPart{

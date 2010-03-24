@@ -41,7 +41,7 @@ namespace Msh{
 @ingroup Msh3D
 */
 //! 直方体を分割したメッシュ
-class CMesh_Primitive_Hexahedra : public CMesh_Interface
+class CMesh_Primitive_Hexahedra : public IMesh
 {
 public:
     CMesh_Primitive_Hexahedra(double l_x, double l_y, double l_z,  
@@ -53,10 +53,13 @@ public:
 public:
     virtual unsigned int GetDimention() const{ return 3; }
 	virtual void GetInfo(unsigned int id_msh,
-        unsigned int& id_cad, unsigned int& id_msh_before_ext, unsigned int& inum_ext) const{
+        unsigned int& id_cad, unsigned int& id_msh_before_ext, unsigned int& inum_ext, 
+		int& ilayer) const
+	{
         id_cad = 0;
         id_msh_before_ext = 0;
         inum_ext = 0;
+		ilayer = 0;
     }
     void Translate( double tx, double ty, double tz ){
         trans_x = tx;
@@ -83,7 +86,7 @@ public:
         }
         }
     }
-    virtual MSH_TYPE GetConnectivity(std::vector<int>& lnods, unsigned int id_msh ) const{
+    virtual MSH_TYPE GetConnectivity(unsigned int id_msh, std::vector<int>& lnods) const{
         if( id_msh == 1 ){  // 内部
             lnods.resize( nx*ny*nz*8 );
             for(unsigned int iz=0;iz<nz;iz++){
@@ -189,7 +192,7 @@ public:
 @ingroup Msh3D
 */
 //! 円筒を分割したメッシュ
-class CMesh_Primitive_ThickCylinder : public CMesh_Interface
+class CMesh_Primitive_ThickCylinder : public IMesh
 {
 public:
     CMesh_Primitive_ThickCylinder(double r_min, double r_max, double l_z,  

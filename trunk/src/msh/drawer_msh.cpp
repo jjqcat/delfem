@@ -755,43 +755,7 @@ bool CDrawerMsh2D::Set(const Msh::CMesher2D &mesh)
 		for(unsigned int ibar=0;ibar<aBarAry.size();ibar++){
 			double height = 0;
 			{
-				const unsigned int id_msh_l = aBarAry[ibar].id_lr[0];
-				const unsigned int id_msh_r = aBarAry[ibar].id_lr[1];
-				unsigned int ilayer = ilayer_min;
-				if( mesh.IsID(id_msh_l) ){
-                    unsigned int ilayer_l=0;
-					{
-						unsigned int nelem, iloc, id_cad;
-						MSH_TYPE type;
-						mesh.GetMshInfo(id_msh_l,nelem,type,iloc,id_cad);
-						if(      type == Msh::TRI  ){
-							const CTriAry2D& ta = mesh.GetTriArySet()[iloc];
-							ilayer_l = ta.ilayer;
-						}
-						else if( type == Msh::QUAD ){
-							const CQuadAry2D& ta = mesh.GetQuadArySet()[iloc];
-							ilayer_l = ta.ilayer;
-						}
-					}
-					ilayer =  ( ilayer_l > ilayer )	? ilayer_l : ilayer;
-				}
-				if( mesh.IsID(id_msh_r) ){
-                    unsigned int ilayer_r=0;
-					{
-						unsigned int nelem, iloc, id_cad;
-						MSH_TYPE type;
-						mesh.GetMshInfo(id_msh_r,nelem,type,iloc,id_cad);
-						if(      type == Msh::TRI  ){
-							const CTriAry2D& ta = mesh.GetTriArySet()[iloc];
-							ilayer_r = ta.ilayer;
-						}
-						else if( type == Msh::QUAD ){
-							const CQuadAry2D& ta = mesh.GetQuadArySet()[iloc];
-							ilayer_r = ta.ilayer;
-						}
-					}
-					ilayer =  ( ilayer_r > ilayer )	? ilayer_r : ilayer;
-				}
+				const int ilayer = aBarAry[ibar].ilayer;
 				height += (ilayer-ilayer_min)*layer_height;
 				height += 0.01*layer_height;
 			}
@@ -804,10 +768,17 @@ bool CDrawerMsh2D::Set(const Msh::CMesher2D &mesh)
 	{	// 頂点をセット
 		const std::vector<Msh::SVertex>& aVertex = mesh.GetVertexAry();
 		for(unsigned int iver=0;iver<aVertex.size();iver++){
+			double height = 0;
+			{
+				const int ilayer = aVertex[iver].ilayer;
+				height += (ilayer-ilayer_min)*layer_height;
+				height += 0.01*layer_height;
+			}
 			CDrawPart_MshVertex dpv;
 			dpv.id_cad = aVertex[iver].id_v_cad;
 			dpv.id_msh = aVertex[iver].id;
 			dpv.id_v = aVertex[iver].v;
+			dpv.height = height;
 			dpv.is_selected = false;
 			this->m_DrawPartCadVertex.push_back( dpv );
 		}

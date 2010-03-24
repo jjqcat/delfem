@@ -17,7 +17,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 ////////////////////////////////////////////////////////////////
-// MatDia_Crs.cpp: CMatDia_BlkCrs クラスのインプリメンテーション
+// MatDia_Crs.cpp: Implementation of class "CMatDia_BlkCrs"
 ////////////////////////////////////////////////////////////////
 
 #if defined(__VISUALC__)
@@ -31,13 +31,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <vector>
 #include <algorithm>
 
+#include "delfem/indexed_array.h"
+
 #include "delfem/matvec/matdia_blkcrs.h"
 #include "delfem/matvec/matfrac_blkcrs.h"
 #include "delfem/matvec/vector_blk.h"
 #include "delfem/matvec/ordering_blk.h"
 #include "delfem/matvec/bcflag_blk.h"
-
-#include "delfem/indexed_array.h"
 
 using namespace MatVec;
 

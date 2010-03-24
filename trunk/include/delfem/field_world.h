@@ -30,6 +30,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "delfem/elem_ary.h"	// CElemAryの参照返しをしているので必要
 #include "delfem/node_ary.h"	// CNodeAryの参照返しをしているので必要
 #include "delfem/objset.h"		// ID管理テンプレートクラス
+#include "delfem/cad_com.h"		// ID管理テンプレートクラス
 
 namespace Msh{
 	class IMesh;	
@@ -84,7 +85,7 @@ public:
 		return 0;
 	}
 	// itype_cad_part : Vertex(0), Edge(1), Loop(2)
-	unsigned int GetIdEA_fromCad(unsigned int id_part_cad, unsigned int itype_cad_part, unsigned int inum_ext = 0) const {
+    unsigned int GetIdEA_fromCad(unsigned int id_part_cad, Cad::CAD_ELEM_TYPE itype_cad_part, unsigned int inum_ext = 0) const {
 		for(unsigned int iid=0;iid<m_aIdAry.size();iid++){
 			if(    m_aIdAry[iid].id_part_cad    == id_part_cad 
 				&& m_aIdAry[iid].itype_part_cad == itype_cad_part 
@@ -94,7 +95,7 @@ public:
 		}
 		return 0;
 	}
-	void GetIdCad_fromIdEA(unsigned int id_ea, unsigned int& id_part_cad, unsigned int& itype_part_cad ) const{
+	void GetIdCad_fromIdEA(unsigned int id_ea, unsigned int& id_part_cad, Cad::CAD_ELEM_TYPE& itype_part_cad ) const{
 		for(unsigned int iid=0;iid<m_aIdAry.size();iid++){
 			if( m_aIdAry[iid].id_ea == id_ea ){
 				id_part_cad    = m_aIdAry[iid].id_part_cad;
@@ -103,7 +104,7 @@ public:
 			}
 		}
 		id_part_cad    = 0;
-		itype_part_cad = 0;
+		itype_part_cad = Cad::NOT_SET;
 	}
 private:
 	class CInfoCadMshEA{
@@ -111,7 +112,7 @@ private:
 		unsigned int id_ea;
 		unsigned int id_part_msh;
 		unsigned int id_part_cad;
-		unsigned int itype_part_cad;
+		Cad::CAD_ELEM_TYPE itype_part_cad;
 		unsigned int id_part_msh_before_extrude;    // 突き出す前のメッシュID
 		unsigned int inum_extrude;  // 突き出されてない(0), 底面(1), 側面(2), 上面(3)
 	};
@@ -225,9 +226,9 @@ public:
 	int InitializeFromFile(const std::string& file_name, long& offset);
 	int WriteToFile(const std::string& file_name, long& offset) const;
 private:        
-	unsigned int SetBaseField(
+/*	unsigned int SetBaseField(
 		unsigned int id_na, unsigned int id_ns_co,
-		const std::vector< std::pair< unsigned int, unsigned int> >& pEaEs );
+		const std::vector< std::pair< unsigned int, unsigned int> >& pEaEs );*/
 private:
 	Com::CObjSet<CElemAry*> m_apEA;		//!< 要素配列集合
 	Com::CObjSet<CNodeAry*> m_apNA;		//!< 節点配列集合

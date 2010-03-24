@@ -169,7 +169,7 @@ bool Msh::MakeTetSurTet(std::vector<STet>& tet)
 						icoun1 += help_node[ tet[jelem1].v[ noelTetFace[jfael][jnofa] ] ];
 					}
 					if( icoun1 == 6 ){
-						int jnoel2inoel[4];
+                        unsigned int jnoel2inoel[4];
 						for(unsigned int jnoel=0;jnoel<nnoel;jnoel++){
 							jnoel2inoel[jnoel] = noel_face2[ifael][ help_node[ tet[jelem1].v[jnoel] ] ];
 						}
@@ -237,7 +237,7 @@ bool MakeOneTetSurNo(const std::vector<STet>& tet,
 	assert( point.size() > 0 );
 	assert( tet.size() > 0 );
 
-	const int npotet = 4;
+    const unsigned int npotet = 4;
 
 	for(unsigned int ipoin=0;ipoin<point.size();ipoin++){
 		point[ipoin].e = -1;
@@ -262,7 +262,7 @@ bool Msh::MakeTetSurNo(const std::vector<STet>& tet,
 	assert( tetsupo_ind == 0 );
 	assert( tetsupo == 0 );
 
-	const int npotet = 4;
+    const unsigned int npotet = 4;
 	tetsupo_ind = new unsigned int [npoin+1];
 	for(unsigned int ipoin=0;ipoin<npoin+1;ipoin++){
 		tetsupo_ind[ipoin] = 0;
@@ -325,10 +325,10 @@ bool Msh::MakeTriSurTri(std::vector<STri3D>& tri )
 	const unsigned int ntri = tri.size();
 	const unsigned int nedtri = 3;
 	const unsigned int nnoed = 2;
-	const unsigned int nnotri = 3;
+//	const unsigned int nnotri = 3;
 
 	// そのうちヘッダファイルに情報を置く
-	const unsigned int nNoTri = 3;
+//	const unsigned int nNoTri = 3;
 	const unsigned int nEdTri = 3;
 	const unsigned int nNoEd = 2;
 	const unsigned int noelTriEdge[nEdTri][nNoEd] = {
@@ -336,15 +336,15 @@ bool Msh::MakeTriSurTri(std::vector<STri3D>& tri )
 		{ 2, 0 },
 		{ 0, 1 },
 	};
-	static const unsigned int relTriTri[3][3] = {
+/*	static const unsigned int relTriTri[3][3] = {
 		{ 0, 2, 1 }, //  0
 		{ 2, 1, 0 }, //  1 
 		{ 1, 0, 2 }, //  2
-	};
+    };*/
 	const unsigned int EdEd2Rel[nEdTri][nEdTri] = {
-		0, 2, 1,
-		2, 1, 0,
-		1, 0, 2,
+        { 0, 2, 1 },
+        { 2, 1, 0 },
+        { 1, 0, 2 },
 	};
 	// ここまで
 
@@ -362,9 +362,7 @@ bool Msh::MakeTriSurTri(std::vector<STri3D>& tri )
 
 	for(unsigned int itri=0;itri<ntri;itri++){
 	for(unsigned int iedtri=0;iedtri<nedtri;iedtri++){
-		if( tri[itri].s2[iedtri] != -1 ){
-			assert( tri[itri].s2[iedtri] >= 0 && (unsigned int)tri[itri].s2[iedtri] < ntri );
-			assert( tri[itri].g2[iedtri] == -2 );
+        if( tri[itri].g2[iedtri] != -2 ){
 			continue;
 		}
 		for(unsigned int inoed=0;inoed<nnoed;inoed++){
@@ -390,7 +388,6 @@ bool Msh::MakeTriSurTri(std::vector<STri3D>& tri )
 					tri[itri].s2[iedtri] = jtri1;
 					tri[itri].g2[iedtri] = -2;
 					tri[itri].r2[iedtri] = EdEd2Rel[iedtri][jedtri];
-					assert( tri[jtri1].s2[jedtri] == -1 );
 					assert( tri[jtri1].g2[jedtri] == -1 );
 					tri[jtri1].s2[jedtri] = itri;
 					tri[jtri1].g2[jedtri] = -2;
@@ -429,13 +426,12 @@ bool Msh::MakeTriSurTet(std::vector<STet>& tet,
 	const unsigned int nnode = vertex.size();
 	const unsigned int ntet = tet.size();
 
-	const int nfatet = 4;
-	const int nnofa = 3;
-	const int nnotet = 4;
+    const unsigned int nfatet = 4;
+    const unsigned int nnofa = 3;
+//	const int nnotet = 4;
 
-	const int ntri = tri.size();
-	const int nfatri = 2;
-
+    const unsigned int ntri = tri.size();
+    const unsigned int nfatri = 2;
 
 	int* help_node = new int [nnode];
 	int help_nofa[3];
@@ -465,7 +461,7 @@ bool Msh::MakeTriSurTet(std::vector<STet>& tet,
 			int inode1 = help_nofa[0];
 			bool iflag = false;
 			for(unsigned int jtrisuno=trisuno_ind[inode1];jtrisuno<trisuno_ind[inode1+1];jtrisuno++){
-				const int jtri1 = trisuno[jtrisuno];
+                const unsigned int jtri1 = trisuno[jtrisuno];
 				assert( jtri1>=0 && jtri1<ntri );
 				for(unsigned int jfatri=0;jfatri<nfatri;jfatri++){
 					int icoun = 0;
@@ -515,7 +511,7 @@ bool Msh::MakeOuterBoundTri( const std::vector<STri3D>& aTri, std::vector<SBar>&
 			}
 		}
 	}
-	const unsigned int nbar = counter;
+//	const unsigned int nbar = counter;
 	aBar.reserve(counter);
 	const unsigned int ntri = aTri.size();
 	for(unsigned int itri=0;itri<ntri;itri++){
@@ -542,7 +538,7 @@ bool Msh::MakeOuterBoundTet(const std::vector<STet>& aTet, std::vector<STri3D>& 
 			}
 		}
 	}
-	const unsigned int ntri = counter;
+//	const unsigned int ntri = counter;
 	aTri.reserve(counter);
 	const unsigned int ntet = aTet.size();
 	for(unsigned int itet=0;itet<ntet;itet++){
@@ -564,7 +560,7 @@ bool Msh::MakeEdgeTet(unsigned int& nedge,
 			  const std::vector<STet>& tet,
 			  const unsigned int nnode)
 {
-	const unsigned int nnoel = 4;
+//	const unsigned int nnoel = 4;
 
 	edge_ind = new unsigned int [nnode+1];
 	for(unsigned int inode=0;inode<nnode+1;inode++){ edge_ind[inode] = 0; }
@@ -583,7 +579,7 @@ bool Msh::MakeEdgeTet(unsigned int& nedge,
 		for(unsigned int itetsuno=tetsuno_ind[inode];itetsuno<tetsuno_ind[inode+1];itetsuno++){
 			const unsigned int itet1 = tetsuno[itetsuno];
 			for(unsigned int inoel=0;inoel<4;inoel++){
-				if( help_node[ tet[itet1].v[inoel] ] != inode ){
+                if( help_node[ tet[itet1].v[inoel] ] != (int)inode ){
 					help_node[ tet[itet1].v[inoel] ] = inode;
 					edge_ind[inode+1]++;
 				}
@@ -605,7 +601,7 @@ bool Msh::MakeEdgeTet(unsigned int& nedge,
 		for(unsigned int itetsuno=tetsuno_ind[inode];itetsuno<tetsuno_ind[inode+1];itetsuno++){
 			const unsigned int itet1 = tetsuno[itetsuno];
 			for(unsigned int inoel=0;inoel<4;inoel++){
-				if( help_node[ tet[itet1].v[inoel] ] != inode ){
+                if( help_node[ tet[itet1].v[inoel] ] != (int)inode ){
 					help_node[ tet[itet1].v[inoel] ] = inode;
 					edge[ edge_ind[inode] ] = tet[itet1].v[inoel];
 					edge_ind[inode]++;
@@ -701,7 +697,7 @@ bool Msh::MakeHexSurHex(std::vector<SHex>& aHex)
 	const unsigned int nelem = aHex.size();
 	const unsigned int nfael = 6;
 	const unsigned int nnofa = 4;
-	const unsigned int nnoel = 8;
+//	const unsigned int nnoel = 8;
 
 	for(unsigned int ielem=0;ielem<nelem;ielem++){
 		for(unsigned int ifael=0;ifael<nfael;ifael++){
@@ -777,7 +773,7 @@ bool Msh::MakeBar_fromColorCodingTri( const std::vector<STri3D>& aTri,
 		assert( itri_s < aTri.size() );
 		unsigned int irel = aTri[itri].r2[iedtri];
 		unsigned int iedtri_s = relTriTri[irel][iedtri];
-		assert( aTri[itri_s].s2[iedtri_s] == itri );
+        assert( aTri[itri_s].s2[iedtri_s] == itri );
 		unsigned int icolor0 = aColorTri[itri];
 		unsigned int icolor_s = aColorTri[itri_s];
 		assert( icolor0 < nColor );
@@ -978,7 +974,7 @@ bool Msh::CheckTri(const std::vector<STri3D>& tri )
 
 	std::cout << "Check Tri" << std::endl;
 	// そのうちヘッダファイルに情報を置く
-	const unsigned int nNoTri = 3;
+//	const unsigned int nNoTri = 3;
 	const unsigned int nEdTri = 3;
 	const unsigned int nNoEd = 2;
 	const unsigned int noelTriEdge[nEdTri][nNoEd] = {
@@ -1008,7 +1004,7 @@ bool Msh::CheckTri(const std::vector<STri3D>& tri )
 				{
 					const unsigned int noel_dia = relTriTri[irel][iedtri];
 					assert( noel_dia < 3 );
-					assert( tri[itri_s].s2[noel_dia] == itri );
+                    assert( tri[itri_s].s2[noel_dia] == itri );
 				}
 				// check relation 
 				for(unsigned int inoed=0;inoed<nNoEd;inoed++){
@@ -1159,8 +1155,8 @@ bool Msh::MakeElemAroundEdge( ElemAroundEdge& elared,
 	elared.clear();
 
 	int irel0 = noel2Rel[ dEdge2Noel[idedge0][0]*4 + dEdge2Noel[idedge0][1] ];
-	assert( dEdge2Noel[idedge0][0] == (int)tetRel[irel0][0] );
-	assert( dEdge2Noel[idedge0][1] == (int)tetRel[irel0][1] );
+    assert( dEdge2Noel[idedge0][0] == tetRel[irel0][0] );
+    assert( dEdge2Noel[idedge0][1] == tetRel[irel0][1] );
 
 	elared.nod = tet[itet0].v[(int)tetRel[irel0][0]];
 	elared.nou = tet[itet0].v[(int)tetRel[irel0][1]];
@@ -1176,8 +1172,8 @@ bool Msh::MakeElemAroundEdge( ElemAroundEdge& elared,
 	for(;;){
 		const int itet_pre = elared.e[ elared.e.size()-1 ].first;
 		const int iedrel_pre = elared.e[ elared.e.size()-1 ].second;
-		assert( tet[itet0].v[ tetRel[irel0][0] ] == elared.nod );
-		assert( tet[itet0].v[ tetRel[irel0][1] ] == elared.nou );
+        assert( tet[itet0].v[ tetRel[irel0][0] ] == elared.nod );
+        assert( tet[itet0].v[ tetRel[irel0][1] ] == elared.nou );
 		const int inoel0 = tetRel[iedrel_pre][3];
 		if( tet[itet_pre].g[inoel0] != -2 ){
 			elared.clear();
@@ -1188,9 +1184,9 @@ bool Msh::MakeElemAroundEdge( ElemAroundEdge& elared,
 		const int itet_cur = tet[itet_pre].s[inoel0];
 		if( itet_cur == itet0 ) break;
 		const int iedrel_cur = noel2Rel[ tetRel[irel_pre][ tetRel[iedrel_pre][0] ]*4 + tetRel[irel_pre][ tetRel[iedrel_pre][1] ] ];
-		assert( tet[itet_cur].v[ tetRel[iedrel_cur][0] ] == elared.nod );
-		assert( tet[itet_cur].v[ tetRel[iedrel_cur][1] ] == elared.nou );
-		assert( tet[itet_cur].v[ tetRel[iedrel_cur][3] ] == tet[itet_pre].v[ tetRel[iedrel_pre][2] ] );
+        assert( tet[itet_cur].v[ tetRel[iedrel_cur][0] ] == elared.nod );
+        assert( tet[itet_cur].v[ tetRel[iedrel_cur][1] ] == elared.nou );
+        assert( tet[itet_cur].v[ tetRel[iedrel_cur][3] ] == tet[itet_pre].v[ tetRel[iedrel_pre][2] ] );
 		pair_ii.first = itet_cur;
 		pair_ii.second = iedrel_cur;
 		elared.e.push_back( pair_ii );
@@ -1208,10 +1204,10 @@ double Msh::MaxCrtElemAroundPoint(const ElemAroundPoint& elarpo,
 	double max_crt = -1.0;
 	double crt1;
 	assert( elarpo.size() > 0 );
-	const int point_cnt = tet[elarpo.e.begin()->first].v[elarpo.e.begin()->second];
+    const unsigned int point_cnt = tet[elarpo.e.begin()->first].v[elarpo.e.begin()->second];
 	for(std::map<int,unsigned int>::const_iterator itr_map_ic=elarpo.e.begin();itr_map_ic!=elarpo.e.end();itr_map_ic++){
 		const int itet0 = itr_map_ic->first;
-		const int inoel0 = itr_map_ic->second;
+        const unsigned int inoel0 = itr_map_ic->second;
 		assert( tet[itet0].v[inoel0] == point_cnt );
 		crt1 = Criterion_PLJ(itet0,node,tet);
 		if( crt1 < 0.0 || crt1 > ILL_CRT*0.9  ){
@@ -1229,7 +1225,7 @@ double Msh::MaxCrtElemAroundEdge(const ElemAroundEdge& elared,
 	double max_crt = -1.0;
 	double crt1;
 	assert( elared.size() > 0 );
-	for(int itetared=0;itetared<elared.size();itetared++){
+    for(unsigned int itetared=0;itetared<elared.size();itetared++){
 		crt1 = Criterion_PLJ(
 			node[elared.nod],
 			node[elared.nou],
@@ -1259,15 +1255,15 @@ bool Swap3Elared(const ElemAroundEdge& elared,
 	const STet old1 = tet[ iold1 ];
 	const STet old2 = tet[ iold2 ];
 
-	const int noel0d = tetRel[elared.e[0].second][0];
-	const int noel0u = tetRel[elared.e[0].second][1];
-	const int noel1d = tetRel[elared.e[1].second][0];
-	const int noel1u = tetRel[elared.e[1].second][1];
-	const int noel2d = tetRel[elared.e[2].second][0];
-	const int noel2u = tetRel[elared.e[2].second][1];
+    const unsigned int noel0d = tetRel[elared.e[0].second][0];
+    const unsigned int noel0u = tetRel[elared.e[0].second][1];
+    const unsigned int noel1d = tetRel[elared.e[1].second][0];
+    const unsigned int noel1u = tetRel[elared.e[1].second][1];
+    const unsigned int noel2d = tetRel[elared.e[2].second][0];
+    const unsigned int noel2u = tetRel[elared.e[2].second][1];
 
-	const int nod = tet[iold0].v[noel0d];
-	const int nou = tet[iold0].v[noel0u];
+    const unsigned int nod = tet[iold0].v[noel0d];
+    const unsigned int nou = tet[iold0].v[noel0u];
 
 	assert( nod == tet[iold1].v[noel1d] );
 	assert( nou == tet[iold1].v[noel1u] );
@@ -1414,7 +1410,7 @@ bool Swap5Elared(const ElemAroundEdge& elared,
 	const int isup_swap = swap2SupSwapRot[ptn][0];
 	const unsigned int* rot = indexRot5[ swap2SupSwapRot[ptn][1] ];
 
-	for(int itri=0;itri<nTriInSwap5;itri++){
+    for(unsigned int itri=0;itri<nTriInSwap5;itri++){
 		tet[ inew_tet[itri][0] ].v[0] = elared.nod;
 		tet[ inew_tet[itri][0] ].v[1] = elared.n[ rot[sup2Noel5[isup_swap][itri][0]] ];
 		tet[ inew_tet[itri][0] ].v[2] = elared.n[ rot[sup2Noel5[isup_swap][itri][1]] ];
@@ -1501,7 +1497,7 @@ bool Swap5Elared(const ElemAroundEdge& elared,
 		tet[inew_tetu].f[linner[2]] = linner[5];
 	}
 
-	for(int itri=0;itri<nTriInSwap5;itri++){
+    for(unsigned int itri=0;itri<nTriInSwap5;itri++){
 		const int inew_tetd = inew_tet[itri][0];
 		const int inew_tetu = inew_tet[itri][1];
 
@@ -1534,17 +1530,17 @@ bool Swap4Elared(const ElemAroundEdge& elared,
 	const STet old2 = tet[ iold2 ];
 	const STet old3 = tet[ iold3 ];
 
-	const int noel0d = tetRel[elared.e[0].second][0];
-	const int noel0u = tetRel[elared.e[0].second][1];
-	const int noel1d = tetRel[elared.e[1].second][0];
-	const int noel1u = tetRel[elared.e[1].second][1];
-	const int noel2d = tetRel[elared.e[2].second][0];
-	const int noel2u = tetRel[elared.e[2].second][1];
-	const int noel3d = tetRel[elared.e[3].second][0];
-	const int noel3u = tetRel[elared.e[3].second][1];
+    const unsigned int noel0d = tetRel[elared.e[0].second][0];
+    const unsigned int noel0u = tetRel[elared.e[0].second][1];
+    const unsigned int noel1d = tetRel[elared.e[1].second][0];
+    const unsigned int noel1u = tetRel[elared.e[1].second][1];
+    const unsigned int noel2d = tetRel[elared.e[2].second][0];
+    const unsigned int noel2u = tetRel[elared.e[2].second][1];
+    const unsigned int noel3d = tetRel[elared.e[3].second][0];
+    const unsigned int noel3u = tetRel[elared.e[3].second][1];
 
-	const int nod = elared.nod;
-	const int nou = elared.nou;
+    const unsigned int nod = elared.nod;
+    const unsigned int nou = elared.nou;
 
 	assert( nod == tet[iold0].v[noel0d] );
 	assert( nou == tet[iold0].v[noel0u] );
@@ -1870,10 +1866,10 @@ bool GetEdgeSwapPtnCrt5Elared(const ElemAroundEdge& elared,
 
 	double crt1,crt2;
 	std::map<double,int> map_crt_tri;
-	int false_tri_size = 0;
+    unsigned int false_tri_size = 0;
 	int false_tri[nTri5];
 	std::pair<double,int> pair_di;
-	for(int itri=0;itri<nTri5;itri++){
+    for(unsigned int itri=0;itri<nTri5;itri++){
 		crt1 = Criterion_PLJ(node[elared.nod],
 			node[elared.n[ tri5[itri][0] ]],
 			node[elared.n[ tri5[itri][1] ]],
@@ -1905,14 +1901,14 @@ bool GetEdgeSwapPtnCrt5Elared(const ElemAroundEdge& elared,
 	}
 
 	int swap_flag[nSwap5] = { 1, 1, 1, 1, 1 };
-	for(int itri=0;itri<false_tri_size;itri++){
-		for(int itriswap=tri2Swap5Index[ false_tri[itri] ];itriswap<tri2Swap5Index[ false_tri[itri]+1];itriswap++){
+    for(unsigned int itri=0;itri<false_tri_size;itri++){
+        for(unsigned int itriswap=tri2Swap5Index[ false_tri[itri] ];itriswap<tri2Swap5Index[ false_tri[itri]+1];itriswap++){
 			swap_flag[ tri2Swap5[itriswap] ] = 0;
 		}
 	}
 
 	std::set<int> swap_alive;
-	for(int iswap=0;iswap<nSwap5;iswap++){
+    for(unsigned int iswap=0;iswap<nSwap5;iswap++){
 		if( swap_flag[iswap] == 1 ){
 			swap_alive.insert(iswap);
 		}
@@ -1932,7 +1928,7 @@ bool GetEdgeSwapPtnCrt5Elared(const ElemAroundEdge& elared,
 		iswap_ptn = *(swap_alive.begin());
 		if( swap_alive.size() == 1 ) break;
 		const int itri0 = itr_map_di->second;
-		for(int itriswap=tri2Swap5Index[itri0];itriswap<tri2Swap5Index[itri0+1];itriswap++){
+        for(unsigned int itriswap=tri2Swap5Index[itri0];itriswap<tri2Swap5Index[itri0+1];itriswap++){
 			swap_alive.erase( tri2Swap5[itriswap] );
 		}
 	}
@@ -2013,18 +2009,18 @@ bool Msh::MakeElemAroundPoint( ElemAroundPoint& elarpo,
 			std::map<int,unsigned int>::const_iterator itr_map_ic = elarpo.e.find( icur_tet );
 			assert( itr_map_ic != elarpo.e.end() );
 			const unsigned int icur_noel_cnt = itr_map_ic->second;
-			assert( tet[icur_tet].v[icur_noel_cnt] == cnt_point );
+            assert( (int)tet[icur_tet].v[icur_noel_cnt] == cnt_point );
 
 			const unsigned int* rel_curadj = tetRel[ tet[icur_tet].f[icur_noel_adj] ];
 
 			const unsigned int iadj_noel_cnt = rel_curadj[icur_noel_cnt];
-			assert( tet[iadj_tet].v[iadj_noel_cnt] == cnt_point );
+            assert( (int)tet[iadj_tet].v[iadj_noel_cnt] == cnt_point );
 			pair_ic.first = iadj_tet;
 			pair_ic.second = iadj_noel_cnt;
 			elarpo.e.insert( pair_ic );
 
 			const unsigned int iadj_noel_adj = rel_curadj[icur_noel_adj];
-			assert( tet[iadj_tet].s[iadj_noel_adj] == icur_tet );
+            assert( (int)tet[iadj_tet].s[iadj_noel_adj] == icur_tet );
 			const int irel0 = noel2Rel[ iadj_noel_cnt*4 + iadj_noel_adj ];
 
 			assert( tetRel[ irel0 ][0] == iadj_noel_cnt );
@@ -2047,7 +2043,7 @@ bool Msh::MakeElemAroundPoint( ElemAroundPoint& elarpo,
 	for(std::map<int,unsigned int>::const_iterator itr_map_ic = elarpo.e.begin();itr_map_ic!=elarpo.e.end();itr_map_ic++){
 		const int itet1 = itr_map_ic->first;
 		const int inoel1 = itr_map_ic->second;
-		assert( tet[itet1].v[inoel1] == cnt_point );
+        assert( (int)tet[itet1].v[inoel1] == cnt_point );
 		if( tet[itet1].g[ noelTetFace[inoel1][0] ] == -2 ){
 			assert( elarpo.e.find( tet[itet1].s[ noelTetFace[inoel1][0] ] ) != elarpo.e.end() );
 		}
@@ -2065,12 +2061,13 @@ bool Msh::MakeElemAroundPoint( ElemAroundPoint& elarpo,
 bool Msh::EdgeDel(const ElemAroundEdge& elared,
 			 const ElemAroundPoint& elarpo,
 			 std::vector<STet>& tet,
-			 std::vector<CPoint3D>& node){
+             std::vector<CPoint3D>& node)
+{
 	assert( elared.is_inner && elarpo.is_inner );
 	assert( elarpo.size() > 0 );
 
-	const int del_point = tet[elarpo.e.begin()->first].v[elarpo.e.begin()->second];
-	int cnt_point = -1;
+    const unsigned int del_point = tet[elarpo.e.begin()->first].v[elarpo.e.begin()->second];
+    unsigned int cnt_point = 0;
 	if( del_point == elared.nod ){
 		cnt_point = elared.nou;
 	}
@@ -2090,11 +2087,12 @@ bool Msh::EdgeDel(const ElemAroundEdge& elared,
 		tet[itet0].v[inoel0] = cnt_point;
 	}
 
-	for(int ielared=0;ielared<elared.size();ielared++){
-		const int iold_tet = elared.e[ielared].first;
+    for(unsigned int ielared=0;ielared<elared.size();ielared++){
+        assert( elared.e[ielared].first >= 0 );
+        const unsigned int iold_tet = (unsigned int)elared.e[ielared].first;
 		const int iold_edge_rel = elared.e[ielared].second;
-		const int iold_noel_d = tetRel[iold_edge_rel][0];
-		const int iold_noel_u = tetRel[iold_edge_rel][1];
+        const unsigned int iold_noel_d = tetRel[iold_edge_rel][0];
+        const unsigned int iold_noel_u = tetRel[iold_edge_rel][1];
 		assert( tet[iold_tet].v[iold_noel_d] == cnt_point );
 		assert( tet[iold_tet].v[iold_noel_u] == cnt_point );
 		assert( tet[iold_tet].g[iold_noel_u] == -2 || tet[iold_tet].g[iold_noel_d] == -2 );
@@ -2113,11 +2111,13 @@ bool Msh::EdgeDel(const ElemAroundEdge& elared,
 				unsigned int inoel0 = tetRel[irel0][0];
 				if( inoel0 == iold_noel_d ) inoel0 = iold_noel_u;
 				else if( inoel0 == iold_noel_u ) inoel0 = iold_noel_d;
+                ////////////////
+                const int irel1 = tet[iold_tet].f[iold_noel_d];
+                assert( irel1 >= 0 && irel1 < 12 );
 				unsigned int inoel1 = tetRel[irel0][1];
 				if( inoel1 == iold_noel_d ) inoel1 = iold_noel_u;
 				else if( inoel1 == iold_noel_u ) inoel1 = iold_noel_d;
-				const int irel1 = tet[iold_tet].f[iold_noel_d];
-				assert( irel1 >= 0 && irel1 < 12 );
+                ////////////////
 				tet[iadj_d_tet].f[iadj_d_noel] 
 					= noel2Rel[ tetRel[irel1][inoel0]*4 + tetRel[irel1][inoel1] ];
 			}
@@ -2141,8 +2141,8 @@ bool Msh::EdgeDel(const ElemAroundEdge& elared,
 //		}
 
 		if( tet[iold_tet].g[iold_noel_d] == -2 ){
-			const int iadj_u_tet = tet[iold_tet].s[iold_noel_d];
-			const int iadj_u_noel = tetRel[ tet[iold_tet].f[iold_noel_d] ][iold_noel_d];
+            const unsigned int iadj_u_tet = tet[iold_tet].s[iold_noel_d];
+            const unsigned int iadj_u_noel = tetRel[ tet[iold_tet].f[iold_noel_d] ][iold_noel_d];
 //			std::cout << iadj_u_tet << " " << iadj_u_noel << std::endl;
 			assert( tet[iadj_u_tet].s[iadj_u_noel] == iold_tet );
 			tet[iadj_u_tet].s[iadj_u_noel] = tet[iold_tet].s[iold_noel_u];
@@ -2183,7 +2183,7 @@ bool Msh::EdgeDel(const ElemAroundEdge& elared,
 
 	{
 		std::map<int,int> map_ii;
-		for(int ielared=0;ielared<elared.size();ielared++){
+        for(unsigned int ielared=0;ielared<elared.size();ielared++){
 			map_ii.insert( std::make_pair(-1*elared.e[ielared].first,ielared) );
 		}
 		for(std::map<int,int>::const_iterator itr_map_ii=map_ii.begin();itr_map_ii!=map_ii.end();itr_map_ii++){
@@ -2212,11 +2212,12 @@ bool Msh::EdgeDel(const ElemAroundEdge& elared,
 	}
 
 	{
-		const int idist = del_point;
-		const int iend = node.size()-1;
+        const unsigned int idist = del_point;
+        assert( node.size() > 0 );
+        const unsigned int iend = node.size()-1;
 		if( idist != iend ){
 			node[idist] = node[iend];
-			CPoint3D& dist = node[idist];
+//			CPoint3D& dist = node[idist];
 			const int itet0 = node[idist].e;
 			const int inoel0 = node[idist].poel;
 //			std::cout << itet0 << " " << tet.size() << " " << inoel0 << std::endl;
@@ -2249,9 +2250,9 @@ bool Msh::GetEdgeDelCrt(const ElemAroundEdge& elared,
 	
 	assert( elarpo.size() > 0 );
 
-	const int del_point = tet[elarpo.e.begin()->first].v[elarpo.e.begin()->second];
+    const unsigned int del_point = tet[elarpo.e.begin()->first].v[elarpo.e.begin()->second];
 	assert( del_point >= 0 && (unsigned int)del_point < node.size() );
-	int cnt_point = -1;
+    unsigned int cnt_point = 0;
 	if( del_point == elared.nod ){
 		cnt_point = elared.nou;
 	}
@@ -2267,7 +2268,7 @@ bool Msh::GetEdgeDelCrt(const ElemAroundEdge& elared,
 	assert( cnt_point >= 0 && (unsigned int)cnt_point < node.size() );
 
 	std::map<int,unsigned int> diff_ball = elarpo.e;
-	for(int ielared=0;ielared<elared.size();ielared++){
+    for(unsigned int ielared=0;ielared<elared.size();ielared++){
 		std::map<int,unsigned int>::iterator itr_map_ic = diff_ball.find( elared.e[ielared].first );
 		assert( itr_map_ic != diff_ball.end() );
 		diff_ball.erase( itr_map_ic );
@@ -2307,7 +2308,7 @@ bool Msh::GetAddPointEdgeCrt(const ElemAroundEdge& elared,
 	double crt1;
 	const int inod = elared.nod;
 	const int inou = elared.nou;
-	for(int ielared=0;ielared<elared.size();ielared++){
+    for(unsigned int ielared=0;ielared<elared.size();ielared++){
 		crt1 = Criterion_PLJ(node[inod].p, add_point, node[elared.n[ielared]].p, node[elared.n[ielared+1]].p);
 		if( crt1 < 0.0 || crt1 > ILL_CRT*0.9 ){
 			max_crt = ILL_CRT;
@@ -2718,7 +2719,7 @@ bool Msh::AddPointTri_Edge( const unsigned int ipo_ins,
 	
 	// ここからは共有ファイルから取ってきたい．
 	const unsigned int nNoEd  = 2;
-	const unsigned int nNoTri = 3;
+//	const unsigned int nNoTri = 3;
 	const unsigned int nEdTri = 3;
 	const unsigned int noelTriEdge[nEdTri][nNoEd] = {
 		{ 1, 2 },
@@ -2751,10 +2752,10 @@ bool Msh::AddPointTri_Edge( const unsigned int ipo_ins,
 	assert( itri_adj < aTri.size() );
 	assert( ied_ins < 3 );
 
-	const int itri0 = itri_ins;
-	const int itri1 = itri_adj;
-	const int itri2 = aTri.size();
-	const int itri3 = aTri.size()+1;
+    const unsigned int itri0 = itri_ins;
+    const unsigned int itri1 = itri_adj;
+    const unsigned int itri2 = aTri.size();
+    const unsigned int itri3 = aTri.size()+1;
 
 	aTri.resize( aTri.size()+2 );
 
@@ -2860,13 +2861,13 @@ bool Msh::AddPointTet_Edge(const ElemAroundEdge& elared,
 
 	std::vector<STet> old_tet;
 	old_tet.resize( elared.size() );
-	for(int ielared=0;ielared<elared.size();ielared++){
+    for(unsigned int ielared=0;ielared<elared.size();ielared++){
 		old_tet[ielared] = tet[ elared.e[ielared].first ];
 	}
 
 	std::vector< std::pair<int,int> > inew_tet;
 	inew_tet.resize( elared.size() );
-	for(int ielared=0;ielared<elared.size();ielared++){
+    for(unsigned int ielared=0;ielared<elared.size();ielared++){
 		inew_tet[ielared].first = elared.e[ielared].first;
 		inew_tet[ielared].second = tet.size()+ielared;
 //		std::cout << ielared << "    " << elared.n[ielared] << "     " << inew_tet[ielared].first << "     " << inew_tet[ielared].second << std::endl;
@@ -2875,8 +2876,8 @@ bool Msh::AddPointTet_Edge(const ElemAroundEdge& elared,
 
 	assert( ino_ins < node.size() );
 
-	const int inod = elared.nod;
-	const int inou = elared.nou;
+    const unsigned int inod = elared.nod;
+    const unsigned int inou = elared.nou;
 //	std::cout << " nodu " << inod << "   " << inou << std::endl;
 
 	{
@@ -2946,7 +2947,8 @@ bool Msh::AddPointTet_Edge(const ElemAroundEdge& elared,
 		node[ elared.n[0] ].e = itet_d;
 		node[ elared.n[0] ].poel = 3;
 	}
-	for(int ielared=1;ielared<elared.size()-1;ielared++){
+    assert( elared.size() > 0 );
+    for(unsigned int ielared=1;ielared<elared.size()-1;ielared++){
 		const int itet_d = inew_tet[ielared].first;
 		const int itet_u = inew_tet[ielared].second;
 		const struct STet& old = old_tet[ielared];
@@ -3350,7 +3352,7 @@ bool Msh::MakeTriSurNo(unsigned int& ntrisuno,
 	assert( trisuno == 0 );
 	assert( nnode > 0 );
 
-	const int nnotri = 3;
+    const unsigned int nnotri = 3;
 
 	trisuno_ind = new unsigned int [nnode+1];
 	for(unsigned int inode=0;inode<nnode+1;inode++){
@@ -3552,7 +3554,7 @@ bool Msh::DelaunayAroundPointTri(unsigned int itri_st,
 
 	const unsigned int ipo0 = aTri[itri_st].v[inotri_st];
 	int itri_prev = -1;
-	unsigned int inotri_prev;
+    unsigned int inotri_prev = 0;
 	unsigned int itri_cur = itri_st;
 	unsigned int inotri_cur = inotri_st;
 	for(;;){
@@ -3774,7 +3776,7 @@ bool Msh::ReconnectCap(
 	std::map<double, int> map_angle_edge;
 	{
 		std::pair<double,int> pair_di; 
-		for(int isedge=0;isedge<nSEdgeTet;isedge++){
+        for(unsigned int isedge=0;isedge<nSEdgeTet;isedge++){
 			pair_di.first = -1.0*Com::Dot( fnorm[ sEdge2FaTet[isedge][0] ],fnorm[ sEdge2FaTet[isedge][1] ] );
 			pair_di.second = isedge;
 			map_angle_edge.insert( pair_di );
@@ -3840,7 +3842,7 @@ bool Msh::ReconnectSliver(
 	std::map<double, int> map_angle_edge;
 	{
 		std::pair<double,int> pair_di; 
-		for(int isedge=0;isedge<nSEdgeTet;isedge++){
+        for(unsigned int isedge=0;isedge<nSEdgeTet;isedge++){
 			pair_di.first = -1.0*Com::Dot( fnorm[ sEdge2FaTet[isedge][0] ],fnorm[ sEdge2FaTet[isedge][1] ] );
 			pair_di.second = isedge;
 			map_angle_edge.insert( pair_di );

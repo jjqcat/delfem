@@ -91,6 +91,10 @@ public:
 	//! すべてのIDを配列にして返す関数
 	virtual const std::vector<unsigned int> GetAryElemID(Cad::CAD_ELEM_TYPE) const = 0;
 	//!@}
+	
+	// レイヤ関係の関数
+    virtual int GetLayer(Cad::CAD_ELEM_TYPE, unsigned int id) const = 0;
+	virtual void GetLayerMinMax(int& layer_min, int& layer_max) const = 0;
 
 	////////////////////////////////
 	// ループのメンバ関数
@@ -98,7 +102,6 @@ public:
 	//! @{
     //! ID:id_lのループの色を返す(本来このクラスは位相と幾何情報以外を持つべきではないかもしれないので暫定的)
     virtual bool GetColor_Loop(unsigned int id_l, double color[3] ) const = 0;
-    virtual int GetLayer_Loop(unsigned int id_l) const = 0;
 	//! ID:id_lのループの面積を返えす
 	virtual double GetArea_Loop(unsigned int id_l) const = 0;
 	//! ID:id_lのループを構成する頂点や辺をめぐるイテレータを返す関数

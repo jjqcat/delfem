@@ -295,11 +295,11 @@ void SetNewProblem()
 		solid.SetTimeIntegrationParameter(dt,0.7);
 
 
-		unsigned int id_field_bc0 = solid.AddFixElemAry(conv.GetIdEA_fromCad(2,1),world);
-		unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(4,1),world);
+		unsigned int id_field_bc0 = solid.AddFixElemAry(conv.GetIdEA_fromCad(2,Cad::EDGE),world);
+		unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(4,Cad::EDGE),world);
 		{
 			CField& bc1_field = world.GetField(id_field_bc0);
-			bc1_field.SetValue("sin(t*PI*2*0.1)", 1, world,true);	// bc1_fieldのy座標に単振動を追加
+			bc1_field.SetValue("sin(t*PI*2*0.1)", 1,Fem::Field::VALUE, world,true);	// bc1_fieldのy座標に単振動を追加
 		}
 
 		// 描画オブジェクトの登録
@@ -392,15 +392,15 @@ void SetNewProblem()
 		solid.SetGravitation(0.0,-0.1);	// 重力の設定
 		solid.SetTimeIntegrationParameter(dt);	// 時間ステップ設定
 		
-		unsigned int id_field_bc0 = solid.AddFixElemAry(conv.GetIdEA_fromCad(2,1),world);
-		unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(6,1),world);
+		unsigned int id_field_bc0 = solid.AddFixElemAry(conv.GetIdEA_fromCad(2,Cad::EDGE),world);
+		unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(6,Cad::EDGE),world);
 
 		////////////////////////////////
 		// 温度場の設定
 		id_field_temp = world.MakeField_FieldElemDim(id_field_disp,2,SCALAR,VALUE,CORNER);
 		{
 			CField& field = world.GetField(id_field_temp);
-			field.SetValue("sin(6.28*y)*sin(x)*sin(t)",0,world,true);
+			field.SetValue("sin(6.28*y)*sin(x)*sin(t)", 0,Fem::Field::VALUE, world,true);
 		}
 		solid.SetThermalStress(id_field_temp);
 		solid.ClearFixElemAry(3,world);
@@ -446,7 +446,7 @@ void SetNewProblem()
 		const unsigned int id_base = world.AddMesh( Msh::CMesher2D(cad_2d,0.05) );
 		CIDConvEAMshCad conv = world.GetIDConverter(id_base);		// ID変換クラス
 
-		solid.SetDomain_FieldEA(id_base,conv.GetIdEA_fromCad(1,2),world);
+		solid.SetDomain_FieldEA(id_base,conv.GetIdEA_fromCad(1,Cad::LOOP),world);
 		solid.SetSaveStiffMat(true);
 		solid.SetStationary(true);
 		solid.SetTimeIntegrationParameter(dt);	// タイムステップを設定
@@ -454,13 +454,13 @@ void SetNewProblem()
 		solid.SetGeometricalNonlinear(false);	// 幾何学的非線形性を考慮しない
 		solid.SetGravitation(0.0,0.0);	// 重力０
 
-		unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(3,1),world);
+		unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(3,Cad::EDGE),world);
 		{
 			CField& field = world.GetField(id_field_bc1);
-			field.SetValue("0.3*sin(1.5*t)",0,world,true);
-			field.SetValue("0.1*(cos(t)+1)",1,world,true);
+			field.SetValue("0.3*sin(1.5*t)", 0,Fem::Field::VALUE, world,true);
+			field.SetValue("0.1*(cos(t)+1)", 1,Fem::Field::VALUE, world,true);
 		}
-		unsigned int id_field_bc2 = solid.AddFixElemAry(conv.GetIdEA_fromCad(1,1),world);
+		unsigned int id_field_bc2 = solid.AddFixElemAry(conv.GetIdEA_fromCad(1,Cad::EDGE),world);
 
 		// 描画オブジェクトの登録
 		drawer_ary.Clear();
@@ -505,7 +505,7 @@ void SetNewProblem()
 		const unsigned int id_base = world.AddMesh( Msh::CMesher2D(cad_2d,0.05) );
 		CIDConvEAMshCad conv = world.GetIDConverter(id_base);  // ID変換クラス
 
-		solid.SetDomain_FieldEA(id_base,conv.GetIdEA_fromCad(2,2),world);
+		solid.SetDomain_FieldEA(id_base,conv.GetIdEA_fromCad(2,Cad::LOOP),world);
 		solid.SetTimeIntegrationParameter(dt);
 		solid.SetSaveStiffMat(false);
 		solid.SetStationary(true);
@@ -514,13 +514,13 @@ void SetNewProblem()
 		solid.SetGeometricalNonlinear(false);	// 幾何学的非線形性を考慮しない
 		solid.SetGravitation(0.0,0.0);
 
-		unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(3,1),world);
+		unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(3,Cad::EDGE),world);
 		{
 			CField& field = world.GetField(id_field_bc1);
-			field.SetValue("0.3*sin(1.5*t)",    0,world,true);
-			field.SetValue("0.1*(cos(t)+1)+0.1",1,world,true);
+			field.SetValue("0.3*sin(1.5*t)",     0,Fem::Field::VALUE, world,true);
+			field.SetValue("0.1*(cos(t)+1)+0.1", 1,Fem::Field::VALUE, world,true);
 		}
-		unsigned int id_field_bc2 = solid.AddFixElemAry(conv.GetIdEA_fromCad(5,1),world);
+		unsigned int id_field_bc2 = solid.AddFixElemAry(conv.GetIdEA_fromCad(5,Cad::EDGE),world);
 
 		// 描画オブジェクトの登録
 		drawer_ary.Clear();
@@ -582,33 +582,33 @@ void SetNewProblem()
 		solid.SetGravitation(0.0,-0.0);
 
 		{	// St.Venant-Kirchhoff体
-			Fem::Eqn::CEqn_Solid2D eqn = solid.GetEqnation(conv.GetIdEA_fromCad(1,2));
+			Fem::Eqn::CEqn_Solid2D eqn = solid.GetEqnation(conv.GetIdEA_fromCad(1,Cad::LOOP));
 			eqn.SetGeometricalNonlinear(true);
 			solid.SetEquation(eqn);
 		}
 		{	// 柔らかい弾性体
-			Fem::Eqn::CEqn_Solid2D eqn = solid.GetEqnation(conv.GetIdEA_fromCad(2,2));
+			Fem::Eqn::CEqn_Solid2D eqn = solid.GetEqnation(conv.GetIdEA_fromCad(2,Cad::LOOP));
 			eqn.SetYoungPoisson(0.1,0.3,true);
 			solid.SetEquation(eqn);
 		}
-		unsigned int id_field_temp = world.MakeField_FieldElemAry(id_base, conv.GetIdEA_fromCad(3,2),
+		unsigned int id_field_temp = world.MakeField_FieldElemAry(id_base, conv.GetIdEA_fromCad(3,Cad::LOOP),
 			SCALAR,VALUE,CORNER);
 		{	// 熱の場
 			CField& field = world.GetField(id_field_temp);
-			field.SetValue("0.1*sin(3.14*4*y)*sin(2*t)",0,world,true);
+			field.SetValue("0.1*sin(3.14*4*y)*sin(2*t)", 0,Fem::Field::VALUE, world,true);
 		}
 		{	// 熱応力を考慮した線形弾性体
-			Fem::Eqn::CEqn_Solid2D eqn = solid.GetEqnation(conv.GetIdEA_fromCad(3,2));
+			Fem::Eqn::CEqn_Solid2D eqn = solid.GetEqnation(conv.GetIdEA_fromCad(3,Cad::LOOP));
 			eqn.SetThermalStress(id_field_temp);
 			solid.SetEquation(eqn);
 		}
 		{	// 硬い線形弾性体
-			Fem::Eqn::CEqn_Solid2D eqn = solid.GetEqnation(conv.GetIdEA_fromCad(4,2));
+			Fem::Eqn::CEqn_Solid2D eqn = solid.GetEqnation(conv.GetIdEA_fromCad(4,Cad::LOOP));
 			eqn.SetYoungPoisson(10,0.3,true);
 			solid.SetEquation(eqn);
 		}
 
-		id_field_disp_fix0 = solid.AddFixElemAry(conv.GetIdEA_fromCad(2,1),world);
+		id_field_disp_fix0 = solid.AddFixElemAry(conv.GetIdEA_fromCad(2,Cad::EDGE),world);
 
 		// 描画オブジェクトの登録
 		drawer_ary.Clear();
@@ -623,7 +623,7 @@ void SetNewProblem()
 		solid.SetStationary(false);
 		{	// 変位の場を上下に単振動に設定
 			CField& field = world.GetField(id_field_disp_fix0);
-			field.SetValue("0.5*cos(2*t)",1,world,true);
+			field.SetValue("0.5*cos(2*t)", 1,Fem::Field::VALUE, world,true);
 		}
 	}
 	else if( iprob == 24 ){
@@ -655,22 +655,22 @@ void SetNewProblem()
         solid.SetRho(0.001);
 
 		{	// 柔らかい弾性体
-			Fem::Eqn::CEqn_Solid2D eqn = solid.GetEqnation(conv.GetIdEA_fromCad(1,2));
+			Fem::Eqn::CEqn_Solid2D eqn = solid.GetEqnation(conv.GetIdEA_fromCad(1,Cad::LOOP));
 			eqn.SetYoungPoisson(0.1,0.3,true);
 			solid.SetEquation(eqn);
 		}
 		{	// 硬い線形弾性体
-			Fem::Eqn::CEqn_Solid2D eqn = solid.GetEqnation(conv.GetIdEA_fromCad(2,2));
+			Fem::Eqn::CEqn_Solid2D eqn = solid.GetEqnation(conv.GetIdEA_fromCad(2,Cad::LOOP));
 			eqn.SetYoungPoisson(100000000,0.3,true);
 			solid.SetEquation(eqn);
 		}
 
 //		id_field_disp_fix0 = solid.AddFixElemAry(conv.GetIdEA_fromCad(2,1),world);
-		const unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(4,1),world);
+		const unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(4,Cad::EDGE),world);
 		{
 			CField& field = world.GetField(id_field_bc1);
-			field.SetValue("0.3*sin(1.5*t)",    0,world,true);
-			field.SetValue("0.1*(cos(t)+1)+0.1",1,world,true);
+			field.SetValue("0.3*sin(1.5*t)",     0,Fem::Field::VALUE, world,true);
+			field.SetValue("0.1*(cos(t)+1)+0.1", 1,Fem::Field::VALUE, world,true);
 		}
 
 		// 描画オブジェクトの登録
@@ -727,7 +727,7 @@ void SetNewProblem()
 				mesh_2d.GetClipedMesh(aLnods,mapVal2Co, aIdMsh_Inc,aIdMshCut);
 			}
 			std::vector<unsigned int> aIdEA_Inc;
-			aIdEA_Inc.push_back( conv.GetIdEA_fromCad(1,2) );
+			aIdEA_Inc.push_back( conv.GetIdEA_fromCad(1,Cad::LOOP) );
 			id_base2 = world.SetCustomBaseField(id_base,aIdEA_Inc, aLnods,mapVal2Co);
 		}
 
@@ -741,12 +741,12 @@ void SetNewProblem()
 		solid.SetGravitation(0.0,0.0);
 		solid.SetTimeIntegrationParameter(dt,0.7);
 
-		unsigned int id_field_bc0 = solid.AddFixElemAry(conv.GetIdEA_fromCad(3,1),world);
-		unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(5,1),world);
+		unsigned int id_field_bc0 = solid.AddFixElemAry(conv.GetIdEA_fromCad(3,Cad::EDGE),world);
+		unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(5,Cad::EDGE),world);
 		{
 			CField& bc1_field = world.GetField(id_field_bc0);
-			bc1_field.SetValue("0.1*sin(t*PI*2*0.1)",     0, world,true);	// bc1_fieldのy座標に単振動を追加
-			bc1_field.SetValue("0.1*(1-cos(t*PI*2*0.1))", 1, world,true);	// bc1_fieldのy座標に単振動を追加
+			bc1_field.SetValue("0.1*sin(t*PI*2*0.1)",     0,Fem::Field::VALUE, world,true);	// bc1_fieldのy座標に単振動を追加
+			bc1_field.SetValue("0.1*(1-cos(t*PI*2*0.1))", 1,Fem::Field::VALUE, world,true);	// bc1_fieldのy座標に単振動を追加
 		}
 
 		// 描画オブジェクトの登録
@@ -791,7 +791,7 @@ void SetNewProblem()
 				mesh_2d.GetClipedMesh(aLnods,mapVal2Co, aIdMsh_Inc,aIdMshCut);
 			}
 			std::vector<unsigned int> aIdEA_Inc;
-			aIdEA_Inc.push_back( conv.GetIdEA_fromCad(id_l,2) );
+			aIdEA_Inc.push_back( conv.GetIdEA_fromCad(id_l,Cad::LOOP) );
 			id_base2 = world.SetCustomBaseField(id_base,aIdEA_Inc, aLnods,mapVal2Co);
 		}
 
@@ -804,12 +804,12 @@ void SetNewProblem()
 		solid.SetGravitation(0.0,0.0);
 		solid.SetTimeIntegrationParameter(dt,0.7);
 
-		unsigned int id_field_bc0 = solid.AddFixElemAry(conv.GetIdEA_fromCad(2,1),world);
-		unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(4,1),world);
+		unsigned int id_field_bc0 = solid.AddFixElemAry(conv.GetIdEA_fromCad(2,Cad::EDGE),world);
+		unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(4,Cad::EDGE),world);
 		{
 			CField& bc1_field = world.GetField(id_field_bc0);
-			bc1_field.SetValue("0.5*(1-cos(t*PI*2*0.1))", 0, world,true);	// bc1_fieldのy座標に単振動を追加
-			bc1_field.SetValue("0.2*sin(t*PI*2*0.1)", 1, world,true);	// bc1_fieldのy座標に単振動を追加
+			bc1_field.SetValue("0.5*(1-cos(t*PI*2*0.1))", 0,Fem::Field::VALUE, world,true);	// bc1_fieldのy座標に単振動を追加
+			bc1_field.SetValue("0.2*sin(t*PI*2*0.1)",     1,Fem::Field::VALUE, world,true);	// bc1_fieldのy座標に単振動を追加
 		}
 		
 		id_field_disp = solid.GetIdField_Disp();

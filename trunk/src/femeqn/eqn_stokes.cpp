@@ -610,6 +610,8 @@ void AddMat_Stokes2D_NonStatic_Newmark_P1P1(
     double eMmat_uu[][3][2][2],
     double eqf_out_u[3][2])
 {
+//	std::cout << "AddMat_Stokes2D_NonStatic_Newmark_P1P1" << std::endl;
+
     const unsigned int nno = 3;
     const unsigned int ndim = 2;
 
@@ -620,7 +622,6 @@ void AddMat_Stokes2D_NonStatic_Newmark_P1P1(
 	for(unsigned int i=0;i<nno*nno;          i++){ *(&eCmat_pp[0][0]+i)       = 0.0; }
 	for(unsigned int i=0;i<nno*nno*ndim*ndim;i++){ *(&eMmat_uu[0][0][0][0]+i) = 0.0; }
 	for(unsigned int i=0;i<nno*ndim;         i++){ *(&eqf_out_u[0][0]+i)      = 0.0; }
-//	for(unsigned int i=0;i<nno;              i++){ *(&eqf_out_p[0]+i)         = 0.0; }
 
 	// –ÊÏ‚ð‹‚ß‚é
 	const double area = TriArea(coords[0],coords[1],coords[2]);
@@ -691,7 +692,7 @@ static bool AddLinearSystem_Stokes2D_NonStatic_Newmark_P1P1(
 		const unsigned int id_field_velo, unsigned int id_field_press, const CFieldWorld& world, 
 		unsigned int id_ea )
 {
-//	std::cout << "Storkes2D NonStatic_Newmark Tri P1P1" << std::endl;
+	std::cout << "Storkes2D NonStatic_Newmark Tri P1P1" << std::endl;
 
 	assert( world.IsIdEA(id_ea) );
 	const CElemAry& ea = world.GetEA(id_ea);
@@ -726,11 +727,11 @@ static bool AddLinearSystem_Stokes2D_NonStatic_Newmark_P1P1(
 	CVector_Blk& res_u = ls.GetResidual(id_field_velo, CORNER,world);
 	CVector_Blk& res_p = ls.GetResidual(id_field_press,CORNER,world);
 
-	const CNodeAry::CNodeSeg& ns_co   = field_velo.GetNodeSeg(CORNER,false,world,VALUE);//na_co.GetSeg(id_ns_co);
-	const CNodeAry::CNodeSeg& ns_velo = field_velo.GetNodeSeg(CORNER,true, world,VELOCITY);//na_velo.GetSeg(id_ns_velo);
-	const CNodeAry::CNodeSeg& ns_acc  = field_velo.GetNodeSeg(CORNER,true, world,ACCELERATION);//na_velo.GetSeg(id_ns_acc);
-	const CNodeAry::CNodeSeg& ns_press  = field_press.GetNodeSeg(CORNER,true,world,VELOCITY);//na_press.GetSeg(id_ns_press);
-	const CNodeAry::CNodeSeg& ns_apress = field_press.GetNodeSeg(CORNER,true,world,ACCELERATION);//na_press.GetSeg(id_ns_apress);
+	const CNodeAry::CNodeSeg& ns_co   = field_velo.GetNodeSeg(CORNER,false,world,VALUE);
+	const CNodeAry::CNodeSeg& ns_velo = field_velo.GetNodeSeg(CORNER,true, world,VELOCITY);
+	const CNodeAry::CNodeSeg& ns_acc  = field_velo.GetNodeSeg(CORNER,true, world,ACCELERATION);
+	const CNodeAry::CNodeSeg& ns_press  = field_press.GetNodeSeg(CORNER,true,world,VELOCITY);
+	const CNodeAry::CNodeSeg& ns_apress = field_press.GetNodeSeg(CORNER,true,world,ACCELERATION);
 
 	for(unsigned int ielem=0;ielem<ea.Size();ielem++)
 	{

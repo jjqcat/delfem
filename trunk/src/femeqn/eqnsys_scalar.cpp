@@ -482,9 +482,9 @@ unsigned int CEqnSystem_Scalar2D::AddFixElemAry(
 		CField& field = world.GetField(id_field);
 		unsigned int nlen_val = field.GetNLenValue();
 		for(unsigned int ilen=0;ilen<nlen_val;ilen++){
-			field.SetValue(       0.0,ilen,world,false);
-			field.SetVelocity(    0.0,ilen,world,false);
-			field.SetAcceleration(0.0,ilen,world,false);
+			field.SetValue(0.0,ilen,Fem::Field::VALUE,       world,false);
+			field.SetValue(0.0,ilen,Fem::Field::VELOCITY,    world,false);
+			field.SetValue(0.0,ilen,Fem::Field::ACCELERATION,world,false);
 		}
 	}
 	m_aIdFixField.push_back( std::make_pair(id_field,idof) );
@@ -637,9 +637,9 @@ unsigned int CEqn_Scalar3D::AddFixElemAry(
 		CField& field = world.GetField(id_field);
 		unsigned int nlen_val = field.GetNLenValue();
 		for(unsigned int ilen=0;ilen<nlen_val;ilen++){
-			field.SetValue(       0.0,ilen,world,false);
-			field.SetVelocity(    0.0,ilen,world,false);
-			field.SetAcceleration(0.0,ilen,world,false);
+			field.SetValue(0.0,ilen,Fem::Field::VALUE,       world,false);
+			field.SetValue(0.0,ilen,Fem::Field::VELOCITY,    world,false);
+			field.SetValue(0.0,ilen,Fem::Field::ACCELERATION,world,false);
 		}
 	}
 	m_aIdFixField.push_back( std::make_pair(id_field,idof) );

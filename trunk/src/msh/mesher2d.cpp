@@ -799,6 +799,7 @@ bool CMesher2D::Tessalate_Edge(
     {
         ref_bar_ary.id = id_new_elem_ary;
         ref_bar_ary.id_e_cad = id_e;
+		ref_bar_ary.ilayer = cad_2d.GetLayer(Cad::EDGE,id_e);
         ref_bar_ary.m_aBar.resize(ndiv);
 		ref_bar_ary.id_se[0] = id_msh_s;
 		ref_bar_ary.id_se[1] = id_msh_e;
@@ -876,6 +877,7 @@ bool CMesher2D::MakeMesh_Edge(
     {
         ref_bar_ary.id = id_new_elem_ary;
         ref_bar_ary.id_e_cad = id_e;
+		ref_bar_ary.ilayer = cad_2d.GetLayer(Cad::EDGE,id_e);
 		ref_bar_ary.id_se[0] = id_msh_s;
 		ref_bar_ary.id_se[1] = id_msh_e;
         ref_bar_ary.id_lr[0] = 0;
@@ -1465,7 +1467,7 @@ bool CMesher2D::Tesselate_Loop(
 		m_aTriAry[ itriary ].m_aTri = aTri_in;
 		m_aTriAry[ itriary ].id_l_cad = id_l;
 		m_aTriAry[ itriary ].id = id_new_tri_ary;
-		m_aTriAry[ itriary ].ilayer = cad_2d.GetLayer_Loop(id_l);
+		m_aTriAry[ itriary ].ilayer = cad_2d.GetLayer(Cad::LOOP,id_l);
 		this->m_ElemType.resize(id_new_tri_ary+1,-1);
 		this->m_ElemLoc.resize(id_new_tri_ary+1);
 		this->m_ElemType[id_new_tri_ary] = 2;	// TRI
@@ -1861,6 +1863,7 @@ bool CMesher2D::Meshing_ElemLength(
 				Msh::SVertex tmp_ver;
 				tmp_ver.id = id_add;
 				tmp_ver.id_v_cad = id_v;
+				tmp_ver.ilayer = cad_2d.GetLayer(Cad::VERTEX,id_v);
 				tmp_ver.v = aVec2D.size()-1;
 				this->m_aVertex.push_back( tmp_ver );
 			}

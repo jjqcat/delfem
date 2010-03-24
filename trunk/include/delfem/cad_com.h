@@ -40,7 +40,8 @@ enum CAD_ELEM_TYPE{
     NOT_SET,    //!< 設定されていない(エラー処理のため)
     VERTEX,     //!< 頂点
     EDGE,       //!< 辺
-    LOOP        //!< ループ
+    LOOP,       //!< ループ
+	SOLID,		//!< ソリッド
 };
 
 

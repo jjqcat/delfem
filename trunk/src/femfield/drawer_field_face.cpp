@@ -66,6 +66,7 @@ namespace View{
 // 最大値(max)から最小値(min)のデータを青から赤であらわしたRGBを返す
 static void GetColor( float color[], const double& val, const double& max, const double& min )
 {
+	/*
 	const double d = ( 2.0 * ( val - min ) ) / (max - min)  - 1.0;
 	if(d > 0.5){
 		color[0] = 1;
@@ -87,6 +88,23 @@ static void GetColor( float color[], const double& val, const double& max, const
 		color[1] = static_cast<float>(2 + 2*d);
 		color[2] = 1;
 	}
+	*/
+	const double d = (val-min)/(max-min);
+	if( d > 0.95 ){
+		color[0] = 1;
+		color[1] = 0;
+		color[2] = 0;
+	}
+	else if( d < 0.05 ){
+		color[0] = 0;
+		color[1] = 0;
+		color[2] = 1;
+	}
+	else{
+		color[0] = 0.5;
+		color[1] = 0;
+		color[2] = 0.5;
+	}
 }
 
 }
@@ -98,6 +116,7 @@ CDrawerFace::CDrawerFace()
 {
 	pColorArray = 0;
 	is_min_max_set = false;
+	is_draw_color_legend = false;
 }
 
 CDrawerFace::CDrawerFace(const unsigned int id_field, bool isnt_value_disp, 
@@ -105,6 +124,7 @@ CDrawerFace::CDrawerFace(const unsigned int id_field, bool isnt_value_disp,
 {
 	pColorArray = 0;
 	is_min_max_set = false;
+	is_draw_color_legend = false;
 	this->Set( id_field, world, isnt_value_disp, id_field_color);
 }
 
@@ -113,6 +133,7 @@ CDrawerFace::CDrawerFace(const unsigned int id_field, bool isnt_value_disp,
 						 unsigned int id_field_color, double min_val, double max_val )
 {
 	pColorArray = 0;
+	is_draw_color_legend = false;
 	if( min_val < max_val )
 	{
 		is_min_max_set = true;
@@ -140,6 +161,24 @@ void CDrawerFace::Draw() const
 		::glCullFace(GL_BACK);
 	}
 	else{ ::glDisable(GL_CULL_FACE); }
+	
+	int ilayer_min, ilayer_max;
+	{
+		if( m_apIndexArrayElem.size() > 0 ){
+			ilayer_min = this->m_apIndexArrayElem[0]->ilayer;
+			ilayer_max = ilayer_min;
+		}
+		else{
+			ilayer_min=0;	ilayer_max=0;
+		}
+		for(unsigned int idp=1;idp<this->m_apIndexArrayElem.size();idp++){ 
+			const int ilayer = this->m_apIndexArrayElem[idp]->ilayer;
+			ilayer_min = (ilayer<ilayer_min) ? ilayer : ilayer_min;
+			ilayer_max = (ilayer>ilayer_max) ? ilayer : ilayer_max;
+		}
+//		std::cout << ilayer_min << " " << ilayer_max << std::endl;
+	}
+	const double layer_height = 1.0/(ilayer_max-ilayer_min+1);
 
 	if( this->pColorArray == 0 ){
 		glLineWidth(3);
@@ -165,74 +204,79 @@ void CDrawerFace::Draw() const
 		::glEnableClientState(GL_COLOR_ARRAY);
 		::glColorPointer(4,GL_FLOAT,0,pColorArray);
 		for(unsigned int idp=0;idp<this->m_apIndexArrayElem.size();idp++){ 
+			const unsigned int ilayer = m_apIndexArrayElem[idp]->ilayer;
+			const double height = (ilayer-ilayer_min)*layer_height;
+			::glTranslated(0,0,+height);
 			this->m_apIndexArrayElem[idp]->DrawElements(); 
+			::glTranslated(0,0,-height);
 		}
 		::glDisableClientState(GL_COLOR_ARRAY);
 		::glDisableClientState(GL_VERTEX_ARRAY);
 	}
 
-    ::glShadeModel(GL_SMOOTH);
-	::glDisable(GL_CULL_FACE);
-	::glLineWidth(1);
-	::glColor3d(0,0,0);
+	if( this->is_draw_color_legend )
+	{
+		::glShadeModel(GL_SMOOTH);
+		::glDisable(GL_CULL_FACE);
+		::glLineWidth(1);
+		::glColor3d(0,0,0);
 	
-    // Get View Port
-    int viewport[4];
-    glGetIntegerv(GL_VIEWPORT, viewport);
-	double asp = (viewport[2]+1.0)/(viewport[3]+1.0);
+		// Get View Port
+		int viewport[4];
+		glGetIntegerv(GL_VIEWPORT, viewport);
+		double asp = (viewport[2]+1.0)/(viewport[3]+1.0);
 	
-	::glMatrixMode(GL_PROJECTION);
-	::glPushMatrix();
-	::glLoadIdentity();
-	::glOrtho(-asp,asp, -1,1, -1,1);
+		::glMatrixMode(GL_PROJECTION);
+		::glPushMatrix();
+		::glLoadIdentity();
+		::glOrtho(-asp,asp, -1,1, -1,1);
+		
+		::glMatrixMode(GL_MODELVIEW);
+		::glPushMatrix();
+		::glLoadIdentity();
+		::glTranslated((asp-9*0.03)-0.05,   (1-0.05*10.5*1.7)-0.05,   0.3);
 	
-	::glMatrixMode(GL_MODELVIEW);
-	::glPushMatrix();
-	::glLoadIdentity();
-	::glTranslated((asp-9*0.03)-0.05, 
-		(1-0.05*10.5*1.7)-0.05,
-		0.3);
-	
-	////////////////
-	double interval_n = 1.7;
-	const unsigned int ndiv_c = 20;
-	::glScaled(0.03,0.05,1.0);
-	::glBegin(GL_QUADS);
-	for(unsigned int i=0;i<ndiv_c;i++){
-		{
-			::glVertex2d(-3,interval_n*(10.0/ndiv_c)*i  );
-			::glVertex2d(-0,interval_n*(10.0/ndiv_c)*i  );
-			float color0[3];
-			const double val0 = min_val + (max_val-min_val)*(i+1)/ndiv_c;
-			GetColor(color0, val0, max_val, min_val );
-			::glColor3fv(color0);
+		double interval_n = 1.7;
+		const unsigned int ndiv_c = 20;
+		::glScaled(0.03,0.05,1.0);
+		::glBegin(GL_QUADS);
+		for(unsigned int i=0;i<ndiv_c;i++){
+			{
+				::glVertex2d(-3,interval_n*(10.0/ndiv_c)*i  );
+				::glVertex2d(-0,interval_n*(10.0/ndiv_c)*i  );
+				float color0[3];
+				const double val0 = min_val + (max_val-min_val)*(i+1)/ndiv_c;
+				GetColor(color0, val0, max_val, min_val );
+				::glColor3fv(color0);
+			}
+			{
+				::glVertex2d(-0,interval_n*(10.0/ndiv_c)*(i+1));
+				::glVertex2d(-3,interval_n*(10.0/ndiv_c)*(i+1));
+				float color1[3];
+				const double val1 = min_val + (max_val-min_val)*(i+1)/ndiv_c;
+				GetColor(color1, val1, max_val, min_val );
+				::glColor3fv(color1);
+			}
 		}
-		{
-			::glVertex2d(-0,interval_n*(10.0/ndiv_c)*(i+1));
-			::glVertex2d(-3,interval_n*(10.0/ndiv_c)*(i+1));
-			float color1[3];
-			const double val1 = min_val + (max_val-min_val)*(i+1)/ndiv_c;
-			GetColor(color1, val1, max_val, min_val );
-			::glColor3fv(color1);
+		::glEnd();
+		////////////////
+		glColor3f(0,0,0);
+		::glTranslated(0,-0.5,0);
+		const unsigned int ndiv_n = 10;
+		for(unsigned int i=0;i<ndiv_n+1;i++){
+			double val = (max_val-min_val)*i/ndiv_n + min_val;
+			char str1[32];
+			sprintf(str1,"% 5.1e",val);
+			::YsDrawUglyFont(str1,false,false);
+			::glTranslated(0,+interval_n,0);
 		}
+		::glMatrixMode(GL_PROJECTION);
+		::glPopMatrix();
+		::glMatrixMode(GL_MODELVIEW);
+		::glPopMatrix();
 	}
-	::glEnd();
-	////////////////
-	glColor3f(0,0,0);
-	::glTranslated(0,-0.5,0);
-	const unsigned int ndiv_n = 10;
-	for(unsigned int i=0;i<ndiv_n+1;i++){
-		double val = (max_val-min_val)*i/ndiv_n + min_val;
-		char str1[32];
-		sprintf(str1,"% 5.1e",val);
-		::YsDrawUglyFont(str1,false,false);
-		::glTranslated(0,+interval_n,0);
-	}
-	::glMatrixMode(GL_PROJECTION);
-	::glPopMatrix();
-	::glMatrixMode(GL_MODELVIEW);
-	::glPopMatrix();
 }
+
 
 
 bool CDrawerFace::Update(const Fem::Field::CFieldWorld& world)
@@ -454,7 +498,10 @@ bool CDrawerFace::Set(unsigned int id_field, const Fem::Field::CFieldWorld& worl
 		assert( id_es_c != 0 );
 //		const CElemAry& ea = world.GetEA(id_ea);
 //		Fem::Field::ELEM_TYPE elem_type = ea.ElemType();
-		this->m_apIndexArrayElem.push_back( new CIndexArrayElem(id_ea,id_es_c,world) );
+		CIndexArrayElem* pIAE = new CIndexArrayElem(id_ea,id_es_c,world);
+		pIAE->ilayer = field.GetLayer(id_ea);
+//		std::cout << "layer " << id_ea << " " << pIAE->ilayer << std::endl;
+		this->m_apIndexArrayElem.push_back( pIAE );
 	}
 
 	////////////////////////////////

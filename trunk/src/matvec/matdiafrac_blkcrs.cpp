@@ -765,10 +765,13 @@ bool CMatDiaFrac_BlkCrs::DoILUDecompLowUp(
 	return true;
 }
 
+// numerical factorization
 bool CMatDiaFrac_BlkCrs::DoILUDecomp()
 {
 	assert( NBlkMatRow() == NBlkMatCol() );
 	assert( this->LenBlkRow() == LenBlkCol() );
+	const unsigned int nmax_sing = 10;	// ƒuƒƒbƒNILU•ª‰ğ‚É¸”s‚µ‚Ä‚¢‚¢”‚ÌãŒÀ
+	unsigned int icnt_sing = 0;
 
     if( LenBlkCol() == -1 || LenBlkRow() == -1 ){
         if( LenBlkCol() >= 0 || LenBlkRow() >= 0 ){
@@ -818,7 +821,13 @@ bool CMatDiaFrac_BlkCrs::DoILUDecomp()
 			    int info = 0;
 			    CalcInvMat(pVal_ii,lenblk_i,info);
 			    if( info==1 ){
-				    std::cout << "frac false" << iblk << std::endl;
+//				    std::cout << "frac false" << iblk << std::endl;
+					icnt_sing++;
+					if( icnt_sing > nmax_sing ){ 
+						delete[] row2crs_f;
+						delete[] pTmpBlk;
+						return false; 
+					}
 			    }
 		    }
             for(unsigned int ijcrs=m_DiaInd[iblk];ijcrs<m_colInd_Blk[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
@@ -872,6 +881,11 @@ bool CMatDiaFrac_BlkCrs::DoILUDecomp()
 			}
 			else{ 
 				std::cout << "frac false" << iblk << std::endl;
+				icnt_sing++;
+				if( icnt_sing > nmax_sing ){
+					delete[] row2crs_f;
+					return false;
+				}
 			}
 			// ‘ÎŠp‚Ì‹t”‚ğŒvZ‚µ‚ÄãOŠps—ñ‚ÉŠ|‚¯‚é
             for(unsigned int ijcrs=m_DiaInd[iblk];ijcrs<m_colInd_Blk[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
@@ -933,7 +947,12 @@ bool CMatDiaFrac_BlkCrs::DoILUDecomp()
 					pVal_ii[3] =  inv_det*dtmp1;
 				}
 				else{
-					std::cout << "frac false " << iblk << std::endl;
+					std::cout << "frac false" << iblk << std::endl;
+					icnt_sing++;
+					if( icnt_sing > nmax_sing ){
+						delete[] row2crs_f;
+						return false;
+					}
 				}
 			}
 			// ‘ÎŠp‚Ì‹t”‚ğŒvZ‚µ‚ÄãOŠps—ñ‚ÉŠ|‚¯‚éB[U] = [1/D][U]
@@ -985,8 +1004,20 @@ bool CMatDiaFrac_BlkCrs::DoILUDecomp()
 				}
 			}
 			{   // ‘ÎŠp‚Ì‹t”‚ğŒvZ
-				double* pVal_ii = &m_valDia_Blk[iblk*BlkSize];
-                CalcInvMat3(pVal_ii,tmpBlk);
+				double* a_ii = &m_valDia_Blk[iblk*BlkSize];
+				const double det = a_ii[0]*a_ii[4]*a_ii[8] + a_ii[3]*a_ii[7]*a_ii[2] + a_ii[6]*a_ii[1]*a_ii[5]
+							     - a_ii[0]*a_ii[7]*a_ii[5] - a_ii[6]*a_ii[4]*a_ii[2] - a_ii[3]*a_ii[1]*a_ii[8];				
+				if( fabs(det) > 1.0e-30 ){
+					CalcInvMat3(a_ii,tmpBlk);
+				}
+				else{
+					std::cout << "frac false " << iblk << std::endl;
+					icnt_sing++;
+					if( icnt_sing > nmax_sing ){
+						delete[] row2crs_f;
+						return false;
+					}
+				}
 			}
 			// ‘ÎŠp‚Ì‹t”‚ğŒvZ‚µ‚ÄãOŠps—ñ‚ÉŠ|‚¯‚éB[U] = [1/D][U]
             for(unsigned int ijcrs=m_DiaInd[iblk];ijcrs<m_colInd_Blk[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
@@ -1040,6 +1071,12 @@ bool CMatDiaFrac_BlkCrs::DoILUDecomp()
 				CalcInvMat(pVal_ii,BlkLen,info);
 				if( info==1 ){
 					std::cout << "frac false" << iblk << std::endl;
+					icnt_sing++;
+					if( icnt_sing > nmax_sing ){
+						delete[] pTmpBlk;
+						delete[] row2crs_f;
+						return false;
+					}
 				}
 			}
 			// ‘ÎŠp‚Ì‹t”‚ğŒvZ‚µ‚ÄãOŠps—ñ‚ÉŠ|‚¯‚éB[U] = [1/D][U]

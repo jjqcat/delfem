@@ -278,18 +278,18 @@ void SetNewProblem()
 //		fluid.AddFixField(id_field_press_bc0,world);
 
 		unsigned int id_field_velo  = fluid.GetIdField_Velo();
-		unsigned int id_field_bc0 = fluid.AddFixElemAry(conv.GetIdEA_fromCad(3,1),world);
+		unsigned int id_field_bc0 = fluid.AddFixElemAry(conv.GetIdEA_fromCad(3,Cad::EDGE),world);
 		{
 			Fem::Field::CField& bc0_field_velo = world.GetField(id_field_bc0);
-			bc0_field_velo.SetVelocity("0.5*sin(0.05*t)", 0, world,true);
+			bc0_field_velo.SetValue("0.5*sin(0.05*t)", 0,Fem::Field::VELOCITY, world,true);
 //			bc0_field_velo.SetVelocity("0.1", 0, world,true);
 		}
 		unsigned int id_field_bc1;
 		{
 			std::vector<unsigned int> id_ea_bc1;
-			id_ea_bc1.push_back(conv.GetIdEA_fromCad(1,1));
-			id_ea_bc1.push_back(conv.GetIdEA_fromCad(2,1));
-			id_ea_bc1.push_back(conv.GetIdEA_fromCad(4,1));
+			id_ea_bc1.push_back(conv.GetIdEA_fromCad(1,Cad::EDGE));
+			id_ea_bc1.push_back(conv.GetIdEA_fromCad(2,Cad::EDGE));
+			id_ea_bc1.push_back(conv.GetIdEA_fromCad(4,Cad::EDGE));
 			id_field_bc1 = fluid.AddFixElemAry(id_ea_bc1,world);
 		}
 		fluid.SetRho(0.1);
@@ -332,23 +332,23 @@ void SetNewProblem()
 		const Fem::Field::CIDConvEAMshCad& conv = world.GetIDConverter(id_base);
 		unsigned int id_field_press = fluid.GetIdField_Press();
         std::cout << "press : " << id_field_press << std::endl;
-		unsigned int id_field_press_bc0 = world.GetPartialField(id_field_press,conv.GetIdEA_fromCad(1,0));
+		unsigned int id_field_press_bc0 = world.GetPartialField(id_field_press,conv.GetIdEA_fromCad(1,Cad::VERTEX));
 		fluid.AddFixField(id_field_press_bc0,world);
 
 		unsigned int id_field_velo  = fluid.GetIdField_Velo();
         std::cout << "velo : " << id_field_velo << std::endl;
-		unsigned int id_field_bc0 = fluid.AddFixElemAry(conv.GetIdEA_fromCad(3,1),world);
+		unsigned int id_field_bc0 = fluid.AddFixElemAry(conv.GetIdEA_fromCad(3,Cad::EDGE),world);
 		{
 			Fem::Field::CField& bc0_field_velo = world.GetField(id_field_bc0);
-			bc0_field_velo.SetVelocity("0.5*sin(0.1*t)", 0, world,true);
+			bc0_field_velo.SetValue("0.5*sin(0.1*t)", 0,Fem::Field::VELOCITY, world,true);
 //			bc0_field_velo.SetVelocity("0.1", 0, world,true);
 		}
 		unsigned int id_field_bc1;
 		{
 			std::vector<unsigned int> id_ea_bc1;
-			id_ea_bc1.push_back(conv.GetIdEA_fromCad(1,1));
-			id_ea_bc1.push_back(conv.GetIdEA_fromCad(2,1));
-			id_ea_bc1.push_back(conv.GetIdEA_fromCad(4,1));
+			id_ea_bc1.push_back(conv.GetIdEA_fromCad(1,Cad::EDGE));
+			id_ea_bc1.push_back(conv.GetIdEA_fromCad(2,Cad::EDGE));
+			id_ea_bc1.push_back(conv.GetIdEA_fromCad(4,Cad::EDGE));
 			id_field_bc1 = fluid.AddFixElemAry(id_ea_bc1,world);
 		}
 		
@@ -385,19 +385,19 @@ void SetNewProblem()
 //		fluid.AddFixField(id_field_press_bc0,world);
 
 		unsigned int id_field_velo  = fluid.GetIdField_Velo();
-		unsigned int id_field_bc0 = fluid.AddFixElemAry(conv.GetIdEA_fromCad(2,1),world);
+		unsigned int id_field_bc0 = fluid.AddFixElemAry(conv.GetIdEA_fromCad(2,Cad::EDGE),world);
 		{
 			Fem::Field::CField& bc0_field_velo = world.GetField(id_field_bc0);
-			bc0_field_velo.SetVelocity("0.1*sin(0.1*t)", 0, world,true);
+			bc0_field_velo.SetValue("0.1*sin(0.1*t)", 0,Fem::Field::VELOCITY, world,true);
 //			bc0_field_velo.SetVelocity("0.1", 0, world,true);
 		}
 		unsigned int id_field_bc1;
 		{
 			std::vector<unsigned int> id_ea_bc1;
-			id_ea_bc1.push_back( conv.GetIdEA_fromCad(1,1) );
-			id_ea_bc1.push_back( conv.GetIdEA_fromCad(3,1) );
-			id_ea_bc1.push_back( conv.GetIdEA_fromCad(4,1) );
-			id_ea_bc1.push_back( conv.GetIdEA_fromCad(6,1) );
+			id_ea_bc1.push_back( conv.GetIdEA_fromCad(1,Cad::EDGE) );
+			id_ea_bc1.push_back( conv.GetIdEA_fromCad(3,Cad::EDGE) );
+			id_ea_bc1.push_back( conv.GetIdEA_fromCad(4,Cad::EDGE) );
+			id_ea_bc1.push_back( conv.GetIdEA_fromCad(6,Cad::EDGE) );
 			id_field_bc1 = fluid.AddFixElemAry(id_ea_bc1,world);
 		}
 		fluid.SetRho(0.1);
@@ -442,16 +442,16 @@ void SetNewProblem()
 		id_base = world.AddMesh( Msh::CMesher2D(cad_2d,0.03) );
 		const Fem::Field::CIDConvEAMshCad& conv = world.GetIDConverter(id_base);
 		fluid.Clear();
-		fluid.UpdateDomain_FieldElemAry(id_base, conv.GetIdEA_fromCad(2,2) ,world);
+		fluid.UpdateDomain_FieldElemAry(id_base, conv.GetIdEA_fromCad(2,Cad::LOOP) ,world);
 		unsigned int id_field_press = fluid.GetIdField_Press();
 		unsigned int id_field_velo  = fluid.GetIdField_Velo();
 
-		unsigned int id_field_bc1 = fluid.AddFixElemAry( conv.GetIdEA_fromCad(3,1) ,world);
+		unsigned int id_field_bc1 = fluid.AddFixElemAry( conv.GetIdEA_fromCad(3,Cad::EDGE) ,world);
 		{
 			Fem::Field::CField& field = world.GetField(id_field_bc1);
-			field.SetVelocity("0.3*sin(0.5*t)",1,world,true);
+			field.SetValue("0.3*sin(0.5*t)", 1,Fem::Field::VELOCITY, world,true);
 		}
-		unsigned int id_field_bc2 = fluid.AddFixElemAry( conv.GetIdEA_fromCad(5,1) ,world);
+		unsigned int id_field_bc2 = fluid.AddFixElemAry( conv.GetIdEA_fromCad(5,Cad::EDGE) ,world);
 
 		fluid.SetRho(0.1);
 		fluid.SetMyu(0.0002);
@@ -498,27 +498,27 @@ void SetNewProblem()
 		const Fem::Field::CIDConvEAMshCad& conv = world.GetIDConverter(id_base);
 
 		fluid.Clear();
-		fluid.UpdateDomain_FieldElemAry(id_base,conv.GetIdEA_fromCad(1,2),world);
+		fluid.UpdateDomain_FieldElemAry(id_base,conv.GetIdEA_fromCad(1,Cad::LOOP),world);
 		unsigned int id_field_press = fluid.GetIdField_Press();
 		unsigned int id_field_velo  = fluid.GetIdField_Velo();
 
-		unsigned int id_field_bc1 = fluid.AddFixElemAry( conv.GetIdEA_fromCad(4,1) ,world);
+		unsigned int id_field_bc1 = fluid.AddFixElemAry( conv.GetIdEA_fromCad(4,Cad::EDGE) ,world);
 		{
 			Fem::Field::CField& field = world.GetField(id_field_bc1);
-			field.SetVelocity(0.1,0,world,true);
+			field.SetValue(0.1,0,Fem::Field::VELOCITY,world,true);
 		}
 		{
 			std::vector<unsigned int> aIdEAFixVelo;
-			aIdEAFixVelo.push_back( conv.GetIdEA_fromCad(1,1) );
-			aIdEAFixVelo.push_back( conv.GetIdEA_fromCad(3,1) );
+			aIdEAFixVelo.push_back( conv.GetIdEA_fromCad(1,Cad::EDGE) );
+			aIdEAFixVelo.push_back( conv.GetIdEA_fromCad(3,Cad::EDGE) );
 			unsigned int id_field_bc2 = fluid.AddFixElemAry(aIdEAFixVelo,world);
 		}
 		{
 			std::vector<unsigned int> aIdEAFixVelo;
-			aIdEAFixVelo.push_back( conv.GetIdEA_fromCad(5,1) );
-			aIdEAFixVelo.push_back( conv.GetIdEA_fromCad(6,1) );
-			aIdEAFixVelo.push_back( conv.GetIdEA_fromCad(7,1) );
-			aIdEAFixVelo.push_back( conv.GetIdEA_fromCad(8,1) );
+			aIdEAFixVelo.push_back( conv.GetIdEA_fromCad(5,Cad::EDGE) );
+			aIdEAFixVelo.push_back( conv.GetIdEA_fromCad(6,Cad::EDGE) );
+			aIdEAFixVelo.push_back( conv.GetIdEA_fromCad(7,Cad::EDGE) );
+			aIdEAFixVelo.push_back( conv.GetIdEA_fromCad(8,Cad::EDGE) );
 			unsigned int id_field_bc3 = fluid.AddFixElemAry(aIdEAFixVelo,world);
 		}
 		dt = 0.13;
@@ -560,18 +560,18 @@ void SetNewProblem()
 		fluid.UpdateDomain_Field(id_base,world);
 		unsigned int id_field_press = fluid.GetIdField_Press();
 		unsigned int id_field_velo  = fluid.GetIdField_Velo();
-		unsigned int id_field_bc0 = fluid.AddFixElemAry(conv.GetIdEA_fromCad(2,1),world);
+		unsigned int id_field_bc0 = fluid.AddFixElemAry(conv.GetIdEA_fromCad(2,Cad::EDGE),world);
 		{
 			Fem::Field::CField& bc0_field_velo = world.GetField(id_field_bc0);
-			bc0_field_velo.SetVelocity("0.1*sin(0.1*t)", 0, world,true);
+			bc0_field_velo.SetValue("0.1*sin(0.1*t)", 0,Fem::Field::VELOCITY, world,true);
 		}
 		unsigned int id_field_bc1;
 		{
 			std::vector<unsigned int> id_ea_bc1;
-			id_ea_bc1.push_back( conv.GetIdEA_fromCad(1,1) );
-			id_ea_bc1.push_back( conv.GetIdEA_fromCad(3,1) );
-			id_ea_bc1.push_back( conv.GetIdEA_fromCad(4,1) );
-			id_ea_bc1.push_back( conv.GetIdEA_fromCad(6,1) );
+			id_ea_bc1.push_back( conv.GetIdEA_fromCad(1,Cad::EDGE) );
+			id_ea_bc1.push_back( conv.GetIdEA_fromCad(3,Cad::EDGE) );
+			id_ea_bc1.push_back( conv.GetIdEA_fromCad(4,Cad::EDGE) );
+			id_ea_bc1.push_back( conv.GetIdEA_fromCad(6,Cad::EDGE) );
 			id_field_bc1 = fluid.AddFixElemAry(id_ea_bc1,world);
 		}
 		dt = 0.8;
@@ -616,20 +616,20 @@ void SetNewProblem()
 
 		unsigned int id_field_press = fluid.GetIdField_Press();
 		unsigned int id_field_velo  = fluid.GetIdField_Velo();
-		unsigned int id_field_bc0 = fluid.AddFixElemAry(conv.GetIdEA_fromCad(6,1),world);
+		unsigned int id_field_bc0 = fluid.AddFixElemAry(conv.GetIdEA_fromCad(6,Cad::EDGE),world);
 		{
 			Fem::Field::CField& bc0_field_velo = world.GetField(id_field_bc0);
-			bc0_field_velo.SetVelocity("0.2", 0, world,true);
+			bc0_field_velo.SetValue("0.2", 0,Fem::Field::VELOCITY, world,true);
 		}
 		unsigned int id_field_bc1;
 		{
 			std::vector<unsigned int> id_ea_bc1;
-			id_ea_bc1.push_back( conv.GetIdEA_fromCad(1,1) );
-			id_ea_bc1.push_back( conv.GetIdEA_fromCad(2,1) );
-			id_ea_bc1.push_back( conv.GetIdEA_fromCad(4,1) );
-			id_ea_bc1.push_back( conv.GetIdEA_fromCad(5,1) );
-			id_ea_bc1.push_back( conv.GetIdEA_fromCad(7,1) );
-			id_ea_bc1.push_back( conv.GetIdEA_fromCad(8,1) );
+			id_ea_bc1.push_back( conv.GetIdEA_fromCad(1,Cad::EDGE) );
+			id_ea_bc1.push_back( conv.GetIdEA_fromCad(2,Cad::EDGE) );
+			id_ea_bc1.push_back( conv.GetIdEA_fromCad(4,Cad::EDGE) );
+			id_ea_bc1.push_back( conv.GetIdEA_fromCad(5,Cad::EDGE) );
+			id_ea_bc1.push_back( conv.GetIdEA_fromCad(7,Cad::EDGE) );
+			id_ea_bc1.push_back( conv.GetIdEA_fromCad(8,Cad::EDGE) );
 			id_field_bc1 = fluid.AddFixElemAry(id_ea_bc1,world);
 		}
 		fluid.SetRho(5);
@@ -639,7 +639,7 @@ void SetNewProblem()
 		fluid.SetNavierStokes();
 		fluid.SetTimeIntegrationParameter(dt);
 		{
-			Fem::Eqn::CEqn_Fluid2D eqn_fluid = fluid.GetEqnation( conv.GetIdEA_fromCad(2,2) );
+			Fem::Eqn::CEqn_Fluid2D eqn_fluid = fluid.GetEqnation( conv.GetIdEA_fromCad(2,Cad::LOOP) );
 			eqn_fluid.SetMyu(0.01);
 			fluid.SetEquation(eqn_fluid);
 		}
@@ -683,10 +683,10 @@ void SetNewProblem()
 		unsigned int id_field_bc0;
 		{
 			std::vector<unsigned int> id_ea_bc;
-			id_ea_bc.push_back( conv.GetIdEA_fromCad(1,1) );
-			id_ea_bc.push_back( conv.GetIdEA_fromCad(2,1) );
-			id_ea_bc.push_back( conv.GetIdEA_fromCad(3,1) );
-			id_ea_bc.push_back( conv.GetIdEA_fromCad(4,1) );
+			id_ea_bc.push_back( conv.GetIdEA_fromCad(1,Cad::EDGE) );
+			id_ea_bc.push_back( conv.GetIdEA_fromCad(2,Cad::EDGE) );
+			id_ea_bc.push_back( conv.GetIdEA_fromCad(3,Cad::EDGE) );
+			id_ea_bc.push_back( conv.GetIdEA_fromCad(4,Cad::EDGE) );
 			id_field_bc0 = fluid.AddFixElemAry(id_ea_bc,world);
 		}
 		fluid.SetRho(5);
@@ -695,7 +695,7 @@ void SetNewProblem()
 		fluid.SetNavierStokes();
 		fluid.SetTimeIntegrationParameter(dt);
 		{
-			Fem::Eqn::CEqn_Fluid2D eqn_fluid = fluid.GetEqnation( conv.GetIdEA_fromCad(2,2) );
+			Fem::Eqn::CEqn_Fluid2D eqn_fluid = fluid.GetEqnation( conv.GetIdEA_fromCad(2,Cad::LOOP) );
 			eqn_fluid.SetBodyForce(0.0,0.5);
 			fluid.SetEquation(eqn_fluid);
 		}
@@ -760,7 +760,7 @@ void SetNewProblem()
 				mesh_2d.GetClipedMesh(aLnods,mapVal2Co, aIdMsh_Inc,aIdMshBar_Cut);
 			}
 			std::vector<unsigned int> aIdEA_Inc;
-			aIdEA_Inc.push_back( conv.GetIdEA_fromCad(1,2) );
+			aIdEA_Inc.push_back( conv.GetIdEA_fromCad(1,Cad::LOOP) );
 			id_base2 = world.SetCustomBaseField(id_base,aIdEA_Inc,aLnods,mapVal2Co);
 		}
 
@@ -772,21 +772,21 @@ void SetNewProblem()
 		unsigned int id_field_bc0;
 		{
 			std::vector<unsigned int> id_ea_bc;
-			id_ea_bc.push_back( conv.GetIdEA_fromCad(1,1) );
-			id_ea_bc.push_back( conv.GetIdEA_fromCad(2,1) );
-			id_ea_bc.push_back( conv.GetIdEA_fromCad(4,1) );
-			id_ea_bc.push_back( conv.GetIdEA_fromCad(id_e1,1) );
-			id_ea_bc.push_back( conv.GetIdEA_fromCad(id_e2,1) );
-			id_ea_bc.push_back( conv.GetIdEA_fromCad(id_e3,1) );
-			id_ea_bc.push_back( conv.GetIdEA_fromCad(id_e4,1) );
-			id_ea_bc.push_back( conv.GetIdEA_fromCad(id_e5,1) );
-			id_ea_bc.push_back( conv.GetIdEA_fromCad(id_e6,1) );
+			id_ea_bc.push_back( conv.GetIdEA_fromCad(1,Cad::EDGE) );
+			id_ea_bc.push_back( conv.GetIdEA_fromCad(2,Cad::EDGE) );
+			id_ea_bc.push_back( conv.GetIdEA_fromCad(4,Cad::EDGE) );
+			id_ea_bc.push_back( conv.GetIdEA_fromCad(id_e1,Cad::EDGE) );
+			id_ea_bc.push_back( conv.GetIdEA_fromCad(id_e2,Cad::EDGE) );
+			id_ea_bc.push_back( conv.GetIdEA_fromCad(id_e3,Cad::EDGE) );
+			id_ea_bc.push_back( conv.GetIdEA_fromCad(id_e4,Cad::EDGE) );
+			id_ea_bc.push_back( conv.GetIdEA_fromCad(id_e5,Cad::EDGE) );
+			id_ea_bc.push_back( conv.GetIdEA_fromCad(id_e6,Cad::EDGE) );
 			id_field_bc0 = fluid.AddFixElemAry(id_ea_bc,world);
 		}
-		unsigned int id_field_bc1 = fluid.AddFixElemAry(conv.GetIdEA_fromCad(5,1),world);
+		unsigned int id_field_bc1 = fluid.AddFixElemAry(conv.GetIdEA_fromCad(5,Cad::EDGE),world);
 		{
 			Fem::Field::CField& bc0_field_velo = world.GetField(id_field_bc1);
-			bc0_field_velo.SetVelocity("0.1*sin(t*PI*0.1+0.01)", 0, world,true);
+			bc0_field_velo.SetValue("0.1*sin(t*PI*0.1+0.01)", 0,Fem::Field::VELOCITY, world,true);
 		}
 
 		dt = 0.8;

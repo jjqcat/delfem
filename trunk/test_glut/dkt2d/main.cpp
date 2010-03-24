@@ -263,19 +263,19 @@ void SetNewProblem()
 		ls.AddPattern_Field(id_field_rot,id_field_deflect,world);
 		prec.SetLinearSystem(ls.m_ls);
 
-		unsigned int id_field_rot_fix0 = world.GetPartialField(id_field_rot,conv.GetIdEA_fromCad(2,1));
-		unsigned int id_field_rot_fix1 = world.GetPartialField(id_field_rot,conv.GetIdEA_fromCad(4,1));
+		unsigned int id_field_rot_fix0 = world.GetPartialField(id_field_rot,conv.GetIdEA_fromCad(2,Cad::EDGE));
+		unsigned int id_field_rot_fix1 = world.GetPartialField(id_field_rot,conv.GetIdEA_fromCad(4,Cad::EDGE));
 		ls.SetFixedBoundaryCondition_Field(id_field_rot_fix0,world);
 		ls.SetFixedBoundaryCondition_Field(id_field_rot_fix1,world);
 
-		unsigned int id_field_def_fix0 = world.GetPartialField(id_field_deflect,conv.GetIdEA_fromCad(2,1));
-		unsigned int id_field_def_fix1 = world.GetPartialField(id_field_deflect,conv.GetIdEA_fromCad(4,1));
+		unsigned int id_field_def_fix0 = world.GetPartialField(id_field_deflect,conv.GetIdEA_fromCad(2,Cad::EDGE));
+		unsigned int id_field_def_fix1 = world.GetPartialField(id_field_deflect,conv.GetIdEA_fromCad(4,Cad::EDGE));
 		ls.SetFixedBoundaryCondition_Field(id_field_def_fix0,world);
 		ls.SetFixedBoundaryCondition_Field(id_field_def_fix1,world);
 
 		{
 			Fem::Field::CField& field = world.GetField(id_field_rot_fix1);
-			field.SetValue(-1,1,world,false);
+			field.SetValue(-1,1,Fem::Field::VALUE,world,false);
 		}
 		ls.InitializeMarge();
 		Fem::Eqn::AddLinearSystem_DKT2D_Static(ls,world,id_field_deflect,id_field_rot);
@@ -317,7 +317,7 @@ void SetNewProblem()
 		unsigned int id_field_def_fix1 = world.GetPartialField(id_field_deflect,4);
 		{
 			Fem::Field::CField& field = world.GetField(id_field_def_fix1);
-			field.SetValue(-3,0,world,false);
+			field.SetValue(-3,0,Fem::Field::VALUE,world,false);
 		}
 
 		Fem::Ls::CLinearSystem_Field ls;

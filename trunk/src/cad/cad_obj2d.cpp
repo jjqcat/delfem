@@ -243,11 +243,55 @@ bool CCadObj2D::GetColor_Loop(unsigned int id_l, double color[3] ) const
     return true;
 }
 
-int CCadObj2D::GetLayer_Loop(unsigned int id_l ) const
+int CCadObj2D::GetLayer(Cad::CAD_ELEM_TYPE type, unsigned int id) const
 {
-    if( !m_LoopSet.IsObjID(id_l) ) return false;
-    const CLoop2D& l = m_LoopSet.GetObj(id_l);
-	return l.ilayer;
+	if(      type == Cad::LOOP ){
+		if( !m_LoopSet.IsObjID(id) ) return 0;
+		const CLoop2D& l = m_LoopSet.GetObj(id);
+		return l.ilayer;
+	}
+	else if( type == Cad::EDGE ){
+		unsigned int id_l_l, id_l_r;
+		this->GetIdLoop_Edge(id_l_l,id_l_r,id);
+		const bool bl = this->IsElemID(Cad::LOOP,id_l_l);
+		const bool br = this->IsElemID(Cad::LOOP,id_l_r);
+		if( !bl && !br ){ return 0; }
+		if(  bl && !br ){ return this->GetLayer(Cad::LOOP,id_l_l); }
+		if( !bl &&  br ){ return this->GetLayer(Cad::LOOP,id_l_r); }
+		const int ilayer_l = this->GetLayer(Cad::LOOP,id_l_l);
+		const int ilayer_r = this->GetLayer(Cad::LOOP,id_l_r);
+		return ( ilayer_l > ilayer_r )	? ilayer_l : ilayer_r;
+	}
+	else if( type == Cad::VERTEX ){		
+		int ilayer = 0;
+		bool iflg = true;
+		for(std::auto_ptr<Cad::ICad2D::CItrVertex> itrv = this->GetItrVertex(id);!itrv->IsEnd();(*itrv)++){
+			unsigned int id_l0 = itrv->GetIdLoop();
+			if( !this->IsElemID(Cad::LOOP,id_l0) ) continue;
+			const int ilayer0 = this->GetLayer(Cad::LOOP,id_l0);
+            if( iflg == true ){ ilayer = ilayer0; iflg = false; }
+			else{ ilayer =  ( ilayer0 > ilayer )	? ilayer0 : ilayer; }
+		}
+		return ilayer;
+	}
+	return 0;
+}
+
+void CCadObj2D::GetLayerMinMax(int& ilayer_min, int& ilayer_max) const
+{
+	const std::vector<unsigned int>& aIdL = this->GetAryElemID(Cad::LOOP);
+	{
+		assert( aIdL.size() > 0 );
+		unsigned int id_l0 = aIdL[0];
+		ilayer_min = this->GetLayer(Cad::LOOP,id_l0);
+		ilayer_max = ilayer_min;
+	}
+	for(unsigned int il=0;il<aIdL.size();il++){
+		unsigned int id_l = aIdL[il];
+		int ilayer = this->GetLayer(Cad::LOOP,id_l);
+		ilayer_min = ( ilayer < ilayer_min ) ? ilayer : ilayer_min;
+		ilayer_max = ( ilayer > ilayer_max ) ? ilayer : ilayer_max;
+	}
 }
 
 // ID:id_l‚Ìƒ‹[ƒv‚ÌF‚ðÝ’è‚·‚é
@@ -261,7 +305,7 @@ bool CCadObj2D::SetColor_Loop(unsigned int id_l, const double color[3] )
     return true;
 }
 
-bool CCadObj2D::ShiftLayer(unsigned int id_l, bool is_up)
+bool CCadObj2D::ShiftLayer_Loop(unsigned int id_l, bool is_up)
 {
     if( !m_LoopSet.IsObjID(id_l) ) return false;
     CLoop2D& l = m_LoopSet.GetObj(id_l);
@@ -652,7 +696,7 @@ bool CCadObj2D::RemoveElement(Cad::CAD_ELEM_TYPE itype, unsigned int id)
 			itrv.GetIdEdge_Behind(id_e2,btmp2);
 			CEdge2D e_tmp = this->GetEdge(id_e1);
             {
-                const unsigned int id_v1 = m_BRep.GetIdVertex_Edge(id_e1,!btmp1);
+//                const unsigned int id_v1 = m_BRep.GetIdVertex_Edge(id_e1,!btmp1);
                 const unsigned int id_v2 = m_BRep.GetIdVertex_Edge(id_e2,!btmp2);
                 assert( m_BRep.GetIdVertex_Edge(id_e1,btmp1) == id );
                 assert( m_BRep.GetIdVertex_Edge(id_e2,btmp2) == id );

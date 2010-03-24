@@ -318,11 +318,11 @@ void SetNewProblem()
 //		solid.SetSaveStiffMat();
 
 //		unsigned int id_field_bc0 = solid.AddFixElemAry(7,world);
-		unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(2,1,2),world);
+		unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(2,Cad::EDGE,2),world);
 		{
 			CField& bc1_field = world.GetField(id_field_bc1);
-			bc1_field.SetValue("sin(5*sin(0.1*t))", 1, world,true);	// bc1_fieldのy座標に単振動を追加
-			bc1_field.SetValue("cos(5*sin(0.1*t))", 2, world,true);	// bc1_fieldのy座標に単振動を追加
+			bc1_field.SetValue("sin(5*sin(0.1*t))", 1,Fem::Field::VALUE, world,true);	// bc1_fieldのy座標に単振動を追加
+			bc1_field.SetValue("cos(5*sin(0.1*t))", 2,Fem::Field::VALUE, world,true);	// bc1_fieldのy座標に単振動を追加
 		}
 		// 描画オブジェクトの登録
 		drawer_ary.Clear();
@@ -342,7 +342,7 @@ void SetNewProblem()
 	}
 	else if( iprob == 3 ){
         const CIDConvEAMshCad& conv = world.GetIDConverter(id_base);
-		unsigned int id_field_bc0 = solid.AddFixElemAry(conv.GetIdEA_fromCad(4,1,2),world);
+		unsigned int id_field_bc0 = solid.AddFixElemAry(conv.GetIdEA_fromCad(4,Cad::EDGE,2),world);
 		solid.SetStationary();
 	}
 	else if( iprob == 4 ){
@@ -359,11 +359,11 @@ void SetNewProblem()
 		solid.UnSetGeometricalNonLinear();	// 幾何学的非線形性を考慮する．
 		solid.UnSetStationary();
 		solid.UnSetSaveStiffMat();
-		unsigned int id_field_bc0 = solid.AddFixElemAry(3,world);
+		unsigned int id_field_bc0 = solid.AddFixElemAry(2,world);
 		unsigned int id_field_bc1 = solid.AddFixElemAry(4,world);
 		{
 			CField& bc1_field = world.GetField(id_field_bc1);
-			bc1_field.SetValue("5*sin(2*t)^2", 0, world,true);	// bc1_fieldのy座標に単振動を追加
+			bc1_field.SetValue("5*sin(2*t)^2", 0,Fem::Field::VALUE, world,true);	// bc1_fieldのy座標に単振動を追加
 		}
 		// 描画オブジェクトの登録
 		drawer_ary.Clear();
@@ -396,7 +396,7 @@ void SetNewProblem()
 		unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromMshExtrude(3,2),world);
 		{
 			CField& bc1_field = world.GetField(id_field_bc1);
-			bc1_field.SetValue("2*sin(t)", 0, world,true);	// bc1_fieldのy座標に単振動を追加
+			bc1_field.SetValue("2*sin(t)", 0,Fem::Field::VALUE, world,true);	// bc1_fieldのy座標に単振動を追加
 		}
 		// 描画オブジェクトの登録
 		drawer_ary.Clear();

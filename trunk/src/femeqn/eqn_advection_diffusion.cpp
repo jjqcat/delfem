@@ -500,32 +500,15 @@ static bool AddLinSys_AdvectionDiffusion_NonStatic_Newmark_P1P1(
 	if( !world.IsIdField(id_field_velo) ) return false;
 	const CField& field_velo = world.GetField(id_field_velo);
 
-	// 角節点の節点配列ID
-	unsigned int id_na_c_co = val_field.GetNodeSegInNodeAry(CORNER).id_na_co;
-	unsigned int id_ns_c_co = val_field.GetNodeSegInNodeAry(CORNER).id_ns_co;
-	unsigned int id_na_c_val = val_field.GetNodeSegInNodeAry(CORNER).id_na_va;
-	unsigned int id_ns_c_val = val_field.GetNodeSegInNodeAry(CORNER).id_ns_va;
-	unsigned int id_ns_c_vval = val_field.GetNodeSegInNodeAry(CORNER).id_ns_ve;
-
-	unsigned int id_na_c_velo = field_velo.GetNodeSegInNodeAry(CORNER).id_na_va;
-	unsigned int id_ns_c_velo = field_velo.GetNodeSegInNodeAry(CORNER).id_ns_ve;
-	assert( id_na_c_co != 0 && id_ns_c_co != 0 );
-	assert( id_na_c_val != 0 && id_ns_c_val != 0 );
-	assert( id_na_c_velo != 0 );
-	assert( id_ns_c_velo != 0 );
-
 	const unsigned int nno = 3;
 	const unsigned int ndim = 2;
 
 	const CElemAry::CElemSeg& es_c_val = val_field.GetElemSeg(id_ea,CORNER,true,world);
 
-	unsigned int no_c[nno];	// 要素節点の全体節点番号
-
 	double val_c[nno];		// 要素節点の値
 	double vval_c[nno];		// 要素節点の値
 	double coord_c[nno][ndim];	// 要素節点の座標
 	double velo_c[nno][ndim];
-				
 	double eCmat[nno][nno];
 	double eMmat[nno][nno];
 	double emat[nno][nno];	// 要素剛性行列
@@ -534,18 +517,15 @@ static bool AddLinSys_AdvectionDiffusion_NonStatic_Newmark_P1P1(
 	CMatDia_BlkCrs& mat_cc = ls.GetMatrix(  id_field_val,CORNER,world);
 	CVector_Blk&    res_c  = ls.GetResidual(id_field_val,CORNER,world);
 
-	const CNodeAry& na_c_val = world.GetNA(id_na_c_val);
-	const CNodeAry::CNodeSeg& ns_c_val = na_c_val.GetSeg(id_ns_c_val);
-//	const CNodeAry& na_c_vval = world.GetNA(id_na_c_val);
-	const CNodeAry::CNodeSeg& ns_c_vval = na_c_val.GetSeg(id_ns_c_vval);
-	const CNodeAry& na_c_velo = world.GetNA(id_na_c_velo);
-	const CNodeAry::CNodeSeg& ns_c_velo = na_c_velo.GetSeg(id_ns_c_velo);
-	const CNodeAry& na_c_co = world.GetNA(id_na_c_co);
-	const CNodeAry::CNodeSeg& ns_c_co = na_c_co.GetSeg(id_ns_c_co);
+	const CNodeAry::CNodeSeg& ns_c_val = val_field.GetNodeSeg(CORNER,true,world,VALUE);
+	const CNodeAry::CNodeSeg& ns_c_vval = val_field.GetNodeSeg(CORNER,true,world,VELOCITY);
+	const CNodeAry::CNodeSeg& ns_c_velo = field_velo.GetNodeSeg(CORNER,true,world,VELOCITY);
+	const CNodeAry::CNodeSeg& ns_c_co = field_velo.GetNodeSeg(CORNER,false,world,VALUE);
 
 	for(unsigned int ielem=0;ielem<ea.Size();ielem++)
 	{
 		// 要素配列から要素セグメントの節点番号を取り出す
+		unsigned int no_c[nno];	// 要素節点の全体節点番号
 		es_c_val.GetNodes(ielem,no_c);
 		// 節点の値を取って来る
 		for(unsigned int inoes=0;inoes<nno;inoes++){
@@ -588,39 +568,27 @@ static bool AddLinSys_AdvectionDiffusion_NonStatic_Newmark_P1P1(
 				(velo_c[0][0]+velo_c[1][0]+velo_c[2][0])*0.3333333333333333, 
 				(velo_c[0][1]+velo_c[1][1]+velo_c[2][1])*0.3333333333333333 };
 			const double norm_v = sqrt(velo_ave[0]*velo_ave[0]+velo_ave[1]*velo_ave[1]);
-			const double velo_dir[2] = { velo_ave[0]/norm_v, velo_ave[1]/norm_v };
-			// calc element length along the direction of velocity
-			double h;
-			{
-				double dtmp1 = 0;
-				for(int inode=0;inode<3;inode++){
-					dtmp1 += fabs(velo_dir[0]*dldx[inode][0]+velo_dir[1]*dldx[inode][1]);
-				}
-				h = 2.0/dtmp1;
-			}
-			// calc stabilization parameter
-			if( norm_v*h*rho < 6.0*myu ){
-				const double re_c = 0.5*norm_v*h*rho/myu;	// 0.5*norm_v*h*rho/myu;
-				tau = h * 0.5 / norm_v * re_c / 3.0;
-			}
-			else{ tau = h * 0.5 / norm_v; }
-
-			tau *= 0.5;
-/*			const double h = sqrt( area / 3.14 )*2;
-			const double tau_c = h*0.5/norm_v;
-			const double cou_c = norm_v*dt/h;
-			if( norm_v*h*rho*1.0e-30 > myu ){
-				const double dtmp1 = 1/(cou_c*cou_c)+1;
-				tau = tau_c / sqrt(dtmp1);
-			}
+			if( norm_v < 1.0e-10 ){ tau = 0.0; }
 			else{
-				const double re_c = 0.5*norm_v*h*rho/myu;	// 0.5*norm_v*h*rho/myu;
-				const double dtmp1 = 1/(cou_c*cou_c)+1+1/(re_c*re_c);
-				tau = tau_c / sqrt(dtmp1);
-			}*/
-//			tau *= 2.0;
+				const double velo_dir[2] = { velo_ave[0]/norm_v, velo_ave[1]/norm_v };
+				// calc element length along the direction of velocity
+				double h;
+				{
+					double dtmp1 = 0;
+					for(int inode=0;inode<3;inode++){
+						dtmp1 += fabs(velo_dir[0]*dldx[inode][0]+velo_dir[1]*dldx[inode][1]);
+					}
+					h = 2.0/dtmp1;
+				}
+				// calc stabilization parameter
+				if( norm_v*h*rho < 6.0*myu ){
+					const double re_c = 0.5*norm_v*h*rho/myu;	// 0.5*norm_v*h*rho/myu;
+					tau = h * 0.5 / norm_v * re_c / 3.0;
+				}
+				else{ tau = h * 0.5 / norm_v; }
+				tau *= 0.5;
+			}
 		}
-
 		{
 			double tmp_mat[ndim][ndim];
 			for(unsigned int idim=0;idim<ndim;idim++){
@@ -743,8 +711,6 @@ bool Fem::Eqn::AddLinSys_AdvectionDiffusion_NonStatic_Newmark(
 ////////////////////////////////////////////////////////////////
 
 
-
-
 static bool AddLinSys_AdvectionDiffusion_NonStatic_Newmark_P1P1(
 		double rho, double myu, double source, 
 		CLinearSystem_SaveDiaM_Newmark& ls, 
@@ -771,15 +737,6 @@ static bool AddLinSys_AdvectionDiffusion_NonStatic_Newmark_P1P1(
 
 	const CElemAry::CElemSeg& es_c_val = val_field.GetElemSeg(id_ea,CORNER,true,world);
 
-	unsigned int no_c[nno];	// 要素節点の全体節点番号
-
-	double val_c[nno];		// 要素節点の値
-	double vval_c[nno];		// 要素節点の値
-	double coord_c[nno][ndim];	// 要素節点の座標
-	double velo_c[nno][ndim];
-				
-	double eCmat[nno][nno];
-	double eMmat[nno][nno];
 	double emat[nno][nno];	// 要素剛性行列
 	double eqf_out_c[nno];	// 要素節点等価内力、外力、残差ベクトル
 				
@@ -796,13 +753,17 @@ static bool AddLinSys_AdvectionDiffusion_NonStatic_Newmark_P1P1(
 	for(unsigned int ielem=0;ielem<ea.Size();ielem++)
 	{
 		// 要素配列から要素セグメントの節点番号を取り出す
+		unsigned int no_c[nno];	// 要素節点の全体節点番号
 		es_c_val.GetNodes(ielem,no_c);
 		// 節点の値を取って来る
+		double val_c[nno], vval_c[nno];		// 要素節点の値
+		double coord_c[nno][ndim];	// 要素節点の座標
+		double velo_c[nno][ndim];	// advection velocity
 		for(unsigned int ino=0;ino<nno;ino++){
-			ns_c_co.GetValue(no_c[ino],coord_c[ino]);
 			ns_c_val.GetValue(no_c[ino],&val_c[ino]);
 			ns_c_vval.GetValue(no_c[ino],&vval_c[ino]);
 			ns_c_velo.GetValue(no_c[ino],velo_c[ino]);
+			ns_c_co.GetValue(no_c[ino],coord_c[ino]);
 		}
 
 		////////////////////////////////////////////////////////////////
@@ -814,6 +775,7 @@ static bool AddLinSys_AdvectionDiffusion_NonStatic_Newmark_P1P1(
 		double const_term[nno];	// 形状関数の定数項
 		TriDlDx(dldx,const_term,coord_c[0],coord_c[1],coord_c[2]);
 
+		double eCmat[nno][nno];
 		// 要素剛性行列を作る
 		for(unsigned int ino=0;ino<nno;ino++){
 		for(unsigned int jno=0;jno<nno;jno++){
@@ -838,10 +800,9 @@ static bool AddLinSys_AdvectionDiffusion_NonStatic_Newmark_P1P1(
 				(velo_c[0][0]+velo_c[1][0]+velo_c[2][0])/3.0, 
 				(velo_c[0][1]+velo_c[1][1]+velo_c[2][1])/3.0 };
 			const double norm_v = sqrt(velo_ave[0]*velo_ave[0]+velo_ave[1]*velo_ave[1]);
-			const double velo_dir[2] = { velo_ave[0]/norm_v, velo_ave[1]/norm_v };
-			// calc element length along the direction of velocity
+			const double velo_dir[2] = { velo_ave[0]/norm_v, velo_ave[1]/norm_v };			
 			double h;
-			{
+			{	// calc element length along the direction of velocity
 				double dtmp1 = 0;
 				for(int inode=0;inode<3;inode++){
 					dtmp1 += fabs(velo_dir[0]*dldx[inode][0]+velo_dir[1]*dldx[inode][1]);
@@ -854,20 +815,7 @@ static bool AddLinSys_AdvectionDiffusion_NonStatic_Newmark_P1P1(
 				tau = h * 0.5 / norm_v * re_c / 3.0;
 			}
 			else{ tau = h * 0.5 / norm_v; }
-			tau *= 0.1;
-/*			const double h = sqrt( area / 3.14 )*2;
-			const double tau_c = h*0.5/norm_v;
-			const double cou_c = norm_v*dt/h;
-			if( norm_v*h*rho*1.0e-30 > myu ){
-				const double dtmp1 = 1/(cou_c*cou_c)+1;
-				tau = tau_c / sqrt(dtmp1);
-			}
-			else{
-				const double re_c = 0.5*norm_v*h*rho/myu;	// 0.5*norm_v*h*rho/myu;
-				const double dtmp1 = 1/(cou_c*cou_c)+1+1/(re_c*re_c);
-				tau = tau_c / sqrt(dtmp1);
-			}*/
-//			tau *= 2.0;
+//			tau *= 0.1;
 		}
 
 		{
@@ -897,6 +845,7 @@ static bool AddLinSys_AdvectionDiffusion_NonStatic_Newmark_P1P1(
 			}
 		}
 
+		double eMmat[nno][nno];
 		{
 			const double dtmp1 = rho*area*0.08333333333333333333333333;
 			for(unsigned int ino=0;ino<nno;ino++){

@@ -722,7 +722,7 @@ bool Msh::CMesh3D_Extrude::Extrude_Tri(const CMesher2D& msh_2d, const double hei
 			const std::vector<CTriAry2D>& aTriAry2D = msh_2d.GetTriArySet();
 			assert( aTriAry2D.size() == 1 );
 			const std::vector<STri2D>& aTri2d = aTriAry2D[0].m_aTri;
-			const unsigned int nNo2d = msh_2d.GetVectorAry().size();
+//			const unsigned int nNo2d = msh_2d.GetVectorAry().size();
 			{	// ‰º‚ÌŽOŠpŒ`
 				m_aTriAry[0].id_cad = aTriAry2D[0].id_l_cad;
 				m_aTriAry[0].id_msh_before_extrude = aTriAry2D[0].id;
@@ -767,7 +767,7 @@ bool Msh::CMesh3D_Extrude::Extrude_Tri(const CMesher2D& msh_2d, const double hei
 		assert( aTriAry2D.size() == 1 );
 		m_aTetAry.resize(nTriAry2d);
 		const std::vector<STri2D>& aTri = aTriAry2D[0].m_aTri;
-		const unsigned int nTri2d = aTri.size();
+//		const unsigned int nTri2d = aTri.size();
 		m_aTetAry[0].id_cad = aTriAry2D[0].id_l_cad;
 		m_aTetAry[0].id_msh_before_extrude = aTriAry2D[0].id;
 		m_aTetAry[0].inum_extrude = 2;
