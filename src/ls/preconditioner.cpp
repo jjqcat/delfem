@@ -52,6 +52,7 @@ void LsSol::CPreconditioner_ILU::Clear()
     m_alev_input.clear();
 }
 	
+// symbolic factorization
 void LsSol::CPreconditioner_ILU::SetLinearSystem(const CLinearSystem& ls)
 {
 //    std::cout << "0 prec : set linsys " << std::endl;
@@ -207,6 +208,7 @@ void LsSol::CPreconditioner_ILU::SetLinearSystem(const CLinearSystem& ls)
 }
 
 
+// numerical factorization
 // 値を設定してILU分解を行う関数
 // ILU分解が成功しているかどうかはもっと詳細なデータを返したい
 bool LsSol::CPreconditioner_ILU::SetValue(const LsSol::CLinearSystem& ls)
@@ -218,7 +220,7 @@ bool LsSol::CPreconditioner_ILU::SetValue(const LsSol::CLinearSystem& ls)
 	if( m_is_ordering ){
 		assert( nlss == 1 );
 		m_Matrix_Dia[0]->SetValue_Initialize( ls.GetMatrix(0), m_order );
-		m_Matrix_Dia[0]->DoILUDecomp();
+		if( !m_Matrix_Dia[0]->DoILUDecomp() ){ return false; }
 		return true;
 	}
         
@@ -251,13 +253,13 @@ bool LsSol::CPreconditioner_ILU::SetValue(const LsSol::CLinearSystem& ls)
             for(unsigned int klss=0;klss<ilss;klss++){
 				if( m_Matrix_NonDia[ilss][klss] && m_Matrix_NonDia[klss][ilss] ){
 //					std::cout << "ILU Frac Dia LowUp:" << ilss << " " << klss << " " << ilss << std::endl;
-					m_Matrix_Dia[ilss]->DoILUDecompLowUp( 
+					if( !m_Matrix_Dia[ilss]->DoILUDecompLowUp( 
 						*m_Matrix_NonDia[ilss][klss],
-						*m_Matrix_NonDia[klss][ilss] );
+						*m_Matrix_NonDia[klss][ilss] ) ){ return false; }
 				}
             }
 //		    std::cout << "ILU Frac Dia:" << ilss << std::endl;
-		    m_Matrix_Dia[ilss]->DoILUDecomp();
+			if( !m_Matrix_Dia[ilss]->DoILUDecomp() ){ return false; }
         }
         else{
             if( m_Matrix_NonDia[ilss][jlss] == 0 ) continue;
@@ -265,21 +267,21 @@ bool LsSol::CPreconditioner_ILU::SetValue(const LsSol::CLinearSystem& ls)
             for(unsigned int klss=0;klss<kmax+1;klss++){
                 if( klss == ilss && klss < jlss ){
 //				    std::cout << "ILU Frac Up:" << ilss << " " << klss << " " << jlss << std::endl;
-				    m_Matrix_NonDia[ilss][jlss]->DoILUDecompUp(  *m_Matrix_Dia[ilss] );
+					if( !m_Matrix_NonDia[ilss][jlss]->DoILUDecompUp(  *m_Matrix_Dia[ilss] ) ){ return false; }
                     continue;
                 }
                 if( klss == jlss && klss < ilss ){
 //				    std::cout << "ILU Frac Low:" << ilss << " " << klss << " " << jlss << std::endl;
-    			    m_Matrix_NonDia[ilss][jlss]->DoILUDecompLow( *m_Matrix_Dia[jlss] );
+					if( !m_Matrix_NonDia[ilss][jlss]->DoILUDecompLow( *m_Matrix_Dia[jlss] ) ){ return false; }
                     continue;
                 }
                 if( m_Matrix_NonDia[ilss][klss] == 0 || m_Matrix_NonDia[klss][jlss] == 0 ){ continue; }
                 assert( klss < ilss );
                 assert( klss < jlss );
 //				std::cout << "ILU Frac LowUp:" << ilss << " " << klss << " " << jlss << std::endl;
-                m_Matrix_NonDia[ilss][jlss]->DoILUDecompLowUp( 
+                if( !m_Matrix_NonDia[ilss][jlss]->DoILUDecompLowUp( 
 					*m_Matrix_NonDia[ilss][klss],
-					*m_Matrix_NonDia[klss][jlss] );
+					*m_Matrix_NonDia[klss][jlss] ) ){ return false; }
             }
         }
     }

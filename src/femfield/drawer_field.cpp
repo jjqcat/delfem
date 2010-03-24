@@ -96,7 +96,7 @@ static void GetColor( float color[], const double& val, const double& max, const
 CIndexArrayElem::CIndexArrayElem(unsigned int id_ea, unsigned int id_es, const Fem::Field::CFieldWorld& world)
 {
 //	std::cout << "CIndexArrayElem::CIndexArrayElem" << std::endl;
-	itype = 0; 
+	itype = ELEM_TYPE_NOT_SET; 
 	is_selected = false;
 	this->id_ea=id_ea;
 	this->id_es=id_es;
@@ -104,6 +104,7 @@ CIndexArrayElem::CIndexArrayElem(unsigned int id_ea, unsigned int id_es, const F
 	nElem = 0;
 	pIA_Elem = 0;
 	pColor = 0;
+	ilayer = 0;
 	////////////////
 	if( !world.IsIdEA(id_ea) ) return;
 	const CElemAry& ea = world.GetEA(id_ea);
@@ -131,7 +132,7 @@ bool View::CIndexArrayElem::Set_Line(unsigned int id_ea, unsigned int id_es,
 	if( !ea.IsSegID(id_es) ) return false;
 	if( ea.ElemType() != LINE ) return false;
 	////////////////
-	itype = 2;
+	itype = Fem::Field::LINE;
 	this->id_ea = id_ea;
 	this->id_es = id_es;
 	const CElemAry::CElemSeg& es = ea.GetSeg(id_es);
@@ -155,7 +156,7 @@ bool View::CIndexArrayElem::Set_Tri(unsigned int id_ea, unsigned int id_es,
 	if( !ea.IsSegID(id_es) ) return false;
 	if( ea.ElemType() != TRI ) return false;
 	////////////////
-	itype = 3;
+	itype = Fem::Field::TRI;
 	this->id_ea = id_ea;
 	this->id_es = id_es;
 	const CElemAry::CElemSeg& es = ea.GetSeg(id_es);
@@ -178,7 +179,7 @@ bool View::CIndexArrayElem::Set_Quad(unsigned int id_ea, unsigned int id_es,
 	if( !ea.IsSegID(id_es) ) return false;
 	if( ea.ElemType() != QUAD ) return false;
 	////////////////
-	itype = 4;
+	itype = Fem::Field::QUAD;
 	this->id_ea = id_ea;
 	this->id_es = id_es;
 	const CElemAry::CElemSeg& es = ea.GetSeg(id_es);
@@ -201,7 +202,7 @@ bool View::CIndexArrayElem::Set_Tet(unsigned int id_ea, unsigned int id_es, cons
 	if( !ea.IsSegID(id_es) ) return false;
 	if( ea.ElemType() != TET ) return false;
 	////////////////
-	itype = 5;
+	itype = Fem::Field::TET;
 	this->id_ea = id_ea;
 	this->id_es = id_es;
 	unsigned int id_es_add = 0;
@@ -225,7 +226,7 @@ bool View::CIndexArrayElem::Set_Hex(unsigned int id_ea, unsigned int id_es,
 	if( !ea.IsSegID(id_es) ) return false;
 	if( ea.ElemType() != HEX ) return false;
 	////////////////
-	itype = 6;
+	itype = Fem::Field::HEX;
 	this->id_ea = id_ea;
 	this->id_es = id_es;
 	unsigned int id_es_add = 0;
@@ -249,7 +250,7 @@ bool View::CIndexArrayElem::SetColor(
 		unsigned int id_es_v, unsigned int id_ns_v, const Fem::Field::CFieldWorld& world,
 		double min, double max )
 {
-	if( itype == 3 )	// TRI
+	if( itype == Fem::Field::TRI )	// TRI
 	{
 		if( !world.IsIdEA(id_ea) ) return false;
 		const CElemAry& ea = world.GetEA(id_ea);
@@ -273,7 +274,7 @@ bool View::CIndexArrayElem::SetColor(
 			Fem::Field::View::GetColor(pColor+itri*3,val, max,min);
 		}
 	}
-	else if( itype == 4 )
+	else if( itype == Fem::Field::QUAD )
 	{
 		if( !world.IsIdEA(id_ea) ) return false;
 		const CElemAry& ea = world.GetEA(id_ea);
@@ -297,7 +298,7 @@ bool View::CIndexArrayElem::SetColor(
 			Fem::Field::View::GetColor(pColor+iquad*3,val, max,min );
 		}
 	}
-	else if( itype == 5 )
+	else if( itype == Fem::Field::TET )
 	{
 		if( !world.IsIdEA(id_ea) ) return false;
 		const CElemAry& ea = world.GetEA(id_ea);
@@ -324,7 +325,7 @@ bool View::CIndexArrayElem::SetColor(
 			Fem::Field::View::GetColor(pColor+iface*3,val, max,min );
 		}
 	}
-	else if( itype == 6 )
+	else if( itype == Fem::Field::HEX )
 	{	
 		if( !world.IsIdEA(id_ea) ) return false;
 		const CElemAry& ea = world.GetEA(id_ea);
@@ -362,21 +363,21 @@ void View::CIndexArrayElem::DrawElements()
 {
 	if( this->pColor == 0 ){ 
 		::glColor3d(color[0],color[1],color[2]);
-		if(      itype == 2 )	// line
+		if(      itype == Fem::Field::LINE )	// line
 		{
 			::glDrawElements(GL_LINES,    nElem*2,GL_UNSIGNED_INT,this->pIA_Elem);
 		}
-		else if( itype == 3 || itype == 5 )	// tri 
+		else if( itype == Fem::Field::TRI  || itype == Fem::Field::TET )	// tri 
 		{
 			::glDrawElements(GL_TRIANGLES,nElem*3,GL_UNSIGNED_INT,this->pIA_Elem);
 		}
-		else if( itype == 4 || itype == 6 )	// quad
+		else if( itype == Fem::Field::QUAD || itype == Fem::Field::HEX )	// quad
 		{	
 			::glDrawElements(GL_QUADS,    nElem*4,GL_UNSIGNED_INT,this->pIA_Elem);
 		}
 		return;
 	}
-	if( itype == 4 || itype == 6 ){
+	if( itype == Fem::Field::QUAD || itype == Fem::Field::HEX ){
 		::glBegin(GL_QUADS);
 		for(unsigned int iface=0;iface<nElem;iface++){
 			::glColor3fv( pColor+iface*3 );
@@ -387,7 +388,7 @@ void View::CIndexArrayElem::DrawElements()
 		}
 		::glEnd();
 	}	
-	else if( itype == 3 || itype == 5 )
+	else if( itype == Fem::Field::TRI || itype == Fem::Field::TET )
 	{
 		::glBegin(GL_TRIANGLES);
 		for(unsigned int itri=0;itri<nElem;itri++){

@@ -146,21 +146,21 @@ bool SetNewProblem()
 		eqn_scalar.SetCapacity(30.0);
 		eqn_scalar.SetAdvection(0);
 
-		id_val_bc0 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(2,2),world);
+		id_val_bc0 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(2,Cad::LOOP),world);
 		{
 			CField& field = world.GetField(id_val_bc0);
 //			field.SetValue("cos(2*PI*t+0.1)",0,world,true);
-			field.SetValue("floor(1+0.8*cos(2*PI*t+0.1))",0,world,true);
+			field.SetValue("floor(1+0.8*cos(2*PI*t+0.1))",0,Fem::Field::VALUE,world,true);
 		}
-		id_val_bc1 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(1,1),world);
+		id_val_bc1 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(1,Cad::EDGE),world);
 		{
 			CField& field = world.GetField(id_val_bc1);
-			field.SetValue(1.0,0,world,false);
+			field.SetValue(1.0,0,Fem::Field::VALUE,world,false);
 		}
-		id_val_bc2 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(3,1),world);
+		id_val_bc2 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(3,Cad::EDGE),world);
 		{
 			CField& field = world.GetField(id_val_bc2);
-			field.SetValue(-1.0,0,world,false);
+			field.SetValue(-1.0,0,Fem::Field::VALUE,world,false);
 		}
 
 		// 描画オブジェクトの登録
@@ -196,23 +196,23 @@ bool SetNewProblem()
 		std::cout << "Velo : " << id_field_velo << std::endl;
 		{	// 流速場の設定
 			CField& field = world.GetField(id_field_velo);
-			field.SetVelocity(" (y-0.5)",0,world,false);
-			field.SetVelocity("-(x-0.5)" ,1,world,false);
+			field.SetValue(" (y-0.5)", 0,Fem::Field::VELOCITY,world,false);
+			field.SetValue("-(x-0.5)" ,1,Fem::Field::VELOCITY,world,false);
 		}
 		{	// 固定境界条件の設定
 			CField& field = world.GetField(id_val_bc0);
-			field.SetValue("floor(1+0.8*cos(3*t))",0,world,true);
+			field.SetValue("floor(1+0.8*cos(3*t))",0,Fem::Field::VALUE,world,true);
 		}
 		{	// 周囲の固定境界条件の設定
 			const CIDConvEAMshCad conv = world.GetIDConverter(id_base);
 			std::vector<unsigned int> m_aIDEA;
-			m_aIDEA.push_back(conv.GetIdEA_fromCad(1,1));
-			m_aIDEA.push_back(conv.GetIdEA_fromCad(2,1));
-			m_aIDEA.push_back(conv.GetIdEA_fromCad(3,1));
-			m_aIDEA.push_back(conv.GetIdEA_fromCad(4,1));
+			m_aIDEA.push_back(conv.GetIdEA_fromCad(1,Cad::EDGE));
+			m_aIDEA.push_back(conv.GetIdEA_fromCad(2,Cad::EDGE));
+			m_aIDEA.push_back(conv.GetIdEA_fromCad(3,Cad::EDGE));
+			m_aIDEA.push_back(conv.GetIdEA_fromCad(4,Cad::EDGE));
 			id_val_bc1 = eqn_scalar.AddFixElemAry(m_aIDEA,world);
 			CField& field = world.GetField(id_val_bc1);
-			field.SetValue(-1.0,0,world,false);
+			field.SetValue(-1.0,0,Fem::Field::VALUE,world,false);
 		}
 		eqn_scalar.SetSaveStiffMat(false);
 		eqn_scalar.SetStationary(false);
@@ -253,7 +253,7 @@ bool SetNewProblem()
 		world.Clear();
 		id_base = world.AddMesh( Msh::CMesher2D(cad_2d,0.05) );	// メッシュで表される場のハンドルを得る
 		const CIDConvEAMshCad& conv = world.GetIDConverter(id_base);
-		eqn_scalar.SetDomain_FieldElemAry(id_base,conv.GetIdEA_fromCad(2,2),world);
+		eqn_scalar.SetDomain_FieldElemAry(id_base,conv.GetIdEA_fromCad(2,Cad::LOOP),world);
 		eqn_scalar.SetSaveStiffMat(false);
 		eqn_scalar.SetStationary(true);
 		eqn_scalar.SetTimeIntegrationParameter(dt);
@@ -264,16 +264,16 @@ bool SetNewProblem()
 		eqn_scalar.SetCapacity(30.0);
 		eqn_scalar.SetAdvection(false);
 		// 境界条件の設定
-		id_val_bc0 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(2,1),world);
+		id_val_bc0 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(2,Cad::EDGE),world);
 		{
 			CField& field = world.GetField(id_val_bc0);
-			field.SetValue("cos(2*PI*t+0.1)",0,world,true);
+			field.SetValue("cos(2*PI*t+0.1)",0,Fem::Field::VALUE,world,true);
 //			field.SetValue("floor(1+0.8*cos(2*PI*t+0.1))",0,world,true);
 		}
-		id_val_bc1 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(3,1),world);
+		id_val_bc1 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(3,Cad::EDGE),world);
 		{
 			CField& field = world.GetField(id_val_bc1);
-			field.SetValue(1.0,0,world,false);
+			field.SetValue(1.0,0,Fem::Field::VALUE,world,false);
 		}
 
 		// 描画オブジェクトの登録
@@ -323,20 +323,20 @@ bool SetNewProblem()
 		eqn_scalar.SetAdvection(false);
 		eqn_scalar.SetSaveStiffMat(false);
 		{
-			Fem::Eqn::CEqn_Scalar2D eqn1 = eqn_scalar.GetEqnation(conv.GetIdEA_fromCad(2,2));
+			Fem::Eqn::CEqn_Scalar2D eqn1 = eqn_scalar.GetEqnation(conv.GetIdEA_fromCad(2,Cad::LOOP));
 			eqn1.SetAlpha(10.0);
 			eqn_scalar.SetEquation(eqn1);
 		}
 
-		id_val_bc0 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(3,1),world);
+		id_val_bc0 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(3,Cad::EDGE),world);
 		{
 			CField& field = world.GetField(id_val_bc0);
-			field.SetValue("cos(2*PI*t+0.1)",0,world,true);
+			field.SetValue("cos(2*PI*t+0.1)",0,Fem::Field::VALUE,world,true);
 		}
-		id_val_bc1 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(6,1),world);
+		id_val_bc1 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(6,Cad::EDGE),world);
 		{
 			CField& field = world.GetField(id_val_bc1);
-			field.SetValue(1.0,0,world,false);
+			field.SetValue(1.0,0,Fem::Field::VALUE,world,false);
 		}
 
 		// 描画オブジェクトの登録
@@ -385,13 +385,13 @@ bool SetNewProblem()
 		const unsigned int id_field_val = eqn_scalar.GetIdField_Value();
 		{
 			CField& field = world.GetField(id_field_val);
-			field.SetValue(500.0,0,world,false);
+			field.SetValue(500.0,0,Fem::Field::VALUE,world,false);
 		}
 
-		id_val_bc1 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(2,1),world);
+		id_val_bc1 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(2,Cad::EDGE),world);
 		{
 			CField& field = world.GetField(id_val_bc1);
-			field.SetValue(0,0,world,false);
+			field.SetValue(0,0,Fem::Field::VALUE,world,false);
 		}
 
 		// 描画オブジェクトの登録

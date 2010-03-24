@@ -45,7 +45,7 @@ void MakeMat_NavierStokes2D_NonStatic_Newmark_P1P1(
     const double coords[][2],
     const double velo[][2], const double acc[][2], const double press[], const double apress[],
     double eres_u[3][2], double eres_p[3],
-    double eCmat_uu[][3][2][2], double eCmat_up[][3][2], double eCmat_pu[][3][2], double eCmat_pp[][3], 
+    double eCmat_uu[][3][2][2], double eCmat_up[][3][2], double eCmat_pu[][3][2], double eCmat_pp[][3],
     double eMmat_uu[][3][2][2], double eMmat_pu[][3][2])   
 {
     const unsigned int nno = 3;
@@ -1360,7 +1360,7 @@ static bool AddLinearSystem_NavierStokesThermalBuoy2D_NonStatic_Newmark_P1P1_Com
 		const CFieldWorld& world, 
 		unsigned int id_ea )
 {
-//	std::cout << "NavierStorkesThermalBuoy2D_NonStatic_Newmark Tri11" << std::endl;
+//	std::cout << "NavierStorkesThermalBuoy2D_NonStatic_Newmark Tri11 Combined" << std::endl;
 
 	assert( world.IsIdEA(id_ea) );
 	const CElemAry& ea = world.GetEA(id_ea);
@@ -1508,8 +1508,23 @@ bool Fem::Eqn::AddLinSys_NavierStokes2DThermalBuoy_NonStatic_Newmark(
 
 	if( field_velo.GetFieldType()  != VECTOR2 ) return false;
 	if( field_press.GetFieldType() != SCALAR  ) return false;
-	  
+
 	const std::vector<unsigned int>& aIdEA = field_velo.GetAry_IdElemAry();
+	if(    ls.FindIndexArray_Seg(id_field_velo, CORNER,world) 
+		== ls.FindIndexArray_Seg(id_field_press,CORNER,world) ){
+		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
+			const unsigned int id_ea = aIdEA[iiea];
+			if( field_velo.GetInterpolationType(id_ea,world) == TRI11 ){
+				AddLinearSystem_NavierStokesThermalBuoy2D_NonStatic_Newmark_P1P1_Combined(
+					rho,alpha, g_x,g_y,
+					gamma,dt,
+					ls, id_field_velo,id_field_press,id_field_temp,
+					world,id_ea);
+			}
+		}
+		return true;
+	}
+	////////////////
 	for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 		const unsigned int id_ea = aIdEA[iiea];
 		if( field_velo.GetInterpolationType(id_ea,world) == TRI11 ){

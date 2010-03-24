@@ -23,6 +23,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 // assertion‚àŒ´‘¥‚µ‚È‚¢‚±‚Æ
 ////////////////////////////////////////////////////////////////
 
+#if defined(__VISUALC__)
+#pragma warning ( disable : 4786 )
+#pragma warning ( disable : 4996 )
+#endif
 #define for if(0);else for
 
 #if defined(_WIN32)
@@ -282,7 +286,8 @@ bool CDrawer_Cad2D::UpdateCAD_TopologyGeometry(const Cad::ICad2D &cad_2d)
 	mesh.Tesselation(cad_2d);
 
 	int ilayer_min, ilayer_max;
-	{
+	cad_2d.GetLayerMinMax(ilayer_min, ilayer_max);
+/*	{
 		const std::vector<unsigned int>& aIdL = cad_2d.GetAryElemID(Cad::LOOP);
 		{
 			assert( aIdL.size() > 0 );
@@ -296,7 +301,7 @@ bool CDrawer_Cad2D::UpdateCAD_TopologyGeometry(const Cad::ICad2D &cad_2d)
 			ilayer_min = ( ilayer < ilayer_min ) ? ilayer : ilayer_min;
 			ilayer_max = ( ilayer > ilayer_max ) ? ilayer : ilayer_max;
 		}
-	}
+	}*/
 	double layer_height = 1.0/(ilayer_max-ilayer_min+1); 
 
 	{	// –Ê‚ðƒZƒbƒg
@@ -305,7 +310,7 @@ bool CDrawer_Cad2D::UpdateCAD_TopologyGeometry(const Cad::ICad2D &cad_2d)
             const unsigned int id_l = aTriAry[ita].id_l_cad;
 			double height = 0;
 			{
-				unsigned int ilayer = cad_2d.GetLayer_Loop(id_l);
+				unsigned int ilayer = cad_2d.GetLayer(Cad::LOOP,id_l);
 				height = (ilayer-ilayer_min)*layer_height;
 			}
             unsigned int idp0 = 0;
@@ -336,17 +341,7 @@ bool CDrawer_Cad2D::UpdateCAD_TopologyGeometry(const Cad::ICad2D &cad_2d)
             const unsigned int id_e = aBarAry[ibar].id_e_cad;
 			double height = 0;
 			{
-				unsigned int id_l_l, id_l_r;
-				cad_2d.GetIdLoop_Edge(id_l_l,id_l_r,id_e);
-				int ilayer = ilayer_min;
-				if( cad_2d.IsElemID(Cad::LOOP,id_l_l) ){
-					const int ilayer_l = cad_2d.GetLayer_Loop(id_l_l);
-					ilayer =  ( ilayer_l > ilayer )	? ilayer_l : ilayer;
-				}
-				if( cad_2d.IsElemID(Cad::LOOP,id_l_r) ){
-					const int ilayer_r = cad_2d.GetLayer_Loop(id_l_r);
-					ilayer =  ( ilayer_r > ilayer )	? ilayer_r : ilayer;
-				}
+				int ilayer = cad_2d.GetLayer(Cad::EDGE,id_e);
 				height += (ilayer-ilayer_min+0.01)*layer_height;
 			}
             unsigned int idp0 = 0;
@@ -381,13 +376,7 @@ bool CDrawer_Cad2D::UpdateCAD_TopologyGeometry(const Cad::ICad2D &cad_2d)
 		assert( aVertex.size() > 0 );
 		for(unsigned int iver=0;iver<aVertex.size();iver++){
 			const unsigned int id_v_cad = aVertex[iver].id_v_cad;
-			int ilayer = ilayer_min;
-			for(std::auto_ptr<Cad::ICad2D::CItrVertex> itrv = cad_2d.GetItrVertex(id_v_cad);!itrv->IsEnd();(*itrv)++){
-				unsigned int id_l0 = itrv->GetIdLoop();
-				if( !cad_2d.IsElemID(Cad::LOOP,id_l0) ) continue;
-				const int ilayer0 = cad_2d.GetLayer_Loop(id_l0);
-				ilayer =  ( ilayer0 > ilayer )	? ilayer0 : ilayer;
-			}
+			int ilayer = cad_2d.GetLayer(Cad::VERTEX,id_v_cad);
 			const double height = (ilayer-ilayer_min+0.1)*layer_height;
 			CDrawPart_CadVertex dpv;
 			dpv.id_cad = id_v_cad;
@@ -518,7 +507,7 @@ void CDrawer_Cad2D::ClearSelected()
 		m_aIndexVertex[iv].is_selected = false;
 	}
 }
-
+/*
 void CDrawer_Cad2D::Hide(Cad::CAD_ELEM_TYPE part_type, unsigned int part_id)
 {
     if( part_type == Cad::EDGE || part_type == Cad::LOOP ){
@@ -537,23 +526,32 @@ void CDrawer_Cad2D::Hide(Cad::CAD_ELEM_TYPE part_type, unsigned int part_id)
 		}
 	}
 }
-
-void CDrawer_Cad2D::Show(Cad::CAD_ELEM_TYPE itype_part_cad, unsigned int id_part_cad)
+*/
+void CDrawer_Cad2D::SetIsShow(bool is_show, Cad::CAD_ELEM_TYPE itype_part_cad, unsigned int id_part_cad)
 {
     if( itype_part_cad == Cad::EDGE || itype_part_cad == Cad::LOOP ){
 		for(unsigned int iea=0;iea<m_apIndexAry.size();iea++){
             if(    m_apIndexAry[iea]->id_cad == id_part_cad
                 && m_apIndexAry[iea]->itype  == itype_part_cad ){
-				m_apIndexAry[iea]->is_show = true;
+				m_apIndexAry[iea]->is_show = is_show;
 			}
 		}
 	}
     else if( itype_part_cad == Cad::VERTEX ){
 		for(unsigned int iv=0;iv<this->m_aIndexVertex.size();iv++){
 			if( m_aIndexVertex[iv].id_cad == id_part_cad ){
-				m_aIndexVertex[iv].is_show = true;
+				m_aIndexVertex[iv].is_show = is_show;
 			}
 		}
+	}
+}
+
+void CDrawer_Cad2D::SetIsShow(bool is_show, 
+							  Cad::CAD_ELEM_TYPE itype_part_cad, const std::vector<unsigned int>& aIdPart )
+{
+	for(unsigned int i=0;i<aIdPart.size();i++){
+		unsigned int id = aIdPart[i];
+		this->SetIsShow(is_show,itype_part_cad,id);
 	}
 }
 
@@ -565,9 +563,9 @@ void CDrawer_Cad2D::HideEffected(const Cad::ICad2D& cad_2d,
 		for(std::auto_ptr<ICad2D::CItrVertex> itrv=cad_2d.GetItrVertex(id_v);!itrv->IsEnd();(*itrv)++){
 			unsigned int id_e0; bool is_same_dir0;
 			itrv->GetIdEdge_Behind(id_e0,is_same_dir0);
-			this->Hide(Cad::EDGE,id_e0);
+			this->SetIsShow(false,Cad::EDGE,id_e0);
 			const unsigned int id_l = itrv->GetIdLoop();
-			this->Hide(Cad::LOOP,id_l);
+			this->SetIsShow(false,Cad::LOOP,id_l);
 		}
 	}
     else if( part_type == Cad::EDGE ){
@@ -577,16 +575,16 @@ void CDrawer_Cad2D::HideEffected(const Cad::ICad2D& cad_2d,
 		for(std::auto_ptr<ICad2D::CItrVertex> itrv=cad_2d.GetItrVertex(id_vs);!itrv->IsEnd();(*itrv)++){
 			unsigned int id_e0; bool is_same_dir0;
 			itrv->GetIdEdge_Behind(id_e0,is_same_dir0);
-			this->Hide(Cad::EDGE,id_e0);
+			this->SetIsShow(false,Cad::EDGE,id_e0);
 			const unsigned int id_l = itrv->GetIdLoop();
-			this->Hide(Cad::LOOP,id_l);
+			this->SetIsShow(false,Cad::LOOP,id_l);
 		}		
 		for(std::auto_ptr<ICad2D::CItrVertex> itrv=cad_2d.GetItrVertex(id_ve);!itrv->IsEnd();(*itrv)++){
 			unsigned int id_e0; bool is_same_dir0;
 			itrv->GetIdEdge_Behind(id_e0,is_same_dir0);
-			this->Hide(Cad::EDGE,id_e0);
+			this->SetIsShow(false,Cad::EDGE,id_e0);
 			const unsigned int id_l = itrv->GetIdLoop();
-			this->Hide(Cad::LOOP,id_l);
+			this->SetIsShow(false,Cad::LOOP,id_l);
 		}
 	}
 }
@@ -600,9 +598,9 @@ void CDrawer_Cad2D::ShowEffected(const Cad::ICad2D& cad_2d,
 		for(std::auto_ptr<ICad2D::CItrVertex> itrv=cad_2d.GetItrVertex(id_v);!itrv->IsEnd();(*itrv)++){
 			unsigned int id_e0; bool is_same_dir0;
 			itrv->GetIdEdge_Behind(id_e0,is_same_dir0);
-			this->Show(Cad::EDGE,id_e0);
+			this->SetIsShow(true,Cad::EDGE,id_e0);
 			const unsigned int id_l = itrv->GetIdLoop();
-			this->Show(Cad::LOOP,id_l);
+			this->SetIsShow(true,Cad::LOOP,id_l);
 		}
 	}
 }

@@ -49,17 +49,21 @@ enum FIELD_DERIVATION_TYPE
 	ACCELERATION=4	//!< ２回時間微分された値(加速度)
 };
 
-// このネーミング規則分かりにくい．１年前には何らかのルールで決めたはずだけど忘れた．
+// このネーミング規則分かりにくいかも？
+// cbef(corner,bubble,edge,face)の順. 番号はそれぞれに幾つ頂点があるか．
+// [要素タイプ] (座標)[cbef],(値)[cbef]のように定義する
+// befのうち座標，値とも０ならば，後ろから(febの順に)省略してよい
+
 //! 要素の補間の種類
 enum INTERPOLATION_TYPE{
 	LINE11,		//!< 線分一次要素
 	TRI11,		//!< ３角形要素
-	TRI1001,	//!< ３角形要素一定補完
+	TRI1001,	//!< ３角形要素一定補間
 	TRI1011,	//!< ３角形バブル要素
-	TET11,		//!< 四面体一次補完
-	TET1001,	//!< 四面体要素一定補完
+	TET11,		//!< 四面体一次補間
+	TET1001,	//!< 四面体要素一定補間
 	HEX11,		//!< 六面体一次要素
-	HEX1001		//!< 六面体要素一定補完
+	HEX1001		//!< 六面体要素一定補間
 };	
 
 /*! 
@@ -72,11 +76,6 @@ public:
 	//! 要素Segment保管クラス
 	class CElemInterpolation{
 	public:
-		unsigned int id_ea;
-		unsigned int id_es_c_va, id_es_c_co;	// indexをそのうち加える
-		unsigned int id_es_e_va, id_es_e_co;	// indexをそのうち加える
-		unsigned int id_es_b_va, id_es_b_co;	// indexをそのうち加える
-	public:
 		CElemInterpolation(unsigned int id_ea, 
 			unsigned int id_es_c_va, unsigned int id_es_c_co,
 			unsigned int id_es_e_va, unsigned int id_es_e_co,
@@ -84,7 +83,14 @@ public:
 			: id_ea(id_ea), 
 			id_es_c_va(id_es_c_va), id_es_c_co(id_es_c_co),
 			id_es_e_va(id_es_e_va), id_es_e_co(id_es_e_co),
-			id_es_b_va(id_es_b_va), id_es_b_co(id_es_b_co){}
+			id_es_b_va(id_es_b_va), id_es_b_co(id_es_b_co),
+			ilayer(0){}
+	public:
+		unsigned int id_ea;	//!< ID of element array
+		unsigned int id_es_c_va, id_es_c_co;	//!< ID of element segment of corner (value or coordinate )
+		unsigned int id_es_e_va, id_es_e_co;	//!< ID of element segment of edge   (value or coordinate )
+		unsigned int id_es_b_va, id_es_b_co;	//!< ID of element segment of bubble (value or coordinate )
+		int ilayer;
 	};
 public: 
 	//! 節点Segment保管クラス
@@ -215,29 +221,26 @@ public:
 	void SetName(const std::string&  name){ m_name = name; }
 	// 場の追加
 	bool SetValueType( Field::FIELD_TYPE field_type, const int fdt, CFieldWorld& world);
+	int GetLayer(unsigned int id_ea) const;
 
 	////////////////////////////////
 	// 値を設定する関数
 
 	//! セーブされた値を全自由度にセットする
 	bool ExecuteValue(double time, CFieldWorld& world);
-	//! 定数倍する
-	void ScaleVelocity(double scale, CFieldWorld& world);
+	//! 定数をセーブ＆セットする
+	void SetValue(double val, unsigned int idofns, FIELD_DERIVATION_TYPE fdt, CFieldWorld& world, bool is_save);
+	//! 数式をセーブ＆セットする
+	bool SetValue(std::string str_exp, unsigned int idofns, FIELD_DERIVATION_TYPE fdt, CFieldWorld& world, bool is_save);
 	//! 乱数場をセーブ＆セットする
 	void SetValueRandom(CFieldWorld& world) const;
-	//! 定数をセーブ＆セットする
-	void SetValue(       double val, unsigned int idofns, CFieldWorld& world, bool is_save);
-	void SetVelocity(    double val, unsigned int idofns, CFieldWorld& world, bool is_save);
-	void SetAcceleration(double val, unsigned int idofns, CFieldWorld& world, bool is_save);
-	//! 数式をセーブ＆セットする
-	bool SetValue(       std::string str_exp,unsigned int idofns, CFieldWorld& world, bool is_save);
-	bool SetVelocity(    std::string str_exp,unsigned int idofns, CFieldWorld& world, bool is_save);
-	bool SetAcceleration(std::string str_exp,unsigned int idofns, CFieldWorld& world, bool is_save);
 	//! 別の場の値をコピーしてセットする
 	void SetVelocity(unsigned int id_field, CFieldWorld& world);
-	//! 勾配をセットする(そのうち廃止予定)
+	//! 勾配をセットする
 	bool SetGradient(unsigned int id_field, CFieldWorld& world, bool is_save);
 	
+	// TODO: 一度この関数を呼んだら，次に呼んだ時は高速に処理されるように，ハッシュを構築する
+	// TODO: 座標やコネクティビティの変更があった場合は，ハッシュを削除する
 	bool FindVelocityAtPoint(double velo[], 
 		unsigned int& id_ea_stat, unsigned int& ielem_stat, double& r1, double& r2,
 		const double co[], const Fem::Field::CFieldWorld& world ) const;

@@ -52,22 +52,24 @@ namespace Msh{
 //! 頂点構造体
 struct SVertex{
 public:
-	SVertex() : id(0), id_v_cad(0){}
+	SVertex() : id(0), id_v_cad(0), ilayer(0){}
 public:
 	unsigned int id;	//!< ID
 	unsigned int id_v_cad;	//!< CADの頂点ID（CADに関連されてなければ０）
+	int ilayer;
 	unsigned int v;	//!< 点のID
 };
 
 //! 線要素配列
 class CBarAry{
 public:
-	CBarAry() : id(0), id_e_cad(0){}
+	CBarAry() : id(0), id_e_cad(0), ilayer(0){}
 public:
 	unsigned int id;	//!< ID
 	unsigned int id_e_cad;	//!< CADの辺ID（CADに関連されてなければ０）
 	unsigned int id_se[2];
 	unsigned int id_lr[2];
+	int ilayer;
 	std::vector<SBar> m_aBar;	//!< 辺要素の配列
 };
 
@@ -134,10 +136,10 @@ public:
     { 
 		const int itype = m_ElemType[id_msh];
 		const int iloc = m_ElemLoc[id_msh];
-		if(      itype == 0 ){ id_cad = m_aVertex[ iloc].id_v_cad; }
-		else if( itype == 1 ){ id_cad = m_aBarAry[ iloc].id_e_cad; }
-		else if( itype == 2 ){ id_cad = m_aTriAry[ iloc].id_l_cad; }
-        else if( itype == 3 ){ id_cad = m_aQuadAry[iloc].id_l_cad; }
+		if(      itype == 0 ){ id_cad=m_aVertex[ iloc].id_v_cad; ilayer=m_aVertex[ iloc].ilayer; }
+		else if( itype == 1 ){ id_cad=m_aBarAry[ iloc].id_e_cad; ilayer=m_aBarAry[ iloc].ilayer; }
+		else if( itype == 2 ){ id_cad=m_aTriAry[ iloc].id_l_cad; ilayer=m_aTriAry[ iloc].ilayer; }
+        else if( itype == 3 ){ id_cad=m_aQuadAry[iloc].id_l_cad; ilayer=m_aQuadAry[iloc].ilayer; }
 		else{ assert(0); }
         id_msh_before_ext = 0;
         inum_ext = 0;
@@ -170,7 +172,7 @@ public:
 	/*! メッシュの接続関係を取得する
 	コピーを無くしたデータの受け渡しを実装する予定
 	*/
-	MSH_TYPE GetConnectivity(unsigned int id_msh,std::vector<int>& lnods) const;
+    virtual MSH_TYPE GetConnectivity(unsigned int id_msh,std::vector<int>& lnods) const;
 
 	bool GetClipedMesh(
 		std::vector< std::vector<int> >& lnods_tri, 

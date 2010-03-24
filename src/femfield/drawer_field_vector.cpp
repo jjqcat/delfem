@@ -75,7 +75,8 @@ Com::CBoundingBox CDrawerVector::GetBoundingBox( double rot[] ) const{
 	return m_paVer->GetBoundingBox(rot);
 }
 
-bool CDrawerVector::Update(const Fem::Field::CFieldWorld& world){
+bool CDrawerVector::Update(const Fem::Field::CFieldWorld& world)
+{
 	const Fem::Field::CField& field = world.GetField(id_field);
 
 	if( field.IsPartial() ){
@@ -86,30 +87,56 @@ bool CDrawerVector::Update(const Fem::Field::CFieldWorld& world){
 
 	nline = 0;
 	{
-		{	// 頂点配列をセット
-			unsigned int id_na_val = field.GetNodeSegInNodeAry(CORNER).id_na_va;
-			if( id_na_val !=  0 ){
-				assert( world.IsIdNA(id_na_val) );
-				const Fem::Field::CNodeAry& na_val = world.GetNA(id_na_val);
-				nline += na_val.Size();
-			}
-		}	
-		{	// 頂点配列をセット
-			unsigned int id_na_val = field.GetNodeSegInNodeAry(BUBBLE).id_na_va;
-			if( id_na_val != 0 ){
-				assert( world.IsIdNA(id_na_val) );
-				const Fem::Field::CNodeAry& na_val = world.GetNA(id_na_val);
-				nline += na_val.Size();
-			}
+		// 頂点配列をセット(CORNER)
+		unsigned int id_na_val_c = field.GetNodeSegInNodeAry(CORNER).id_na_va;
+		if( id_na_val_c !=  0 ){
+			assert( world.IsIdNA(id_na_val_c) );
+			const Fem::Field::CNodeAry& na_val = world.GetNA(id_na_val_c);
+			nline += na_val.Size();
+		}
+		// 頂点配列をセット(BUBBLE)
+		unsigned int id_na_val_b = field.GetNodeSegInNodeAry(BUBBLE).id_na_va;
+		if( id_na_val_b != 0 ){
+			assert( world.IsIdNA(id_na_val_b) );
+			const Fem::Field::CNodeAry& na_val = world.GetNA(id_na_val_b);
+			nline += na_val.Size();
 		}
 	}
 
-	const unsigned int ndim = field.GetNDimCoord();
-	if( m_paVer == 0 ){	m_paVer = new Com::View::CVertexArray(2*nline,ndim); }
-	else if( m_paVer->NDim() != ndim || m_paVer->NPoin() != 2*nline ){ 
-		assert(0);
-		return false; 
+	int ilayer_min, ilayer_max;
+	{
+		const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+		if( aIdEA.size() > 0 ){
+			ilayer_min = field.GetLayer(aIdEA[0]);
+			ilayer_max = ilayer_min;
+		}
+		else{ ilayer_min=0; ilayer_max=0; }
+		for(unsigned int iiea=1;iiea<aIdEA.size();iiea++){
+			int ilayer = field.GetLayer(aIdEA[iiea]);
+			ilayer_min = ( ilayer < ilayer_min ) ? ilayer : ilayer_min;
+			ilayer_max = ( ilayer > ilayer_max ) ? ilayer : ilayer_max;
+		}
 	}
+
+//	std::cout << ilayer_min << " " << ilayer_max << std::endl;
+
+	const unsigned int ndim_co = field.GetNDimCoord();
+	if( m_paVer == 0 ){
+		if( ilayer_min == ilayer_max ){
+			m_paVer = new Com::View::CVertexArray(2*nline,ndim_co); 
+		}
+		else{
+			assert( ndim_co == 2 );
+			m_paVer = new Com::View::CVertexArray(2*nline,3); 
+		}
+	}
+	else{
+		assert( m_paVer->NPoin() == 2*nline );
+		if( ilayer_min == ilayer_max ){ assert( m_paVer->NDim() == ndim_co ); }
+		else{ assert( ndim_co == 2 && m_paVer->NDim() == 3 ); }
+	}
+
+	const unsigned int ndim_va = m_paVer->NDim();
 
 	unsigned int icoun = 0;
 	// コーナー節点についてベクトルを作る
@@ -127,7 +154,6 @@ bool CDrawerVector::Update(const Fem::Field::CFieldWorld& world){
 		}
 		assert( na_c_val.IsSegID(id_ns_c_v) );
 		const Fem::Field::CNodeAry::CNodeSeg& ns_c_val = na_c_val.GetSeg(id_ns_c_v);
-		assert( ndim == ns_c_val.GetLength() );
 		assert( world.IsIdNA(nsna_c.id_na_co) );
 		const Fem::Field::CNodeAry& na_c_co = world.GetNA(nsna_c.id_na_co);
 		const CNodeAry::CNodeSeg& ns_c_co = na_c_co.GetSeg(nsna_c.id_ns_co);
@@ -136,9 +162,35 @@ bool CDrawerVector::Update(const Fem::Field::CFieldWorld& world){
 			unsigned int ipoin_co = field.GetMapVal2Co(ipoin);
 			ns_c_co.GetValue(ipoin_co,coord);
 			ns_c_val.GetValue(ipoin,value);
-			for(unsigned int idim=0;idim<ndim;idim++){	// 点０の座標をセット
-				m_paVer->pVertexArray[ipoin*2*ndim     +idim] = coord[idim];
-				m_paVer->pVertexArray[ipoin*2*ndim+ndim+idim] = coord[idim]+value[idim];
+			for(unsigned int idim=0;idim<ndim_co;idim++){	// 点０の座標をセット
+				m_paVer->pVertexArray[ipoin*2*ndim_va        +idim] = coord[idim];
+				m_paVer->pVertexArray[ipoin*2*ndim_va+ndim_va+idim] = coord[idim]+value[idim];
+			}
+			if( ilayer_min != ilayer_max ){
+				assert( ndim_co == 2 );
+				assert( ndim_va == 3 );
+				m_paVer->pVertexArray[ipoin*2*ndim_va        +2] = 0;
+				m_paVer->pVertexArray[ipoin*2*ndim_va+ndim_va+2] = 0;
+			}
+		}
+		if( ilayer_min != ilayer_max ){
+			const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+			for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
+				const unsigned int id_ea = aIdEA[iiea];
+				const int ilayer = field.GetLayer(id_ea);
+				const double height = (ilayer+0.01-ilayer_min)/(1+ilayer_max-ilayer_min);
+				const CElemAry::CElemSeg& es = field.GetElemSeg(id_ea,CORNER,true,world);
+				const unsigned int nnoes = es.GetSizeNoes();
+				assert( nnoes < 16 );
+				unsigned int noes[16];
+				for(unsigned int ielem=0;ielem<es.GetSizeElem();ielem++){
+					es.GetNodes(ielem,noes);
+					for(unsigned int inoes=0;inoes<nnoes;inoes++){
+						unsigned int ipo0 = noes[inoes];
+						m_paVer->pVertexArray[ipo0*2*ndim_va        +2] = height;
+						m_paVer->pVertexArray[ipo0*2*ndim_va+ndim_va+2] = height;
+					}
+				}
 			}
 		}
 		icoun = npoin_va;
@@ -157,7 +209,7 @@ bool CDrawerVector::Update(const Fem::Field::CFieldWorld& world){
 		}
 		assert( na_val.IsSegID(id_ns_v) );
 		const Fem::Field::CNodeAry::CNodeSeg& ns_val = na_val.GetSeg(id_ns_v);
-		assert( ndim == ns_val.GetLength() );
+		assert( ndim_co == ns_val.GetLength() );
 		if( world.IsIdNA(nsna_b.id_na_co) ){
 //			std::cout << "バブルで対応する座標節点がある場合" << std::endl;
 			const Fem::Field::CNodeAry& na_co = world.GetNA(nsna_b.id_na_co);
@@ -167,9 +219,9 @@ bool CDrawerVector::Update(const Fem::Field::CFieldWorld& world){
 				unsigned int ipoin_co = field.GetMapVal2Co(ipoin);
 				ns_co.GetValue(ipoin_co,coord);
 				ns_val.GetValue(ipoin,value);
-				for(unsigned int idim=0;idim<ndim;idim++){	// 点０の座標をセット
-					m_paVer->pVertexArray[(icoun+ipoin)*2*ndim     +idim] = coord[idim];
-					m_paVer->pVertexArray[(icoun+ipoin)*2*ndim+ndim+idim] = coord[idim]+value[idim];
+				for(unsigned int idim=0;idim<ndim_co;idim++){	// 点０の座標をセット
+					m_paVer->pVertexArray[(icoun+ipoin)*2*ndim_va       +idim] = coord[idim];
+					m_paVer->pVertexArray[(icoun+ipoin)*2*ndim_va+ndim_va+idim] = coord[idim]+value[idim];
 				}
 			}
 		}
@@ -196,7 +248,7 @@ bool CDrawerVector::Update(const Fem::Field::CFieldWorld& world){
 				for(unsigned int ielem=0;ielem<ea.Size();ielem++){
 					double coord_cnt[3];
 					{	// 要素の中心の座標を取得
-						for(unsigned int idim=0;idim<ndim;idim++){ coord_cnt[idim] = 0.0; }
+						for(unsigned int idim=0;idim<ndim_co;idim++){ coord_cnt[idim] = 0.0; }
 						const unsigned int nnoes = es_c_co.GetSizeNoes();
 						es_c_co.GetNodes(ielem,noes);
 						double coord[3];
@@ -204,11 +256,11 @@ bool CDrawerVector::Update(const Fem::Field::CFieldWorld& world){
 							unsigned int ipoi0 = noes[inoes];
 							assert( ipoi0 < na_c_co.Size() );
 							ns_c_co.GetValue(ipoi0,coord);
-							for(unsigned int idim=0;idim<ndim;idim++){
+							for(unsigned int idim=0;idim<ndim_co;idim++){
 								coord_cnt[idim] += coord[idim];
 							}
 						}
-						for(unsigned int idim=0;idim<ndim;idim++){ coord_cnt[idim] /= nnoes; }
+						for(unsigned int idim=0;idim<ndim_co;idim++){ coord_cnt[idim] /= nnoes; }
 					}
 					double value[3];
 					{	// バブル節点の値を取得
@@ -217,9 +269,9 @@ bool CDrawerVector::Update(const Fem::Field::CFieldWorld& world){
 						assert( ipoi0 < na_va.Size() );
 						ns_val.GetValue(ipoi0,value);
 					}
-					for(unsigned int idim=0;idim<ndim;idim++){	// 点０の座標をセット
-						m_paVer->pVertexArray[icoun*2*ndim     +idim] = coord_cnt[idim];
-						m_paVer->pVertexArray[icoun*2*ndim+ndim+idim] = coord_cnt[idim]+value[idim];
+					for(unsigned int idim=0;idim<ndim_co;idim++){	// 点０の座標をセット
+						m_paVer->pVertexArray[icoun*2*ndim_va        +idim] = coord_cnt[idim];
+						m_paVer->pVertexArray[icoun*2*ndim_va+ndim_va+idim] = coord_cnt[idim]+value[idim];
 					}
 					icoun++;
 				} // end ielem
@@ -235,12 +287,11 @@ bool CDrawerVector::Set(unsigned int id_field, const Fem::Field::CFieldWorld& wo
 	this->id_field = id_field;
 	if( m_paVer != 0 ){ delete m_paVer; m_paVer=0; }
 	this->Update(world);
-	unsigned int ndim = m_paVer->NDim();
-	if( ndim == 2 ){
-		this->sutable_rot_mode = 1;
-	}
-	else if( ndim == 3 ){
-		this->sutable_rot_mode = 3;
+	{
+		const CField& field = world.GetField(id_field);
+		unsigned int ndim = field.GetNDimCoord();
+		if(      ndim == 2 ){ this->sutable_rot_mode = 1; }
+		else if( ndim == 3 ){ this->sutable_rot_mode = 3; }
 	}
 	return true;
 }

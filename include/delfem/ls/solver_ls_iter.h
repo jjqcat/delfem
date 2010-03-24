@@ -34,13 +34,13 @@ namespace LsSol{
 //! CG法
 bool Solve_CG(double& conv_ratio, unsigned int& num_iter, 
 		ILinearSystem_Sol& ls);
-//! 前処理付きCG法			  
+//! 前処理付きCG法
 bool Solve_PCG(double& conv_ratio,unsigned int& iteration, 
 		ILinearSystemPreconditioner_Sol& lsp);
 //! BiCGSTAB法
 bool Solve_BiCGSTAB(double& conv_ratio, unsigned int& num_iter, 
         ILinearSystem_Sol& ls);
-//! 前処理付きBiCGSTAB法                    
+//! 前処理付きBiCGSTAB法
 bool Solve_PBiCGSTAB(double& conv_ratio, unsigned int& num_iter, 
 		ILinearSystemPreconditioner_Sol& ls);
 //@}

@@ -44,7 +44,7 @@ namespace Field{
 }
 namespace Eqn{
 
-//! ˜A—§ˆêŽŸ•û’öŽ®ƒNƒ‰ƒX
+//! interface class of linear system for equation
 class ILinearSystem_Eqn
 {
 public:
@@ -66,9 +66,8 @@ public:
         const Fem::Field::CFieldWorld& world) = 0;
 public:
 };
-
-
-}
-}
+	
+}	// Eqn
+}	// Fem
 
 #endif

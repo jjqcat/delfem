@@ -49,9 +49,9 @@ public:
 private:
 	bool Set(unsigned int id_field, const Fem::Field::CFieldWorld& world );
 private:
+	unsigned int id_field;
 	unsigned int nline;	// •Ó‚Ì”
 	Com::View::CVertexArray* m_paVer;	// ’¸“_”z—ñ
-	unsigned int id_field;
 };
 
 }

@@ -202,17 +202,17 @@ public:
 		e.reserve(32);
 		n.reserve(32);
 	}
-	std::vector< std::pair<int,unsigned int> > e;
-	std::vector< int > n;
-	int nod;
-	int nou;
+    std::vector< std::pair<unsigned int,unsigned int> > e;
+    std::vector< unsigned int > n;
+    unsigned int nod;
+    unsigned int nou;
 	bool is_inner;
 public:
 	void clear(){
 		e.clear();
 		n.clear();
 	}
-	int size() const {
+    unsigned int size() const {
 		return e.size();
 	}
 };
@@ -330,7 +330,7 @@ struct SHex{
 struct STri3D{
 	unsigned int v[3];	//<! ’¸“_‚ÌIndex
 	////////////////
-	int s2[3];	//<! —×Ú—v‘f‚ÌIndex
+    unsigned int s2[3];	//<! —×Ú—v‘f‚ÌIndex
 	int g2[3];
 	unsigned int r2[3];
 	////////////////

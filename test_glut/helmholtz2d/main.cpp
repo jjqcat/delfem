@@ -126,13 +126,13 @@ bool SetNewProblem()
 		unsigned int id_field_bc1;
 		{
 			std::vector<unsigned int> aEA;
-			aEA.push_back( conv.GetIdEA_fromCad(1,1) );
-			aEA.push_back( conv.GetIdEA_fromCad(2,1) );
-			aEA.push_back( conv.GetIdEA_fromCad(3,1) );
-			aEA.push_back( conv.GetIdEA_fromCad(4,1) );
+			aEA.push_back( conv.GetIdEA_fromCad(1,Cad::EDGE) );
+			aEA.push_back( conv.GetIdEA_fromCad(2,Cad::EDGE) );
+			aEA.push_back( conv.GetIdEA_fromCad(3,Cad::EDGE) );
+			aEA.push_back( conv.GetIdEA_fromCad(4,Cad::EDGE) );
 			id_field_bc1 = world.GetPartialField(id_field_val,aEA);
 			CField& field = world.GetField(id_field_bc1);
-			field.SetValue(1,0,world,false);
+			field.SetValue(1,0,Fem::Field::VALUE,world,false);
 		}
 
 		CZLinearSystem ls;
@@ -151,7 +151,7 @@ bool SetNewProblem()
 		prec.SetValue(ls);
 
 		{
-			const unsigned int id_ea_v = conv.GetIdEA_fromCad(id_v,0);
+			const unsigned int id_ea_v = conv.GetIdEA_fromCad(id_v,Cad::VERTEX);
 			std::cout << id_ea_v << std::endl;
 			const CElemAry& ea = world.GetEA(id_ea_v);
 			const CElemAry::CElemSeg& es = ea.GetSeg(1);

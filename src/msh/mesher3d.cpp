@@ -364,7 +364,7 @@ bool Msh::CMesher3D::HomogenizeSurface(double elen)
 			ntri_around = 0;
 			double node_extent = 0.0;
 			double max_edge_extent = 0.0;
-			unsigned int itri_max, inotri_max;
+            unsigned int itri_max=0, inotri_max=0;
 			{
 				CVector3D vec_new = aVec[ivec0] + vec_delta;
 				CVector3D norm_i;

@@ -28,9 +28,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define DRAWER_FIELD_H
 
 #include "delfem/field_world.h"
-
 #include "delfem/drawer.h"
 #include "delfem/drawer_gl_utility.h"
+#include "delfem/elem_ary.h"
 
 namespace Fem{
 namespace Field{
@@ -63,8 +63,11 @@ private:
 	bool Set_Quad(unsigned int id_ea, unsigned int id_es, const Fem::Field::CFieldWorld& world);
 	bool Set_Tet( unsigned int id_ea, unsigned int id_es, const Fem::Field::CFieldWorld& world);
 	bool Set_Hex( unsigned int id_ea, unsigned int id_es, const Fem::Field::CFieldWorld& world);
+public:
+	int ilayer;
 private:
-	int itype; // 0:none 1:vertex 2:line 3:tri 4:quad 5:tet 6:hex
+	// これはelem_ary.hで定義されているELEM_TYPEを使うべき
+	Fem::Field::ELEM_TYPE itype; // 0:none 1:vertex 2:line 3:tri 4:quad 5:tet 6:hex	
 	bool is_selected;
 	unsigned int id_ea;
 	unsigned int id_es;
@@ -74,7 +77,7 @@ private:
 	unsigned int* pIA_Elem;
 	////////////////
 	float* pColor;
-	std::vector<unsigned int> aIndElem;
+	std::vector<unsigned int> aIndElem;	// tetやhexの面から，要素idexへのマップ
 };
 
 //! Vertexのインデックスを格納するクラス

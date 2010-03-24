@@ -72,16 +72,17 @@ protected:
 
 	unsigned int m_id_field;
 	bool m_isnt_value_disp;
-	bool m_is_draw_nsv;	// value‚ÌNS‚ğ•`‰æ‚·‚é‚©coord‚ÌNS‚ğ•`‰æ‚·‚é‚©DValue‚Ìns_c‚ª–³‚¯‚ê‚ÎCoord‚Ìns_c‚ğ•`‰æ‚·‚é
+	bool m_is_draw_nsv;	//!< value‚ÌNS‚ğ•`‰æ‚·‚é‚©coord‚ÌNS‚ğ•`‰æ‚·‚é‚©DValue‚Ìns_c‚ª–³‚¯‚ê‚ÎCoord‚Ìns_c‚ğ•`‰æ‚·‚é
 
 	////////////////
 	unsigned int id_field_val;
-	float* pColorArray;	// Color”z—ñ
-	bool is_min_max_set;
-	double min_val, max_val;
 
+	// Color
+	float* pColorArray;	//!< array of color ( rgb for each node )
+	bool is_min_max_set;	//!< true : min-max for color contor is fixed,   false : find min-max each iterations
+	double min_val, max_val;
+	bool is_draw_color_legend;
 	////////////////
-	
 };
 
 }	// View

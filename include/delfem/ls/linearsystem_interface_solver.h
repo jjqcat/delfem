@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 namespace LsSol{
 
 /*! 
-@brief 連立一次方程式クラス
+@brief interface class of linear system for solver
 @ingroup LsSol
 */
 class ILinearSystem_Sol
@@ -57,7 +57,7 @@ public:
 
 
 /*! 
-@brief 連立一次方程式と前処理行列クラスの抽象クラス
+@brief Interface class of linear system and preconditioner for solver
 @ingroup LsSol
 */
 class ILinearSystemPreconditioner_Sol

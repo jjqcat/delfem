@@ -107,9 +107,13 @@ public:
 	}
 	////////////////////////////////////////////////
 	// 構成要素へのアクセス
-
 	virtual bool IsElemID(Cad::CAD_ELEM_TYPE,unsigned int id) const;
 	virtual const std::vector<unsigned int> GetAryElemID(Cad::CAD_ELEM_TYPE itype) const;
+
+	////////////////////////////////
+	// レイヤ関係の関数
+    virtual int GetLayer(Cad::CAD_ELEM_TYPE, unsigned int id) const;
+	virtual void GetLayerMinMax(int& layer_min, int& layer_max) const;
 
 	////////////////////////////////
 	// ループのメンバ関数
@@ -121,8 +125,7 @@ public:
     virtual bool SetColor_Loop(unsigned int id_l, const double color[3] );
 	//! ID:id_lのループの面積を返えす
 	virtual double GetArea_Loop(unsigned int id_l) const;
-    virtual int GetLayer_Loop(unsigned int id_l ) const;
-	bool ShiftLayer(unsigned int id_l, bool is_up);
+	bool ShiftLayer_Loop(unsigned int id_l, bool is_up);
 	//! @}
 
 	////////////////////////////////

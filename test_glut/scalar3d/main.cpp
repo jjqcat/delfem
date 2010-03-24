@@ -128,20 +128,20 @@ bool SetNewProblem()
 		eqn_scalar.SetDomain(id_base,world);
 		eqn_scalar.SetAlpha(1.0);
 		eqn_scalar.SetTimeIntegrationParameter(dt);
-		unsigned int id_val_bc0 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(1,1,1),world);
+		unsigned int id_val_bc0 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(1,Cad::EDGE,1),world);
 		{
 			CField& field = world.GetField(id_val_bc0);
-			field.SetValue("cos(2*PI*t+0.1)",0,world,true);
+			field.SetValue("cos(2*PI*t+0.1)", 0,Fem::Field::VALUE, world,true);
 		}
-		unsigned int id_val_bc1 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(2,1,2),world);
+		unsigned int id_val_bc1 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(2,Cad::EDGE,2),world);
 		{
 			CField& field = world.GetField(id_val_bc1);
-			field.SetValue(1.0,0,world,false);
+			field.SetValue(1.0,0,Fem::Field::VALUE,world,false);
 		}
-		unsigned int id_val_bc2 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(1,1,2),world);
+		unsigned int id_val_bc2 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(1,Cad::EDGE,2),world);
 		{
 			CField& field = world.GetField(id_val_bc1);
-			field.SetValue("sin(2*PI*t+0.1)",0,world,true);
+			field.SetValue("sin(2*PI*t+0.1)", 0,Fem::Field::VALUE, world,true);
 		}
 		// 描画オブジェクトの登録
 		drawer_ary.Clear();
@@ -166,17 +166,17 @@ bool SetNewProblem()
 		unsigned int id_val_bc0 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromMshExtrude(1,1),world);
 		{
 			CField& field = world.GetField(id_val_bc0);
-			field.SetValue("cos(2*PI*t+0.1)",0,world,true);
+			field.SetValue("cos(2*PI*t+0.1)", 0,Fem::Field::VALUE, world,true);
 		}
 		unsigned int id_val_bc1 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromMshExtrude(3,2),world);
 		{
 			CField& field = world.GetField(id_val_bc1);
-			field.SetValue(1.0,0,world,false);
+			field.SetValue(1.0,0,Fem::Field::VALUE,world,false);
 		}
 		unsigned int id_val_bc2 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromMshExtrude(1,3),world);
 		{
 			CField& field = world.GetField(id_val_bc1);
-			field.SetValue("sin(2*PI*t+0.1)",0,world,true);
+			field.SetValue("sin(2*PI*t+0.1)", 0,Fem::Field::VALUE, world,true);
 		}
 		// 描画オブジェクトの登録
 		drawer_ary.Clear();
@@ -201,17 +201,17 @@ bool SetNewProblem()
 		unsigned int id_val_bc0 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromMshExtrude(10,2),world);
 		{
 			CField& field = world.GetField(id_val_bc0);
-			field.SetValue("cos(2*PI*t+0.1)",0,world,true);
+			field.SetValue("cos(2*PI*t+0.1)", 0,Fem::Field::VALUE, world,true);
 		}
 		unsigned int id_val_bc1 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromMshExtrude(1,1),world);
 		{
 			CField& field = world.GetField(id_val_bc1);
-			field.SetValue(1.0,0,world,false);
+			field.SetValue(1.0,0,Fem::Field::VALUE,world,false);
 		}
 		unsigned int id_val_bc2 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromMshExtrude(11,2),world);
 		{
 			CField& field = world.GetField(id_val_bc2);
-			field.SetValue("sin(2*PI*t+0.1)",0,world,true);
+			field.SetValue("sin(2*PI*t+0.1)", 0,Fem::Field::VALUE, world,true);
 		}
 		// 描画オブジェクトの登録
 		drawer_ary.Clear();
@@ -233,12 +233,12 @@ bool SetNewProblem()
 		unsigned int id_val_bc0 = eqn_scalar.AddFixElemAry(3,world);
 		{
 			CField& field = world.GetField(id_val_bc0);
-			field.SetValue("cos(2*PI*t+0.1)",0,world,true);
+			field.SetValue("cos(2*PI*t+0.1)", 0,Fem::Field::VALUE, world,true);
 		}
 		unsigned int id_val_bc1 = eqn_scalar.AddFixElemAry(4,world);
 		{
 			CField& field = world.GetField(id_val_bc1);
-			field.SetValue(0.0,0,world,false);
+			field.SetValue(0.0,0,Fem::Field::VALUE,world,false);
 		}
 		// 描画オブジェクトの登録
 		drawer_ary.Clear();

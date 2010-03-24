@@ -154,27 +154,30 @@ struct SElemInfo{
 }
 }
 
-const SElemInfo ElemInfoAry[6] = {
+const SElemInfo ElemInfoAry[7] = {
 	{	// 0
-		nlpoelPoint
+		0
 	},
 	{	// 1
+		nlpoelPoint
+	},
+	{	// 2
 		nlpoelLine,
 		nfaelLine,  mxlpofaLine,  nlpofaLine,  lpofaLine
 	},
-	{	// 2
+	{	// 3
 		nlpoelTri,
 		nfaelTri,  mxlpofaTri,  nlpofaTri,  lpofaTri
 	},
-	{	// 3
+	{	// 4
 		nlpoelQuad,
 		nfaelQuad, mxlpofaQuad, nlpofaQuad, lpofaQuad
 	},
-	{	// 4
+	{	// 5
 		nlpoelTet,
 		nfaelTet,  mxlpofaTet,  nlpofaTet,  lpofaTet
 	},
-	{	// 5
+	{	// 6
 		nlpoelHex,
 		nfaelHex,  mxlpofaHex,  nlpofaHex,  lpofaHex,
 		mxlp2lpedHex, nlp2lpedHex, lp2lpedHex

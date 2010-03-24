@@ -47,14 +47,16 @@ enum ELSEG_TYPE{
 	BUBBLE=4	//!< —v‘f“à‚Ìß“_
 };
 
+// ‚±‚Ì®”‚ÌIndex‚Íelem_ary.cpp‚ÅŽg‚í‚ê‚é‚Ì‚ÅC‚Þ‚â‚Ý‚É•ÏX‚µ‚È‚¢‚±‚Æ
 //! —v‘f‚ÌŽí—Þ
 enum ELEM_TYPE{	
-	POINT=0,	//!< “_—v‘f
-	LINE=1,		//!< ü—v‘f
-	TRI=2, 		//!< ŽOŠpŒ`—v‘f
-	QUAD=3, 	//!< ŽlŠpŒ`—v‘f
-	TET=4, 		//!< Žl–Ê‘Ì—v‘f
-	HEX=5 		//!< ˜Z–Ê‘Ì—v‘f
+	ELEM_TYPE_NOT_SET=0,
+	POINT=1,	//!< “_—v‘f
+	LINE=2,		//!< ü—v‘f
+	TRI=3, 		//!< ŽOŠpŒ`—v‘f
+	QUAD=4, 	//!< ŽlŠpŒ`—v‘f
+	TET=5, 		//!< Žl–Ê‘Ì—v‘f
+	HEX=6 		//!< ˜Z–Ê‘Ì—v‘f
 };
 
 /*! 

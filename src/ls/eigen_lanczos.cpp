@@ -1,3 +1,22 @@
+/*
+DelFEM (Finite Element Analysis)
+Copyright (C) 2009  Nobuyuki Umetani    n.umetani@gmail.com
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+
 #if defined(__VISUALC__)
 #pragma warning( disable : 4786 )
 #endif
@@ -293,9 +312,13 @@ double LsSol::MinimumEigenValueVector_InvPower(
 		LsSol::CLinearSystem& ls , 
 		LsSol::CPreconditioner& pls, 
 		const std::vector<unsigned int>& aIdVec, 
-		unsigned int& num_iter )
+		////////////////
+		unsigned int itr_invp,		// 逆べき乗法の最大反復回数
+		unsigned int itr_lssol,		// ICCG法の最大反復回数
+		double conv_ratio_lssol,	// ICCG法の収束基準の相対残差
+		int& iflag_conv )	// 0:正常に終了　1:ICCGが収束しなかった
 {
-	const unsigned int max_iter = num_iter;
+	const unsigned int max_itr_invp = itr_invp;
 	if( ls.GetTmpVectorArySize() < 3 ){ ls.ReSizeTmpVecSolver(3); }
 
 	const int ires = -1;
@@ -327,17 +350,21 @@ double LsSol::MinimumEigenValueVector_InvPower(
 		ls.SCAL(1.0/normx,iupd);
 	}
 
-	double min_eigen0, min_eigen;
-	unsigned int iiter;
-	for(iiter=0;iiter<max_iter;iiter++){
+    double min_eigen;
+	for(itr_invp=0;itr_invp<max_itr_invp;itr_invp++)
+	{
 		ls.COPY(iupd,ires);
 		ls.COPY(iupd,itmp);
-		{
-			double conv_ratio = 1.0e-3;
-			unsigned int num_iter = 300;
+		{	// 行列の逆を求める
+			double conv_ratio = conv_ratio_lssol;
+			unsigned int num_iter = itr_lssol;
             LsSol::CLinearSystemPreconditioner lsp(ls,pls);
-            LsSol::Solve_PCG(conv_ratio, num_iter, lsp);
+            bool res = LsSol::Solve_PCG(conv_ratio, num_iter, lsp);
 			std::cout << "PCG iter : " << num_iter << " " << conv_ratio << std::endl;
+			if( !res ){ 
+				iflag_conv = 1;	// ICCGが収束しなかったフラグ
+				return 0; 
+			}
 		}
 		// 無視ベクトルの成分を引く
 		for(unsigned int iivec=0;iivec<aIdVec.size();iivec++){
@@ -347,13 +374,11 @@ double LsSol::MinimumEigenValueVector_InvPower(
 		}
 		// レリー積の計算
 		min_eigen = ls.DOT(itmp,iupd);
-		{
-			const double norm0 = sqrt(ls.DOT(iupd,iupd));
-			// 更新ベクトルを正規化
-			ls.SCAL(1.0/norm0,iupd);
-		}
+		// 更新ベクトルを正規化
+		const double norm0 = sqrt(ls.DOT(iupd,iupd));			
+		ls.SCAL(1.0/norm0,iupd);
 	}
-	num_iter = iiter+1;	// 反復回数を代入
+	iflag_conv = 0;	// 正常終了フラグ
 	return  1.0 / min_eigen;
 }
 

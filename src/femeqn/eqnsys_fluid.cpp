@@ -392,8 +392,8 @@ unsigned int CEqnSystem_Fluid2D::AddFixElemAry( const std::vector<unsigned int>&
 	if( id_field == 0 ) return 0;
 	assert( world.IsIdField(id_field) );
 	CField& field = world.GetField(id_field);
-	field.SetVelocity(0.0,0,world,false);
-	field.SetVelocity(0.0,1,world,false);
+	field.SetValue(0.0,0,Fem::Field::VELOCITY,world,false);
+	field.SetValue(0.0,1,Fem::Field::VELOCITY,world,false);
 	m_aIdFixField.push_back( std::make_pair(id_field,-1) );
 	return id_field;
 }
@@ -623,9 +623,9 @@ unsigned int CEqn_Fluid3D::AddFixElemAry( const std::vector<unsigned int>& aIdEA
 	if( id_field == 0 ) return 0;
 	assert( world.IsIdField(id_field) );
 	CField& field = world.GetField(id_field);
-	field.SetVelocity(0.0,0,world,false);
-	field.SetVelocity(0.0,1,world,false);
-	field.SetVelocity(0.0,2,world,false);
+	field.SetValue(0.0,0,Fem::Field::VELOCITY,world,false);
+	field.SetValue(0.0,1,Fem::Field::VELOCITY,world,false);
+	field.SetValue(0.0,2,Fem::Field::VELOCITY,world,false);
 	m_aIdFixField.push_back( std::make_pair(id_field,idof) );
 	return id_field;
 }

@@ -69,6 +69,7 @@ void Com::View::PickPre(
 		unsigned int point_x, unsigned int point_y,
 		unsigned int delX, unsigned int delY,
 		const View::CCamera& mvp_trans)
+//		int win_width, int win_height)
 {
     // Initailze Selection
     glSelectBuffer(size_buffer, select_buffer);
@@ -97,7 +98,8 @@ void Com::View::PickPre(
 std::vector<SSelectedObject> Com::View::PickPost(
 		unsigned int* const select_buffer,
 		unsigned int point_x, unsigned int point_y,
-		const View::CCamera& mvp_trans )
+		const View::CCamera& mvp_trans)
+//		int win_width, int win_height)
 {
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();

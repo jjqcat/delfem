@@ -1,6 +1,6 @@
 MAKE = mingw32-make --no-print-directory
 
-SUBDIRS = cad_view msh_view field_evaluate scalar2d scalar3d solid2d solid3d fluid2d dkt2d helmholtz2d
+SUBDIRS = cad_view msh_view field_evaluate scalar2d scalar3d solid2d solid3d fluid2d dkt2d helmholtz2d hyper3d rigid fieldrigid
 
 all :
 	$(MAKE) -C cad_view
@@ -13,6 +13,9 @@ all :
 	$(MAKE) -C fluid2d
 	$(MAKE) -C dkt2d
 	$(MAKE) -C helmholtz2d
+	$(MAKE) -C hyper3d
+	$(MAKE) -C rigid
+	$(MAKE) -C stvk_rigid
 
 clean :
 	$(MAKE) clean -C cad_view
@@ -25,5 +28,8 @@ clean :
 	$(MAKE) clean -C fluid2d
 	$(MAKE) clean -C dkt2d
 	$(MAKE) clean -C helmholtz2d
+	$(MAKE) clean -C hyper3d
+	$(MAKE) clean -C rigid
+	$(MAKE) clean -C stvk_rigid
 
 
