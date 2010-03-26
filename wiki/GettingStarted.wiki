@@ -36,7 +36,9 @@ unsigned int id_l = cad_2d.AddPolygon( vec_ary ); // id_lはループのID
 }}}
 
 
-==メッシュを作る==
+=メッシュを作る=
+
+(Cad::ICad2D)を継承するクラスなら(Msh::CMesher2D)を使うと簡単に２次元のメッシュを生成することができます．
 
 {{{
 Cad::CCadObj2D cad_2d;
