@@ -1,0 +1,3 @@
+#summary Architecture
+
+ここではDelFEMの内部の構造について説明します．
