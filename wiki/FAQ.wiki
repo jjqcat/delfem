@@ -1,0 +1,17 @@
+#summary Frequently Asked Question
+#labels Phase-Support
+
+=How to get total number of nodes in mesh ?=
+
+Msh::CMesher2D have a function : 
+
+{{{
+const std::vector<Com::CVector2D>& Msh::CMesher2D::GetVectorAry() const
+}}}
+
+and please get number of points as 
+
+{{{
+CMesher2D mesh;
+unsigned int nnode = mesh.GetVectorAry().size(); // number of nodes
+}}}
