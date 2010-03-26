@@ -19,3 +19,24 @@
 ここではFEMのための形状をDelFEMを使って，どのように作るかについて説明します．有限要素法解析を行うためには，メッシュが切られてなければなりません．
 
 DelFEMでは内部の２次元のメッシュ生成クラスとして(Msh::Mesher2D)が用意されています．このクラスを使ってメッシュを切るためには，抽象２次元形状クラス(Cad::ICad2D)から形状クラスを派生させる必要があります．ICad2Dの派生クラスを自分で定義しても良いのですが，DelFEM内に既に用意されている(Cad::CCadObj2D)を使うと便利です．
+
+
+次の例は正方形を作る例です．２次元座標の列をCad::CadObj2D::AddPolygonを使って指定すると，その座標の頂点を持つ多角形のループが生成されIDが返ります．頂点の列は時計回りでも反時計回りでも構いませんが，交差をしてはループが発生されません．ループの発生に失敗した場合は０が返ります．
+{{{
+// 正方形を作る
+Cad::CCadObj2D cad_2d;
+std::vector<Com::CVector2D> vec_ary;
+vec_ary.push_back( Com::CVector2D(-0.0,-1.0) );
+vec_ary.push_back( Com::CVector2D( 1.0,-1.0) );
+vec_ary.push_back( Com::CVector2D( 1.0, 0.0) );
+vec_ary.push_back( Com::CVector2D(-0.0, 0.0) );
+unsigned int id_l = cad_2d.AddPolygon( vec_ary ); // id_lはループのID
+}}}
+
+
+==メッシュを作る
+
+{{{
+Cad::CCadObj2D cad_2d;
+Msh::CMesher2D(cad_2d,0.04);
+}}}
