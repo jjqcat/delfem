@@ -1,7 +1,7 @@
 #summary Frequently Asked Question
 #labels Phase-Support
 
-=How to get total number of nodes in mesh ?=
+===How to get total number of nodes in mesh ?===
 
 Msh::CMesher2D have a function : 
 
