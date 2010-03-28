@@ -1,3 +1,10 @@
 #summary Architecture
 
 ここではDelFEMの内部の構造について説明します．
+
+
+DelFEMは形状モジュール，メッシュモジュール，有限要素法モジュールの二つに分かれており，それぞれの名前空間はCad,Msh,Femに対応しています．
+
+３つのそれぞれのモジュール間のデータのやり取りは抽象クラスを用いてなされます．ICad2Dという抽象クラスを継承していれば２次元のメッシュの生成ができます．また，IMeshというクラスを継承していれば，FEM解析にメッシュを取り込むことができます．
+
+有限要素法モジュールの内部のアーキテクチャはMVC(Model Visualization Controller)に基づき作られています．これはソフトウェア内部のクラスを，データを持ったクラス(Model)に可視化のためのクラス(Visualization)とデータを操作するクラス(Controller)に分けて考え，ModelにVisualizationとControllerが一方的に依存するというものです．FEMにおいてModelのクラスは有限要素法離散場を指し，Visualizationはその可視化，またControllerは偏微分方程式のことを指すと考えています．
