@@ -635,7 +635,7 @@ bool CField::SetValue(std::string str_exp, unsigned int idofns, FIELD_DERIVATION
 	CValueFieldDof vfd(str_exp);
 	////////////////
 	if( !this->SetValue(0.0,idofns,fdt,vfd,world) ) return false;
-	if( fdt == VALUE ){
+	if(      fdt == VALUE ){
 		if( is_save ){	// FieldValueExec‚Ì“x‚ÉÝ’è‚³‚ê‚é—Ê‚È‚ç
 			if( this->m_aValueFieldDof.size()<m_DofSize ){
 				this->m_aValueFieldDof.resize(m_DofSize);
@@ -774,7 +774,18 @@ void CField::SetVelocity(unsigned int id_field, CFieldWorld& world){
 	}
 }
 
-bool CField::ExecuteValue(double time, CFieldWorld& world){
+//! ŽžŠÔˆË‘¶‚©‚Ç‚¤‚©’²‚×‚é
+bool CField::IsTimeDependent() const
+{
+	for(unsigned int idof=0;idof<m_aValueFieldDof.size();idof++){
+		const CValueFieldDof& val = m_aValueFieldDof[idof];
+		if( val.IsTimeDependent() ){ return true; }
+	}
+	return false;
+}
+
+bool CField::ExecuteValue(double time, CFieldWorld& world)
+{
 	if( m_DofSize == 0 ){ // BASE field
 		return true;
 	}
@@ -812,17 +823,17 @@ bool CField::SetValue(double time, unsigned int idofns, FIELD_DERIVATION_TYPE fd
 
 	bool is_const_val = false;
     double const_val= 0;
-	if( vfd.itype == 1 ){	// ’è”
+	if(      vfd.itype == 1 ){	// ’è”
 		is_const_val = true;
 		const_val = vfd.val;
 	}
 	else if( vfd.itype == 2 ){ // ”Ž®
 		CEval eval;
 		{
-			eval.SetKey( CEval::CKey("x",0.0) );
-			eval.SetKey( CEval::CKey("y",0.0) );
-			eval.SetKey( CEval::CKey("z",0.0) );
-			eval.SetKey( CEval::CKey("t",time) );
+			eval.SetKey("x",0.0 );
+			eval.SetKey("y",0.0 );
+			eval.SetKey("z",0.0 );
+			eval.SetKey("t",time);
 			if( !eval.SetExp(vfd.math_exp) ) return false;
 		}
 		if( !eval.IsKeyUsed("x") && !eval.IsKeyUsed("y") && !eval.IsKeyUsed("z") ){
@@ -905,10 +916,10 @@ bool CField::SetValue(double time, unsigned int idofns, FIELD_DERIVATION_TYPE fd
 		if( m_na_c.id_na_va != 0 ){
 			CEval eval;
 			{
-				eval.SetKey( CEval::CKey("x",0.0) );
-				eval.SetKey( CEval::CKey("y",0.0) );
-				eval.SetKey( CEval::CKey("z",0.0) );
-				eval.SetKey( CEval::CKey("t",time) );
+				eval.SetKey("x",0.0 );
+				eval.SetKey("y",0.0 );
+				eval.SetKey("z",0.0 );
+				eval.SetKey("t",time);
 				if( !eval.SetExp(vfd.math_exp) ) return false;
 			}
 			assert( world.IsIdNA(m_na_c.id_na_va) );
@@ -939,11 +950,9 @@ bool CField::SetValue(double time, unsigned int idofns, FIELD_DERIVATION_TYPE fd
 					unsigned int inode_co = this->GetMapVal2Co(inode);
 					ns_co.GetValue(inode_co,coord);
 					switch(ndim){
-					case 3:
-						eval.SetKey( CEval::CKey("z",coord[2]) );
-					case 2:
-						eval.SetKey( CEval::CKey("y",coord[1]) );
-						eval.SetKey( CEval::CKey("x",coord[0]) );
+					case 3: eval.SetKey("z",coord[2]);
+					case 2: eval.SetKey("y",coord[1]);
+					case 1: eval.SetKey("x",coord[0]);
 						break;
 					default:
 						assert(0);
@@ -969,11 +978,9 @@ bool CField::SetValue(double time, unsigned int idofns, FIELD_DERIVATION_TYPE fd
 							unsigned int inode_co0 = this->GetMapVal2Co(inode0);
 							ns_co.GetValue(inode_co0,coord);
 							switch(ndim){
-							case 3:
-								eval.SetKey( CEval::CKey("z",coord[2]) );
-							case 2:
-								eval.SetKey( CEval::CKey("y",coord[1]) );
-								eval.SetKey( CEval::CKey("x",coord[0]) );
+							case 3: eval.SetKey("z",coord[2]);
+							case 2: eval.SetKey("y",coord[1]);
+							case 1: eval.SetKey("x",coord[0]);
 								break;
 							default:
 								assert(0);
@@ -989,10 +996,10 @@ bool CField::SetValue(double time, unsigned int idofns, FIELD_DERIVATION_TYPE fd
 		if( m_na_b.id_na_va != 0 ){		
 			CEval eval;
 			{
-				eval.SetKey( CEval::CKey("x",0.0) );
-				eval.SetKey( CEval::CKey("y",0.0) );
-				eval.SetKey( CEval::CKey("z",0.0) );
-				eval.SetKey( CEval::CKey("t",time) );
+				eval.SetKey("x",0.0 );
+				eval.SetKey("y",0.0 );
+				eval.SetKey("z",0.0 );
+				eval.SetKey("t",time);
 				if( !eval.SetExp(vfd.math_exp) ) return false;
 			}
 			assert( world.IsIdNA(m_na_b.id_na_va) );
@@ -1050,11 +1057,9 @@ bool CField::SetValue(double time, unsigned int idofns, FIELD_DERIVATION_TYPE fd
 						for(unsigned int idim=0;idim<ndim;idim++){ coord_cnt[idim] /= nnoes; }
 						////////////////
 						switch(ndim){
-						case 3:
-							eval.SetKey( CEval::CKey("z",coord_cnt[2]) );
-						case 2:
-							eval.SetKey( CEval::CKey("y",coord_cnt[1]) );
-							eval.SetKey( CEval::CKey("x",coord_cnt[0]) );
+						case 3: eval.SetKey("z",coord_cnt[2]);
+						case 2: eval.SetKey("y",coord_cnt[1]);
+						case 1: eval.SetKey("x",coord_cnt[0]);
 							break;
 						default:
 							assert(0);

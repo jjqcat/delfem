@@ -53,6 +53,12 @@ public:
 	virtual bool SetDomain_Field(unsigned int id_base, Fem::Field::CFieldWorld& world);
 	virtual bool Solve(Fem::Field::CFieldWorld& world);
 
+	virtual bool         AddFixField(                    unsigned int id_field, Fem::Field::CFieldWorld& world, int idof = -1);
+	virtual unsigned int AddFixElemAry(                  unsigned int id_ea,    Fem::Field::CFieldWorld& world, int idof = -1);
+	virtual unsigned int AddFixElemAry( const std::vector<unsigned int>& aIdEA, Fem::Field::CFieldWorld& world, int idof = -1);
+	virtual bool ClearFixElemAry( unsigned int id_ea, Fem::Field::CFieldWorld& world );
+	virtual void ClearFixElemAry();
+
 	// ”ñvirtual
 	unsigned int GetIDField_Disp(){ return m_id_disp; }
 	unsigned int GetIDField_Rot(){ return m_id_rot; }

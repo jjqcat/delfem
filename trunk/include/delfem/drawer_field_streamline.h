@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define DRAWER_FIELD_STREAMLINE_H
 
 #include "delfem/drawer_field.h"
-
+/*
 class CElSuP{
 public:
 	CElSuP(){
@@ -66,22 +66,20 @@ public:
 			elsup_ind[ino] = elsup_ind[ino-1]; 
 		}
 		elsup_ind[0] = 0;
-		/*
-		for(unsigned int ino=0;ino<nno;ino++){
-			std::cout << ino << " --> ";
-			for(unsigned int ielsup=elsup_ind[ino];ielsup<elsup_ind[ino+1];ielsup++){
-				std::cout << elsup[ielsup] << " ";
-			}
-			std::cout << std::endl;
-		}
-		*/
+//		for(unsigned int ino=0;ino<nno;ino++){
+//			std::cout << ino << " --> ";
+//			for(unsigned int ielsup=elsup_ind[ino];ielsup<elsup_ind[ino+1];ielsup++){
+//				std::cout << elsup[ielsup] << " ";
+//			}
+//			std::cout << std::endl;
+//		}
 	}
 public:
 	unsigned int nno;
 	unsigned int* elsup_ind;
 	unsigned int* elsup;
 };
-
+*/
 
 namespace Fem{
 namespace Field{
@@ -105,28 +103,7 @@ public:
 		MakeStreamLine(m_IdFieldVelo, world, aStLine);
 		return true;
 	}
-	Com::CBoundingBox GetBoundingBox( double rot[] ) const
-	{
-		if( aStLine.empty() ){ return Com::CBoundingBox(); }
-		if( aStLine[0].empty() ){ return Com::CBoundingBox(); }
-		double x_min = aStLine[0][0];
-		double y_min = aStLine[0][1];
-		double x_max = x_min;
-		double y_max = y_min;
-		for(unsigned int ist=0;ist<aStLine.size();ist++){
-			const unsigned int nno = aStLine[ist].size()/2;
-			for(unsigned int ino=0;ino<nno;ino++){
-				double x1 = aStLine[ist][ino*2  ];
-				double y1 = aStLine[ist][ino*2+1];
-				x_min = ( x1 < x_min ) ? x1 : x_min;
-				x_max = ( x1 > x_max ) ? x1 : x_max;
-				y_min = ( y1 < y_min ) ? y1 : y_min;
-				y_max = ( y1 > y_max ) ? y1 : y_max;
-			}
-		}
-//		std::cout << x_min << " " << x_max << "  " << y_min << " " << y_max << std::endl;
-		return Com::CBoundingBox(x_min,x_max, y_min,y_max,-1,1);
-	}
+	Com::CBoundingBox GetBoundingBox( double rot[] ) const;
 	virtual void AddSelected(const int selec_flag[]){}
 	virtual void ClearSelected(){}
 	virtual void DrawSelection(unsigned int idraw) const {}
@@ -136,6 +113,7 @@ public:
 private:
 	unsigned int m_IdFieldVelo;	
 	std::vector< std::vector<double> > aStLine;
+	int ilayer_min, ilayer_max;
 };
 
 

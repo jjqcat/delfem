@@ -182,7 +182,8 @@ bool SeekPosition(bool iflg_forward, double dt,
 void AddStreamLine(unsigned int id_ea_stat, unsigned int ielem_stat, double r1, double r2,
 				   unsigned int id_field_velo, const Fem::Field::CFieldWorld& world,
 				   std::vector< std::vector<unsigned int> >& aMaskElem,
-				   std::vector<double>& aXYStreamline)
+				   std::vector<double>& aXYStreamline, 
+				   const std::vector<double>& idea2height)
 {
 	const Fem::Field::CField& fv = world.GetField(id_field_velo);
 	const Fem::Field::CNodeAry::CNodeSeg& ns_v = fv.GetNodeSeg(CORNER,true, world,VELOCITY);
@@ -242,6 +243,7 @@ void AddStreamLine(unsigned int id_ea_stat, unsigned int ielem_stat, double r1, 
 		for(;;){
 			st_f.push_back( co_cur[0] );
 			st_f.push_back( co_cur[1] );
+			st_f.push_back( idea2height[id_ea_cur] );
             assert( id_ea_cur < aMaskElem.size() );
             if( ielem_cur >= aMaskElem[id_ea_cur].size() ){
                 std::cout << ielem_cur << " " << aMaskElem[id_ea_cur].size() << std::endl;
@@ -293,6 +295,7 @@ void AddStreamLine(unsigned int id_ea_stat, unsigned int ielem_stat, double r1, 
 			ve_cur[0]=ve_nxt[0];  ve_cur[1]=ve_nxt[1];
 			st_b.push_back( co_cur[0] );
 			st_b.push_back( co_cur[1] );
+			st_b.push_back( idea2height[id_ea_cur] );
             assert( id_ea_cur < aMaskElem.size() );
             assert( ielem_cur < aMaskElem[id_ea_cur].size() );
 			aMaskElem[id_ea_cur][ielem_cur] = 1;
@@ -300,15 +303,17 @@ void AddStreamLine(unsigned int id_ea_stat, unsigned int ielem_stat, double r1, 
 	}
 	////////////////
 	aXYStreamline.resize( st_b.size() + st_f.size() );
-	unsigned int nno_b = st_b.size()/2;
-	unsigned int nno_f = st_f.size()/2;
+	unsigned int nno_b = st_b.size()/3;
+	unsigned int nno_f = st_f.size()/3;
 	for(unsigned int ino=0;ino<nno_b;ino++){
-		aXYStreamline[ino*2  ] = st_b[(nno_b-1-ino)*2  ];
-		aXYStreamline[ino*2+1] = st_b[(nno_b-1-ino)*2+1];
+		aXYStreamline[ino*3  ] = st_b[(nno_b-1-ino)*3  ];
+		aXYStreamline[ino*3+1] = st_b[(nno_b-1-ino)*3+1];
+		aXYStreamline[ino*3+2] = st_b[(nno_b-1-ino)*3+2];
 	}
 	for(unsigned int ino=0;ino<nno_f;ino++){
-		aXYStreamline[nno_b*2+ino*2  ] = st_f[ino*2  ];
-		aXYStreamline[nno_b*2+ino*2+1] = st_f[ino*2+1];
+		aXYStreamline[nno_b*3+ino*3  ] = st_f[ino*3  ];
+		aXYStreamline[nno_b*3+ino*3+1] = st_f[ino*3+1];
+		aXYStreamline[nno_b*3+ino*3+2] = st_f[ino*3+2];
 	}	
 }
 
@@ -338,6 +343,34 @@ void Fem::Field::View::MakeStreamLine(
 		}
 	}
 	if( ino_max == 0 ) return;
+	////////////////
+	std::vector<double> idea2height;
+	{
+		int ilayer_min, ilayer_max;
+		const std::vector<unsigned int>& aIdEA = fv.GetAry_IdElemAry();
+		if( aIdEA.size() > 0 ){
+			ilayer_min = fv.GetLayer(aIdEA[0]);
+			ilayer_max = ilayer_min;
+		}
+		else{ ilayer_min=0; ilayer_max=0; }
+		for(unsigned int iiea=1;iiea<aIdEA.size();iiea++){
+			int ilayer = fv.GetLayer(aIdEA[iiea]);
+			ilayer_min = ( ilayer < ilayer_min ) ? ilayer : ilayer_min;
+			ilayer_max = ( ilayer > ilayer_max ) ? ilayer : ilayer_max;
+		}
+		unsigned int max_id = 0;
+		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
+			unsigned int id_ea = aIdEA[iiea];
+			max_id = ( max_id > id_ea ) ? max_id : id_ea;
+		}
+		idea2height.resize(max_id+1);
+		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
+			unsigned int id_ea = aIdEA[iiea];
+			int ilayer = fv.GetLayer(id_ea);
+			double height = (ilayer-ilayer_min+0.01)/(ilayer_max-ilayer_min+1);
+			idea2height[id_ea] = height;
+		}
+	}
 	////////////////////////////////////////////////
 	// マスクを作る
 	std::vector< std::vector<unsigned int> > aMaskElem;
@@ -354,6 +387,7 @@ void Fem::Field::View::MakeStreamLine(
 			aMaskElem[id_ea].resize(ea.Size(),0);
 		}
 	}
+
 	////////////////////////////////
 	// ３頂点ともratio以内の速さだったらマスクする
 	for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
@@ -363,7 +397,7 @@ void Fem::Field::View::MakeStreamLine(
 		for(unsigned int ielem=0;ielem<es_v.GetSizeElem();ielem++){
 			unsigned int noes[3];
 			es_v.GetNodes(ielem,noes);
-			const double ratio = 0.005;
+			const double ratio = 0.003;
 			double ve[2];
 			ns_v.GetValue(noes[0],ve); if( ve[0]*ve[0]+ve[1]*ve[1] > sq_max_tot*ratio ) continue;
 			ns_v.GetValue(noes[1],ve); if( ve[0]*ve[0]+ve[1]*ve[1] > sq_max_tot*ratio ) continue;
@@ -381,10 +415,10 @@ void Fem::Field::View::MakeStreamLine(
         if( fv.FindVelocityAtPoint(ve_max,  id_ea_max,ielem_max,r1,r2,  co_max,world) ){
             assert( id_ea_max < aMaskElem.size() );
             assert( ielem_max < aMaskElem[id_ea_max].size() );
-			std::vector<double> aXYStreamline;
-            AddStreamLine(id_ea_max,ielem_max,r1,r2,  id_field_velo,world,  aMaskElem,aXYStreamline);
-			if( aXYStreamline.size() >= 10 ){
-				aStLine.push_back( aXYStreamline );
+			std::vector<double> aXYHStreamline;
+            AddStreamLine(id_ea_max,ielem_max,r1,r2,  id_field_velo,world,  aMaskElem,aXYHStreamline, idea2height);
+			if( aXYHStreamline.size() >= 10 ){
+				aStLine.push_back( aXYHStreamline );
 			}
         }
 	}
@@ -411,7 +445,7 @@ void Fem::Field::View::MakeStreamLine(
 					double x0 = aStLine[ist][ino*2  ];
 					double y0 = aStLine[ist][ino*2+1];
 					const double sq_dist = (x0-co[0])*(x0-co[0]) + (y0-co[1])*(y0-co[1]);
-                    if( sq_dist < 0.03 ){ iflg = true; break; }
+                    if( sq_dist < 0.01 ){ iflg = true; break; }
 				}
 				if( iflg ) break;
 			}
@@ -431,14 +465,38 @@ void Fem::Field::View::MakeStreamLine(
 			fv.FindVelocityAtPoint(ve_max,  id_ea_max,ielem_max,r1,r2,  co_max,world);
 			assert( id_ea_max < aMaskElem.size() );
 			assert( ielem_max < aMaskElem[id_ea_max].size() );
-			std::vector<double> aXYStreamline;
-			AddStreamLine(id_ea_max,ielem_max,r1,r2,  id_field_velo,world, aMaskElem,aXYStreamline);
-            if( aXYStreamline.size() >= 50 ){
-				aStLine.push_back( aXYStreamline );
+			std::vector<double> aXYHStreamline;
+			AddStreamLine(id_ea_max,ielem_max,r1,r2,  id_field_velo,world, aMaskElem, aXYHStreamline, idea2height);
+            if( aXYHStreamline.size() >= 50 ){
+				aStLine.push_back( aXYHStreamline );
 			}
 		}
 	}
 //	std::cout << "MakeStreamline end" << std::endl;
+}
+
+
+Com::CBoundingBox Fem::Field::View::CDrawerStreamline::GetBoundingBox( double rot[] ) const
+{
+	if( aStLine.empty() ){ return Com::CBoundingBox(); }
+	if( aStLine[0].empty() ){ return Com::CBoundingBox(); }
+	double x_min = aStLine[0][0];
+	double y_min = aStLine[0][1];
+	double x_max = x_min;
+	double y_max = y_min;
+	for(unsigned int ist=0;ist<aStLine.size();ist++){
+		const unsigned int nno = aStLine[ist].size()/2;
+		for(unsigned int ino=0;ino<nno;ino++){
+			double x1 = aStLine[ist][ino*2  ];
+			double y1 = aStLine[ist][ino*2+1];
+			x_min = ( x1 < x_min ) ? x1 : x_min;
+			x_max = ( x1 > x_max ) ? x1 : x_max;
+			y_min = ( y1 < y_min ) ? y1 : y_min;
+			y_max = ( y1 > y_max ) ? y1 : y_max;
+		}
+	}
+//		std::cout << x_min << " " << x_max << "  " << y_min << " " << y_max << std::endl;
+	return Com::CBoundingBox(x_min,x_max, y_min,y_max,-1,1);
 }
 
 void Fem::Field::View::CDrawerStreamline::Draw() const 
@@ -447,23 +505,25 @@ void Fem::Field::View::CDrawerStreamline::Draw() const
     ::glDisable(GL_LINE_SMOOTH);
     ::glDisable(GL_BLEND);
     ::glColor3d(0,0,0);
+	////////////////
     for(unsigned int ist=0;ist<aStLine.size();ist++){
-        const unsigned int nno = aStLine[ist].size()/2;
-        const double x0 = aStLine[ist][(nno-1)*2  ];
-        const double y0 = aStLine[ist][(nno-1)*2+1];
+        const unsigned int nno = aStLine[ist].size()/3;
+        const double x0 = aStLine[ist][(nno-1)*3  ];
+        const double y0 = aStLine[ist][(nno-1)*3+1];
+        const double h0 = aStLine[ist][(nno-1)*3+2];
         double xe2=0, ye2=0;
         for(unsigned int i=2;i<nno;i++){
-            const double x1 = aStLine[ist][(nno-i)*2  ];
-            const double y1 = aStLine[ist][(nno-i)*2+1];
+            const double x1 = aStLine[ist][(nno-i)*3  ];
+            const double y1 = aStLine[ist][(nno-i)*3+1];
             const double len0 = sqrt( (x0-x1)*(x0-x1)+(y0-y1)*(y0-y1) );
             xe2 = (x1-x0)/len0*0.025;
             ye2 = (y1-y0)/len0*0.025;
             if( len0 > 0.025 ) break;
         }
         ::glBegin(GL_TRIANGLES);
-        ::glVertex3d( x0-xe2*0.4, y0-ye2*0.4, 0.0 );
-        ::glVertex3d( x0+xe2+ye2*0.4, y0+ye2-xe2*0.4, 0.1 );
-        ::glVertex3d( x0+xe2-ye2*0.4, y0+ye2+xe2*0.4, 0.1 );
+        ::glVertex3d( x0-xe2*0.4, y0-ye2*0.4, h0 );
+        ::glVertex3d( x0+xe2+ye2*0.4, y0+ye2-xe2*0.4, h0 );
+        ::glVertex3d( x0+xe2-ye2*0.4, y0+ye2+xe2*0.4, h0 );
         ::glEnd();
     }
     ::glLineWidth(5);
@@ -474,10 +534,10 @@ void Fem::Field::View::CDrawerStreamline::Draw() const
         ::glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
     }
 	for(unsigned int ist=0;ist<aStLine.size();ist++){
-		const unsigned int nno = aStLine[ist].size()/2;
+		const unsigned int nno = aStLine[ist].size()/3;
 		::glBegin(GL_LINE_STRIP);
 		for(unsigned int ino=0;ino<nno;ino++){
-			::glVertex3d( aStLine[ist][ino*2  ], aStLine[ist][ino*2+1], 0.1 );
+			::glVertex3d( aStLine[ist][ino*3  ], aStLine[ist][ino*3+1], aStLine[ist][ino*3+2] );
 		}
 		::glEnd();
     }

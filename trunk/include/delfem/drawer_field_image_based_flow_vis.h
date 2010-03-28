@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define DRAWER_FIELD_IMAGE_BASED_FLOW_VIS_H
 
 #include "delfem/drawer_field.h"
+#include "delfem/field_world.h"
 
 namespace Fem{
 namespace Field{
@@ -120,19 +121,19 @@ public:
 		if( aXYVeloElem != 0 ){ delete[] aXYVeloElem; }
 		this->ClearDisplayList();
 	}
-
-	////////////////
-	Com::CBoundingBox GetBoundingBox( double rot[] ) const;
+	////////////////	
+	virtual Com::CBoundingBox GetBoundingBox( double rot[] ) const;
     virtual void DrawSelection(unsigned int idraw) const{}
 	virtual void AddSelected(const int selec_flag[]){}
 	virtual void ClearSelected(){}
 	virtual void Draw() const;
 	virtual bool Update(const Fem::Field::CFieldWorld& world);
-	virtual void AddFlowInOutEdgeColor(unsigned int id_e, Fem::Field::CFieldWorld& world, 
+	void AddFlowInOutEdgeColor(unsigned int id_e, Fem::Field::CFieldWorld& world, 
 		double r, double g, double b)
     {
 		aEdgeColor.push_back( CEdgeTextureColor(m_IdFieldVelo,id_e, world, r,g,b) );
 	}
+	void SetColorField(unsigned int id_field_color, const CFieldWorld& world, std::auto_ptr<CColorMap> color_map);
 private:
 	bool Set(unsigned int id_field, const Fem::Field::CFieldWorld& world);
 	void ClearDisplayList();
@@ -142,6 +143,7 @@ public:
 private:
     ////////////////
 	unsigned int m_IdFieldVelo;
+	unsigned int m_IdFieldColor;
 	unsigned int m_nPattern;
     mutable unsigned int iPtn;    // フレームの番号　(const関数のDraw()でカウントアップする必要があるのでmutable)
 	unsigned int m_nameDisplayList;
@@ -158,6 +160,9 @@ private:
 	unsigned int nelem;
 	double* aXYVeloElem;
 	double* aXYElem;
+	double* aColorElem;
+
+	std::auto_ptr<CColorMap> color_map;
 };
 
 

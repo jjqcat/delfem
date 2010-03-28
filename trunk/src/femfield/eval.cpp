@@ -177,35 +177,37 @@ CEval::~CEval(){
 	}
 }
 
-void CEval::SetKey(const CKey& key){
+void CEval::SetKey(const std::string& key_name, double key_val)
+{
 	for(unsigned int ikey=0;ikey<m_aKey.size();ikey++){
-		if( m_aKey[ikey].m_Name == key.m_Name ){
-			m_aKey[ikey].m_Val = key.m_Val;
-				for(unsigned int icmd=0;icmd<m_aKey[ikey].m_aiCmd.size();icmd++){	// このKeyをもっている全てのCmdに値をセット
+		if( m_aKey[ikey].m_Name == key_name){
+			m_aKey[ikey].m_Val = key_val;
+			for(unsigned int icmd=0;icmd<m_aKey[ikey].m_aiCmd.size();icmd++){	// このKeyをもっている全てのCmdに値をセット
 				const unsigned int icmd0 = m_aKey[ikey].m_aiCmd[icmd];
 				assert( icmd0 < m_apCmd.size() );
-				m_apCmd[icmd0]->SetValue( key.m_Val );
+				m_apCmd[icmd0]->SetValue( key_val );
 			}
 			return;
 		}
 	}
 	// 未登録のKeyの場合は以下のルーティン
-	m_aKey.push_back( key );
+	m_aKey.push_back( CKey(key_name,key_val) );
 }
 
 bool CEval::SetExp(const std::string& exp){
-	m_bValid = false;
+	m_is_valid = false;
 	m_sExp = exp;
 	// 消去
 	for(unsigned int icmd=0;icmd<m_apCmd.size();icmd++){ delete m_apCmd[icmd]; }
 	for(unsigned int ikey=0;ikey<m_aKey.size();ikey++){ m_aKey[ikey].m_aiCmd.clear(); }
 	m_apCmd.clear();
 
+	////////////////
 	std::string tmp_exp = exp;
 	RemoveExpressionSpaceNewline(tmp_exp);
 	RemoveExpressionBracket(tmp_exp);
 	if( tmp_exp.size() == 0 ){
-		m_bValid = false;
+		m_is_valid = false;
 		return false;
 	}
 	{
@@ -214,7 +216,7 @@ bool CEval::SetExp(const std::string& exp){
 		exp_vec.resize(1);
 		exp_vec[0].sOpe = tmp_exp;
 		if( !MakeRPN(0,exp_vec) ){
-			m_bValid = false;
+			m_is_valid = false;
 			return false;
 		}
 
@@ -226,7 +228,7 @@ bool CEval::SetExp(const std::string& exp){
 		}*/
 
 		if( !MakeCmdAry(m_apCmd,exp_vec) ){
-			m_bValid = false;
+			m_is_valid = false;
 			return false;
 		}
 	
@@ -262,7 +264,7 @@ bool CEval::SetExp(const std::string& exp){
 			}
 		}	
 	}
-	m_bValid = true;
+	m_is_valid = true;
 	return true;
 }
 
