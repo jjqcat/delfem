@@ -121,13 +121,14 @@ public:
 			id_na_va(nsna.id_na_va), is_part_va(nsna.is_part_va), 
 			id_ns_va(nsna.id_ns_va), id_ns_ve(nsna.id_ns_ve), id_ns_ac(nsna.id_ns_ac){}
 	};
-public:
-	//! 場の値定義クラス 
+public:	
+	//! 場の値定義クラス（そのうち抽象クラスにする予定）
 	class CValueFieldDof{
 	public:
 		CValueFieldDof(double val){ this->SetValue(val); }
 		CValueFieldDof(const std::string str){ 	this->SetValue(str); }
 		CValueFieldDof(){ itype=0; }
+		////////////////
 		void SetValue(std::string str){
 			itype = 2;
 			math_exp = str;
@@ -135,6 +136,11 @@ public:
 		void SetValue(double val){
 			itype =1;
 			this->val = val;
+		}
+		bool IsTimeDependent() const{
+			if( itype != 2 ) return false;
+			Fem::Field::CEval eval(math_exp);
+			return eval.IsKeyUsed("t");
 		}
 		const std::string GetString() const{
 			if( itype == 1 ){
@@ -214,10 +220,11 @@ public:
 		if( es_type != EDGE   ){ assert(0); }
 		return m_na_e;
 	}
+	//! 時間依存かどうか調べる
+	bool IsTimeDependent() const;
 	//! 最大値最小値を取得
 	void GetMinMaxValue(double& min, double& max, const CFieldWorld& world, 
 		unsigned int idof=0, const int fdt=VALUE) const;
-
 	void SetName(const std::string&  name){ m_name = name; }
 	// 場の追加
 	bool SetValueType( Field::FIELD_TYPE field_type, const int fdt, CFieldWorld& world);
@@ -246,7 +253,7 @@ public:
 		const double co[], const Fem::Field::CFieldWorld& world ) const;
 
 	////////////////////////////////
-	// 境界条件を設定する関数(FieldとMatVecは分離させたいから，そのうちこの関数は削除)
+	// 境界条件を設定する関数(FieldとMatVecは分離させたいから，そのうちこの関数は削除ー＞LiearSystem_Fieldに追加)
 
 	// 境界条件をセットする（LinearSystemから呼ばれる)
 	void BoundaryCondition(const Field::ELSEG_TYPE& elseg_type, unsigned int idofns, MatVec::CBCFlag& bc_flag, const CFieldWorld& world) const;
@@ -293,7 +300,7 @@ private:
 
 	FIELD_TYPE m_field_type;
 	unsigned int m_field_derivative_type;
-	std::string m_name;
+	std::string m_name;	// 場は名前を持っている（その名前で数式を評価するつもり）
 
 	std::vector<unsigned int> m_map_val2co;
 

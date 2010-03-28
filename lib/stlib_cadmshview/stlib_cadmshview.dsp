@@ -132,10 +132,6 @@ SOURCE=..\..\src\msh\meshkernel2d.cpp
 
 SOURCE=..\..\src\msh\meshkernel3d.cpp
 # End Source File
-# Begin Source File
-
-SOURCE=..\..\src\cad\truss2d.cpp
-# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -199,10 +195,6 @@ SOURCE=..\..\include\delfem\msh\meshkernel3d.h
 # Begin Source File
 
 SOURCE=..\..\include\delfem\cad\objset_cad.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\delfem\cad\truss2d.h
 # End Source File
 # End Group
 # End Target

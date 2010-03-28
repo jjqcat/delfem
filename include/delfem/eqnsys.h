@@ -23,8 +23,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 @author Nobuyuki Umetani
 */
 
-#if !defined(EQN_OBJ_H)
-#define EQN_OBJ_H
+#if !defined(EQN_SYS_H)
+#define EQN_SYS_H
 
 #include <cassert>
 

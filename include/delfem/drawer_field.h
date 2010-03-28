@@ -17,24 +17,59 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-
 /*! @file
 @brief 場可視化クラス(Fem::Field::View::CDrawerField, Fem::Field::View::CDrawerFace)のインターフェース
 @author Nobuyuki Umetani
 */
 
-
 #if !defined(DRAWER_FIELD_H)
 #define DRAWER_FIELD_H
 
-#include "delfem/field_world.h"
+#include "memory"
 #include "delfem/drawer.h"
 #include "delfem/drawer_gl_utility.h"
-#include "delfem/elem_ary.h"
+#include "delfem/elem_ary.h" // Fem::Field::ELEM_TYPEのために必要
 
 namespace Fem{
 namespace Field{
+class CFieldWorld;
 namespace View{
+
+class CColorMap
+{
+public:
+	CColorMap(){
+		is_min_max_fix = false;
+		min = 0;
+		max = 1;
+	}
+	CColorMap(double min, double max){
+		is_min_max_fix = true;
+		this->min = min;
+		this->max = max;
+	}
+public:
+	virtual void GetColor( float color[], const double val ){	// 標準のColorMap
+		const double r = (val-min)/(max-min);
+		const double d = 2.0*r-1;
+		if(     r> 0.75 ){ color[0] = 1.0;                 color[1] = (float)(2-2*d); color[2] = 0;                   }
+		else if(r> 0.50 ){ color[0] = (float)(-4*d*d+4*d); color[1] = 1.0;            color[2] = 0;                   }
+		else if(r> 0.25 ){ color[0] = 0.0;                 color[1] = 1.0;            color[2] = (float)(-4*d*d-4*d); }
+		else             { color[0] = 0.0;                 color[1] = (float)(2+2*d); color[2] = 1;                   }
+	}
+	virtual bool IsMinMaxFix() const { return is_min_max_fix; }
+	virtual void SetMinMax(double min, double max){
+		this->min = min;
+		this->max = max;
+	}
+	double GetMax() const { return max; }
+	double GetMin() const { return min; }
+protected:
+	// ここでMinMaxがProtectedなのは，MinMaxを派生クラスが(四捨五入や桁数調整で)変更するかもしれないから
+	double min;
+	double max;
+	bool is_min_max_fix;
+};
 
 //! OpenGL頂点配列用のIndexArray格納クラス
 class CIndexArrayElem
@@ -56,7 +91,8 @@ public :
 	}
 	unsigned int GetIdEA() const { return id_ea; }
 	void SetColor(double r, double g, double b){ color[0]=r; color[1]=g; color[2]=b; }
-	bool SetColor(unsigned int id_es_v, unsigned int id_ns_v, const Fem::Field::CFieldWorld& world, double min, double max);
+	bool SetColor(unsigned int id_es_v, unsigned int id_ns_v, const Fem::Field::CFieldWorld& world, 
+		const std::auto_ptr<CColorMap>& color_map);
 private:
 	bool Set_Line(unsigned int id_ea, unsigned int id_es, const Fem::Field::CFieldWorld& world);
 	bool Set_Tri( unsigned int id_ea, unsigned int id_es, const Fem::Field::CFieldWorld& world);

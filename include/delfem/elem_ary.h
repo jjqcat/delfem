@@ -48,6 +48,7 @@ enum ELSEG_TYPE{
 };
 
 // この整数のIndexはelem_ary.cppで使われるので，むやみに変更しないこと
+// ここだけは別のヘッダファイルに移したほうがいいかも．このIndexだけ欲しいクラス(drawer_field.hとか)のために
 //! 要素の種類
 enum ELEM_TYPE{	
 	ELEM_TYPE_NOT_SET=0,

@@ -369,3 +369,70 @@ bool CEqnSystem_DKT::SetDomain_Field(unsigned int id_base, Fem::Field::CFieldWor
 	return true;
 }
 
+
+bool CEqnSystem_DKT::AddFixField(const unsigned int id_field, Fem::Field::CFieldWorld& world, int idof)
+{
+	if( !world.IsIdField( id_field ) ) return false;
+	m_aIdFixField.push_back( std::make_pair(id_field,idof) );
+	this->ClearLinearSystem();
+	return true;
+}
+
+unsigned int CEqnSystem_DKT::AddFixElemAry( 
+		unsigned int id_ea, Fem::Field::CFieldWorld& world, int idof)
+{
+	if( !world.IsIdEA( id_ea ) ) return 0;
+	std::vector<unsigned int> aIdEA;
+	aIdEA.push_back(id_ea);
+	return this->AddFixElemAry( aIdEA, world, idof );
+}
+
+bool CEqnSystem_DKT::ClearFixElemAry(
+		unsigned int id_ea, Fem::Field::CFieldWorld& world)
+{
+	if( !world.IsIdEA( id_ea ) ) return false;
+	for(unsigned int ifix=0;ifix<m_aIdFixField.size();ifix++){
+		const unsigned int id_field_fix = m_aIdFixField[ifix].first;
+		const Fem::Field::CField& field = world.GetField(id_field_fix);
+		const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+		if( aIdEA.size() != 1 ){
+			std::cout << "Error!-->Not Implimented" << std::endl;
+			assert(0);
+		}
+		if( aIdEA[0] == id_ea ){
+			m_aIdFixField.erase( m_aIdFixField.begin()+ifix );
+			this->ClearLinearSystem();
+		}
+	}
+	return true;
+}
+
+
+void CEqnSystem_DKT::ClearFixElemAry()
+{
+	m_aIdFixField.clear();
+	this->ClearLinearSystem();
+}
+
+unsigned int CEqnSystem_DKT::AddFixElemAry( 
+		const std::vector<unsigned int>& aIdEA, Fem::Field::CFieldWorld& world, int idof)
+{
+	for(unsigned int iid_ea=0;iid_ea<aIdEA.size();iid_ea++){
+		if( !world.IsIdEA( aIdEA[iid_ea] ) ) return 0;
+	}
+	const unsigned int id_disp = world.GetPartialField(m_id_disp, aIdEA );
+	if( id_disp == 0 ) return 0;
+	assert( world.IsIdField(id_disp) );
+	{
+		CField& field = world.GetField(id_disp);
+		unsigned int nlen_val = field.GetNLenValue();
+		for(unsigned int ilen=0;ilen<nlen_val;ilen++){
+			field.SetValue(0.0,ilen,Fem::Field::VALUE,       world,false);
+			field.SetValue(0.0,ilen,Fem::Field::VELOCITY,    world,false);
+			field.SetValue(0.0,ilen,Fem::Field::ACCELERATION,world,false);
+		}
+	}
+	m_aIdFixField.push_back( std::make_pair(id_disp,idof) );
+	this->ClearLinearSystem();
+	return id_disp;
+}

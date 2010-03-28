@@ -32,14 +32,14 @@
 #include "delfem/cad_obj2d.h"
 #include "delfem/mesh3d.h"
 
-#include "delfem/eqnsys_solid.h"
-
 #include "delfem/field.h"
 #include "delfem/field_world.h"
 #include "delfem/drawer_field.h"
 #include "delfem/drawer_field_face.h"
 #include "delfem/drawer_field_edge.h"
 #include "delfem/drawer_field_vector.h"
+
+#include "delfem/eqnsys_solid.h"
 
 using namespace Fem::Ls;
 using namespace Fem::Field;
@@ -305,7 +305,6 @@ void SetNewProblem()
 		// 描画オブジェクトの登録
 		drawer_ary.Clear();
 		id_field_disp = solid.GetIdField_Disp();
-        std::cout << "id_field_disp : " << id_field_disp << std::endl;
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );

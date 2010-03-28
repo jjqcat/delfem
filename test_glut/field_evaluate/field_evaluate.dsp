@@ -89,6 +89,10 @@ SOURCE=..\..\src\femfield\drawer_field_face.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\femfield\field.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\main.cpp
 # End Source File
 # End Group

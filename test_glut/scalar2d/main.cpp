@@ -165,7 +165,7 @@ bool SetNewProblem()
 
 		// 描画オブジェクトの登録
 		const unsigned int id_field_val = eqn_scalar.GetIdField_Value();
-		drawer_ary.PushBack( new View::CDrawerFace(id_field_val,true,world,id_field_val,-1.0,1.0) );
+		drawer_ary.PushBack( new View::CDrawerFace(id_field_val,true,world,id_field_val,-1,1) );
 //		drawer_ary.PushBack( new View::CDrawerFaceContour(id_field_val,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_val,true,world) );
 		drawer_ary.InitTrans(mvp_trans);	// 視線座標変換行列の初期化

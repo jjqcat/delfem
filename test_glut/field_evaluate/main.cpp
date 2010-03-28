@@ -469,7 +469,6 @@ bool SetNewProblem()
 		}
 		world.Clear();
 		id_base = world.AddMesh( Msh::CMesher2D(cad_2d,0.1) );
-        std::cout << id_base << std::endl;
 		{
 			id_field_val = world.MakeField_FieldElemDim(id_base,2,Fem::Field::SCALAR,VALUE,CORNER|BUBBLE);
             std::cout << id_field_val << std::endl;

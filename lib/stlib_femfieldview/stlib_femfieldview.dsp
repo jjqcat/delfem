@@ -126,6 +126,10 @@ SOURCE=..\..\src\femfield\field_world.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\femeqn\ker_emat_tri.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\femfield\node_ary.cpp
 # End Source File
 # End Group

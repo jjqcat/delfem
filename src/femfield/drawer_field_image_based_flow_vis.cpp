@@ -130,15 +130,19 @@ void CEdgeTextureColor::Draw() const
 
 CDrawerImageBasedFlowVis::CDrawerImageBasedFlowVis()
 {
+	m_IdFieldVelo = 0;
+	m_IdFieldColor = 0;
+	////////////////
 	nelem = 0;
 	aXYVeloElem = 0;
 	aXYElem = 0;
+	aColorElem = 0;
 	////////////////
 	iPtn = 0;
     alpha = 0;
 	imode = 1;
     ////////////////
-    velo_scale = 0.5;
+    velo_scale = 0.1;
 	this->MakePattern();
 }
 
@@ -159,16 +163,19 @@ CDrawerImageBasedFlowVis::CDrawerImageBasedFlowVis(const unsigned int id_field,
 	nelem = 0;
 	aXYVeloElem = 0;
 	aXYElem = 0;
+	aColorElem = 0;
 	////////////////
     this->imode = imode;
     if( imode == 0 ){ alpha = 0; }
-	else{ alpha = 5; }
+	else{ alpha = 40; }
 	iPtn = 0;
 	m_nameDisplayList = 0;
     ////////////////
-    velo_scale = 0.3;
+    velo_scale = 0.02;
     ////////////////
 	this->MakePattern();
+	m_IdFieldVelo = 0;
+	m_IdFieldColor = 0;
 	this->Set( id_field, world );
 }
 
@@ -192,7 +199,8 @@ void CDrawerImageBasedFlowVis::MakePattern()
 		m_nPattern = 32;
 		m_nameDisplayList = glGenLists(m_nPattern);
 		int lut[256];
-		for(unsigned int i=0; i<256; i++){ lut[i] = (i < 127) ? 0 : 255; }
+//		for(unsigned int i=0; i<256; i++){ lut[i] =  (i < 127) ? 0 : 255; }
+		for(unsigned int i=0; i<256; i++){ lut[i] =  (i < 230) ? 0 : 150; }
 		int phase[NPN][NPN];
 		for(unsigned int i=0; i<NPN; i++){
 		for(unsigned int j=0; j<NPN; j++){ 
@@ -254,6 +262,31 @@ void CDrawerImageBasedFlowVis::MakePattern()
    }
 }
 
+void CDrawerImageBasedFlowVis::SetColorField(unsigned int id_field_color, const CFieldWorld& world,
+											 std::auto_ptr<CColorMap> color_map)
+{
+	m_IdFieldColor = id_field_color;
+	if( aColorElem == 0 ){ delete[] aColorElem; }
+	if( !world.IsIdField(this->m_IdFieldVelo) ) return;
+	const Fem::Field::CField& fv = world.GetField(m_IdFieldVelo);
+	const Fem::Field::CField& fc = world.GetField(id_field_color);
+	const std::vector<unsigned int>& aIdEA_v = fv.GetAry_IdElemAry();
+	const std::vector<unsigned int>& aIdEA_c = fc.GetAry_IdElemAry();
+	assert( aIdEA_v.size() == aIdEA_c.size() );
+	if( aIdEA_v.size() != aIdEA_c.size() ) return;
+	for(unsigned int iiea=0;iiea<aIdEA_v.size();iiea++){
+		unsigned int id_ea_v = aIdEA_v[iiea];
+		unsigned int id_ea_c = aIdEA_c[iiea];
+		assert( id_ea_v == id_ea_c );
+		unsigned int id_es_v = fv.GetIdElemSeg(id_ea_v,CORNER,true,world);
+		unsigned int id_es_c = fc.GetIdElemSeg(id_ea_c,CORNER,true,world);
+		assert( id_es_v == id_es_c );
+	}
+	aColorElem = new double [nelem*3];
+	this->color_map = color_map;
+	this->Update(world);
+}
+
 bool CDrawerImageBasedFlowVis::Set(unsigned int id_field_velo, const Fem::Field::CFieldWorld& world)
 {
 	if( !world.IsIdField(id_field_velo) ){ return false; }
@@ -273,6 +306,10 @@ bool CDrawerImageBasedFlowVis::Set(unsigned int id_field_velo, const Fem::Field:
         if( aXYElem     != 0 ){ delete[] aXYElem; }
 		aXYVeloElem = new double [nelem*6];
 		aXYElem = new double [nelem*6];
+		if( world.IsIdField(m_IdFieldColor) ){
+			if( aColorElem != 0 ){ delete[] aColorElem; }
+			aColorElem = new double [nelem*3];
+		}
 	}
 	return this->Update(world);
 }
@@ -296,6 +333,10 @@ bool CDrawerImageBasedFlowVis::Update(const Fem::Field::CFieldWorld& world)
 			if( aXYElem     != 0 ){ delete[] aXYElem; }
 			aXYVeloElem = new double [nelem*6];
 			aXYElem     = new double [nelem*6];
+			if( world.IsIdField(m_IdFieldColor) ){
+				if( aColorElem != 0 ){ delete[] aColorElem; }
+				aColorElem = new double [nelem*3];
+			}
 		}
 	}
 	const Fem::Field::CNodeAry::CNodeSeg& ns_v = fv.GetNodeSeg(CORNER,true, world,VELOCITY);
@@ -339,6 +380,39 @@ bool CDrawerImageBasedFlowVis::Update(const Fem::Field::CFieldWorld& world)
 		}
 	}
     assert( ielem_cur == nelem );
+	if( world.IsIdField(m_IdFieldColor) ){
+		const Fem::Field::CField& fc = world.GetField(this->m_IdFieldColor);
+		const Fem::Field::CNodeAry::CNodeSeg& ns_c = fc.GetNodeSeg(CORNER,true, world,VALUE);
+		unsigned int ielem_cur = 0;
+		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
+			const unsigned int id_ea = aIdEA[iiea];
+			assert( world.IsIdEA(id_ea) );
+			{
+				unsigned int id_es_v = fv.GetIdElemSeg(id_ea,CORNER,true,world);
+				unsigned int id_es_c = fc.GetIdElemSeg(id_ea,CORNER,true,world);
+				assert( id_es_v == id_es_c );
+			}
+			const Fem::Field::CElemAry::CElemSeg& es_v = fv.GetElemSeg(id_ea,CORNER,true,world);			
+			for(unsigned int ielem=0;ielem<es_v.GetSizeElem();ielem++){
+				unsigned int noes[3];
+				es_v.GetNodes(ielem,noes);
+				double v0, v1, v2;
+				ns_c.GetValue(noes[0],&v0);
+				ns_c.GetValue(noes[1],&v1);
+				ns_c.GetValue(noes[2],&v2);
+				aColorElem[ielem_cur*3+0] = v0;
+				aColorElem[ielem_cur*3+1] = v1;
+				aColorElem[ielem_cur*3+2] = v2;
+				ielem_cur++;
+			}
+		}
+	}
+	else{
+		if( aColorElem != 0 ){ 
+			delete[] aColorElem; 
+			aColorElem=0;
+		}
+	}
 	for(unsigned int iec=0;iec<aEdgeColor.size();iec++){
 		aEdgeColor[iec].Update(world);
 	}
@@ -375,15 +449,17 @@ void CDrawerImageBasedFlowVis::Draw() const
 	const double invww = 1.0/win_w;
 	const double invwh = 1.0/win_h;
 	GLdouble model[16], prj[16];
-	::glGetDoublev(GL_MODELVIEW_MATRIX,  model);
-	::glGetDoublev(GL_PROJECTION_MATRIX, prj);
+	::glGetDoublev(GL_MODELVIEW_MATRIX,  model);	// ModelVeiw行列の取得
+	::glGetDoublev(GL_PROJECTION_MATRIX, prj);		// Projection行列の取得
 	////////////////
 	::glEnable(GL_TEXTURE_2D);
 	::glDisable(GL_DEPTH_TEST);
-	if( imode != 0 ){	
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	if( imode != 0 ){	// 前画像のテクスチャを流す
+/*		glEnable(GL_BLEND); 
+		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+		::glColor4f(1.0f, 1.0f, 1.0f, 0.2f);*/
 		::glDisable(GL_BLEND);
-		::glColor4f(1.0f, 1.0f, 1.0f, 1.f);	
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 		::glBegin(GL_TRIANGLES);
 		for(unsigned int ielem=0;ielem<nelem;ielem++)
 		{
@@ -399,11 +475,8 @@ void CDrawerImageBasedFlowVis::Draw() const
 		}
 		::glEnd();
 	}
-	else{		
-//		::glEnable(GL_BLEND); 
+	else{ // imode == 0 : 純粋移流拡散
 		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-		////////////////
-//		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 		::glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		::glBegin(GL_TRIANGLES);
 		for(unsigned int ielem=0;ielem<nelem;ielem++)
@@ -413,47 +486,16 @@ void CDrawerImageBasedFlowVis::Draw() const
 			::gluProject(co_obj[0*2+0],co_obj[0*2+1],0, model,prj,view, &co_win[0][0],&co_win[0][1],&dtmp1);
 			::gluProject(co_obj[1*2+0],co_obj[1*2+1],0, model,prj,view, &co_win[1][0],&co_win[1][1],&dtmp1);
 			::gluProject(co_obj[2*2+0],co_obj[2*2+1],0, model,prj,view, &co_win[2][0],&co_win[2][1],&dtmp1);
-			double r = +0.0;
-			double diffuse[3][2];
-			{
-				double gc[2] = { (co_obj[0]+co_obj[2]+co_obj[4])/3.0, (co_obj[1]+co_obj[3]+co_obj[5])/3.0 };
-				diffuse[0][0] = (co_obj[0] - gc[0])*r;
-				diffuse[0][1] = (co_obj[1] - gc[1])*r;
-				diffuse[1][0] = (co_obj[2] - gc[0])*r;
-				diffuse[1][1] = (co_obj[3] - gc[1])*r;
-				diffuse[2][0] = (co_obj[4] - gc[0])*r;
-				diffuse[2][1] = (co_obj[5] - gc[1])*r;
-			}
 			const double* velo_co = &aXYVeloElem[ielem*6];
-			::glTexCoord2d(co_win[0][0]*invww, co_win[0][1]*invwh);  ::glVertex2d(velo_co[0]+diffuse[0][0], velo_co[1]+diffuse[0][1]);
-			::glTexCoord2d(co_win[1][0]*invww, co_win[1][1]*invwh);  ::glVertex2d(velo_co[2]+diffuse[1][0], velo_co[3]+diffuse[1][1]);
-			::glTexCoord2d(co_win[2][0]*invww, co_win[2][1]*invwh);  ::glVertex2d(velo_co[4]+diffuse[2][0], velo_co[5]+diffuse[2][1]);
+			::glTexCoord2d(co_win[0][0]*invww, co_win[0][1]*invwh);  ::glVertex2d(velo_co[0], velo_co[1]);
+			::glTexCoord2d(co_win[1][0]*invww, co_win[1][1]*invwh);  ::glVertex2d(velo_co[2], velo_co[3]);
+			::glTexCoord2d(co_win[2][0]*invww, co_win[2][1]*invwh);  ::glVertex2d(velo_co[4], velo_co[5]);
 		}
 		::glEnd();
-//		::glDisable(GL_BLEND); 
-
-		/*
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND); 
-		static const GLfloat blend[] = { 1.0, 1.0, 1.0, 0.0 };
-		glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, blend);
-		*/
-		////////////////
 		////////////////
 		::glDisable(GL_DEPTH_TEST);
 		::glEnable(GL_BLEND);		
 		::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//		::glBlendFunc(GL_ONE, GL_ZERO);
-//		::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//		::glBlendFunc(GL_ZERO,GL_ALPHA);
-//		::glBlendFunc(GL_ALPHA,GL_ZERO);
-//		::glBlendFunc(GL_ALPHA,GL_ALPHA);
-//		::glBlendFunc(GL_SRC_ALPHA, GL_ZERO);
-//		::glBlendFunc(GL_ZERO,GL_SRC_COLOR);
-//		::glBlendFunc(GL_SRC_COLOR,GL_ZERO);
-//		::glBlendFunc(GL_ONE_MINUS_SRC_COLOR,GL_SRC_COLOR);
-//		::glBlendFunc(GL_DST_COLOR, GL_ZERO);
-//		::glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE);
-//		::glBlendFunc(GL_DST_COLOR,GL_ONE_MINUS_DST_COLOR);
 		////////////////
 		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 		::glColor4f(1.0f, 1.0f, 1.0f, 0.8f);
@@ -466,43 +508,9 @@ void CDrawerImageBasedFlowVis::Draw() const
 			::gluProject(co_obj[0*2+0],co_obj[0*2+1],0, model,prj,view, &co_win[0][0],&co_win[0][1],&dtmp1);
 			::gluProject(co_obj[1*2+0],co_obj[1*2+1],0, model,prj,view, &co_win[1][0],&co_win[1][1],&dtmp1);
 			::gluProject(co_obj[2*2+0],co_obj[2*2+1],0, model,prj,view, &co_win[2][0],&co_win[2][1],&dtmp1);
-			double diffuse[3][2];
-/*			{
-				double gc[2] = { (co_obj[0]+co_obj[2]+co_obj[4])/3.0, (co_obj[1]+co_obj[3]+co_obj[5])/3.0 };
-				diffuse[0][0] = r*(1-2*(double)rand()/(RAND_MAX+1)); diffuse[0][1] = r*(1-2*(double)rand()/(RAND_MAX+1));
-				diffuse[1][0] = r*(1-2*(double)rand()/(RAND_MAX+1)); diffuse[1][1] = r*(1-2*(double)rand()/(RAND_MAX+1));
-				diffuse[2][0] = r*(1-2*(double)rand()/(RAND_MAX+1)); diffuse[2][1] = r*(1-2*(double)rand()/(RAND_MAX+1));
-			}*/
-/*			{
-				double gc[2] = { (co_obj[0]+co_obj[2]+co_obj[4])/3.0, (co_obj[1]+co_obj[3]+co_obj[5])/3.0 };
-				double tmpx = r*(1-2*(double)rand()/(RAND_MAX+1));
-				double tmpy = r*(1-2*(double)rand()/(RAND_MAX+1));
-				diffuse[0][0] = tmpx; diffuse[0][1] = tmpy;
-				diffuse[1][0] = tmpx; diffuse[1][1] = tmpy;
-				diffuse[2][0] = tmpx; diffuse[2][1] = tmpy;
-			}*/
-			{
-				double r1 = sqrt(area)*0.5;
-				double r2 = 1;
-//				double r1 = 0;
-//				double r2 = 0;
-				double gc[2] = { (co_obj[0]+co_obj[2]+co_obj[4])/3.0, (co_obj[1]+co_obj[3]+co_obj[5])/3.0 };
-				double tmpx = r1*(1-2*(double)rand()/(RAND_MAX+1));
-				double tmpy = r1*(1-2*(double)rand()/(RAND_MAX+1));
-				diffuse[0][0] = tmpx + (co_obj[0] - gc[0])*r2; 
-				diffuse[0][1] = tmpy + (co_obj[1] - gc[1])*r2;
-				diffuse[1][0] = tmpx + (co_obj[2] - gc[0])*r2; 
-				diffuse[1][1] = tmpy + (co_obj[3] - gc[1])*r2;
-				diffuse[2][0] = tmpx + (co_obj[4] - gc[0])*r2; 
-				diffuse[2][1] = tmpy + (co_obj[5] - gc[1])*r2;
-			}
-//			const double* velo_co = &aXYVeloElem[ielem*6];
-//			::glTexCoord2d(co_win[0][0]*invww, co_win[0][1]*invwh);  ::glVertex2d(velo_co[0]+diffuse[0][0], velo_co[1]+diffuse[0][1]);
-//			::glTexCoord2d(co_win[1][0]*invww, co_win[1][1]*invwh);  ::glVertex2d(velo_co[2]+diffuse[1][0], velo_co[3]+diffuse[1][1]);
-//			::glTexCoord2d(co_win[2][0]*invww, co_win[2][1]*invwh);  ::glVertex2d(velo_co[4]+diffuse[2][0], velo_co[5]+diffuse[2][1]);			
-			::glTexCoord2d(co_win[0][0]*invww, co_win[0][1]*invwh);  ::glVertex2d(co_obj[0]+diffuse[0][0], co_obj[1]+diffuse[0][1]);
-			::glTexCoord2d(co_win[1][0]*invww, co_win[1][1]*invwh);  ::glVertex2d(co_obj[2]+diffuse[1][0], co_obj[3]+diffuse[1][1]);
-			::glTexCoord2d(co_win[2][0]*invww, co_win[2][1]*invwh);  ::glVertex2d(co_obj[4]+diffuse[2][0], co_obj[5]+diffuse[2][1]);
+			::glTexCoord2d(co_win[0][0]*invww, co_win[0][1]*invwh);  ::glVertex2d(co_obj[0], co_obj[1]);
+			::glTexCoord2d(co_win[1][0]*invww, co_win[1][1]*invwh);  ::glVertex2d(co_obj[2], co_obj[3]);
+			::glTexCoord2d(co_win[2][0]*invww, co_win[2][1]*invwh);  ::glVertex2d(co_obj[4], co_obj[5]);
 		}
 		::glEnd();
 		::glDisable(GL_BLEND);
@@ -510,31 +518,52 @@ void CDrawerImageBasedFlowVis::Draw() const
 	iPtn = iPtn + 1;
 
 	if( m_nPattern != 0 ){
+		::glShadeModel(GL_SMOOTH);
 		::glDisable(GL_DEPTH_TEST);
-		glEnable(GL_BLEND); 
+		::glEnable(GL_BLEND); 
+//		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+//		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+//		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
+		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD);
 		glCallList(iPtn % m_nPattern + m_nameDisplayList);
-		::glBegin(GL_TRIANGLES);
-		for(unsigned int ielem=0;ielem<nelem;ielem++){
-			const double co[3][2] = {
-				{ aXYElem[ielem*6+0], aXYElem[ielem*6+1] },
-				{ aXYElem[ielem*6+2], aXYElem[ielem*6+3] },
-				{ aXYElem[ielem*6+4], aXYElem[ielem*6+5] } };
-/*			unsigned int r=4;
-			::glTexCoord2d(r*co[0][0]-1,r*co[0][1]-1);		::glVertex2dv(co[0]);
-			::glTexCoord2d(r*co[1][0]-1,r*co[1][1]-1);		::glVertex2dv(co[1]);
-			::glTexCoord2d(r*co[2][0]-1,r*co[2][1]-1);		::glVertex2dv(co[2]);*/
-			double r = 4.0;	// 流す画像の周期をきめる(大きければ細かい)
-            ::glTexCoord2d(r*co[0][0],r*co[0][1]);		::glVertex2dv(co[0]);
-            ::glTexCoord2d(r*co[1][0],r*co[1][1]);		::glVertex2dv(co[1]);
-            ::glTexCoord2d(r*co[2][0],r*co[2][1]);		::glVertex2dv(co[2]);
+		if( aColorElem == 0 ){
+			::glBegin(GL_TRIANGLES);
+			for(unsigned int ielem=0;ielem<nelem;ielem++){
+				const double co[3][2] = {
+					{ aXYElem[ielem*6+0], aXYElem[ielem*6+1] },
+					{ aXYElem[ielem*6+2], aXYElem[ielem*6+3] },
+					{ aXYElem[ielem*6+4], aXYElem[ielem*6+5] } };
+				double r = 10.0;	// 流す画像の周期をきめる(大きければ細かい)	
+				::glTexCoord2d(r*co[0][0],r*co[0][1]);		::glVertex2dv(co[0]);
+				::glTexCoord2d(r*co[1][0],r*co[1][1]);		::glVertex2dv(co[1]);
+				::glTexCoord2d(r*co[2][0],r*co[2][1]);		::glVertex2dv(co[2]);
+			}
+			::glEnd();
 		}
-		::glEnd();
+		else{
+			::glBegin(GL_TRIANGLES);
+			for(unsigned int ielem=0;ielem<nelem;ielem++){
+				const double co[3][2] = {
+					{ aXYElem[ielem*6+0], aXYElem[ielem*6+1] },
+					{ aXYElem[ielem*6+2], aXYElem[ielem*6+3] },
+					{ aXYElem[ielem*6+4], aXYElem[ielem*6+5] } };
+				double r = 10.0;	// 流す画像の周期をきめる(大きければ細かい)	
+	//			std::cout<< ielem << " " << aColorElem[ielem*3+0] << " " << aColorElem[ielem*3+1] << " " << aColorElem[ielem*3+2] << std::endl;
+				for(unsigned int ino=0;ino<3;ino++){
+					const double d = aColorElem[ielem*3+ino];
+					float color[3];
+					color_map->GetColor(color,d);
+					::glColor4d(color[0],color[1],color[2],1.0);
+					::glTexCoord2d(r*co[ino][0],r*co[ino][1]);		::glVertex2dv(co[ino]);
+				}
+			}
+			::glEnd();
+		}
 		::glDisable(GL_BLEND);
 	}
 	::glEnable(GL_DEPTH_TEST);
 	
-//	::glDisable(GL_BLEND);
-	::glEnable(GL_BLEND); 
-	::glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, win_w, win_h, 0);
+	////////////////
+	::glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, win_w, win_h, 0);	// テクスチャを作る
 	::glDisable(GL_BLEND);
 }

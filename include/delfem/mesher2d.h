@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 /*! @file
-@brief ２次元メッシュクラス(Msh::CMesher2D)のインターフェース
+@brief interface of 2D mesher class (Msh::CMesher2D)
 @author Nobuyuki Umetani
 */
 

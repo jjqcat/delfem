@@ -39,7 +39,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <vector>
 #include <stdio.h>
 
-
 #if defined(__APPLE__) && defined(__MACH__)
 #  include <OpenGL/gl.h>
 #  include <OpenGL/glu.h>
@@ -56,41 +55,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 using namespace Fem::Field::View;
 using namespace Fem::Field;
-
-namespace Fem{
-namespace Field{
-namespace View{
-	
-// 最大値(max)から最小値(min)のデータを青から赤であらわしたRGBを返す
-static void GetColor( float color[], const double& val, const double& max, const double& min ){
-	const double d = ( 2.0 * ( val - min ) ) / (max - min)  - 1.0;
-
-	if(d > 0.5){
-		color[0] = 1;
-		color[1] = static_cast<float>(2 - 2*d);
-		color[2] = 0;
-	}
-	else if(d > 0.0 && d <= 0.5){
-		color[0] = static_cast<float>(-4*d*d + 4*d);
-		color[1] = 1;
-		color[2] = 0;
-	}
-	else if(d <= 0.0 && d > -0.5){
-		color[0] = 0;
-		color[1] = 1;
-		color[2] = static_cast<float>(-4*d*d - 4*d);
-	}
-	else if(d <= -0.5){
-		color[0] = 0;
-		color[1] = static_cast<float>(2 + 2*d);
-		color[2] = 1;
-	}
-}
-
-
-}
-}
-}
 
 
 CIndexArrayElem::CIndexArrayElem(unsigned int id_ea, unsigned int id_es, const Fem::Field::CFieldWorld& world)
@@ -248,7 +212,7 @@ bool View::CIndexArrayElem::Set_Hex(unsigned int id_ea, unsigned int id_es,
 
 bool View::CIndexArrayElem::SetColor(
 		unsigned int id_es_v, unsigned int id_ns_v, const Fem::Field::CFieldWorld& world,
-		double min, double max )
+		const std::auto_ptr<CColorMap>& color_map )
 {
 	if( itype == Fem::Field::TRI )	// TRI
 	{
@@ -271,8 +235,9 @@ bool View::CIndexArrayElem::SetColor(
 			es_v.GetNodes(itri,&inode0);
 			double val;
 			ns.GetValue(inode0,&val);
-			Fem::Field::View::GetColor(pColor+itri*3,val, max,min);
+			color_map->GetColor(pColor+itri*3,val);
 		}
+		return true;
 	}
 	else if( itype == Fem::Field::QUAD )
 	{
@@ -295,8 +260,9 @@ bool View::CIndexArrayElem::SetColor(
 			es_v.GetNodes(iquad,&inode0);
 			double val;
 			ns.GetValue(inode0,&val);
-			Fem::Field::View::GetColor(pColor+iquad*3,val, max,min );
+			color_map->GetColor(pColor+iquad*3,val);
 		}
+		return true;
 	}
 	else if( itype == Fem::Field::TET )
 	{
@@ -322,8 +288,9 @@ bool View::CIndexArrayElem::SetColor(
 			es_v.GetNodes(itet,&inode0);
 			double val;
 			ns.GetValue(inode0,&val);
-			Fem::Field::View::GetColor(pColor+iface*3,val, max,min );
+			color_map->GetColor(pColor+iface*3,val);
 		}
+		return true;
 	}
 	else if( itype == Fem::Field::HEX )
 	{	
@@ -348,13 +315,12 @@ bool View::CIndexArrayElem::SetColor(
 			unsigned int inode0;
 			es_v.GetNodes(ihex,&inode0);
 			double val;
-			ns.GetValue(inode0,&val);
-			Fem::Field::View::GetColor(pColor+iface*3,val, max,min );
+			ns.GetValue(inode0,&val);			
+			color_map->GetColor(pColor+iface*3,val);
 		}
 		return true;
 	}
 	return true;
-
 }
 
 ////////////////////////////////////////////////////////////////

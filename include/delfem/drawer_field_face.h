@@ -23,10 +23,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 @author Nobuyuki Umetani
 */
 
-
 #if !defined(DRAWER_FIELD_FACE_H)
 #define DRAWER_FIELD_FACE_H
 
+#include <memory>
 #include "delfem/drawer_field.h"
 
 namespace Fem{
@@ -39,10 +39,11 @@ class CDrawerFace : public CDrawerField
 public:
 	CDrawerFace();
 	CDrawerFace(unsigned int id_field, bool isnt_value_disp, const Fem::Field::CFieldWorld& world, unsigned int id_field_color=0);
-	CDrawerFace(unsigned int id_field, bool isnt_value_disp, const Fem::Field::CFieldWorld& world, 
-		unsigned int id_field_color, double min_val, double max_val );
+	CDrawerFace(unsigned int id_field, bool isnt_value_disp, const Fem::Field::CFieldWorld& world, unsigned int id_field_color, double min, double max);
+	CDrawerFace(unsigned int id_field, bool isnt_value_disp, const Fem::Field::CFieldWorld& world, unsigned int id_field_color, std::auto_ptr<CColorMap> color_map );
 	virtual ~CDrawerFace();
-	////////////////
+	////////////////////////////////
+	// virtualä÷êîÇÃêÈåæ
 	virtual void Draw() const;
 	virtual void DrawSelection(unsigned int idraw) const{};
 	virtual Com::CBoundingBox GetBoundingBox( double rot[] ) const{
@@ -51,6 +52,8 @@ public:
 	virtual void AddSelected(const int selec_flag[]){}
 	virtual void ClearSelected(){}
 	virtual bool Update(const Fem::Field::CFieldWorld& world);
+	////////////////////////////////
+	// îÒvirtualä÷êîÇÃêÈåæ
     void SetColor(double r, double g, double b, unsigned int id_ea = 0){
         const unsigned int niea = m_apIndexArrayElem.size();
         if( id_ea == 0 ){
@@ -63,7 +66,7 @@ public:
         }
     }
 	void SetColor(unsigned int id_es_v, unsigned int id_ns_v, const Fem::Field::CFieldWorld& world,
-		double min, double max );
+		const std::auto_ptr<CColorMap>& color_map);
 protected:
 	bool Set(unsigned int id_field, const Fem::Field::CFieldWorld& world, bool isnt_value_disp, unsigned int id_field_color);
 protected:
@@ -75,14 +78,11 @@ protected:
 	bool m_is_draw_nsv;	//!< valueÇÃNSÇï`âÊÇ∑ÇÈÇ©coordÇÃNSÇï`âÊÇ∑ÇÈÇ©ÅDValueÇÃns_cÇ™ñ≥ÇØÇÍÇŒCoordÇÃns_cÇï`âÊÇ∑ÇÈ
 
 	////////////////
+	// color
 	unsigned int id_field_val;
-
-	// Color
+	std::auto_ptr<CColorMap> color_map;
 	float* pColorArray;	//!< array of color ( rgb for each node )
-	bool is_min_max_set;	//!< true : min-max for color contor is fixed,   false : find min-max each iterations
-	double min_val, max_val;
-	bool is_draw_color_legend;
-	////////////////
+	bool is_draw_color_legend;	// trueÇ»ÇÁÉåÉWÉFÉìÉhÇï`âÊÇ∑ÇÈ
 };
 
 }	// View
