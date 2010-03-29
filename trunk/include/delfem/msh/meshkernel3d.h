@@ -423,9 +423,9 @@ bool MakeOuterBoundTri( const std::vector<Msh::STri3D>& aTri, std::vector<Msh::S
 
 ////////////////
 
+// —×‡‚¤ŽOŠpŒ`‚Ì’PˆÊ–@ü“¯Žm‚ªcrt_dotˆÈ‰º‚È‚ç‚»‚ê‚ÍØ‚è—£‚·
 bool MakeColorCoding_Tri3D( const std::vector<Msh::STri3D>& aTri, const std::vector<Com::CVector3D>& aVec3D, 
-						   std::vector<int>& aColorTri, unsigned int& nColor);
-
+						   std::vector<int>& aColorTri, unsigned int& nColor, double dot_crt);
 
 bool MakeBar_fromColorCodingTri( const std::vector<Msh::STri3D>& aTri, 
 								const std::vector<int>& aColorTri, unsigned int nColor, std::vector<Msh::SBar>& aBar);

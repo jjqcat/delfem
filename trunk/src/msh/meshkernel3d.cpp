@@ -323,24 +323,10 @@ bool Msh::MakeTriSurTri(std::vector<STri3D>& tri )
 	MakeTriSurNo(ntrisuno,trisuno_ind,trisuno,  tri,nnode);
 
 	const unsigned int ntri = tri.size();
-	const unsigned int nedtri = 3;
-	const unsigned int nnoed = 2;
-//	const unsigned int nnotri = 3;
+//	const unsigned int nedtri = 3;
+//	const unsigned int nnoed = 2;
 
 	// そのうちヘッダファイルに情報を置く
-//	const unsigned int nNoTri = 3;
-	const unsigned int nEdTri = 3;
-	const unsigned int nNoEd = 2;
-	const unsigned int noelTriEdge[nEdTri][nNoEd] = {
-		{ 1, 2 },
-		{ 2, 0 },
-		{ 0, 1 },
-	};
-/*	static const unsigned int relTriTri[3][3] = {
-		{ 0, 2, 1 }, //  0
-		{ 2, 1, 0 }, //  1 
-		{ 1, 0, 2 }, //  2
-    };*/
 	const unsigned int EdEd2Rel[nEdTri][nEdTri] = {
         { 0, 2, 1 },
         { 2, 1, 0 },
@@ -349,7 +335,7 @@ bool Msh::MakeTriSurTri(std::vector<STri3D>& tri )
 	// ここまで
 
 	for(unsigned int itri=0;itri<ntri;itri++){
-	for(unsigned int iedtri=0;iedtri<nedtri;iedtri++){
+	for(unsigned int iedtri=0;iedtri<nEdTri;iedtri++){
 		tri[itri].g2[iedtri] = -1;
 		tri[itri].s2[iedtri] = -1;
 		tri[itri].r2[iedtri] = -1;
@@ -358,14 +344,12 @@ bool Msh::MakeTriSurTri(std::vector<STri3D>& tri )
 
 	unsigned int* help_node = new unsigned int [nnode];
 	for(unsigned int inode=0;inode<nnode;inode++){ help_node[inode] = 0; }
-	int help_noed[nnoed];
+	int help_noed[nNoEd];
 
 	for(unsigned int itri=0;itri<ntri;itri++){
-	for(unsigned int iedtri=0;iedtri<nedtri;iedtri++){
-        if( tri[itri].g2[iedtri] != -2 ){
-			continue;
-		}
-		for(unsigned int inoed=0;inoed<nnoed;inoed++){
+	for(unsigned int iedtri=0;iedtri<nEdTri;iedtri++){
+        if( tri[itri].g2[iedtri] == -2 ){ continue; }
+		for(unsigned int inoed=0;inoed<nNoEd;inoed++){
 			help_noed[inoed] = tri[itri].v[ noelTriEdge[iedtri][inoed] ];
 		}
 
@@ -379,9 +363,9 @@ bool Msh::MakeTriSurTri(std::vector<STri3D>& tri )
 			const unsigned int jtri1 = trisuno[itrisuno];
 			if( jtri1 == itri ) continue;
 			assert( jtri1>=0 && jtri1<ntri );
-			for(unsigned int jedtri=0;jedtri<nedtri;jedtri++){
+			for(unsigned int jedtri=0;jedtri<nEdTri;jedtri++){
 				unsigned int icoun1 = 0;
-				for(unsigned int jnoed=0;jnoed<nnoed;jnoed++){
+				for(unsigned int jnoed=0;jnoed<nNoEd;jnoed++){
 					icoun1 += help_node[ tri[jtri1].v[ noelTriEdge[jedtri][jnoed] ] ];
 				}
 				if( icoun1 == 3 ){
@@ -917,8 +901,9 @@ bool Msh::MakeColorCodingBar( const std::vector<SBar> aBar,
 }
 */
 
+// 隣合う三角形の単位法線同士がcrt_dot以下ならそれは切り離す
 bool Msh::MakeColorCoding_Tri3D( const std::vector<STri3D>& aTri, const std::vector<Com::CVector3D>& aVec, 
-						   std::vector<int>& aColorTri, unsigned int& nColor)
+						   std::vector<int>& aColorTri, unsigned int& nColor, double crt_dot)
 {
 	const unsigned int ntri = aTri.size();
 	aColorTri.clear();
@@ -949,7 +934,7 @@ bool Msh::MakeColorCoding_Tri3D( const std::vector<STri3D>& aTri, const std::vec
 					Com::CVector3D vec0, vec1;
 					UnitNormal(vec0,itri_cur,aTri,aVec);
 					UnitNormal(vec1,itri_s,  aTri,aVec);
-					if( Com::Dot(vec0,vec1) > 0.8 ){ iflag = true; }
+					if( Com::Dot(vec0,vec1) > crt_dot ){ iflag = true; }				
 					else{ iflag = false; }
 				}
 				if( iflag ){ // 隣と接続している
