@@ -18,7 +18,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 ////////////////////////////////////////////////////////////////
-//スカラー型の方程式クラス(Fem::Eqn::CEqnSystem_Scalar2D,Fem::Eqn::CEqn_Scalar2D,Fem::Eqn::CEqn_Scalar3D)の実装
+// eqnsys_scalar.cpp : スカラー型の連立方程式クラス
+// (Fem::Eqn::CEqnSystem_Scalar2D,Fem::Eqn::CEqn_Scalar2D,Fem::Eqn::CEqn_Scalar3D)の実装
 ////////////////////////////////////////////////////////////////
 
 #if defined(__VISUALC__)
