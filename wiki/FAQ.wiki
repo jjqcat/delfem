@@ -3,7 +3,7 @@
 
 ===How to get total number of nodes in mesh ?===
 
-Msh::CMesher2D have a function : 
+Msh::CMesher2D have a function to get a array of node coordinates: 
 
 {{{
 const std::vector<Com::CVector2D>& Msh::CMesher2D::GetVectorAry() const
