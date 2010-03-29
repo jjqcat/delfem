@@ -44,14 +44,29 @@ unsigned int id_l = cad_2d.AddPolygon( vec_ary ); // id_lはループのID
 
 {{{
 Cad::CCadObj2D cad_2d;
-Msh::CMesher2D(cad_2d,0.04);
+// edit cad_2d
+Msh::CMesher2D mesh2d(cad_2d,0.04); // create mesh with element length=0.04
 }}}
 
 
 =FEM離散場にメッシュを設定する=
 
+作成されたメッシュを
+
 有限要素法離散場とは，物理量を持った場の有限要素法における表現方法です．有限要素法離散場はクラス(Fem::Field::CField)によって与えられます．有限要素法離散場クラス(Fem::Field::CField)は(Fem::Field::CFieldWorld)によって生成され内部で保持されています．
 
 
+=方程式クラスにFEM離散場を設定=
 
+=方程式に物性値を設定=
+
+=方程式に境界条件を設定=
+
+=方程式を解く=
+
+全ての連立方程式クラス(Fem::Eqn::CEqnSystem_...)は抽象連立方程式クラス(Fem::Eqn::CEqnSystem)を継承しています.このクラスはSolve()というメンバ関数があるので，方程式を解くためにはこの関数を呼ぶだけで構いません．動的なクラスでは，方程式を解くことは時間発展を計算することに他なりません．それもこのSolve()を呼ぶことで，予め方程式に定められた時間刻みだけ時間発展をさせることができます．
+
+=可視化のための描画を設定=
+
+=描画=
 
