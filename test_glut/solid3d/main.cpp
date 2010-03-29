@@ -359,7 +359,7 @@ void SetNewProblem()
 		solid.UnSetGeometricalNonLinear();	// 幾何学的非線形性を考慮する．
 		solid.UnSetStationary();
 		solid.UnSetSaveStiffMat();
-		unsigned int id_field_bc0 = solid.AddFixElemAry(2,world);
+		unsigned int id_field_bc0 = solid.AddFixElemAry(3,world);
 		unsigned int id_field_bc1 = solid.AddFixElemAry(4,world);
 		{
 			CField& bc1_field = world.GetField(id_field_bc1);
