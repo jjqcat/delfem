@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 ////////////////////////////////////////////////////////////////
-// Eqn_AdvectionDiffusion.cpp : St.Venant-Kirchhoff‘Ì‚Ì—v‘f„«ì¬•”‚ÌÀ‘•
+// eqn_st_venant.cpp : St.Venant-Kirchhoff‘Ì‚Ì—v‘f„«ì¬•”‚ÌÀ‘•
 ////////////////////////////////////////////////////////////////
 
 #if defined(__VISUALC__)

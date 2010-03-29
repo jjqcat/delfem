@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 ////////////////////////////////////////////////////////////////
-// EqnObj_Fluid.cpp : 
-// 流体の方程式クラス(CEqnSystem_Fluid2D,CEqn_Fluid2D,CEqn_Fluid3D)の実装
+// eqnsys_fluid.cpp : 
+// 流体の連立方程式クラス(CEqnSystem_Fluid2D,CEqn_Fluid2D,CEqn_Fluid3D)の実装
 ////////////////////////////////////////////////////////////////
 
 #if defined(__VISUALC__)
