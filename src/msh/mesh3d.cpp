@@ -647,7 +647,7 @@ bool Msh::CMesh3D::ReadFromFile_GiDMsh(const std::string& file_name)
 	{	// êﬂì_ÇÃì«Ç›çûÇ›
 		fgets(stmp1,buff_size,fp);	// Coorinates
 		std::vector<double> tmp_buffer;
-		tmp_buffer.reserve(16384);
+		tmp_buffer.reserve(16384);	// 2^14
 		unsigned int counter = 0;
 		assert( ndim == 3 );
 		for(;;){
@@ -742,7 +742,6 @@ bool Msh::CMesh3D::ReadFromFile_GiDMsh(const std::string& file_name)
 		}
 		const unsigned int ntet = counter;
 		m_aTetAry.resize(1);
-//		m_aTetAry[0].m_CadLoopID = 0;
 		m_aTetAry[0].id = 1;
 		m_aTetAry[0].m_aTet.resize(ntet);
 		for(unsigned int itet=0;itet<ntet;itet++){
@@ -758,7 +757,7 @@ bool Msh::CMesh3D::ReadFromFile_GiDMsh(const std::string& file_name)
 		Msh::MakeTriSurTri(aTriBound);
 		std::vector<int> aColorTri;
 		unsigned int nColorTri;
-		Msh::MakeColorCoding_Tri3D(aTriBound,aVec,aColorTri,nColorTri);
+		Msh::MakeColorCoding_Tri3D(aTriBound,aVec,aColorTri,nColorTri,0.2);
 		m_aTriAry.resize(nColorTri);
 		for(unsigned int icolor=0;icolor<nColorTri;icolor++){
 			unsigned int ntri_color = 0;
@@ -939,7 +938,6 @@ bool Msh::CMesh3D::ReadFromFile_TetgenMsh(const std::string& file_name){
 	    int nnoel, nelem;
 	    fgets(stmp1,buff_size,fp);
 	    sscanf(stmp1,"%d %d %d", &nelem,&nnoel,&itmp0);
-        std::cout << nelem << " " << nnoel << std::endl;
 		const unsigned int ntet = nelem;
 		m_aTetAry.resize(1);
 		m_aTetAry[0].id = 1;
@@ -962,7 +960,7 @@ bool Msh::CMesh3D::ReadFromFile_TetgenMsh(const std::string& file_name){
 		Msh::MakeTriSurTri(aTriBound);
 		std::vector<int> aColorTri;
 		unsigned int nColorTri;
-		Msh::MakeColorCoding_Tri3D(aTriBound,aVec,aColorTri,nColorTri);
+		Msh::MakeColorCoding_Tri3D(aTriBound,aVec,aColorTri,nColorTri,0.8);
 		m_aTriAry.resize(nColorTri);
 		for(unsigned int icolor=0;icolor<nColorTri;icolor++){
 			unsigned int ntri_color = 0;
