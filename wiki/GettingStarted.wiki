@@ -58,17 +58,36 @@ Fem::Field::CFemField world;
 const unsigned int id_base = world.AddMesh( mesh2d ); // set mesh into fem field
 }}}
 
+FEMに設定した時に得られるハンドルからCFieldWorld::GetIDConverter()という関数を呼ぶとCad上の要素IDと要素配列IDを関連づけてくれるオブジェクトCIDConvEAMshCadが返ります．
 
-
-
-有限要素法離散場とは，物理量を持った場の有限要素法における表現方法です．有限要素法離散場はクラス(Fem::Field::CField)によって与えられます．有限要素法離散場クラス(Fem::Field::CField)は(Fem::Field::CFieldWorld)によって生成され内部で保持されています．
-
+{{{
+ const CIDConvEAMshCad conv = world.GetIDConverter(id_base); // get ID converter
+}}}
 
 =方程式クラスにFEM離散場を設定=
 
 =方程式に物性値を設定=
 
 =方程式に境界条件を設定=
+
+方程式に境界条件を設定します．偏微分方程式の境界条件としては固定境界条件と応力境界条件があります．ここでは固定境界条件の設定について解説します．
+
+方程式クラスからに要素配列を固定境界条件として設定します．戻り値としてunsigned int型の固定境界条件上の部分場を表すハンドルが返ります．
+{{{
+unsigned int CEqnSystem::AddFixElemAry(unsigned int,CFieldWorld&);
+unsigned int CEqnSystem::AddFixElemAry(std::vector<unsigned int>&,CFieldWorld&);
+}}}
+
+固定境界条件を設定したデフォルトの状態では値が０の状態で固定されています．場管理クラス(CFieldWorld)からこの部分場を表す場のクラス(CField)を取得して値を設定することで，固定された場に値を設定することができます．例えばCadの４番のEdgeに相当する要素配列に'sin(t*PI*2*0.1)'で表される単振動するy変位を与えるのは次のようなコードになります．
+
+{{{
+ unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(4,Cad::EDGE),world);
+ { // set Value to boundary condition
+  CField& bc1_field = world.GetField(id_field_bc0);
+  bc1_field.SetValue("sin(t*PI*2*0.1)", 1,Fem::Field::VALUE, world,true);
+ }
+}}}
+
 
 =方程式を解く=
 
