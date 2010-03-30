@@ -51,7 +51,15 @@ Msh::CMesher2D mesh2d(cad_2d,0.04); // create mesh with element length=0.04
 
 =FEM離散場にメッシュを設定する=
 
-作成されたメッシュを
+作成されたメッシュを有限要素法に設定します．下の例はメッシュクラスCMesher2Dのインスタンスmesh2dを有限要素法に設定している例です．CFieldWorld::AddMesh()の引数にメッシュを代入すると，のこのメッシュをFEM内で表すunsigned int型のハンドルが返ります．失敗した場合は０が返ります．
+
+{{{
+Fem::Field::CFemField world;
+const unsigned int id_base = world.AddMesh( mesh2d ); // set mesh into fem field
+}}}
+
+
+
 
 有限要素法離散場とは，物理量を持った場の有限要素法における表現方法です．有限要素法離散場はクラス(Fem::Field::CField)によって与えられます．有限要素法離散場クラス(Fem::Field::CField)は(Fem::Field::CFieldWorld)によって生成され内部で保持されています．
 
