@@ -88,6 +88,11 @@ unsigned int CEqnSystem::AddFixElemAry(std::vector<unsigned int>&,CFieldWorld&);
  }
 }}}
 
+Fem::Field::CField::SetValueの第５変数のboolは，この設定された値を保存するかどうかです．この値がfalseの場合はこの式が場にこの関数を呼んだ時一度だけ値が設定されます．trueの場合は設定された値は保存され，Fem::Field::CFieldWorld::FieldValueExec(double)関数が呼ばれる度に，引数のdoubleの時間がtに代入されて場の値に設定されます．
+
+{{{
+world.FieldValueExec(cur_time); // update the value of boundary condition
+}}}
 
 =方程式を解く=
 
