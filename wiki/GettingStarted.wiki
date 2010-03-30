@@ -103,4 +103,6 @@ world.FieldValueExec(cur_time); // update the value of boundary condition
 
 場を可視化するクラスはCom::CDrawerを継承する抽象クラスCom::CDrawer_Fieldを継承しています．これらはUpdate(const Fem::Field::CFieldWorld&)という関数が宣言されており，場の値を更新します．
 
-=描画=
+  * Fem::Field::View::CDrawerFaceクラスは場の領域を描画するクラスです．
+  * Fem::Field::View::CDrawerEdgeクラスは場のメッシュの辺を描画するクラスです．
+  * Fem::Field::View::CDrawerVectorクラスはベクトル場を矢印を引いて描画するクラスです．
