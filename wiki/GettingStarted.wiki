@@ -90,12 +90,16 @@ unsigned int CEqnSystem::AddFixElemAry(std::vector<unsigned int>&,CFieldWorld&);
 Fem::Field::CField::SetValueの第５変数のboolは，この設定された値を保存するかどうかです．この値がfalseの場合はこの式が場にこの関数を呼んだ時一度だけ値が設定されます．trueの場合は設定された値は保存され，Fem::Field::CFieldWorld::FieldValueExec(double)関数が呼ばれる度に，引数のdoubleの時間がtに代入されて場の値に設定されます．
 
 {{{
-world.FieldValueExec(cur_time); // update the value of boundary condition
+world.FieldValueExec(cur_time); // update the value of boundary condition with current time 
 }}}
 
 =方程式を解く=
 
 全ての連立方程式クラス(Fem::Eqn::CEqnSystem...)は抽象連立方程式クラス(Fem::Eqn::CEqnSystem)を継承しています.このクラスはSolve()というメンバ関数があるので，方程式を解くためにはこの関数を呼ぶだけで構いません．動的なクラスでは，方程式を解くことは時間発展を計算することに他なりません．それもこのSolve()を呼ぶことで，予め方程式に定められた時間刻みだけ時間発展をさせることができます．
+
+{{{
+solid.SetTimeIntegrationParameter(dt); // Set time step
+}}}
 
 =可視化のための描画を設定=
 
