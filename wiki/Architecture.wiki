@@ -14,3 +14,9 @@ DelFEMは形状モジュール，メッシュモジュール，有限要素法�
 ==有限要素法離散場の構造==
 
 有限要素法離散場とは，物理量を持った場の有限要素法における表現方法です．有限要素法離散場はクラス(Fem::Field::CField)によって与えられます．有限要素法離散場クラス(Fem::Field::CField)は(Fem::Field::CFieldWorld)によって生成され内部で保持されています．
+
+場のIDから場のクラス(Fem::Field::CField)を取得するためには次のように場管理クラス(Fem::Field::CFieldWorld)に値を設定します．
+
+{{{
+CField& field = world.GetField(id_field); // get field class from ID
+}}}
