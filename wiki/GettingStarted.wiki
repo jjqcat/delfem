@@ -99,7 +99,7 @@ world.FieldValueExec(cur_time); // update the value of boundary condition with c
 solid.Solve(world)
 }}}
 
-動的なクラスでは，方程式を解くことは時間発展を計算することに他なりません．それもこのSolve()を呼ぶことで，予め方程式に定められた時間刻みだけ時間発展をさせることができます．
+動的なクラスでは，方程式を解くことは時間発展を計算することに他なりません．それもこのSolve()を呼ぶことで，予め次のFem::Eqn::CEqnSystem::SetTimeIntegrationParameter()という関数を呼ぶことで，方程式に定められた時間刻みだけ時間発展をさせることができます．
 
 {{{
 solid.SetTimeIntegrationParameter(dt); // Set time step
