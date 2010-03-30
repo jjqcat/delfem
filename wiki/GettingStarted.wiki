@@ -39,9 +39,13 @@ unsigned int id_l = cad_2d.AddPolygon( vec_ary ); // id_lはループのID
 
 (Cad::ICad2D)を継承するクラスなら(Msh::CMesher2D)を使うと簡単に２次元のメッシュを生成することができます．
 
+形状全体に一様な要素の長さでメッシュを切る場合は，コンストラクタでそれを行うことができます．
+
 {{{
 Cad::CCadObj2D cad_2d;
-// edit cad_2d
+//
+// edit cad_2d here
+//
 Msh::CMesher2D mesh2d(cad_2d,0.04); // create mesh with element length=0.04
 }}}
 
