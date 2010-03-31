@@ -82,11 +82,20 @@ unsigned int CEqnSystem::AddFixElemAry(std::vector<unsigned int>&,CFieldWorld&);
 固定境界条件を設定したデフォルトの状態では値が０の状態で固定されています．場管理クラス(CFieldWorld)からこの部分場を表す場のクラス(CField)を取得して値を設定することで，固定された場に値を設定することができます．例えばCadの４番のEdgeに相当する要素配列に'sin(t*PI*2*0.1)'で表される単振動するy変位を与えるのは次のようなコードになります．
 
 {{{
- unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(4,Cad::EDGE),world);
- { // set Value to boundary condition
-  CField& bc1_field = world.GetField(id_field_bc0);
-  bc1_field.SetValue("sin(t*PI*2*0.1)", 1,Fem::Field::VALUE, world,true);
- }
+unsigned int id_ea_bc1 = conv.GetIdEA_fromCad(4,Cad::EDGE); // element array at boundary
+unsigned int id_field_bc1 = solid.AddFixElemAry(id_bc_ea1,world);
+{ // set Value to boundary condition
+ CField& bc1_field = world.GetField(id_field_bc0);
+ bc1_field.SetValue("sin(t*PI*2*0.1)", 1,Fem::Field::VALUE, world,true);
+}
+}}}
+
+方程式に要素配列のIDを設定する以外にも，境界条件を設定したい場の部分的な場のハンドルを取得して方程式クラスにそれを設定する方法もあります．
+
+{{{
+unsigned int id_ea_bc = conv.GetIdEA_fromCad(1,Cad::VERTEX);
+unsigned int id_field_bc = world.GetPartialField(id_field,id_ea_bc); // get handle of part of field(ID:id_field)
+fluid.AddFixField(id_field_bc,world); // set equation the fixed boundary condition
 }}}
 
 Fem::Field::CField::SetValueの第５変数のboolは，この設定された値を保存するかどうかです．この値がfalseの場合はこの式が場にこの関数を呼んだ時一度だけ値が設定されます．trueの場合は設定された値は保存され，Fem::Field::CFieldWorld::FieldValueExec(double)関数が呼ばれる度に，引数のdoubleの時間がtに代入されて場の値に設定されます．
