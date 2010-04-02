@@ -1,5 +1,5 @@
 #summary Getting Started
-#labels Featured
+#labels Featured,Phase-Implementation
 
 
 =解析プログラム全体の流れ=
