@@ -1,5 +1,5 @@
 #summary Architecture
-#labels Featured
+#labels Featured,Phase-Design
 
 ここではDelFEMの内部の構造について説明します．
 
