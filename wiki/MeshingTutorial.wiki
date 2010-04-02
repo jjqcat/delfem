@@ -1,9 +1,36 @@
 #summary One-sentence summary of this page.
+#labels Phase-Implementation
 
 
 =２次元メッシュを切る=
 
+
+
+
+==要素長さを指定してメッシュを切る==
+{{{
+Cad::CCadObj2D cad_2d;
+// 
+// edit cad_2d here
+// 
+Msh::CMesher2D(cad_2d,0.1) // cut mesh with elem length=0.1
+}}}
+
+==要素の数メッシュを切る==
+{{{
+Cad::CCadObj2D cad_2d;
+Msh::CMesher2D(cad_2d,1000) // cut mesh specify number of elements
+}}}
+
+
+
+==出来るだけ少ない要素の数でメッシュを切る==
+{{{
+Msh::CMesher2D mesh;
+mesh.Tesselation(cad_2d);
+}}}
+
+
 =FEMとの接続=
 
 =切り込みをいれたメッシュの生成=
-
