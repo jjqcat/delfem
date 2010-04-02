@@ -1,4 +1,5 @@
 #summary Architecture
+#labels Featured
 
 ここではDelFEMの内部の構造について説明します．
 
