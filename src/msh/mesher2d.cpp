@@ -51,16 +51,11 @@ static const char indexRot3[3][3] = {
 
 void CMesher2D::Clear()
 {
-	m_ElemType.clear();
-	m_ElemLoc.clear();
-	m_include_relation.clear();
-
-	m_aVertex.clear();
-	m_aBarAry.clear();
-	m_aTriAry.clear();
-	m_aQuadAry.clear();
-
-	aVec2D.clear();
+	setIdLCad_CutMesh.clear();
+	this->m_imode_meshing = 1;
+	this->m_elen = 0.1;
+	this->m_esize = 1000;
+	this->ClearMeshData();
 }
 
 unsigned int CMesher2D::FindMaxID() const
@@ -1818,22 +1813,10 @@ bool CMesher2D::Tesselation(const Cad::ICad2D& cad_2d, const std::vector<unsigne
 	return true;
 }
 
-bool CMesher2D::Tesselation(
-		const Cad::ICad2D& cad_2d, unsigned int id_l)
-{
-	if( id_l == 0 ){
-		return this->Tesselation(cad_2d,cad_2d.GetAryElemID(Cad::LOOP));
-	}
-	std::vector<unsigned int> aIdLoop(1,id_l);
-	return this->Tesselation(cad_2d,aIdLoop);
-}
-
 bool CMesher2D::Meshing_ElemLength(
 		const Cad::ICad2D& cad_2d, const double len, const std::vector<unsigned int>& aIdLoop)
 {
-    CMesher2D::Clear();
-
-//    std::cout << len << std::endl;
+    this->ClearMeshData();
 	assert( len > 0.0 ); 	
 	this->aVec2D.reserve(256);
 
@@ -1902,16 +1885,6 @@ bool CMesher2D::Meshing_ElemLength(
 	return true;
 }
 
-bool CMesher2D::Meshing_ElemLength(
-        const Cad::ICad2D& cad_2d,const double len, unsigned int id_l)
-{
-    if( id_l == 0 ){
-        return CMesher2D::Meshing_ElemLength(cad_2d,len,cad_2d.GetAryElemID(Cad::LOOP));
-    }
-    std::vector<unsigned int> aIdLoop(1,id_l);
-    return CMesher2D::Meshing_ElemLength(cad_2d,len,aIdLoop);
-}
-
 bool CMesher2D::Meshing_ElemSize(
 		const Cad::ICad2D& cad_2d, unsigned int esize, const std::vector<unsigned int>& aIdLoop)
 {
@@ -1928,26 +1901,12 @@ bool CMesher2D::Meshing_ElemSize(
     return CMesher2D::Meshing_ElemLength(cad_2d,elen,aIdLoop);
 }
 
-bool CMesher2D::Meshing_ElemSize(
-		const Cad::ICad2D& cad_2d, unsigned int esize, unsigned int id_l )
-{
-	assert( esize != 0 );
-	if( esize == 0 ) return false;
-
-	if( id_l == 0 ){
-        return CMesher2D::Meshing_ElemSize(cad_2d,esize,cad_2d.GetAryElemID(Cad::LOOP));
-	}
-	std::vector<unsigned int> aIdLoop(1,id_l);
-    return CMesher2D::Meshing_ElemSize(cad_2d,esize,aIdLoop);
-}
-
-
 bool CMesher2D::GetTriMesh_Around(
 	std::vector< CTriAround >& aTriAround,
 	////////////////
 	unsigned int id_msh_bar0, 
 	unsigned int ibar0, unsigned int inobar0, bool is_left,
-	const std::vector<unsigned int>& aFlgMshCut )
+	const std::vector<unsigned int>& aFlgMshCut ) const
 {
 	unsigned int ivec_cent;
 	int id_msh_tri0;
@@ -2042,7 +2001,7 @@ bool CMesher2D::GetClipedMesh(
 		std::vector< std::vector<int> >& aLnods,
 		std::vector<unsigned int>& mapVal2Co,
 		const std::vector<unsigned int>& aIdMsh_Inc,
-		const std::vector<unsigned int>& aIdMshBar_Cut )
+		const std::vector<unsigned int>& aIdMshBar_Cut ) const
 {
 	if( aIdMsh_Inc.empty() ) return true;
 	const unsigned int nTriAryInc =aIdMsh_Inc.size();
@@ -2217,14 +2176,51 @@ bool CMesher2D::GetClipedMesh(
 }
 
 
-bool CMesher2D::Serialize( Com::CSerializer& arch )
+bool CMesher2D::Serialize( Com::CSerializer& arch, bool is_only_cadmshlink )
 {
 	if( arch.IsLoading() ){	// 読み込み時の処理
         CMesher2D::Clear();
 		const unsigned int buff_size = 256;
 		char class_name[buff_size];
 		arch.ReadDepthClassName(class_name,buff_size);
-		{
+		assert( strcmp(class_name,"CMesher2D") == 0 );
+		arch.ShiftDepth(true);
+
+		////////////////////////////////
+		// CADとの接続関係のロード
+
+        {
+            arch.ReadDepthClassName(class_name,buff_size); 
+			assert( strcmp(class_name,"setIdLCad_CutMesh\n")==0);
+            int nl;
+            arch.Get("%d",&nl);   assert( nl >= 0 );
+            unsigned int ind, id_l;
+            setIdLCad_CutMesh.clear();
+            for(unsigned int il=0;il<(unsigned int)nl;il++){
+                arch.Get("%d%d",&ind,&id_l);   assert( ind == il );
+                setIdLCad_CutMesh.insert(id_l);
+            }
+        }
+		{	// メッシュ生成モードのロード
+			int ntmp0, ntmp1;
+			double dtmp0;
+			arch.Get("%d%d%lf",&ntmp0,&ntmp1,&dtmp0);
+			assert( ntmp0 >= 0 && ntmp0 < 3 );
+			m_imode_meshing = ntmp0; 
+			assert( ntmp1 > 0 );
+			m_esize = ntmp1;
+			assert( dtmp0 > 0 );
+			m_elen = dtmp0;
+		}
+		if( is_only_cadmshlink ){
+			arch.ShiftDepth(false);
+			return true;
+		}
+
+		////////////////////////////////
+		// メッシュ情報のロード
+
+		{	// 座標をロード
 			int nvec, ndim;	arch.Get("%d%d",&nvec,&ndim);	assert(nvec>0 && (ndim>0&&ndim<4) );
 			this->aVec2D.resize(nvec);
             for(unsigned int ivec=0;ivec<(unsigned int)nvec;ivec++){
@@ -2238,7 +2234,6 @@ bool CMesher2D::Serialize( Com::CSerializer& arch )
 		int naVer, naBar, naTri, naQuad;
 		arch.Get("%d%d%d%d",&naVer,&naBar,&naTri,&naQuad);
         assert( naVer>=0 && naBar>=0 && naTri>=0 && naQuad>=0 );
-		arch.ShiftDepth(true);
         for(unsigned int iaVer=0;iaVer<(unsigned int)naVer;iaVer++){
 			arch.ReadDepthClassName(class_name,buff_size);
 			assert( strncmp(class_name,"SVertex",7)==0 );
@@ -2324,13 +2319,37 @@ bool CMesher2D::Serialize( Com::CSerializer& arch )
 		return true;
 	}
 	else{ // 書き込み時の処理	
-		arch.WriteDepthClassName("CMesher2D");
+		arch.WriteDepthClassName("CMesher2D");	
+		arch.ShiftDepth(true);
+		
+		////////////////////////////////
+		// CADとの接続関係の書き出し
+
+		{
+			arch.WriteDepthClassName("setIdLCad_CutMesh");
+			arch.Out("%d\n",setIdLCad_CutMesh.size());
+			std::set<unsigned int>::iterator itr = setIdLCad_CutMesh.begin();
+			unsigned int icnt = 0;
+			for(;itr!=setIdLCad_CutMesh.end();itr++){
+				unsigned int id_l = *itr;
+				arch.Out("%d %d\n",icnt,id_l);
+				icnt++;
+			}
+		}
+		arch.Out("%d %d %lf\n",m_imode_meshing,m_esize,m_elen);
+		if( is_only_cadmshlink ){ // 
+			arch.ShiftDepth(false); 
+			return true; 
+		}
+
+		////////////////////////////////
+		// メッシュ情報の書き込み
+
 		arch.Out("%d %d\n",aVec2D.size(),2);
 		for(unsigned int ivec=0;ivec<aVec2D.size();ivec++){
 			arch.Out("%d %lf %lf\n",ivec,aVec2D[ivec].x,aVec2D[ivec].y);
 		}
 		arch.Out("%d %d %d %d\n",m_aVertex.size(), m_aBarAry.size(), m_aTriAry.size(), m_aQuadAry.size() );
-		arch.ShiftDepth(true);
 		{	// Vertexの出力
 			for(unsigned int iver=0;iver<m_aVertex.size();iver++){
 				arch.WriteDepthClassName("SVertex");

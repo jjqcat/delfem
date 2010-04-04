@@ -1,3 +1,21 @@
+/*
+DelFEM (Finite Element Analysis)
+Copyright (C) 2009  Nobuyuki Umetani    n.umetani@gmail.com
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 
 #if defined(__VISUALC__)
 #pragma warning( disable : 4786 )
@@ -391,6 +409,7 @@ bool CEqn_Solid2D::AddLinSys_NewmarkBetaAPrime_Save(
 	assert( !this->m_IsGeomNonlin );
 	assert( !world.IsIdField(m_IdFieldTemperature) );
 	// 動的線形弾性体
+	std::cout << "gravi " << m_g_x << " " << m_g_y << std::endl;
 	return Fem::Eqn::AddLinSys_LinearSolid2D_NonStatic_Save_NewmarkBeta(
 		ls,
 		m_lambda, m_myu, m_rho,   m_g_x, m_g_y,
@@ -955,10 +974,11 @@ void CEqnSystem_Solid2D::SetSaveStiffMat( bool is_save )
 // mode = 0 : ミーゼス
 // mode = 1 : 最大応力
 // 幾何学的な非線形性を考慮するかどうかは，EqnObjを見て決めるようにする
-bool CEqnSystem_Solid2D::SetScalarStressValue(unsigned int id_field_str, Fem::Field::CFieldWorld& world)
+bool CEqnSystem_Solid2D::SetEquivStressValue(unsigned int id_field_str, Fem::Field::CFieldWorld& world)
 {	
 	if( !world.IsIdField(id_field_str) ) return false;
 	Fem::Field::CField& field_str = world.GetField(id_field_str);
+	if( field_str.GetFieldType() != SCALAR ) return false;
 
 	if( !world.IsIdField(m_IdFieldDisp) ) return false;
 	Fem::Field::CField& field_dis = world.GetField(m_IdFieldDisp);
@@ -981,6 +1001,159 @@ bool CEqnSystem_Solid2D::SetScalarStressValue(unsigned int id_field_str, Fem::Fi
 			type_to   = field_str.GetInterpolationType(id_ea,world);
 		}
 
+		unsigned int nnoes, ndim;
+		if( type_from==TRI11 && type_to==TRI1001 ){
+			nnoes = 3; ndim = 2;
+		}
+		else{
+			std::cout << "Error!-->Not Implimented!" << std::endl;
+			std::cout << type_from << " " << type_to << std::endl;
+			assert(0);
+			getchar();
+		}
+
+		unsigned int id_ea = aIdEA_to[iiea];
+		const CElemAry& ea = world.GetEA(id_ea);
+		const CElemAry::CElemSeg& es_c_co = field_dis.GetElemSeg(id_ea,CORNER,false,world);
+		const CElemAry::CElemSeg& es_c_va = field_dis.GetElemSeg(id_ea,CORNER,true, world);
+		const CElemAry::CElemSeg& es_b_va = field_str.GetElemSeg(id_ea,BUBBLE,true, world);
+
+		Fem::Field::CField::CNodeSegInNodeAry nans_c = field_dis.GetNodeSegInNodeAry(CORNER);
+		assert( world.IsIdNA(nans_c.id_na_co) );
+		assert( world.IsIdNA(nans_c.id_na_va) );
+		const CNodeAry& na_c_co = world.GetNA( nans_c.id_na_co);
+		const CNodeAry::CNodeSeg& ns_c_co = na_c_co.GetSeg( nans_c.id_ns_co);
+		const CNodeAry& na_c_va = world.GetNA( nans_c.id_na_va);
+		const CNodeAry::CNodeSeg& ns_c_va = na_c_va.GetSeg( nans_c.id_ns_va);
+
+		Fem::Field::CField::CNodeSegInNodeAry nans_b = field_str.GetNodeSegInNodeAry(BUBBLE);
+		unsigned int id_na_b_va = nans_b.id_na_va;
+		unsigned int id_ns_b_va = nans_b.id_ns_va;
+
+		assert( world.IsIdNA(id_na_b_va) );
+		CNodeAry& na_b_va = world.GetNA(id_na_b_va);
+		CNodeAry::CNodeSeg& ns_b_va = na_b_va.GetSeg(id_ns_b_va);
+
+        const unsigned int nnoes_c = es_c_co.GetSizeNoes();
+        assert( nnoes_c < 64 );
+		unsigned int noes[64];
+		const CEqn_Solid2D& eqn = this->GetEqnation(id_ea);
+		for(unsigned int ielem=0;ielem<ea.Size();ielem++){
+			////////////////
+			double coord[16][3];
+			// 座標(coord)と値(value)を作る
+			es_c_co.GetNodes(ielem,noes);
+			for(unsigned int inoes=0;inoes<nnoes;inoes++){
+				unsigned int ipoi0 = noes[inoes];
+				assert( ipoi0 < na_c_co.Size() );
+				ns_c_co.GetValue(ipoi0,coord[inoes]);
+			}
+			////////////////
+			double disp[16][3];	// 節点変位
+			es_c_va.GetNodes(ielem,noes);
+			for(unsigned int inoes=0;inoes<nnoes;inoes++){
+				unsigned int ipoi0 = noes[inoes];
+				assert( ipoi0 < na_c_va.Size() );
+				for(unsigned int idim=0;idim<ndim;idim++){
+					ns_c_va.GetValue(ipoi0,disp[inoes]);
+				}
+			}
+			////////////////
+			double dudx[2][2];	// 変形勾配
+			if( type_from == TRI11 ){
+				double dldx[3][2];
+				double const_term[3];
+				TriDlDx(dldx,const_term, coord[0],coord[1],coord[2]);
+				for(unsigned int i=0;i<ndim*ndim;i++){ (&dudx[0][0])[i] = 0.0; }
+				for(unsigned int knoes=0;knoes<nnoes;knoes++){
+					dudx[0][0] += disp[knoes][0]*dldx[knoes][0];
+					dudx[0][1] += disp[knoes][0]*dldx[knoes][1];
+					dudx[1][0] += disp[knoes][1]*dldx[knoes][0];
+					dudx[1][1] += disp[knoes][1]*dldx[knoes][1];
+				}
+			}
+			double strain[2][2];	// 歪
+			if( eqn.IsGeometricalNonlinear() ){ // 幾何学的非線形あり
+				strain[0][0] = 0.5*(dudx[0][0]+dudx[0][0]+dudx[0][0]*dudx[0][0]+dudx[1][0]*dudx[1][0]);
+				strain[0][1] = 0.5*(dudx[0][1]+dudx[1][0]+dudx[0][0]*dudx[0][1]+dudx[1][1]*dudx[1][0]);
+				strain[1][0] = 0.5*(dudx[1][0]+dudx[0][1]+dudx[0][1]*dudx[0][0]+dudx[1][0]*dudx[1][1]);
+				strain[1][1] = 0.5*(dudx[1][1]+dudx[1][1]+dudx[0][1]*dudx[0][1]+dudx[1][1]*dudx[1][1]);
+			}
+			else { // 幾何学的非線形なし
+				strain[0][0] = 0.5*(dudx[0][0]+dudx[0][0]);
+				strain[0][1] = 0.5*(dudx[0][1]+dudx[1][0]);
+				strain[1][0] = 0.5*(dudx[1][0]+dudx[0][1]);
+				strain[1][1] = 0.5*(dudx[1][1]+dudx[1][1]);
+			}
+			double stress[2][2];
+			{
+				double myu, lambda;
+				eqn.GetLambdaMyu(lambda,myu);
+				stress[0][0] = myu*strain[0][0];
+				stress[0][1] = myu*strain[0][1];
+				stress[1][0] = myu*strain[1][0];
+				stress[1][1] = myu*strain[1][1];
+				const double dtmp1 = lambda*(strain[0][0]+strain[1][1]);
+				stress[0][0] += dtmp1;
+				stress[1][1] += dtmp1;
+			}
+			double mises;
+			{
+				const double dtmp1 = 0.5*stress[0][0]*stress[0][0]+0.5*stress[1][1]*stress[1][1]
+				+0.5*(stress[1][1]-stress[0][0])*(stress[1][1]-stress[0][0])
+				+3*stress[0][1]*stress[0][1];
+				mises = sqrt(dtmp1);
+			}
+			double maxprinciple;
+			{
+				const double d1 = stress[0][0]+stress[1][1];
+				const double d2 = stress[0][0]*stress[1][1]-stress[0][1]*stress[1][0];
+				const double d3 = d1*d1-4*d2;
+				assert( d3 >= 0 );
+				maxprinciple = 0.5*(d1+sqrt(d3));
+			}
+			{
+				unsigned int noes[16];
+				es_b_va.GetNodes(ielem,noes);
+				unsigned int ipoi0 = noes[0];
+				assert( ipoi0 < na_b_va.Size() );
+				ns_b_va.SetValue(ipoi0,0,mises);
+			}
+		}
+	}
+	return true;
+}
+
+// スカラーの応力相当値を追加する．そのうちモードをつける
+// mode = 0 : ミーゼス
+// mode = 1 : 最大応力
+// 幾何学的な非線形性を考慮するかどうかは，EqnObjを見て決めるようにする
+bool CEqnSystem_Solid2D::SetStressValue(unsigned int id_field_str, Fem::Field::CFieldWorld& world)
+{	
+	if( !world.IsIdField(id_field_str) ) return false;
+	Fem::Field::CField& field_str = world.GetField(id_field_str);
+	if( field_str.GetFieldType() != STSR2 ) return false;
+
+	if( !world.IsIdField(m_IdFieldDisp) ) return false;
+	Fem::Field::CField& field_dis = world.GetField(m_IdFieldDisp);
+
+	const std::vector<unsigned int>& aIdEA_from = field_dis.GetAry_IdElemAry();
+	const std::vector<unsigned int>& aIdEA_to   = field_str.GetAry_IdElemAry();
+	if( aIdEA_from.size() != aIdEA_to.size() ) return false;
+
+	const unsigned int niea = aIdEA_from.size();
+	for(unsigned int iiea=0;iiea<niea;iiea++)
+	{
+		Fem::Field::INTERPOLATION_TYPE type_from, type_to;
+		{
+			if( aIdEA_from[iiea] != aIdEA_to[iiea] ){
+				assert(0);
+				return false;
+			}
+			const unsigned int id_ea = aIdEA_from[iiea];
+			type_from = field_dis.GetInterpolationType(id_ea,world);
+			type_to   = field_str.GetInterpolationType(id_ea,world);
+		}
 		unsigned int nnoes, ndim;
 		if( type_from==TRI11 && type_to==TRI1001 ){
 			nnoes = 3; ndim = 2;
@@ -1052,25 +1225,25 @@ bool CEqnSystem_Solid2D::SetScalarStressValue(unsigned int id_field_str, Fem::Fi
 					dudx[1][1] += disp[knoes][1]*dldx[knoes][1];
 				}
 			}
-			double myu, lambda;
-			{
-				const CEqn_Solid2D& eqn = this->GetEqnation(id_ea);
-				eqn.GetLambdaMyu(lambda,myu);
-			}
+			const CEqn_Solid2D& eqn = this->GetEqnation(id_ea);
 			double strain[2][2];	// 歪
-			// 幾何学的非線形あり
-//			strain[0][0] = 0.5*(dudx[0][0]+dudx[0][0]+dudx[0][0]*dudx[0][0]+dudx[1][0]*dudx[1][0]);
-//			strain[0][1] = 0.5*(dudx[0][1]+dudx[1][0]+dudx[0][0]*dudx[0][1]+dudx[1][1]*dudx[1][0]);
-//			strain[1][0] = 0.5*(dudx[1][0]+dudx[0][1]+dudx[0][1]*dudx[0][0]+dudx[1][0]*dudx[1][1]);
-//			strain[1][1] = 0.5*(dudx[1][1]+dudx[1][1]+dudx[0][1]*dudx[0][1]+dudx[1][1]*dudx[1][1]);
-			// 幾何学的非線形なし
-			strain[0][0] = 0.5*(dudx[0][0]+dudx[0][0]);
-			strain[0][1] = 0.5*(dudx[0][1]+dudx[1][0]);
-			strain[1][0] = 0.5*(dudx[1][0]+dudx[0][1]);
-			strain[1][1] = 0.5*(dudx[1][1]+dudx[1][1]);
+			if( eqn.IsGeometricalNonlinear() ){ // 幾何学的非線形あり(GL歪み)
+				strain[0][0] = 0.5*(dudx[0][0]+dudx[0][0]+dudx[0][0]*dudx[0][0]+dudx[1][0]*dudx[1][0]);
+				strain[0][1] = 0.5*(dudx[0][1]+dudx[1][0]+dudx[0][0]*dudx[0][1]+dudx[1][1]*dudx[1][0]);
+				strain[1][0] = 0.5*(dudx[1][0]+dudx[0][1]+dudx[0][1]*dudx[0][0]+dudx[1][0]*dudx[1][1]);
+				strain[1][1] = 0.5*(dudx[1][1]+dudx[1][1]+dudx[0][1]*dudx[0][1]+dudx[1][1]*dudx[1][1]);
+			}
+			else{ // 幾何学的非線形なし(線形歪み)
+				strain[0][0] = 0.5*(dudx[0][0]+dudx[0][0]);
+				strain[0][1] = 0.5*(dudx[0][1]+dudx[1][0]);
+				strain[1][0] = 0.5*(dudx[1][0]+dudx[0][1]);
+				strain[1][1] = 0.5*(dudx[1][1]+dudx[1][1]);
+			}
 			////////////////
 			double stress[2][2];
 			{
+				double myu, lambda;
+				eqn.GetLambdaMyu(lambda,myu);
 				stress[0][0] = myu*strain[0][0];
 				stress[0][1] = myu*strain[0][1];
 				stress[1][0] = myu*strain[1][0];
@@ -1079,33 +1252,21 @@ bool CEqnSystem_Solid2D::SetScalarStressValue(unsigned int id_field_str, Fem::Fi
 				stress[0][0] += dtmp1;
 				stress[1][1] += dtmp1;
 			}
-			double mises;
-			{
-				const double dtmp1 = 0.5*stress[0][0]*stress[0][0]+0.5*stress[1][1]*stress[1][1]
-				+0.5*(stress[1][1]-stress[0][0])*(stress[1][1]-stress[0][0])
-				+3*stress[0][1]*stress[0][1];
-				mises = sqrt(dtmp1);
-			}
-			////////////////
-			double maxprinciple;
-			{
-				const double d1 = stress[0][0]+stress[1][1];
-				const double d2 = stress[0][0]*stress[1][1]-stress[0][1]*stress[1][0];
-				const double d3 = d1*d1-4*d2;
-				assert( d3 >= 0 );
-				maxprinciple = 0.5*(d1+sqrt(d3));
-			}
 			{
 				unsigned int noes[16];
 				es_b_va.GetNodes(ielem,noes);
 				unsigned int ipoi0 = noes[0];
 				assert( ipoi0 < na_b_va.Size() );
-				ns_b_va.SetValue(ipoi0,0,mises);
+				ns_b_va.SetValue(ipoi0,0,stress[0][0]);
+				ns_b_va.SetValue(ipoi0,1,stress[1][1]);
+				ns_b_va.SetValue(ipoi0,2,stress[0][1]);
 			}
 		}
 	}
 	return true;
 }
+
+
 
 
 bool CEqnSystem_Solid2D::AddFixField(const unsigned int id_field, Fem::Field::CFieldWorld& world, int idof)

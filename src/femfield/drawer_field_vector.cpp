@@ -71,20 +71,24 @@ CDrawerVector::CDrawerVector(unsigned int id_field, const Fem::Field::CFieldWorl
 CDrawerVector::~CDrawerVector(){
 	if( m_paVer != 0 ){ delete m_paVer; }
 }
+
 Com::CBoundingBox CDrawerVector::GetBoundingBox( double rot[] ) const{
+	if( this->m_paVer == 0 ) return Com::CBoundingBox();
 	return m_paVer->GetBoundingBox(rot);
 }
 
-bool CDrawerVector::Update(const Fem::Field::CFieldWorld& world)
+bool CDrawerVector::Update_VECTOR(const Fem::Field::CFieldWorld& world)	// ベクトル描画
 {
+	assert( world.IsIdField(id_field) );
+	if( !world.IsIdField(id_field) ) return false;
 	const Fem::Field::CField& field = world.GetField(id_field);
-
 	if( field.IsPartial() ){
 		std::cout  << "未実装" << std::endl;
 		getchar();
 		assert(0);
 	}
-
+	////////////////
+	assert( field.GetFieldType() == VECTOR2 || field.GetFieldType() == VECTOR3 );
 	nline = 0;
 	{
 		// 頂点配列をセット(CORNER)
@@ -173,7 +177,7 @@ bool CDrawerVector::Update(const Fem::Field::CFieldWorld& world)
 				m_paVer->pVertexArray[ipoin*2*ndim_va+ndim_va+2] = 0;
 			}
 		}
-		if( ilayer_min != ilayer_max ){
+		if( ilayer_min != ilayer_max ){ // 高さを作る
 			const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
 			for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 				const unsigned int id_ea = aIdEA[iiea];
@@ -277,7 +281,140 @@ bool CDrawerVector::Update(const Fem::Field::CFieldWorld& world)
 				} // end ielem
 			} // end iei
 		} // end if
-	}	
+	}
+	return true;
+}
+
+bool CDrawerVector::Update_SSTR2(const Fem::Field::CFieldWorld& world)	// 主応力表示
+{
+	assert( world.IsIdField(id_field) );
+	if( !world.IsIdField(id_field) ) return false;
+	const Fem::Field::CField& field = world.GetField(id_field);
+	if( field.IsPartial() ){
+		std::cout  << "未実装" << std::endl;
+		getchar();
+		assert(0);
+	}
+	////////////////
+	assert( field.GetFieldType() == STSR2 );
+	if( field.GetNodeSegInNodeAry(BUBBLE).id_na_va == 0 ) return false;
+	nline = 0;
+	{
+		// 頂点配列をセット(BUBBLE)
+		unsigned int id_na_val_b = field.GetNodeSegInNodeAry(BUBBLE).id_na_va;
+		assert( world.IsIdNA(id_na_val_b) );
+		const Fem::Field::CNodeAry& na_val = world.GetNA(id_na_val_b);
+		nline = na_val.Size();
+	}
+	int ilayer_min, ilayer_max;
+	{
+		const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+		if( aIdEA.size() > 0 ){
+			ilayer_min = field.GetLayer(aIdEA[0]);
+			ilayer_max = ilayer_min;
+		}
+		else{ ilayer_min=0; ilayer_max=0; }
+		for(unsigned int iiea=1;iiea<aIdEA.size();iiea++){
+			int ilayer = field.GetLayer(aIdEA[iiea]);
+			ilayer_min = ( ilayer < ilayer_min ) ? ilayer : ilayer_min;
+			ilayer_max = ( ilayer > ilayer_max ) ? ilayer : ilayer_max;
+		}
+	}
+	assert( ilayer_min == ilayer_max );
+
+	const unsigned int ndim = field.GetNDimCoord();
+	if( m_paVer == 0 ){
+		m_paVer = new Com::View::CVertexArray(2*nline,ndim); 
+	}
+	else{
+		assert( m_paVer->NPoin() == 2*nline );
+		assert( m_paVer->NDim()  == ndim );
+	}
+
+	unsigned int icoun = 0;
+
+	assert( field.GetNodeSegInNodeAry(BUBBLE).id_na_va != 0 );
+	{
+		const CField::CNodeSegInNodeAry& nsna_b = field.GetNodeSegInNodeAry(BUBBLE);
+		assert( world.IsIdNA(nsna_b.id_na_va) );
+		const Fem::Field::CNodeAry& na_val = world.GetNA(nsna_b.id_na_va);
+		const unsigned int npoin_va = na_val.Size();
+		unsigned int id_ns_v;
+		{
+			if(      nsna_b.id_ns_va != 0 ) id_ns_v = nsna_b.id_ns_va;
+			else if( nsna_b.id_ns_ve != 0 ) id_ns_v = nsna_b.id_ns_ve;
+			else if( nsna_b.id_ns_ac != 0 ) id_ns_v = nsna_b.id_ns_ac;
+			else{ assert(0); }
+		}
+		assert( na_val.IsSegID(id_ns_v) );
+		const Fem::Field::CNodeAry::CNodeSeg& ns_val = na_val.GetSeg(id_ns_v);
+		assert( ns_val.GetLength() == ndim*(ndim+1)/2 );
+		{
+//			std::cout << "バブルで座標が要素の中心にある場合" << std::endl;
+			unsigned int id_na_c_co = field.GetNodeSegInNodeAry(CORNER).id_na_co;
+			unsigned int id_ns_c_co = field.GetNodeSegInNodeAry(CORNER).id_ns_co;
+			assert( world.IsIdNA(id_na_c_co) );
+			const CNodeAry& na_c_co = world.GetNA(id_na_c_co);
+			assert( na_c_co.IsSegID(id_ns_c_co) );
+			const CNodeAry::CNodeSeg& ns_c_co = na_c_co.GetSeg(id_ns_c_co);
+			assert( world.IsIdNA(nsna_b.id_na_va) );
+			const CNodeAry& na_va = world.GetNA(nsna_b.id_na_va);
+			assert( na_va.IsSegID(id_ns_v) );
+			unsigned int noes[64];
+			const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+			for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
+				unsigned int id_ea = aIdEA[iiea];
+				const CElemAry& ea = world.GetEA(id_ea);
+				const CElemAry::CElemSeg& es_c_co = field.GetElemSeg(id_ea,CORNER,false,world);
+				assert( es_c_co.GetIdNA() == id_na_c_co );
+				const CElemAry::CElemSeg& es_b_va = field.GetElemSeg(id_ea,BUBBLE,true,world);
+				assert( es_b_va.GetIdNA() == nsna_b.id_na_va );
+				for(unsigned int ielem=0;ielem<ea.Size();ielem++){
+					double coord_cnt[3];
+					{	// 要素の中心の座標を取得
+						for(unsigned int idim=0;idim<ndim;idim++){ coord_cnt[idim] = 0.0; }
+						const unsigned int nnoes = es_c_co.GetSizeNoes();
+						es_c_co.GetNodes(ielem,noes);
+						double coord[3];
+						for(unsigned int inoes=0;inoes<nnoes;inoes++){
+							unsigned int ipoi0 = noes[inoes];
+							assert( ipoi0 < na_c_co.Size() );
+							ns_c_co.GetValue(ipoi0,coord);
+							for(unsigned int idim=0;idim<ndim;idim++){ coord_cnt[idim] += coord[idim]; }
+						}
+						for(unsigned int idim=0;idim<ndim;idim++){ coord_cnt[idim] /= nnoes; }
+					}
+					double value[6];	assert( ns_val.GetLength() <= 6 );
+					{	// バブル節点の値を取得
+						es_b_va.GetNodes(ielem,noes);
+						unsigned int ipoi0 = noes[0];
+						assert( ipoi0 < na_va.Size() );
+						ns_val.GetValue(ipoi0,value);
+					}
+					for(unsigned int idim=0;idim<ndim;idim++){	// 点０の座標をセット
+						m_paVer->pVertexArray[icoun*2*ndim     +idim] = coord_cnt[idim];
+						m_paVer->pVertexArray[icoun*2*ndim+ndim+idim] = coord_cnt[idim]+value[idim];
+					}
+					icoun++;
+				} // end ielem
+			} // end iei
+		} // end if
+	}
+	return true;
+}
+
+bool CDrawerVector::Update(const Fem::Field::CFieldWorld& world)
+{
+	const Fem::Field::CField& field = world.GetField(id_field);
+	if( field.IsPartial() ){
+		std::cout  << "未実装" << std::endl;
+		getchar();
+		assert(0);
+	}
+	////////////////
+	if( field.GetFieldType() == VECTOR2 || 
+	    field.GetFieldType() == VECTOR3    ){ return this->Update_VECTOR(world); }
+	else if( field.GetFieldType() == STSR2 ){ return this->Update_SSTR2(world);  }
 	return true;
 }
 

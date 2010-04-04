@@ -38,9 +38,9 @@ Com::CBoundingBox CDrawerArray::GetBoundingBox( double rm[] ) const
 
 Com::CBoundingBox CVertexArray::GetBoundingBox( double rot[] ) const
 {
-	Com::CBoundingBox bb(0,0,0,  0,0,0);
-	if( pVertexArray == 0 ){ return bb; }
-	if( ndim == 2 ){
+	if( pVertexArray == 0 ){ return Com::CBoundingBox(); }
+	if( ndim == 2 ){		
+		Com::CBoundingBox bb;
 		{
 			const double x1 = pVertexArray[0];
 			const double y1 = pVertexArray[1];
@@ -48,9 +48,7 @@ Com::CBoundingBox CVertexArray::GetBoundingBox( double rot[] ) const
 			const double x2 = x1*rot[0]+y1*rot[1]+z1*rot[2];
 			const double y2 = x1*rot[3]+y1*rot[4]+z1*rot[5];
 			const double z2 = x1*rot[6]+y1*rot[7]+z1*rot[8];
-			bb.x_max = x2;  bb.x_min = x2;
-			bb.y_max = y2;  bb.y_min = y2;
-			bb.z_max = z2;  bb.z_min = z2;
+			bb = Com::CBoundingBox(x2,x2, y2,y2, z2,z2);
 		}
 		for(unsigned int ipoin=1;ipoin<npoin;ipoin++){
 			const double x1 = pVertexArray[ipoin*2  ];
@@ -63,8 +61,10 @@ Com::CBoundingBox CVertexArray::GetBoundingBox( double rot[] ) const
 			bb.y_max = ( y2 > bb.y_max ) ? y2 : bb.y_max;  bb.y_min = ( y2 < bb.y_min ) ? y2 : bb.y_min;			
 			bb.z_max = ( z2 > bb.z_max ) ? z2 : bb.z_max;  bb.z_min = ( z2 < bb.z_min ) ? z2 : bb.z_min;			
 		}
+		return bb;
 	}
 	if( ndim == 3 ){
+		Com::CBoundingBox bb;
 		{
 			const double x1 = pVertexArray[0];
 			const double y1 = pVertexArray[1];
@@ -72,9 +72,7 @@ Com::CBoundingBox CVertexArray::GetBoundingBox( double rot[] ) const
 			const double x2 = x1*rot[0]+y1*rot[1]+z1*rot[2];
 			const double y2 = x1*rot[3]+y1*rot[4]+z1*rot[5];
 			const double z2 = x1*rot[6]+y1*rot[7]+z1*rot[8];
-			bb.x_max = x2;  bb.x_min = x2;
-			bb.y_max = y2;  bb.y_min = y2;
-			bb.z_max = z2;  bb.z_min = z2;
+			bb = Com::CBoundingBox(x2,x2, y2,y2, z2,z2);
 		}
 		for(unsigned int ipoin=1;ipoin<npoin;ipoin++){
 			const double x1 = pVertexArray[ipoin*3  ];
@@ -87,20 +85,9 @@ Com::CBoundingBox CVertexArray::GetBoundingBox( double rot[] ) const
 			bb.y_max = ( y2 > bb.y_max ) ? y2 : bb.y_max;  bb.y_min = ( y2 < bb.y_min ) ? y2 : bb.y_min;			
 			bb.z_max = ( z2 > bb.z_max ) ? z2 : bb.z_max;  bb.z_min = ( z2 < bb.z_min ) ? z2 : bb.z_min;			
 		}
+		return bb;
 	}
-	double x_size = bb.x_max-bb.x_min;
-	double y_size = bb.y_max-bb.y_min;
-	double z_size = bb.z_max-bb.z_min;
-	double x_cent0 = (bb.x_max+bb.x_min)*0.5;
-	double y_cent0 = (bb.y_max+bb.y_min)*0.5;
-	double z_cent0 = (bb.z_max+bb.z_min)*0.5;
-	double x_cent1 = x_cent0*rot[0]+y_cent0*rot[3]+z_cent0*rot[6];
-	double y_cent1 = x_cent0*rot[1]+y_cent0*rot[4]+z_cent0*rot[7];
-	double z_cent1 = x_cent0*rot[2]+y_cent0*rot[5]+z_cent0*rot[8];
-	return CBoundingBox(
-		x_cent1-x_size*0.5,x_cent1+x_size*0.5,
-		y_cent1-y_size*0.5,y_cent1+y_size*0.5,
-		z_cent1-z_size*0.5,z_cent1+z_size*0.5 );
+	return Com::CBoundingBox();
 }
 
 void CDrawerArray::InitTrans(Com::View::CCamera& mvp_trans){

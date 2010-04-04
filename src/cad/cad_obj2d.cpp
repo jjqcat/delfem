@@ -487,6 +487,24 @@ int CCadObj2D::AssertValid() const
 	return 0;
 }
 
+
+Com::CVector2D CCadObj2D::GetNearestPoint(unsigned int id_e, const Com::CVector2D& po_in) const
+{
+    if( !this->IsElemID(Cad::EDGE,id_e) ) return Com::CVector2D();
+    const CEdge2D& e1 = this->GetEdge(id_e);
+    return e1.GetNearestPoint(po_in);
+}
+
+bool CCadObj2D::GetPointOnCurve_OnCircle(unsigned int id_e,
+        const Com::CVector2D& v0, double len, bool is_front,
+        bool& is_exceed, Com::CVector2D& out) const
+{
+    if( !this->IsElemID(Cad::EDGE,id_e) ) return false;
+    const CEdge2D& e1 = this->GetEdge(id_e);
+    return e1.GetPointOnCurve_OnCircle(v0,len,is_front,is_exceed,out);
+}
+
+
 // Private関数
 // 返り値は半辺のIDでid_vを基点としたdir1の方向に伸びる半直線からid_vを中心に時計周りに最初に出会う半辺
 // この半辺の属するループはこの半直線と重なっている。

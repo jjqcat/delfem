@@ -147,6 +147,10 @@ public:
 	bool Split(Cad::CEdge2D& edge_a, const Com::CVector2D& pa);
 	// is_add_aheadはe1がこの辺の前にあるか，is_same_dirはe1がこの辺と同じ向きか
 	bool ConnectEdge(const Cad::CEdge2D& e1, bool is_add_ahead, bool is_same_dir);
+    // v0からエッジに沿った距離でlenの長さにある点を得る．
+    // is_front==true 沿ならエッジに沿って，is_front==falseならエッジに沿わない
+    bool GetPointOnCurve_OnCircle(const Com::CVector2D& v0, double len, bool is_front,
+                                  bool& is_exceed, Com::CVector2D& out) const;
 private:
 	//! 線分と円弧の交錯を判定する
 	int NumCross_Arc_LineSeg(const Com::CVector2D& po_s1, const Com::CVector2D& po_e1) const;

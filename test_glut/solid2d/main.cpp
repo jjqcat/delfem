@@ -226,6 +226,7 @@ double dt = 0.05;
 Fem::Eqn::CEqnSystem_Solid2D solid;
 unsigned int id_field_disp;
 unsigned int id_field_equiv_stress;	// 相当応力の場
+unsigned int id_field_stress;	// 相当応力の場
 
 
 // 描画時のコールバック関数
@@ -246,9 +247,8 @@ void myGlutDisplay(void)
 		cur_time += dt;
 		world.FieldValueExec(cur_time);
 		solid.Solve(world);
-		if( id_field_equiv_stress != 0 ){ // 相当応力の場を更新
-			solid.SetScalarStressValue(id_field_equiv_stress,world);
-		}
+		if( id_field_equiv_stress != 0 ){ solid.SetEquivStressValue(id_field_equiv_stress,world); } // 相当応力の場を更新
+		if( id_field_stress       != 0 ){ solid.SetStressValue(     id_field_stress,      world); } // 応力の場を更新
 		if( solid.GetAry_ItrNormRes().size() > 0 ){
 			std::cout << "Iter : " << solid.GetAry_ItrNormRes()[0].first << " ";
 			std::cout << "Res : " << solid.GetAry_ItrNormRes()[0].second << std::endl;
@@ -264,7 +264,7 @@ void myGlutDisplay(void)
 
 void SetNewProblem()
 {
-	const unsigned int nprob = 27;	// 問題数
+	const unsigned int nprob = 10;	// 問題数
 	static unsigned int iprob = 0;
 
 	static unsigned int id_field_disp_fix0 = 0;
@@ -272,6 +272,11 @@ void SetNewProblem()
 
 	if( iprob == 0 )
 	{
+		id_field_disp_fix0 = 0;
+		id_field_temp = 0;
+		id_field_stress = 0;
+		id_field_equiv_stress = 0;
+		////////////////
 		Cad::CCadObj2D cad_2d;
 		{	// 形を作る
 			std::vector<Com::CVector2D> vec_ary;
@@ -285,6 +290,7 @@ void SetNewProblem()
 		const unsigned int id_base = world.AddMesh( Msh::CMesher2D(cad_2d,0.1) );
 		const CIDConvEAMshCad conv = world.GetIDConverter(id_base);
 
+		solid.Clear();
 	    solid.UpdateDomain_Field(id_base, world);
 		solid.SetSaveStiffMat(false);	
 		solid.SetStationary(true);
@@ -293,7 +299,6 @@ void SetNewProblem()
 		solid.SetGeometricalNonlinear(false);
 		solid.SetGravitation(0.0,0.0);
 		solid.SetTimeIntegrationParameter(dt,0.7);
-
 
 		unsigned int id_field_bc0 = solid.AddFixElemAry(conv.GetIdEA_fromCad(2,Cad::EDGE),world);
 		unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(4,Cad::EDGE),world);
@@ -363,9 +368,24 @@ void SetNewProblem()
 		// View座標変換の設定
 		drawer_ary.InitTrans(mvp_trans);
 	}
-	else if( iprob == 9 )	// 熱応力問題
+	else if( iprob == 9 )	// 応力の初期位置での表示
 	{
 		id_field_equiv_stress = 0;
+		id_field_stress = world.MakeField_FieldElemDim(id_field_disp,2,STSR2,VALUE,BUBBLE);
+		// 描画オブジェクトの登録
+		drawer_ary.Clear();
+		id_field_disp = solid.GetIdField_Disp();
+		drawer_ary.PushBack( new View::CDrawerVector(id_field_stress,world) );
+		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,true,world) );
+		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
+		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
+		// View座標変換の設定
+		drawer_ary.InitTrans(mvp_trans);
+	}
+	else if( iprob == 10 )	// 熱応力問題
+	{
+		id_field_equiv_stress = 0;
+		id_field_stress = 0;
 		////////////////
 		Cad::CCadObj2D cad_2d;
  		{	// 形を作る
@@ -410,7 +430,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
 		drawer_ary.InitTrans(mvp_trans);	// View座標変換の設定
 	}
-	else if( iprob == 10 )	// 熱応力を考慮することをやめる
+	else if( iprob == 11 )	// 熱応力を考慮することをやめる
 	{
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_temp,true, world, id_field_temp, -1,1) );
@@ -418,11 +438,11 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
 		drawer_ary.InitTrans(mvp_trans);	// View座標変換の設定
 	}
-	else if( iprob == 11 )	// 熱応力を考慮することをやめる
+	else if( iprob == 12 )	// 熱応力を考慮することをやめる
 	{
 		solid.SetThermalStress(0);
 	}
-	else if( iprob == 12 )
+	else if( iprob == 13 )
 	{
 		Cad::CCadObj2D cad_2d;
 		{	// 正方形に矩形の穴
@@ -469,24 +489,24 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
 		drawer_ary.InitTrans(mvp_trans);	// View座標変換の設定
 	}
-	else if( iprob == 13 )
+	else if( iprob == 14 )
 	{
 		solid.SetSaveStiffMat(true);
 	}
-	else if( iprob == 14 )
+	else if( iprob == 15 )
 	{
 		solid.SetSaveStiffMat(false);
 		solid.SetStationary(false);
 	}
-	else if( iprob == 15 ){
+	else if( iprob == 16 ){
 		solid.SetStationary(true);
 		solid.SetGeometricalNonlinear(true);
 	}
-	else if( iprob == 16 ){
+	else if( iprob == 17 ){
 		solid.SetStationary(false);
 		solid.SetGeometricalNonlinear(true);
 	}
-	else if( iprob == 17 ){
+	else if( iprob == 18 ){
 		Cad::CCadObj2D cad_2d;
 		{	// 正方形にが２つに分割
 			std::vector<Com::CVector2D> vec_ary;
@@ -530,24 +550,24 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerEdge(id_base,true,world) );
 		drawer_ary.InitTrans(mvp_trans);	// View座標変換の設定
 	}
-	else if( iprob == 18 )
+	else if( iprob == 19 )
 	{
 		solid.SetSaveStiffMat(true);
 	}
-	else if( iprob == 19 )
+	else if( iprob == 20 )
 	{
 		solid.SetSaveStiffMat(false);
 		solid.SetStationary(false);
 	}
-	else if( iprob == 20 ){
+	else if( iprob == 21 ){
 		solid.SetStationary(true);
 		solid.SetGeometricalNonlinear(true);
 	}
-	else if( iprob == 21 ){
+	else if( iprob == 22 ){
 		solid.SetStationary(false);
 		solid.SetGeometricalNonlinear(true);
 	}
-	else if( iprob == 22 ){
+	else if( iprob == 23 ){
 		Cad::CCadObj2D cad_2d;
 		{	// 長方形が４つに分割
 			std::vector<Com::CVector2D> vec_ary;
@@ -617,7 +637,7 @@ void SetNewProblem()
 //		drawer_ary.PushBack( new View::CDrawerEdge(id_base,false,world) );
 		drawer_ary.InitTrans(mvp_trans);	// View座標変換の設定
 	}
-	else if( iprob == 23 ){
+	else if( iprob == 24 ){
 		solid.SetRho(0.0001);
 		solid.SetStationary(false);
 		{	// 変位の場を上下に単振動に設定
@@ -625,7 +645,7 @@ void SetNewProblem()
 			field.SetValue("0.5*cos(2*t)", 1,Fem::Field::VALUE, world,true);
 		}
 	}
-	else if( iprob == 24 ){
+	else if( iprob == 25 ){
 		Cad::CCadObj2D cad_2d;
 		{	// 長方形が４つに分割
 			std::vector<Com::CVector2D> vec_ary;
@@ -679,7 +699,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.InitTrans(mvp_trans);	// View座標変換の設定
 	}
-	else if( iprob == 25 )
+	else if( iprob == 26 )
 	{
 		Cad::CCadObj2D cad_2d;
 		unsigned int id_l;
@@ -757,7 +777,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
 		drawer_ary.InitTrans(mvp_trans);	// View座標変換の設定
 	}
-	if( iprob == 26 )
+	else if( iprob == 27 )
 	{
 		Cad::CCadObj2D cad_2d;
 		unsigned int id_e;
@@ -817,6 +837,80 @@ void SetNewProblem()
 		// 描画オブジェクトの登録
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world,id_field_equiv_stress) );
+//		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world) );
+		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
+		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
+		drawer_ary.InitTrans(mvp_trans);	// View座標変換の設定
+	}	
+	else if( iprob == 28 )
+	{
+		Cad::CCadObj2D cad_2d;
+		unsigned int id_e1, id_e2, id_e3;
+		unsigned int id_l;
+		{	// 形を作る
+			std::vector<Com::CVector2D> vec_ary;
+			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
+			vec_ary.push_back( Com::CVector2D(5.0,0.0) );
+			vec_ary.push_back( Com::CVector2D(5.0,2.0) );
+			vec_ary.push_back( Com::CVector2D(0.0,2.0) );
+			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
+			id_l = cad_2d.AddPolygon( vec_ary );
+			unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(1.5,1.0));
+			unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(3.0,1.0));
+			unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(3.0,1.5));
+			id_e1 = cad_2d.ConnectVertex_Line(id_v1,id_v2);
+			id_e2 = cad_2d.ConnectVertex_Line(id_v2,id_v3);
+			id_e3 = cad_2d.ConnectVertex_Line(5,id_v1);
+		}
+		Msh::CMesher2D mesh_2d(cad_2d,0.2);
+		std::cout << "mesh node size : " << mesh_2d.GetVectorAry().size() << std::endl;
+		world.Clear();
+		cur_time = 0;
+		const unsigned int id_base = world.AddMesh(mesh_2d);
+		const CIDConvEAMshCad conv = world.GetIDConverter(id_base);
+		unsigned int id_base2 = 0;
+		{
+			std::vector<unsigned int> mapVal2Co;
+			std::vector< std::vector<int> > aLnods;
+			{
+				std::vector<unsigned int> aIdMsh_Inc;
+				aIdMsh_Inc.push_back( mesh_2d.GetElemID_FromCadID(id_l,Cad::LOOP) );	// カットされるループを登録
+				std::vector<unsigned int> aIdMshCut;
+				aIdMshCut.push_back( mesh_2d.GetElemID_FromCadID(id_e1,Cad::EDGE) );	// カットする辺を登録
+				aIdMshCut.push_back( mesh_2d.GetElemID_FromCadID(id_e2,Cad::EDGE) );	// カットする辺を登録
+				mesh_2d.GetClipedMesh(aLnods,mapVal2Co, aIdMsh_Inc,aIdMshCut);
+			}
+			std::vector<unsigned int> aIdEA_Inc;
+			aIdEA_Inc.push_back( conv.GetIdEA_fromCad(id_l,Cad::LOOP) );
+			id_base2 = world.SetCustomBaseField(id_base,aIdEA_Inc, aLnods,mapVal2Co);
+		}
+
+	    solid.UpdateDomain_Field(id_base2, world);
+		solid.SetSaveStiffMat(false);	
+		solid.SetStationary(true);
+		// 全体の物性値を設定
+		solid.SetYoungPoisson(10.0,0.3,true);	// ヤング率とポアソン比の設定(平面応力)
+		solid.SetGeometricalNonlinear(false);
+		solid.SetGravitation(0.0,0.0);
+		solid.SetTimeIntegrationParameter(dt,0.7);
+
+		unsigned int id_field_bc0 = solid.AddFixElemAry(conv.GetIdEA_fromCad(1,Cad::EDGE),world);
+		unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(3,Cad::EDGE),world);
+		{
+			CField& bc1_field = world.GetField(id_field_bc0);
+			bc1_field.SetValue("0.2*sin(t*PI*2*0.1)", 0,Fem::Field::VALUE, world,true);	// bc1_fieldのy座標に単振動を追加
+		}
+		id_field_disp = solid.GetIdField_Disp();
+		std::cout << conv.GetIdEA_fromCad(id_e3,Cad::EDGE) << std::endl;
+		unsigned int id_field_disp_edge = world.GetPartialField(id_field_disp,conv.GetIdEA_fromCad(id_e3,Cad::EDGE));
+		std::cout << id_field_disp_edge << " " << id_e3 << std::endl;
+		
+		id_field_equiv_stress = world.MakeField_FieldElemDim(id_field_disp,2,SCALAR,VALUE,BUBBLE);
+
+		// 描画オブジェクトの登録
+		drawer_ary.Clear();
+		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world,id_field_equiv_stress,0,0.5) );
+		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp_edge,false,world) );
 //		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );

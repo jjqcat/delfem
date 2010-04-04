@@ -48,6 +48,8 @@ public:
 	virtual bool Update(const Fem::Field::CFieldWorld& world);
 private:
 	bool Set(unsigned int id_field, const Fem::Field::CFieldWorld& world );
+	virtual bool Update_VECTOR(const Fem::Field::CFieldWorld& world);	// ２次元座標中のベクトル
+	virtual bool Update_SSTR2(const Fem::Field::CFieldWorld& world);	// 主応力表示
 private:
 	unsigned int id_field;
 	unsigned int nline;	// 辺の数
