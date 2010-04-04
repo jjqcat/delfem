@@ -282,8 +282,7 @@ bool CDrawer_Cad2D::UpdateCAD_TopologyGeometry(const Cad::ICad2D &cad_2d)
     m_apIndexAry.clear();
     m_aIndexVertex.clear();
 
-	Msh::CMesher2D mesh;
-	mesh.Tesselation(cad_2d);
+	Msh::CMesher2D mesh(cad_2d);
 
 	int ilayer_min, ilayer_max;
 	cad_2d.GetLayerMinMax(ilayer_min, ilayer_max);
@@ -405,9 +404,7 @@ bool CDrawer_Cad2D::UpdateCAD_TopologyGeometry(const Cad::ICad2D &cad_2d)
 
 void CDrawer_Cad2D::UpdateCAD_Geometry(const Cad::ICad2D& cad_2d)
 {
-	Msh::CMesher2D mesh;
-	mesh.Tesselation(cad_2d);
-	
+	Msh::CMesher2D mesh(cad_2d);
 	for(unsigned int idp=0;idp<m_apIndexAry.size();idp++){
 		m_apIndexAry[idp]->Clear();
 		const unsigned int id_cad = m_apIndexAry[idp]->id_cad;

@@ -72,8 +72,8 @@ CIndexArrayElem::CIndexArrayElem(unsigned int id_ea, unsigned int id_es, const F
 	////////////////
 	if( !world.IsIdEA(id_ea) ) return;
 	const CElemAry& ea = world.GetEA(id_ea);
-	if(      ea.ElemType() == Fem::Field::POINT){}
-	else if( ea.ElemType() == Fem::Field::LINE ){ Set_Line(id_ea,id_es, world); }
+	if(      ea.ElemType() == Fem::Field::POINT){ color[0]=0; color[1]=0; color[2]=0; }
+	else if( ea.ElemType() == Fem::Field::LINE ){ Set_Line(id_ea,id_es, world); color[0]=0; color[1]=0; color[2]=0; }
 	else if( ea.ElemType() == Fem::Field::TRI  ){ Set_Tri( id_ea,id_es, world); }
 	else if( ea.ElemType() == Fem::Field::QUAD ){ Set_Quad(id_ea,id_es, world); }
 	else if( ea.ElemType() == Fem::Field::TET  ){ Set_Tet( id_ea,id_es, world); }

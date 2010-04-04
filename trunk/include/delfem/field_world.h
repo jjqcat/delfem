@@ -45,6 +45,7 @@ enum FIELD_TYPE{
 	SCALAR,		//!< 実スカラー
 	VECTOR2,	//!< ２次ベクトル
 	VECTOR3,	//!< ３次ベクトル
+	STSR2,		//!< ２次対象テンソル
 	ZSCALAR		//!< 複素スカラー
 };
 
@@ -223,12 +224,9 @@ public:
 	////////////////////////////////////////////////////////////////
 	// ファイルに関係する関数群
 
-	int InitializeFromFile(const std::string& file_name, long& offset);
-	int WriteToFile(const std::string& file_name, long& offset) const;
+//	int InitializeFromFile(const std::string& file_name, long& offset);
+//	int WriteToFile(const std::string& file_name, long& offset) const;
 private:        
-/*	unsigned int SetBaseField(
-		unsigned int id_na, unsigned int id_ns_co,
-		const std::vector< std::pair< unsigned int, unsigned int> >& pEaEs );*/
 private:
 	Com::CObjSet<CElemAry*> m_apEA;		//!< 要素配列集合
 	Com::CObjSet<CNodeAry*> m_apNA;		//!< 節点配列集合

@@ -182,9 +182,8 @@ public:
 	unsigned int GetFieldDerivativeType() const { return m_field_derivative_type; }
 	//! 名前の取得
 	std::string GetName() const {return m_name; }
-	/*
-	TODO:ここは高次補間では要書き換え
-	*/
+
+	// TODO:ここは高次補間では要書き換え(PartialかどうかはELSEG_TYPEごとに違う)
 	//! 部分場かどうかを調べる
 	bool IsPartial() const { return this->m_na_c.is_part_va; }
 	//! 依存場かどうか調べる
@@ -192,8 +191,10 @@ public:
 		if( m_id_field_dep == 0 ) return false;
 		return true;
 	}
+	// TODO:ここは高次補間では要書き換え(PartialかどうかはELSEG_TYPEごとに違う)
 	// 親フィールドなら０を返す
 	unsigned int GetIDFieldParent() const {	return this->m_id_field_parent; }
+
 	// 補間のタイプを取得する
 	std::vector<unsigned int> GetAry_IdElemAry() const {
 		std::vector<unsigned int> aIdEA;
@@ -260,27 +261,17 @@ public:
 	// 境界条件をセットする（LinearSystemから呼ばれる)
 	void BoundaryCondition(const Field::ELSEG_TYPE& elseg_type, MatVec::CBCFlag& bc_flag, const CFieldWorld& world, unsigned int ioffset = 0) const;
 
-	////////////////////////////////
-	// ＩＯ入出力のための関数
-
-	// ファイルへの書き出し
-	int WriteToFile(const std::string& file_name, long& offset, unsigned int id) const;
-	// ファイルからの読み込み
-	int InitializeFromFile(const std::string& file_name, long& offset);
-	// MicroAVS inpファイルへの書き出し
-	bool ExportFile_Inp(const std::string& file_name, const CFieldWorld& world);
-
 	unsigned int GetMapVal2Co(unsigned int inode_va) const {
 		if( m_map_val2co.size() == 0 ) return inode_va;
 		assert( inode_va < m_map_val2co.size() );
 		return m_map_val2co[inode_va];
 	}
 
-	////////////////
-	// 使い方が謎な関数
+	////////////////////////////////
+	// ＩＯ入出力のための関数
 
-	// Edgeの配列を得る
-	bool GetEdge(std::vector<unsigned int>& edge_ary, const CFieldWorld& world) const;
+	// MicroAVS inpファイルへの書き出し
+	bool ExportFile_Inp(const std::string& file_name, const CFieldWorld& world);
 
 private:
     bool SetBCFlagToES(MatVec::CBCFlag& bc_flag, const Fem::Field::CElemAry& ea, unsigned int id_es, unsigned int idofblk) const;

@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 ////////////////////////////////////////////////////////////////
-// DrawerField.cpp : 場可視化クラス(DrawerField)の実装
+// drawer_field_image_based_flow_vis.cpp : 場可視化クラス(DrawerField)の実装
 ////////////////////////////////////////////////////////////////
 
 #if defined(__VISUALC__)

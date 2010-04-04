@@ -210,6 +210,10 @@ public:
 		m_g_x = g_x;
 		m_g_y = g_y;
 	}
+	void GetGravitation( double& g_x, double& g_y ){
+		g_x = m_g_x;
+		g_y = m_g_y;
+	}
 	void SetIdFieldDisp(unsigned int id_field_disp){ m_IdFieldDisp = id_field_disp; }
 	void SetGeometricalNonlinear(bool is_nonlin){   m_IsGeomNonlin = is_nonlin;  }
 	void SetThermalStress(unsigned int id_field_temp){ m_IdFieldTemperature = id_field_temp; }
@@ -254,6 +258,21 @@ public:
 	virtual bool SetDomain_FieldEA(unsigned int id_field, unsigned int id_ea, Fem::Field::CFieldWorld& world);
 	//! 方程式を解く
 	virtual bool Solve(Fem::Field::CFieldWorld& world);
+	virtual void Clear(){
+		CEqnSystem::Clear();
+		m_IdFieldDisp = 0;
+		m_aIdFixField.clear();
+		m_IsSaveStiffMat = false;
+		m_IsStationary = true;
+		m_aEqn.clear();
+		m_young_back = 1.0;
+		m_poisson_back = 0;
+		m_is_plane_stress_back = true;
+		m_rho_back = 1;
+		m_aLoad.clear();
+		m_num_iter = 100;
+		m_conv_ratio = 1.0e-6;
+	}
 
 	// 固定境界条件を追加&削除する
 	virtual bool         AddFixField(   unsigned int id_field,                  Fem::Field::CFieldWorld& world, int idof = -1);
@@ -263,14 +282,6 @@ public:
 	virtual void ClearFixElemAry();
 
 	unsigned int GetIdField_Disp() const { return m_IdFieldDisp; }
-
-	/*
-	void GetNumberOfIterationConvergenceRatio(unsigned int& num_iter, double& conv_ratio){
-		num_iter = m_num_iter;
-		conv_ratio = m_conv_ratio;
-	}
-	*/
-
 
 	bool ToplogicalChangeCad_InsertLoop(Fem::Field::CFieldWorld& world, 
 		unsigned int id_l_back, unsigned id_l_ins);
@@ -305,7 +316,8 @@ public:
 	void ClearLoad(){ m_aLoad.clear(); }
 
 	//! 変位から応力の値を計算して場(ID:id_field)にセットする
-	bool SetScalarStressValue(unsigned int id_field, Fem::Field::CFieldWorld& world);
+	bool SetEquivStressValue(unsigned int id_field, Fem::Field::CFieldWorld& world);
+	bool SetStressValue(unsigned int id_field, Fem::Field::CFieldWorld& world);
 
 private:
 	// 仮想化可能関数

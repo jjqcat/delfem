@@ -155,6 +155,12 @@ public:
 		unsigned int ndiv, const Com::CVector2D& ps, const Com::CVector2D& pe) const;
 	//! @}
 
+    bool GetPointOnCurve_OnCircle(unsigned int id_e,
+                                  const Com::CVector2D& v0, double len, bool is_front,
+                                  bool& is_exceed, Com::CVector2D& out) const;
+    //! 入力点から最も近い辺上の点と距離を返す
+    Com::CVector2D GetNearestPoint(unsigned int id_e, const Com::CVector2D& po_in) const;
+
 	////////////////////////////////
 	// 頂点のメンバ関数
 

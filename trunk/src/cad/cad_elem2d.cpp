@@ -1256,6 +1256,34 @@ bool Cad::CEdge2D::Split(Cad::CEdge2D& edge_a, const Com::CVector2D& pa)
 }
 
 
+// v0からエッジに沿った距離でlenの長さにある点を得る．
+// is_front==true 沿ならエッジに沿って，is_front==falseならエッジに沿わない
+bool Cad::CEdge2D::GetPointOnCurve_OnCircle(
+                              const Com::CVector2D& v0, double len, bool is_front,
+                              bool& is_exceed, Com::CVector2D& out) const
+{
+    if( len <= 0 ) return false;
+    if( this->itype == 0 ) // 直線の場合
+    {
+        const Com::CVector2D& v1 = this->GetNearestPoint(v0);
+        if( is_front ){
+            double len1e = Com::Length(v1,this->po_e);
+            if( len1e < len ){ is_exceed=true; out=po_e; return true; }
+            out = (len/len1e)*po_e + (1-len/len1e)*v1;
+            is_exceed = false;
+            return true;
+        }
+        else{
+            double len1s = Com::Length(v1,this->po_s);
+            if( len1s < len ){ is_exceed=true; out=po_s; return true; }
+            out = (len/len1s)*po_s + (1-len/len1s)*v1;
+            is_exceed = false;
+            return true;
+        }
+    }
+    return false;
+}
+
 //! そのうち交錯位置の情報も返したい
 int Cad::CheckEdgeIntersection(const std::vector<CEdge2D>& aEdge)
 {

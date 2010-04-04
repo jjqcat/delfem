@@ -474,14 +474,17 @@ bool CField::SetValueType( FIELD_TYPE field_type, const int fdt, CFieldWorld& wo
 		std::vector< std::pair<unsigned int,CNodeAry::CNodeSeg> > add_ns;
 		if( fdt&VALUE ){
 			nsna.id_ns_va = tmp_id_ns_ary[0];
-			if( field_type == SCALAR ){	
+			if(      field_type == SCALAR  ){
 				add_ns.push_back( std::make_pair(nsna.id_ns_va, CNodeAry::CNodeSeg(1,"SCAL_VAL")) ); 
 			}
-			else if( field_type == VECTOR2 ){ 
+			else if( field_type == VECTOR2 ){
 				add_ns.push_back( std::make_pair(nsna.id_ns_va, CNodeAry::CNodeSeg(2,"VEC2_VAL")) );	
 			}
 			else if( field_type == VECTOR3 ){ 
 				add_ns.push_back( std::make_pair(nsna.id_ns_va, CNodeAry::CNodeSeg(3,"VEC3_VAL")) );	
+			}
+			else if( field_type == STSR2   ){ 
+				add_ns.push_back( std::make_pair(nsna.id_ns_va, CNodeAry::CNodeSeg(3,"STSR2_VAL")) );
 			}
 			else if( field_type == ZSCALAR ){	
 				add_ns.push_back( std::make_pair(nsna.id_ns_va, CNodeAry::CNodeSeg(2,"ZSCAL_VAL")) ); 
@@ -492,7 +495,7 @@ bool CField::SetValueType( FIELD_TYPE field_type, const int fdt, CFieldWorld& wo
 		}
 		if( fdt&VELOCITY ){
 			nsna.id_ns_ve = tmp_id_ns_ary[1];
-			if( field_type == SCALAR ){	
+			if(      field_type == SCALAR  ){	
 				add_ns.push_back( std::make_pair(nsna.id_ns_ve, CNodeAry::CNodeSeg(1,"SCAL_VELO")) ); 
 			}
 			else if( field_type == VECTOR2 ){ 
@@ -501,10 +504,13 @@ bool CField::SetValueType( FIELD_TYPE field_type, const int fdt, CFieldWorld& wo
 			else if( field_type == VECTOR3 ){ 
 				add_ns.push_back( std::make_pair(nsna.id_ns_ve, CNodeAry::CNodeSeg(3,"VEC3_VELO")) );	
 			}
+			else if( field_type == STSR2   ){ 
+				add_ns.push_back( std::make_pair(nsna.id_ns_va, CNodeAry::CNodeSeg(3,"STSR2_VELO")) );
+			}
 		}
 		if( fdt&ACCELERATION ){
 			nsna.id_ns_ac = tmp_id_ns_ary[2];
-			if( field_type == SCALAR ){	
+			if(      field_type == SCALAR  ){	
 				add_ns.push_back( std::make_pair(nsna.id_ns_ac, CNodeAry::CNodeSeg(1,"SCAL_ACC")) ); 
 			}
 			else if( field_type == VECTOR2 ){ 
@@ -512,6 +518,9 @@ bool CField::SetValueType( FIELD_TYPE field_type, const int fdt, CFieldWorld& wo
 			}
 			else if( field_type == VECTOR3 ){ 
 				add_ns.push_back( std::make_pair(nsna.id_ns_ac, CNodeAry::CNodeSeg(3,"VEC3_ACC")) );	
+			}
+			else if( field_type == STSR2   ){ 
+				add_ns.push_back( std::make_pair(nsna.id_ns_va, CNodeAry::CNodeSeg(3,"STSR2_ACC")) );
 			}
 		}
 		std::vector<int> id_ary = na.AddSegment( add_ns, 0.0 );
@@ -535,29 +544,38 @@ bool CField::SetValueType( FIELD_TYPE field_type, const int fdt, CFieldWorld& wo
 			else if( field_type == VECTOR3 ){ 
 				add_ns.push_back( std::make_pair(nsna.id_ns_va, CNodeAry::CNodeSeg(3,"VEC3_VAL")) );	
 			}
+			else if( field_type == STSR2   ){ 
+				add_ns.push_back( std::make_pair(nsna.id_ns_va, CNodeAry::CNodeSeg(3,"STSR2_VELO")) );
+			}
 		}
 		if( fdt & VELOCITY ){
 			nsna.id_ns_ve = tmp_id_ns_ary[1];
-			if( field_type == SCALAR ){	
+			if(      field_type == SCALAR  ){
 				add_ns.push_back( std::make_pair(nsna.id_ns_ve, CNodeAry::CNodeSeg(1,"SCALAR_VELO")) ); 
 			}
 			else if( field_type == VECTOR2 ){ 
-				add_ns.push_back( std::make_pair(nsna.id_ns_ve, CNodeAry::CNodeSeg(2,"VEC2_VELO")) );	
+				add_ns.push_back( std::make_pair(nsna.id_ns_ve, CNodeAry::CNodeSeg(2,"VEC2_VELO"  )) );	
 			}
 			else if( field_type == VECTOR3 ){ 
-				add_ns.push_back( std::make_pair(nsna.id_ns_ve, CNodeAry::CNodeSeg(3,"VEC3_VELO")) );	
+				add_ns.push_back( std::make_pair(nsna.id_ns_ve, CNodeAry::CNodeSeg(3,"VEC3_VELO"  )) );	
+			}
+			else if( field_type == STSR2   ){ 
+				add_ns.push_back( std::make_pair(nsna.id_ns_va, CNodeAry::CNodeSeg(3,"STSR2_VELO" )) );
 			}
 		}
 		if( fdt & ACCELERATION ){
 			nsna.id_ns_ac = tmp_id_ns_ary[2];
 			if( field_type == SCALAR ){	
-				add_ns.push_back( std::make_pair(nsna.id_ns_ac, CNodeAry::CNodeSeg(1,"SCAL_ACC")) ); 
+				add_ns.push_back( std::make_pair(nsna.id_ns_ac, CNodeAry::CNodeSeg(1,"SCAL_ACC" )) ); 
 			}
 			else if( field_type == VECTOR2 ){ 
-				add_ns.push_back( std::make_pair(nsna.id_ns_ac, CNodeAry::CNodeSeg(2,"VEC2_ACC")) );	
+				add_ns.push_back( std::make_pair(nsna.id_ns_ac, CNodeAry::CNodeSeg(2,"VEC2_ACC" )) );	
 			}
 			else if( field_type == VECTOR3 ){ 
-				add_ns.push_back( std::make_pair(nsna.id_ns_ac, CNodeAry::CNodeSeg(3,"VEC3_ACC")) );	
+				add_ns.push_back( std::make_pair(nsna.id_ns_ac, CNodeAry::CNodeSeg(3,"VEC3_ACC" )) );	
+			}
+			else if( field_type == STSR2   ){ 
+				add_ns.push_back( std::make_pair(nsna.id_ns_va, CNodeAry::CNodeSeg(3,"STSR2_ACC")) );
 			}
 		}
 		std::vector<int> id_ary = na.AddSegment( add_ns, 0.0 );
@@ -571,6 +589,7 @@ bool CField::SetValueType( FIELD_TYPE field_type, const int fdt, CFieldWorld& wo
 		if(      field_type == SCALAR  ) ndofsize = 1;
 		else if( field_type == VECTOR2 ) ndofsize = 2;
 		else if( field_type == VECTOR3 ) ndofsize = 3;
+		else if( field_type == STSR2   ) ndofsize = 3;
 		else if( field_type == ZSCALAR ) ndofsize = 2;
 		else{ assert(0); }
 	}
@@ -1210,7 +1229,7 @@ INTERPOLATION_TYPE CField::GetInterpolationType(unsigned int id_ea,const CFieldW
 		elem_type = ea.ElemType();
 	}
 	if( elem_type == LINE ){
-		if( ei.id_es_c_va != 0 && ei.id_es_b_va == 0 && ei.id_es_e_va==0 ){	     return LINE11; }
+		if( ei.id_es_c_va != 0 && ei.id_es_b_va == 0 && ei.id_es_e_va==0 ){	     return LINE11; }	// 直線一次補間
 		else{
 			std::cout << "Error!-->Interpolation Not Defined(Tri)" << std::endl;
 			std::cout << ei.id_es_c_va << " " << ei.id_es_b_va << std::endl;
@@ -1218,9 +1237,9 @@ INTERPOLATION_TYPE CField::GetInterpolationType(unsigned int id_ea,const CFieldW
 		}
 	}
 	else if( elem_type == TRI ){
-		if(      ei.id_es_c_va != 0 && ei.id_es_b_va == 0 && ei.id_es_e_va==0 ){ return TRI11;   }
-		else if( ei.id_es_c_va != 0 && ei.id_es_b_va != 0 && ei.id_es_e_va==0 ){ return TRI1011; }
-		else if( ei.id_es_c_va == 0 && ei.id_es_b_va != 0 && ei.id_es_e_va==0 ){ return TRI1001; }
+		if(      ei.id_es_c_va != 0 && ei.id_es_b_va == 0 && ei.id_es_e_va==0 ){ return TRI11;   }	// 三角形一次補間
+		else if( ei.id_es_c_va != 0 && ei.id_es_b_va != 0 && ei.id_es_e_va==0 ){ return TRI1011; }	// 三角形バブル補間(サブパラメトリック)
+		else if( ei.id_es_c_va == 0 && ei.id_es_b_va != 0 && ei.id_es_e_va==0 ){ return TRI1001; }	// 三角形要素一定補間
 		else{
 			std::cout << "Error!-->Interpolation Not Defined(Tri)" << std::endl;
 			std::cout << ei.id_es_c_va << " " << ei.id_es_b_va << std::endl;
@@ -1228,12 +1247,12 @@ INTERPOLATION_TYPE CField::GetInterpolationType(unsigned int id_ea,const CFieldW
 		}
 	}
 	else if( elem_type == TET ){
-		if( ei.id_es_c_va != 0 && ei.id_es_b_va == 0 && ei.id_es_e_va==0 ){    return TET11; }
-		else if( ei.id_es_c_va==0 && ei.id_es_b_va != 0 && ei.id_es_e_va==0 ){ return TET1001; }
+		if(      ei.id_es_c_va!=0 && ei.id_es_b_va == 0 && ei.id_es_e_va==0 ){ return TET11;   }	// 四面体一次補間
+		else if( ei.id_es_c_va==0 && ei.id_es_b_va != 0 && ei.id_es_e_va==0 ){ return TET1001; }	// 四面体要素一定補間
 	}
 	else if( elem_type == HEX ){
-		if( ei.id_es_c_va != 0 && ei.id_es_b_va == 0 && ei.id_es_e_va==0 ){  return HEX11; }
-		else if( ei.id_es_c_va==0 && ei.id_es_b_va!=0 && ei.id_es_e_va==0 ){ return HEX1001; 	}
+		if(      ei.id_es_c_va!=0 && ei.id_es_b_va==0 && ei.id_es_e_va==0 ){ return HEX11;   }	// 六面体一次補間
+		else if( ei.id_es_c_va==0 && ei.id_es_b_va!=0 && ei.id_es_e_va==0 ){ return HEX1001; }	// 六面体要素一定補間
 	}
 	std::cout << iei << "   " << ei.id_es_c_va << " " << ei.id_es_b_va << " " << ei.id_es_e_va << std::endl;
 	std::cout << "Error!-->Not Implimented : " << elem_type << std::endl;
@@ -1246,6 +1265,8 @@ static double TriArea2D(const double p0[], const double p1[], const double p2[])
 	return 0.5*( (p1[0]-p0[0])*(p2[1]-p0[1])-(p2[0]-p0[0])*(p1[1]-p0[1]) );
 }
 
+// TODO: 一度この関数を呼んだら，次に呼んだ時は高速に処理されるように，ハッシュを構築する
+// TODO: 座標やコネクティビティの変更があった場合は，ハッシュを削除する
 bool CField::FindVelocityAtPoint(double velo[],  
 	unsigned int& id_ea_stat, unsigned int& ielem_stat, double& r1, double& r2,
 	const double co[], const Fem::Field::CFieldWorld& world) const 
@@ -1303,332 +1324,10 @@ bool CField::FindVelocityAtPoint(double velo[],
 	return false;
 }
 
-
-
-
-bool CField::GetEdge(std::vector<unsigned int>& edge_ary, const CFieldWorld& world) const 
-{
-	edge_ary.resize(0);
-
-	assert( m_aElemIntp.size() == 1 );
-	const CElemInterpolation& ei = m_aElemIntp[0];
-	if( ei.id_es_e_va == 0 ) return true;
-
-	const unsigned int id_ea = ei.id_ea;
-	const unsigned int id_es_e = ei.id_es_e_va;
-	const unsigned int id_es_c = ei.id_es_c_va;
-	assert( world.IsIdEA(id_ea) );
-	const CElemAry& ea = world.GetEA(id_ea);
-	assert( ea.IsSegID(id_es_e) );
-	const CElemAry::CElemSeg& es_e = ea.GetSeg(id_es_e);
-	assert( ea.IsSegID(id_es_c) );
-	const CElemAry::CElemSeg& es_c = ea.GetSeg(id_es_c);
-	edge_ary.resize( (es_e.GetMaxNoes()+1)*2 );
-	std::vector<bool> edge_flag;
-	edge_flag.resize( es_e.GetMaxNoes()+1, false );
-	unsigned int noes_edge[64];
-	unsigned int noes_corner[64];
-
-	if( ea.ElemType() == TRI ){
-		unsigned int nnoes = 3;
-		assert( es_e.GetSizeNoes() == 3 );
-		assert( es_c.GetSizeNoes() == 3 );
-		for(unsigned int ielem=0;ielem<ea.Size();ielem++){
-			es_e.GetNodes(ielem,noes_edge);
-			es_c.GetNodes(ielem,noes_corner);
-			for(unsigned int inoes=0;inoes<nnoes;inoes++){
-				unsigned int iedge0 = noes_edge[inoes];
-				assert( iedge0 < edge_ary.size() );
-				unsigned int ipo0=0,ipo1=0;
-				if(      inoes == 0 ){
-					ipo0 = noes_corner[1];
-					ipo1 = noes_corner[2];
-				}
-				else if( inoes == 1 ){
-					ipo0 = noes_corner[0];
-					ipo1 = noes_corner[2];
-				}
-				else if( inoes == 2 ){
-					ipo0 = noes_corner[0];
-					ipo1 = noes_corner[1];
-				}
-				edge_ary[iedge0*2  ] = ipo0;
-				edge_ary[iedge0*2+1] = ipo1;
-				edge_flag[iedge0] = true;
-			}
-		}
-	}
-	else if( ea.ElemType() == QUAD ){
-		const unsigned int nnoes = 4;
-		assert( es_e.GetSizeNoes() == nnoes );
-		assert( es_c.GetSizeNoes() == nnoes );
-		for(unsigned int ielem=0;ielem<ea.Size();ielem++){
-			es_e.GetNodes(ielem,noes_edge);
-			es_c.GetNodes(ielem,noes_corner);
-			for(unsigned int inoes=0;inoes<nnoes;inoes++){
-				unsigned int iedge0 = noes_edge[inoes];
-				assert( iedge0 < edge_ary.size() );
-				unsigned int ipo0=0,ipo1=0;
-				if(       inoes == 0 ){
-					ipo0 = noes_corner[0];
-					ipo1 = noes_corner[1];
-				}
-				else if(  inoes == 1 ){
-					ipo0 = noes_corner[1];
-					ipo1 = noes_corner[2];
-				}
-				else if(  inoes == 2 ){
-					ipo0 = noes_corner[2];
-					ipo1 = noes_corner[3];
-				}
-				else if(  inoes == 3 ){
-					ipo0 = noes_corner[3];
-					ipo1 = noes_corner[0];
-				}
-				edge_ary[iedge0*2  ] = ipo0;
-				edge_ary[iedge0*2+1] = ipo1;
-				edge_flag[iedge0] = true;
-			}
-		}
-	}
-	else{
-		assert(0);
-	}
-
-	for(unsigned int iedge=0;iedge<edge_flag.size();iedge++){
-		assert( edge_flag[iedge] );
-	}
-
-	return true;
-}
-
-int CField::WriteToFile(const std::string& file_name, long& offset, unsigned int id) const {
-
-	FILE *fp;
-	if( (fp = fopen(file_name.c_str(),"a"))== NULL ){
-		std::cout << "Error!-->Cannot Open File" << std::endl;
-		assert(0);
-		return 1;
-	}
-
-	fprintf(fp,"$$$$$$\n");
-	fprintf(fp,"FIELD\n");
-
-	fprintf(fp,"%d\n",id);
-	fprintf(fp,"%s\n",m_name.c_str());
-
-	if( m_field_type == SCALAR ){
-		fprintf(fp,"SCALAR\n");
-	}
-	else if( m_field_type == VECTOR2 ){
-		fprintf(fp,"VECTOR2\n");
-	}
-	else if( m_field_type == NO_VALUE ){
-		fprintf(fp,"NO_VALUE\n");
-	}
-	else{ assert(0); }
-
-	fprintf(fp,"%d\n",m_aElemIntp.size());
-	for(unsigned int iea=0;iea<m_aElemIntp.size();iea++){
-		const CElemInterpolation& ei = m_aElemIntp[iea];
-		fprintf(fp,"%d %d %d %d %d %d %d %d\n",iea+1, ei.id_ea, 
-			ei.id_es_c_va, ei.id_es_c_co,
-			ei.id_es_e_va, ei.id_es_e_co,
-			ei.id_es_b_va, ei.id_es_b_co);
-	}
-
-	{
-		CNodeSegInNodeAry nsna = m_na_c;
-		fprintf(fp,"%s %d %d %d %d\n","CORNER", 
-			nsna.id_na_va, nsna.id_ns_va,
-			nsna.id_na_co, nsna.id_ns_co);
-	}
-	{
-		CNodeSegInNodeAry nsna = m_na_e;
-		fprintf(fp,"%s %d %d %d %d\n","EDGE"  ,
-			nsna.id_na_va, nsna.id_ns_va, 
-			nsna.id_na_co, nsna.id_ns_co);
-	}
-	{
-		CNodeSegInNodeAry nsna = m_na_b;
-		fprintf(fp,"%s %d %d %d %d\n","BUBBLE", 
-			nsna.id_na_va, nsna.id_ns_va, 
-			nsna.id_na_co, nsna.id_ns_co);
-	}
-	fclose(fp);
-	return 0;
-}
-
-
-
-int CField::InitializeFromFile(const std::string& file_name, long& offset)
-{
-	FILE *fp;
-	const unsigned int buff_size = 512;
-	char stmp1[buff_size];
-
-	if( (fp = fopen(file_name.c_str(),"r"))== NULL ){
-		std::cout << "CField::InitializeFromFile" << std::endl;
-		std::cout << "Error!-->Cannot Open File" << std::endl;
-		assert(0);
-		return 1;
-	}
-
-	fseek(fp,offset,SEEK_SET);
-
-	m_aElemIntp.clear();
-
-	////////////////////////////////
-
-	// read "$$$$$$"
-	while( fgets(stmp1,buff_size,fp) != NULL ){
-		if( stmp1[0] == '#' ) continue;
-//		if( strspn(stmp1," \n") != strlen(stmp1) ) break;
-		break;
-	}
-	assert( strncmp(stmp1,"$$$$$$$$",6)==0 );
-
-	// read "FIELD"
-	while( fgets(stmp1,buff_size,fp) != NULL ){
-		if( stmp1[0] == '#' ) continue;
-//		if( strspn(stmp1," \n") != strlen(stmp1) ) break;
-		break;
-	}
-	assert( strncmp(stmp1,"FIELD",5)==0 );
-
-
-	unsigned int id;
-	{	// read id_fd
-		while( fgets(stmp1,buff_size,fp) != NULL ){
-			if( stmp1[0] == '#' ) continue;
-//			if( strspn(stmp1," \n") != strlen(stmp1) ) break;
-			break;
-		}
-		int tmp_id;
-		sscanf(stmp1,"%d",&tmp_id);
-		assert( tmp_id > 0 );
-		id = tmp_id;
-	}
-
-	{	// read "NAME"
-		while( fgets(stmp1,buff_size,fp) != NULL ){
-			if( stmp1[0] == '#' ) continue;
-//			if( strspn(stmp1," \n") != strlen(stmp1) ) break;
-			break;
-		}
-		m_name = stmp1;
-	}
-
-	{	// read "FIELD"
-		while( fgets(stmp1,buff_size,fp) != NULL ){
-			if( stmp1[0] == '#' ) continue;
-//			if( strspn(stmp1," \n") != strlen(stmp1) ) break;
-			break;
-		}
-		if( strcmp(stmp1,"SCALAR\n") == 0 ){
-			this->m_field_type = SCALAR;
-			this->m_DofSize = 1;
-		}
-		else if( strcmp(stmp1,"VECTOR2\n") == 0 ){
-			this->m_field_type = VECTOR2;
-			this->m_DofSize = 2;
-		}
-		else if( strcmp(stmp1,"NO_VALUE\n") == 0 ){
-			m_field_type = NO_VALUE;
-			this->m_DofSize = 0;
-		}
-		else{
-			std::cout << "Error!-->not field type " << std::endl;
-			assert(0);
-		}
-	}
-
-
-	{	// 要素の補間情報の読み込み
-		while( fgets(stmp1,buff_size,fp) != NULL ){
-			if( stmp1[0] == '#' ) continue;
-//			if( strspn(stmp1," \n") != strlen(stmp1) ) break;
-			break;
-		}
-		int nei;
-		sscanf(stmp1,"%d",&nei);
-		assert( nei > 0 );
-		m_aElemIntp.reserve(nei);
-		for(unsigned int iei=0;iei<(unsigned int)nei;iei++){
-			fgets(stmp1,buff_size,fp);
-			int itmp1,itmp2,itmp3,itmp4,itmp5,itmp6,itmp7,itmp8;
-			sscanf(stmp1,"%d %d %d %d %d %d %d %d",&itmp1, &itmp2, &itmp3,&itmp4, &itmp5,&itmp6, &itmp7,&itmp8);
-            assert( itmp1 == (int)iei+1 );
-			m_aElemIntp.push_back( CElemInterpolation(itmp2,itmp3,itmp4,itmp5,itmp6,itmp7,itmp8) );
-		}
-	}
-	
-	{	// 節点配列の座標と値セグメントデータの読み込み
-		while( fgets(stmp1,buff_size,fp) != NULL ){
-			if( stmp1[0] == '#' ) continue;
-//			if( strspn(stmp1," \n") != strlen(stmp1) ) break;
-			break;
-		}
-		char str_elseg_type[64];
-		unsigned int id_na_value, id_ns_value, id_na_coord, id_ns_coord;
-		sscanf(stmp1,"%s %d %d %d %d",str_elseg_type,
-			&id_na_value,&id_ns_value,
-			&id_na_coord,&id_ns_coord);
-		assert( strcmp(str_elseg_type,"CORNER")==0 );
-		m_na_c.id_na_va = id_na_value;
-		m_na_c.id_ns_va = id_ns_value;
-		m_na_c.id_na_co = id_na_coord;
-		m_na_c.id_ns_co = id_ns_coord;
-	}
-
-	{	// 節点配列の座標と値セグメントデータの読み込み
-		while( fgets(stmp1,buff_size,fp) != NULL ){
-			if( stmp1[0] == '#' ) continue;
-//			if( strspn(stmp1," \n") != strlen(stmp1) ) break;
-			break;
-		}
-		char str_elseg_type[64];
-		unsigned int id_na_value, id_ns_value, id_na_coord, id_ns_coord;
-		sscanf(stmp1,"%s %d %d %d %d",str_elseg_type,
-			&id_na_value,&id_ns_value,
-			&id_na_coord,&id_ns_coord);
-		assert( strcmp(str_elseg_type,"EDGE")==0 );
-		m_na_e.id_na_va = id_na_value;
-		m_na_e.id_ns_va = id_ns_value;
-		m_na_e.id_na_co = id_na_coord;
-		m_na_e.id_ns_co = id_ns_coord;
-	}
-
-	{	// 節点配列の座標と値セグメントデータの読み込み
-		while( fgets(stmp1,buff_size,fp) != NULL ){
-			if( stmp1[0] == '#' ) continue;
-//			if( strspn(stmp1," \n") != strlen(stmp1) ) break;
-			break;
-		}
-		char str_elseg_type[64];
-		unsigned int id_na_value, id_ns_value, id_na_coord, id_ns_coord;
-		sscanf(stmp1,"%s %d %d %d %d",str_elseg_type,
-			&id_na_value,&id_ns_value,
-			&id_na_coord,&id_ns_coord);
-		assert( strcmp(str_elseg_type,"BUBBLE")==0 );
-		m_na_b.id_na_va = id_na_value;
-		m_na_b.id_ns_va = id_ns_value;
-		m_na_b.id_na_co = id_na_coord;
-		m_na_b.id_ns_co = id_ns_coord;
-	}
-
-	offset = ftell(fp);
-
-//	int ires = fclose(fp);
-
-	return 0;
-}
-
 // 勾配をセットする
 bool Fem::Field::CField::SetGradient(unsigned int id_field, Field::CFieldWorld& world, bool is_save)
 {
 	if( !world.IsIdField(id_field) ) return false;
-//	Fem::Field::CField& field = world.GetField(id_field);
 	this->SetGradientValue(id_field,world);
 	if( is_save ){
 		m_is_gradient = true;

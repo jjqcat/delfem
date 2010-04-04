@@ -275,7 +275,7 @@ public:
 		}
 	}
 	
-	bool ProjectionOnPlane(double& o_x, double& o_y, double& o_z,
+    Com::CVector3D ProjectionOnPlane(
 		const double pos_x,   const double pos_y,
 		double plane_x=0, double plane_y=0, double plane_z=0,
 		double norm_x=0,  double norm_y=0,  double norm_z=1 ) const
@@ -295,11 +295,11 @@ public:
 
 		double obj_cnt_x=obj_center.x, obj_cnt_y=obj_center.y, obj_cnt_z=obj_center.z;
 
-		o_x =  hw*cos(theta)*(pos_x*inv_scale-win_center_x)+hh*sin(theta)*(pos_y*inv_scale-win_center_y)+obj_cnt_x;
-		o_y = -hw*sin(theta)*(pos_x*inv_scale-win_center_x)+hh*cos(theta)*(pos_y*inv_scale-win_center_y)+obj_cnt_y;
-		o_z = +obj_cnt_z;
+        double ox =  hw*cos(theta)*(pos_x*inv_scale-win_center_x)+hh*sin(theta)*(pos_y*inv_scale-win_center_y)+obj_cnt_x;
+        double oy = -hw*sin(theta)*(pos_x*inv_scale-win_center_x)+hh*cos(theta)*(pos_y*inv_scale-win_center_y)+obj_cnt_y;
+        double oz = +obj_cnt_z;
 
-		return true;
+        return Com::CVector3D(ox,oy,oz);
 	}
 
 

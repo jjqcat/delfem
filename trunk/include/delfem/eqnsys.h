@@ -121,7 +121,6 @@ protected:
 	double m_gamma_newmark, m_beta_newmark, m_dt;
 	Fem::Ls::CLinearSystem_Field* pLS;	// 連立一次方程式クラス
 	LsSol::CPreconditioner* pPrec;	// 前処理クラス
-
 	bool m_is_cleared_value_ls;
 	bool m_is_cleared_value_prec;
 };
