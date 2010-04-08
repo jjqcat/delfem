@@ -14,7 +14,9 @@
   * 方程式を解く
   * 可視化のための描画クラスを設定
 
-<img src="http://delfem.googlecode.com/files/fem_procedure.jpg" width="200" height="150">
+<img src="http://delfem.googlecode.com/files/fem_procedure.jpg" width="400" height="300">
+
+
 　
 以下それぞれの段階について，詳しく説明させていただきます．
 
