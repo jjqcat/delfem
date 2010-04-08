@@ -13,6 +13,8 @@
   * 方程式に境界条件を設定
   * 方程式を解く
   * 可視化のための描画クラスを設定
+
+<img src="http://delfem.googlecode.com/files/fem_procedure.jpg" width="200" height="150">
 　
 以下それぞれの段階について，詳しく説明させていただきます．
 
