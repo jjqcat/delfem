@@ -392,19 +392,19 @@ bool CDrawerFace::Set(unsigned int id_field, const Fem::Field::CFieldWorld& worl
 	CDrawerFace::Update(world);
 
 	////////////////////////////////
-	// 要素配列の設定
-
-	const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
-	for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
-		const unsigned int id_ea = aIdEA[iiea];
-		assert( world.IsIdEA(id_ea) );
-		unsigned int id_es_c;
-		if( m_is_draw_nsv ){ id_es_c = field.GetIdElemSeg(id_ea,CORNER,true, world); }
-		else{                id_es_c = field.GetIdElemSeg(id_ea,CORNER,false,world); }
-		assert( id_es_c != 0 );
-		CIndexArrayElem* pIAE = new CIndexArrayElem(id_ea,id_es_c,world);
-		pIAE->ilayer = field.GetLayer(id_ea);
-		this->m_apIndexArrayElem.push_back( pIAE );
+	{	// 要素配列の設定
+		const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
+			const unsigned int id_ea = aIdEA[iiea];
+			assert( world.IsIdEA(id_ea) );
+			unsigned int id_es_c;
+			if( m_is_draw_nsv ){ id_es_c = field.GetIdElemSeg(id_ea,CORNER,true, world); }
+			else{                id_es_c = field.GetIdElemSeg(id_ea,CORNER,false,world); }
+			assert( id_es_c != 0 );
+			CIndexArrayElem* pIAE = new CIndexArrayElem(id_ea,id_es_c,world);
+			pIAE->ilayer = field.GetLayer(id_ea);
+			this->m_apIndexArrayElem.push_back( pIAE );
+		}
 	}
 
 	////////////////////////////////

@@ -75,6 +75,7 @@ std::vector<SSelectedObject> PickPost(
 //! À•W‚ğ•`‚­ƒNƒ‰ƒX
 class CDrawerCoord : public CDrawer{
 public:
+	CDrawerCoord(){}
 	CDrawerCoord(const CCamera& trans, unsigned int win_h );
 	virtual void Draw() const;
 	virtual void DrawSelection(unsigned int idraw) const {}

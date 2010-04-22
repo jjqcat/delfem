@@ -101,6 +101,7 @@ bool View::CIndexArrayElem::Set_Line(unsigned int id_ea, unsigned int id_es,
 	this->id_es = id_es;
 	const CElemAry::CElemSeg& es = ea.GetSeg(id_es);
 	nElem = ea.Size();
+	nnoel = 2;
 	if( this->pIA_Elem != 0 ) delete[] pIA_Elem;
 	pIA_Elem = new unsigned int [nElem*2];
 	unsigned int nnoes = es.GetSizeNoes();
@@ -125,6 +126,7 @@ bool View::CIndexArrayElem::Set_Tri(unsigned int id_ea, unsigned int id_es,
 	this->id_es = id_es;
 	const CElemAry::CElemSeg& es = ea.GetSeg(id_es);
 	nElem = ea.Size();
+	nnoel = 3;
 	if( this->pIA_Elem != 0 ) delete[] pIA_Elem;
 	pIA_Elem = new unsigned int [nElem*3];
 	unsigned int nnoes = es.GetSizeNoes();
@@ -148,6 +150,7 @@ bool View::CIndexArrayElem::Set_Quad(unsigned int id_ea, unsigned int id_es,
 	this->id_es = id_es;
 	const CElemAry::CElemSeg& es = ea.GetSeg(id_es);
 	nElem = ea.Size();
+	nnoel = 4;
 	if( this->pIA_Elem != 0 ) delete[] pIA_Elem;
 	pIA_Elem = new unsigned int [nElem*4];
 	const unsigned int nnoes = es.GetSizeNoes();
@@ -173,6 +176,7 @@ bool View::CIndexArrayElem::Set_Tet(unsigned int id_ea, unsigned int id_es, cons
 	CElemAry* pEA = ea.MakeBoundElemAry(id_es,id_es_add,aIndElem);
 	const CElemAry::CElemSeg& es = pEA->GetSeg(id_es_add);
 	nElem = pEA->Size();
+	nnoel = 3;
 	const unsigned int npofa = 3;
 	pIA_Elem = new unsigned int [nElem*npofa];
 	for(unsigned int iface=0;iface<nElem;iface++){
@@ -196,6 +200,7 @@ bool View::CIndexArrayElem::Set_Hex(unsigned int id_ea, unsigned int id_es,
 	unsigned int id_es_add = 0;
 	CElemAry* pEA = ea.MakeBoundElemAry(id_es,id_es_add,aIndElem);
 	nElem = pEA->Size();
+	nnoel = 4;
 	assert( aIndElem.size() == nElem );
 	assert( pEA->IsSegID(id_es_add) );
 	const CElemAry::CElemSeg& es = pEA->GetSeg(id_es_add);

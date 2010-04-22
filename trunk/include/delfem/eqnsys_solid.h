@@ -269,6 +269,7 @@ public:
 		m_poisson_back = 0;
 		m_is_plane_stress_back = true;
 		m_rho_back = 1;
+		m_is_geom_nonlin_back = false;
 		m_aLoad.clear();
 		m_num_iter = 100;
 		m_conv_ratio = 1.0e-6;
@@ -304,10 +305,19 @@ public:
 	void SetGravitation( double g_x, double g_y ); //!< 重力加速度設定
 	void SetThermalStress(unsigned int id_field_temp);	//!< 熱応力を考慮する０を代入するとで解除される
 	void SetGeometricalNonlinear(bool is_nonlin);	//!< 幾何学的非線形性を考慮する
-
 	void SetStationary(bool is_stationary);	//!< 静的問題に設定
-	bool IsStationary(){ return m_IsStationary; }	//!< 静的問題かどうか
 	void SetSaveStiffMat(bool is_save);		//!< 剛性行列を保存する
+	
+	bool IsStationary() const { return m_IsStationary; }
+	bool IsSaveStiffMat() const { return m_IsSaveStiffMat; }
+	void GetYoungPoisson(double& young, double& poisson, bool& is_plane_str) const{
+		young = m_young_back;
+		poisson = m_poisson_back;
+		is_plane_str = m_is_plane_stress_back;
+	}
+	bool IsGeometricalNonlinear() const{ return m_is_geom_nonlin_back; }
+	double GetRho(){ return m_rho_back; }
+
 	//! @}
 
 	//! 荷重の設定
@@ -341,6 +351,7 @@ private:
     double m_poisson_back;  // 新しく方程式要素が出来たときはこの値で初期化
     bool m_is_plane_stress_back;  // 新しく方程式要素が出来たときはこの値で初期化
     double m_rho_back;  // 新しく方程式要素が出来たときはこの値で初期化
+	bool m_is_geom_nonlin_back;
 
 	std::vector< std::pair<unsigned int,double> > m_aLoad;
 
