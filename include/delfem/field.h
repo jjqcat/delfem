@@ -53,7 +53,7 @@ enum FIELD_DERIVATION_TYPE
 // cbef(corner,bubble,edge,face)の順. 番号はそれぞれに幾つ頂点があるか．
 // [要素タイプ] (座標)[cbef],(値)[cbef]のように定義する
 // befのうち座標，値とも０ならば，後ろから(febの順に)省略してよい
-
+////////////////
 //! 要素の補間の種類
 enum INTERPOLATION_TYPE{
 	LINE11,		//!< 線分一次要素

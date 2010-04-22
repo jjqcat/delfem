@@ -117,8 +117,12 @@ public:
 	// imode (0:ŠgŽU‚È‚µ) (1:ƒ‰ƒ“ƒ_ƒ€ƒmƒCƒY) (2:ŠiŽq) (3:ƒhƒbƒg)
 	CDrawerImageBasedFlowVis(unsigned int id_field, const Fem::Field::CFieldWorld& world, unsigned int imode = 1 );
 	virtual ~CDrawerImageBasedFlowVis(){
-		if( aXYElem     != 0 ){ delete[] aXYElem; }
-		if( aXYVeloElem != 0 ){ delete[] aXYVeloElem; }
+		for(unsigned int i=0;i<this->m_apIndexArrayElem.size();i++){
+			delete this->m_apIndexArrayElem[i];
+		}
+		if( aCoord    != 0 ){ delete[] aCoord; }
+		if( aVelo     != 0 ){ delete[] aVelo; }
+		if( aValColor != 0 ){ delete[] aValColor; }
 		this->ClearDisplayList();
 	}
 	////////////////	
@@ -157,10 +161,15 @@ private:
 	int alpha;	// 0-256
     double velo_scale;
     ////////////////
-	unsigned int nelem;
-	double* aXYVeloElem;
-	double* aXYElem;
-	double* aColorElem;
+	std::vector<CIndexArrayElem*> m_apIndexArrayElem;
+	unsigned int nnode;
+	double* aVelo;
+	double* aCoord;
+	double* aValColor;
+//	unsigned int nelem;
+//	double* aXYVeloElem;
+//	double* aXYElem;
+//	double* aColorElem;
 
 	std::auto_ptr<CColorMap> color_map;
 };

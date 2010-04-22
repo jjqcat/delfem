@@ -436,6 +436,7 @@ CEqnSystem_Solid2D::CEqnSystem_Solid2D(unsigned int id_field, Fem::Field::CField
 	m_young_back = 1;
 	m_poisson_back = 0;
 	m_is_plane_stress_back = true;
+	this->m_is_geom_nonlin_back = false;
 	this->UpdateDomain_Field(id_field, world);
 }
 
@@ -446,6 +447,7 @@ CEqnSystem_Solid2D::CEqnSystem_Solid2D()
 	m_young_back = 1;
 	m_poisson_back = 0;
 	m_is_plane_stress_back = true;
+	this->m_is_geom_nonlin_back = false;
 }
 
 bool CEqnSystem_Solid2D::EqnationProperty(bool& is_nonlin){
@@ -763,6 +765,7 @@ bool CEqnSystem_Solid2D::UpdateDomain_Field(unsigned int id_base, Fem::Field::CF
             CEqn_Solid2D eqn1(id_ea,m_IdFieldDisp);
 			eqn1.SetYoungPoisson(m_young_back, m_poisson_back, m_is_plane_stress_back);
 			eqn1.SetRho(m_rho_back);
+			eqn1.SetGeometricalNonlinear(m_is_geom_nonlin_back);
             m_aEqn.push_back( eqn1 );
 		}
 	}
@@ -773,7 +776,7 @@ bool CEqnSystem_Solid2D::UpdateDomain_Field(unsigned int id_base, Fem::Field::CF
 		double young, poisson;
 		eqn.GetYoungPoisson(young,poisson);
 //        std::cout << ieqn << " " << eqn.GetIdEA() << " " << young << " " << poisson << " " << std::endl;
-		m_aEqn[ieqn].SetGravitation(0,-0.1);
+//		m_aEqn[ieqn].SetGravitation(0,-0.0);
     }
 	
 
@@ -934,6 +937,7 @@ void CEqnSystem_Solid2D::SetGravitation( double g_x, double g_y )
 
 void CEqnSystem_Solid2D::SetGeometricalNonlinear( bool is_nonlin )
 {
+	this->m_is_geom_nonlin_back = is_nonlin;
 	for(unsigned int ieqn=0;ieqn<m_aEqn.size();ieqn++){
 		m_aEqn[ieqn].SetGeometricalNonlinear(is_nonlin);
 	}

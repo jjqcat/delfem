@@ -133,10 +133,10 @@ CDrawerImageBasedFlowVis::CDrawerImageBasedFlowVis()
 	m_IdFieldVelo = 0;
 	m_IdFieldColor = 0;
 	////////////////
-	nelem = 0;
-	aXYVeloElem = 0;
-	aXYElem = 0;
-	aColorElem = 0;
+	nnode = 0;
+	aVelo = 0;
+	aCoord = 0;
+	aValColor = 0;
 	////////////////
 	iPtn = 0;
     alpha = 0;
@@ -160,10 +160,10 @@ CDrawerImageBasedFlowVis::CDrawerImageBasedFlowVis(const unsigned int id_field,
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glClear(GL_COLOR_BUFFER_BIT);
 	////////////////
-	nelem = 0;
-	aXYVeloElem = 0;
-	aXYElem = 0;
-	aColorElem = 0;
+	nnode = 0;
+	aVelo = 0;
+	aCoord = 0;
+	aValColor = 0;
 	////////////////
     this->imode = imode;
     if( imode == 0 ){ alpha = 0; }
@@ -266,7 +266,7 @@ void CDrawerImageBasedFlowVis::SetColorField(unsigned int id_field_color, const 
 											 std::auto_ptr<CColorMap> color_map)
 {
 	m_IdFieldColor = id_field_color;
-	if( aColorElem == 0 ){ delete[] aColorElem; }
+//	if( aColorElem == 0 ){ delete[] aColorElem; }
 	if( !world.IsIdField(this->m_IdFieldVelo) ) return;
 	const Fem::Field::CField& fv = world.GetField(m_IdFieldVelo);
 	const Fem::Field::CField& fc = world.GetField(id_field_color);
@@ -282,7 +282,7 @@ void CDrawerImageBasedFlowVis::SetColorField(unsigned int id_field_color, const 
 		unsigned int id_es_c = fc.GetIdElemSeg(id_ea_c,CORNER,true,world);
 		assert( id_es_v == id_es_c );
 	}
-	aColorElem = new double [nelem*3];
+//	aColorElem = new double [nelem*3];
 	this->color_map = color_map;
 	this->Update(world);
 }
@@ -292,6 +292,24 @@ bool CDrawerImageBasedFlowVis::Set(unsigned int id_field_velo, const Fem::Field:
 	if( !world.IsIdField(id_field_velo) ){ return false; }
 	this->m_IdFieldVelo = id_field_velo;
 	const Fem::Field::CField& fv = world.GetField(id_field_velo);
+	
+	////////////////////////////////
+	{	// 要素配列の設定
+		const std::vector<unsigned int>& aIdEA = fv.GetAry_IdElemAry();
+		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
+			const unsigned int id_ea = aIdEA[iiea];
+			assert( world.IsIdEA(id_ea) );
+			const unsigned int id_es_c = fv.GetIdElemSeg(id_ea,CORNER,true, world);
+			assert( id_es_c != 0 );
+			CIndexArrayElem* pIAE = new CIndexArrayElem(id_ea,id_es_c,world);
+			pIAE->ilayer = fv.GetLayer(id_ea);
+			this->m_apIndexArrayElem.push_back( pIAE );
+		}
+	}
+	
+//	if( aVelo ==0 ){ aVelo  = new double [nnode*2]; }
+//	if( aCoord == 0 ){ aCoord = new double [nnode*2]; }
+/*
 	const std::vector<unsigned int>& aIdEA = fv.GetAry_IdElemAry();
 	unsigned int nelem0 = 0;
 	for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
@@ -311,6 +329,7 @@ bool CDrawerImageBasedFlowVis::Set(unsigned int id_field_velo, const Fem::Field:
 			aColorElem = new double [nelem*3];
 		}
 	}
+	*/
 	return this->Update(world);
 }
 		
@@ -318,7 +337,20 @@ bool CDrawerImageBasedFlowVis::Update(const Fem::Field::CFieldWorld& world)
 {
 	if( !world.IsIdField(this->m_IdFieldVelo) ){ return false; }
 	const Fem::Field::CField& fv = world.GetField(this->m_IdFieldVelo);
-	const std::vector<unsigned int>& aIdEA = fv.GetAry_IdElemAry();
+	////////////////////////////////
+	{	// 要素配列の設定
+		const std::vector<unsigned int>& aIdEA = fv.GetAry_IdElemAry();
+		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
+			const unsigned int id_ea = aIdEA[iiea];
+			assert( world.IsIdEA(id_ea) );
+			const unsigned int id_es_v_c = fv.GetIdElemSeg(id_ea,CORNER,true, world);
+			assert( id_es_v_c != 0 );
+			CIndexArrayElem* pIAE = new CIndexArrayElem(id_ea,id_es_v_c,world);
+			pIAE->ilayer = fv.GetLayer(id_ea);
+			this->m_apIndexArrayElem.push_back( pIAE );
+		}
+	}
+/*	const std::vector<unsigned int>& aIdEA = fv.GetAry_IdElemAry();
 	{
 		unsigned int nelem0 = 0;
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
@@ -338,9 +370,18 @@ bool CDrawerImageBasedFlowVis::Update(const Fem::Field::CFieldWorld& world)
 				aColorElem = new double [nelem*3];
 			}
 		}
-	}
+	}*/
 	const Fem::Field::CNodeAry::CNodeSeg& ns_v = fv.GetNodeSeg(CORNER,true, world,VELOCITY);
 	const Fem::Field::CNodeAry::CNodeSeg& ns_c = fv.GetNodeSeg(CORNER,false,world,VELOCITY);
+	nnode = ns_v.GetNnode();
+	if( aVelo ==0 ){ aVelo  = new double [nnode*2]; }
+	if( aCoord == 0 ){ aCoord = new double [nnode*2]; }
+	for(unsigned int inode=0;inode<nnode;inode++){
+		ns_v.GetValue(inode,aVelo+inode*2);
+		unsigned int inoc = fv.GetMapVal2Co(inode);
+		ns_c.GetValue(inoc,aCoord+inode*2);
+	}
+	/*
 	unsigned int ielem_cur = 0;
 	for(unsigned int iiea=0;iiea<aIdEA.size();iiea++)
 	{
@@ -380,38 +421,18 @@ bool CDrawerImageBasedFlowVis::Update(const Fem::Field::CFieldWorld& world)
 		}
 	}
     assert( ielem_cur == nelem );
+	*/
 	if( world.IsIdField(m_IdFieldColor) ){
+		if( aValColor==0 ){ aValColor = new double [nnode]; }
 		const Fem::Field::CField& fc = world.GetField(this->m_IdFieldColor);
-		const Fem::Field::CNodeAry::CNodeSeg& ns_c = fc.GetNodeSeg(CORNER,true, world,VALUE);
-		unsigned int ielem_cur = 0;
-		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
-			const unsigned int id_ea = aIdEA[iiea];
-			assert( world.IsIdEA(id_ea) );
-			{
-				unsigned int id_es_v = fv.GetIdElemSeg(id_ea,CORNER,true,world);
-				unsigned int id_es_c = fc.GetIdElemSeg(id_ea,CORNER,true,world);
-				assert( id_es_v == id_es_c );
-			}
-			const Fem::Field::CElemAry::CElemSeg& es_v = fv.GetElemSeg(id_ea,CORNER,true,world);			
-			for(unsigned int ielem=0;ielem<es_v.GetSizeElem();ielem++){
-				unsigned int noes[3];
-				es_v.GetNodes(ielem,noes);
-				double v0, v1, v2;
-				ns_c.GetValue(noes[0],&v0);
-				ns_c.GetValue(noes[1],&v1);
-				ns_c.GetValue(noes[2],&v2);
-				aColorElem[ielem_cur*3+0] = v0;
-				aColorElem[ielem_cur*3+1] = v1;
-				aColorElem[ielem_cur*3+2] = v2;
-				ielem_cur++;
-			}
+		assert( fc.GetNodeSegInNodeAry(CORNER).id_na_va == fv.GetNodeSegInNodeAry(CORNER).id_na_va );
+		const Fem::Field::CNodeAry::CNodeSeg& nsv_c = fc.GetNodeSeg(CORNER,true, world,VALUE);
+		for(unsigned int inode=0;inode<nnode;inode++){
+			nsv_c.GetValue(inode,aValColor+inode);
 		}
 	}
 	else{
-		if( aColorElem != 0 ){ 
-			delete[] aColorElem; 
-			aColorElem=0;
-		}
+		if( aValColor != 0 ){ delete[] aValColor; aValColor = 0; }
 	}
 	for(unsigned int iec=0;iec<aEdgeColor.size();iec++){
 		aEdgeColor[iec].Update(world);
@@ -421,13 +442,13 @@ bool CDrawerImageBasedFlowVis::Update(const Fem::Field::CFieldWorld& world)
 
 Com::CBoundingBox CDrawerImageBasedFlowVis::GetBoundingBox( double rot[] ) const
 {
-	if( nelem == 0 ){ return Com::CBoundingBox(-1,1, -1,1, 0,0); }
+	if( nnode == 0 ){ return Com::CBoundingBox(-1,1, -1,1, 0,0); }
 	double x_min,x_max, y_min,y_max;
-	x_min = x_max = aXYElem[0];
-	y_min = y_max = aXYElem[1];
-	for(unsigned int i=0;i<nelem*3;i++){
-		const double x0 = aXYElem[i*2+0];
-		const double y0 = aXYElem[i*2+1];
+	x_min = x_max = aCoord[0];
+	y_min = y_max = aCoord[1];
+	for(unsigned int inode=0;inode<nnode*3;inode++){
+		const double x0 = aCoord[inode*2+0];
+		const double y0 = aCoord[inode*2+1];
 		x_min = ( x0 < x_min ) ? x0 : x_min;
 		x_max = ( x0 > x_max ) ? x0 : x_max;
 		y_min = ( y0 < y_min ) ? y0 : y_min;
@@ -455,15 +476,42 @@ void CDrawerImageBasedFlowVis::Draw() const
 	::glEnable(GL_TEXTURE_2D);
 	::glDisable(GL_DEPTH_TEST);
 	if( imode != 0 ){	// 前画像のテクスチャを流す
-/*		glEnable(GL_BLEND); 
+		glEnable(GL_BLEND); 
 		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-		::glColor4f(1.0f, 1.0f, 1.0f, 0.2f);*/
-		::glDisable(GL_BLEND);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-		::glBegin(GL_TRIANGLES);
+		::glColor4f(1.0f, 1.0f, 1.0f, 0.2f);
+/*		::glDisable(GL_BLEND);
+		::glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+		::glBegin(GL_TRIANGLES);*/
+		// 要素配列の設定
+		for(unsigned int iIAE=0;iIAE<m_apIndexArrayElem.size();iIAE++){
+			unsigned int nelem = m_apIndexArrayElem[iIAE]->GetSize();
+			for(unsigned int ielem=0;ielem<nelem;ielem++){
+				unsigned int  noes[3];
+				m_apIndexArrayElem[iIAE]->GetNoes(ielem,noes);
+				const double co[3][2] = {
+					{ aCoord[noes[0]*2+0], aCoord[noes[0]*2+1] },
+					{ aCoord[noes[1]*2+0], aCoord[noes[1]*2+1] },
+					{ aCoord[noes[2]*2+0], aCoord[noes[2]*2+1] } };
+				double co_win[3][2], dtmp1;
+				::gluProject(co[0][0],co[0][1],0, model,prj,view, &co_win[0][0],&co_win[0][1],&dtmp1);
+				::gluProject(co[1][0],co[1][1],0, model,prj,view, &co_win[1][0],&co_win[1][1],&dtmp1);
+				::gluProject(co[2][0],co[2][1],0, model,prj,view, &co_win[2][0],&co_win[2][1],&dtmp1);				
+				const double velo[3][2] = {
+					{ aVelo[noes[0]*2+0], aVelo[noes[0]*2+1] },
+					{ aVelo[noes[1]*2+0], aVelo[noes[1]*2+1] },
+					{ aVelo[noes[2]*2+0], aVelo[noes[2]*2+1] } };
+				const double vs = this->velo_scale*10000;
+				::glTexCoord2d(co_win[0][0]*invww, co_win[0][1]*invwh);  ::glVertex2d(co[0][0]+vs*velo[0][0], co[0][1]+vs*velo[0][1]);
+				::glTexCoord2d(co_win[1][0]*invww, co_win[1][1]*invwh);  ::glVertex2d(co[1][0]+vs*velo[1][0], co[1][1]+vs*velo[1][1]);
+				::glTexCoord2d(co_win[2][0]*invww, co_win[2][1]*invwh);  ::glVertex2d(co[2][0]+vs*velo[2][0], co[2][1]+vs*velo[2][1]);
+			}
+		}
+		::glEnd();
+			/*
 		for(unsigned int ielem=0;ielem<nelem;ielem++)
 		{
-			const double* co_obj = &aXYElem[ielem*6];
+			double co_obj[3][2];
+			aXYElem[ielem*6];
 			double co_win[3][2], dtmp1;
 			::gluProject(co_obj[0*2+0],co_obj[0*2+1],0, model,prj,view, &co_win[0][0],&co_win[0][1],&dtmp1);
 			::gluProject(co_obj[1*2+0],co_obj[1*2+1],0, model,prj,view, &co_win[1][0],&co_win[1][1],&dtmp1);
@@ -473,8 +521,9 @@ void CDrawerImageBasedFlowVis::Draw() const
 			::glTexCoord2d(co_win[1][0]*invww, co_win[1][1]*invwh);  ::glVertex2dv(velo_co+2);
 			::glTexCoord2d(co_win[2][0]*invww, co_win[2][1]*invwh);  ::glVertex2dv(velo_co+4);
 		}
-		::glEnd();
+		*/
 	}
+	/*
 	else{ // imode == 0 : 純粋移流拡散
 		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 		::glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -515,6 +564,7 @@ void CDrawerImageBasedFlowVis::Draw() const
 		::glEnd();
 		::glDisable(GL_BLEND);
 	}
+	*/
 	iPtn = iPtn + 1;
 
 	if( m_nPattern != 0 ){
@@ -524,10 +574,27 @@ void CDrawerImageBasedFlowVis::Draw() const
 //		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 //		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 //		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
-		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD);
-		glCallList(iPtn % m_nPattern + m_nameDisplayList);
-		if( aColorElem == 0 ){
+		::glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD);
+		::glCallList(iPtn % m_nPattern + m_nameDisplayList);	//　パターンを呼ぶ
+		if( aValColor == 0 ){
 			::glBegin(GL_TRIANGLES);
+			for(unsigned int iIAE=0;iIAE<m_apIndexArrayElem.size();iIAE++){
+				const unsigned int nelem = m_apIndexArrayElem[iIAE]->GetSize();
+				for(unsigned int ielem=0;ielem<nelem;ielem++){
+					unsigned  int noes[3];
+					m_apIndexArrayElem[iIAE]->GetNoes(ielem,noes);					
+					double co[3][2] = {
+						{ aCoord[noes[0]*2+0], aCoord[noes[0]*2+1] },
+						{ aCoord[noes[1]*2+0], aCoord[noes[1]*2+1] },
+						{ aCoord[noes[2]*2+0], aCoord[noes[2]*2+1] } };
+					double r = 10.0;	// 流す画像の周期をきめる(大きければ細かい)	
+					::glTexCoord2d(r*co[0][0],r*co[0][1]);		::glVertex2dv(co[0]);
+					::glTexCoord2d(r*co[1][0],r*co[1][1]);		::glVertex2dv(co[1]);
+					::glTexCoord2d(r*co[2][0],r*co[2][1]);		::glVertex2dv(co[2]);
+				}
+			}
+			::glEnd();
+			/*
 			for(unsigned int ielem=0;ielem<nelem;ielem++){
 				const double co[3][2] = {
 					{ aXYElem[ielem*6+0], aXYElem[ielem*6+1] },
@@ -538,10 +605,31 @@ void CDrawerImageBasedFlowVis::Draw() const
 				::glTexCoord2d(r*co[1][0],r*co[1][1]);		::glVertex2dv(co[1]);
 				::glTexCoord2d(r*co[2][0],r*co[2][1]);		::glVertex2dv(co[2]);
 			}
-			::glEnd();
+			*/
 		}
 		else{
 			::glBegin(GL_TRIANGLES);
+			for(unsigned int iIAE=0;iIAE<m_apIndexArrayElem.size();iIAE++){
+				const unsigned int nelem = m_apIndexArrayElem[iIAE]->GetSize();
+				for(unsigned int ielem=0;ielem<nelem;ielem++){
+					unsigned int  noes[3];
+					m_apIndexArrayElem[iIAE]->GetNoes(ielem,noes);				
+					double co[3][2] = {
+						{ aCoord[noes[0]*2+0], aCoord[noes[0]*2+1] },
+						{ aCoord[noes[1]*2+0], aCoord[noes[1]*2+1] },
+						{ aCoord[noes[2]*2+0], aCoord[noes[2]*2+1] } };
+					double r = 10.0;	// 流す画像の周期をきめる(大きければ細かい)	
+					for(unsigned int ino=0;ino<3;ino++){
+						const double d = aValColor[noes[ino]];
+						float color[3];
+						color_map->GetColor(color,d);
+						::glColor4d(color[0],color[1],color[2],1.0);
+						::glTexCoord2d(r*co[ino][0],r*co[ino][1]);		::glVertex2dv(co[ino]);
+					}
+				}
+			}
+			::glEnd();
+			/*
 			for(unsigned int ielem=0;ielem<nelem;ielem++){
 				const double co[3][2] = {
 					{ aXYElem[ielem*6+0], aXYElem[ielem*6+1] },
@@ -558,6 +646,7 @@ void CDrawerImageBasedFlowVis::Draw() const
 				}
 			}
 			::glEnd();
+			*/
 		}
 		::glDisable(GL_BLEND);
 	}

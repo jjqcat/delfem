@@ -215,12 +215,6 @@ public:
     void SetForceField(unsigned int id_field_force){
         this->m_id_force = id_field_force;
     }
-	void SetStokes(){			
-        m_is_stokes_back = true;
-		for(unsigned int ieqn=0;ieqn<this->m_aEqn.size();ieqn++){
-			m_aEqn[ieqn].SetStokes();
-		}
-	}
 	void SetInterpolationBubble(){
 		if( !m_IsntInterpolationBubble ) return;
 		m_IsntInterpolationBubble = false;
@@ -235,16 +229,16 @@ public:
     ////////////////////////////////
 	void SetRho(double rho){ 	
         m_rho_back = rho;
-		for(unsigned int ieqn=0;ieqn<this->m_aEqn.size();ieqn++){
-			m_aEqn[ieqn].SetRho(rho);
-		}
+		for(unsigned int ieqn=0;ieqn<this->m_aEqn.size();ieqn++){ m_aEqn[ieqn].SetRho(rho); }
 	}
 	void SetMyu(double myu){ 
         m_myu_back = myu;
-		for(unsigned int ieqn=0;ieqn<this->m_aEqn.size();ieqn++){
-			m_aEqn[ieqn].SetMyu(myu);
-		}
+		for(unsigned int ieqn=0;ieqn<this->m_aEqn.size();ieqn++){ m_aEqn[ieqn].SetMyu(myu); }
 	}	
+	void SetStokes(){			
+        m_is_stokes_back = true;
+		for(unsigned int ieqn=0;ieqn<this->m_aEqn.size();ieqn++){ m_aEqn[ieqn].SetStokes(); }
+	}
 private:
 	// âºëzâªâ¬î\ä÷êî
 	virtual double MakeLinearSystem(const Fem::Field::CFieldWorld& world);

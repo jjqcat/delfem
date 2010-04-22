@@ -93,6 +93,13 @@ public :
 	void SetColor(double r, double g, double b){ color[0]=r; color[1]=g; color[2]=b; }
 	bool SetColor(unsigned int id_es_v, unsigned int id_ns_v, const Fem::Field::CFieldWorld& world, 
 		const std::auto_ptr<CColorMap>& color_map);
+
+	unsigned int GetSize() const { return nElem; }
+	void GetNoes(unsigned int ielem, unsigned int* no){
+		for(unsigned int ino=0;ino<nnoel;ino++){ 
+			no[ino] = pIA_Elem[ielem*nnoel+ino];
+		}
+	}
 private:
 	bool Set_Line(unsigned int id_ea, unsigned int id_es, const Fem::Field::CFieldWorld& world);
 	bool Set_Tri( unsigned int id_ea, unsigned int id_es, const Fem::Field::CFieldWorld& world);
@@ -110,6 +117,7 @@ private:
     double color[3];
 	////////////////
 	unsigned int nElem;
+	unsigned int nnoel;
 	unsigned int* pIA_Elem;
 	////////////////
 	float* pColor;
@@ -119,7 +127,8 @@ private:
 //! Vertexのインデックスを格納するクラス
 class CIndexVertex{
 public:
-	CIndexVertex(unsigned int id_v, unsigned int id_ea, unsigned int id_es) : id_v(id_v), id_ea(id_ea), id_es(id_es){}
+	CIndexVertex(unsigned int id_v, unsigned int id_ea, unsigned int id_es) 
+		: id_v(id_v), id_ea(id_ea), id_es(id_es){}
 	unsigned int id_v;
 	unsigned int id_ea;
 	unsigned int id_es;
