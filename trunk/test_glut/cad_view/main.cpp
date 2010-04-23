@@ -6,6 +6,7 @@
 #endif
 #define for if(0);else for
 
+
 #include <iostream>
 #include <fstream>
 #include <vector>
