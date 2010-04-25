@@ -139,9 +139,12 @@ public:
 		}
 		bool IsTimeDependent() const{
 			if( itype != 2 ) return false;
-			Fem::Field::CEval eval(math_exp);
+			Fem::Field::CEval eval;
+			eval.SetKey("t",0);
+			eval.SetExp(math_exp);
 			return eval.IsKeyUsed("t");
 		}
+        bool GetValue(double cur_t, double& value) const;
 		const std::string GetString() const{
 			if( itype == 1 ){
 				char buff[16];

@@ -552,6 +552,16 @@ void CDrawer_Cad2D::SetIsShow(bool is_show,
 	}
 }
 
+void CDrawer_Cad2D::SetRigidDisp(unsigned int id_l, double xdisp, double ydisp){	
+	for(unsigned int iea=0;iea<m_apIndexAry.size();iea++){
+        if(    m_apIndexAry[iea]->id_cad == id_l
+            && m_apIndexAry[iea]->itype  == Cad::LOOP ){
+			m_apIndexAry[iea]->xdisp = xdisp;
+			m_apIndexAry[iea]->ydisp = ydisp;
+		}
+	}
+}
+
 void CDrawer_Cad2D::HideEffected(const Cad::ICad2D& cad_2d,
                                  Cad::CAD_ELEM_TYPE part_type, unsigned int part_id)
 {
@@ -635,6 +645,8 @@ void CDrawer_Cad2D::Draw() const
 	for(unsigned int idp=0;idp<m_apIndexAry.size();idp++){
         const CDrawPart* part = m_apIndexAry[idp];
 		const double height = part->height;
+		const double xdisp = part->xdisp;
+		const double ydisp = part->ydisp;
         if(      part->itype == Cad::EDGE )	// •Ó‚Ì•`‰æ
         {
             if( !part->is_show ) continue;
@@ -667,9 +679,9 @@ void CDrawer_Cad2D::Draw() const
 			}
             if( !part->is_show ) continue;
             ::glColor3dv(part->color);
-			::glTranslated(0.0,0.0,+height);
+			::glTranslated(+xdisp,+ydisp,+height);
 			part->DrawElements();
-			::glTranslated(0.0,0.0,-height);
+			::glTranslated(-xdisp,-ydisp,-height);
 		}
 	}
     ::glDisableClientState(GL_VERTEX_ARRAY);

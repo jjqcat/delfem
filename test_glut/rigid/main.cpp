@@ -181,45 +181,6 @@ void DrawBackGround()
     ::glMatrixMode(GL_MODELVIEW);  // ModelViews—ñ‚ğŒ³‚É–ß‚·
     ::glPopMatrix();
 }
-/*
-void SetProjectionTransform(const Com::View::CCamera& mvp_trans)
-{
-//	::glMatrixMode(GL_PROJECTION);
-	if( mvp_trans.IsPers() ){	// “§‹“Š‰e•ÏŠ·
-		double fov_y,aspect,clip_near,clip_far;
-		mvp_trans.GetPerspective(fov_y,aspect,clip_near,clip_far);
-		::gluPerspective(fov_y,aspect,clip_near,clip_far);
-	}
-	else{	// ³‹K“Š‰e•ÏŠ·
-		const double inv_scale = 1.0/mvp_trans.GetScale();
-		const double asp = mvp_trans.GetWindowAspect();
-		const double h_h = mvp_trans.GetHalfViewHeight()*inv_scale;
-		const double h_w = mvp_trans.GetHalfViewHeight()*inv_scale*asp;
-		const double depth = 2.0*(h_h+h_w);
-		::glOrtho(-h_w,h_w, -h_h, h_h, -depth, depth);
-	}
-}
-
-void SetModelViewTransform(const Com::View::CCamera& mvp_trans)
-{
-//	::glMatrixMode(GL_MODELVIEW);
-	{	// •¨‘Ì‚ğ•½tˆÚ“®‚³‚¹‚é
-		double x,y,z;
-		mvp_trans.GetCenterPosition(x,y,z);
-		::glTranslated( x, y, z );
-	}
-	{	// •¨‘Ì‚ğ‰ñ“]‚³‚¹‚é
-		double rot[16];
-		mvp_trans.RotMatrix44Trans(rot);
-		::glMultMatrixd(rot);
-	}
-	{	// •¨‘Ì‚Ì’†S‚ğŒ´“_‚É‚·‚é
-		double x,y,z;
-		mvp_trans.GetObjectCenter(x,y,z);
-		::glTranslated( -x, -y, -z );
-	}
-}
- */
 
 void myGlutResize(int w, int h)
 {
@@ -229,6 +190,47 @@ void myGlutResize(int w, int h)
 	glLoadIdentity();
 	Com::View::SetProjectionTransform(mvp_trans);
 	glutPostRedisplay();
+}
+
+void DrawRigidBody(const Rigid::CRigidBody3D& r){
+    const unsigned int imode = 1;
+    if( imode == 0 ){
+    }
+    else if( imode == 1 ){
+        ::glPushMatrix();
+        ::glTranslated( 
+            r.ini_pos_cg.x + r.disp_cg.x,
+            r.ini_pos_cg.y + r.disp_cg.y,
+            r.ini_pos_cg.z + r.disp_cg.z );
+        {
+            double rot0[16];
+			r.GetInvRotMatrix44(rot0);
+            ::glMultMatrixd(rot0);
+        }
+        ::glColor3d(0,0,0);
+	    ::glutSolidCube(0.2);
+    //    glutSolidTeapot(1.0);
+    //    glutWireTeapot(0.2);
+    //    glutWireOctahederon();
+    //    glutWireDodecahedron();
+        ::glLineWidth(1);
+        ::glBegin(GL_LINES);
+        ::glColor3d(1,0,0);
+        ::glVertex3d(0,0,0);
+        ::glVertex3d(0.4,0,0);
+        ::glColor3d(0,1,0);
+        ::glVertex3d(0,0,0);
+        ::glVertex3d(0,0.4,0);
+        ::glColor3d(0,0,1);
+        ::glVertex3d(0,0,0);
+        ::glVertex3d(0,0,0.4);
+        ::glEnd();
+	    ::glPopMatrix();
+    }
+}
+
+
+void DrawConstraint(const Rigid::CConstraint& c){
 }
 
 void myGlutDisplay(void)
@@ -244,10 +246,10 @@ void myGlutDisplay(void)
 	::glLoadIdentity();
 	Com::View::SetModelViewTransform(mvp_trans);
 
-    if( is_animation ){
-        // „‘Ì‚Ì‰^“®‚ğ‰ğ‚­
-        StepTime3();
+    if( is_animation ){        
+        StepTime3();	// „‘Ì‚Ì‰^“®‚ğ‰ğ‚­
         cur_time += dt;
+		// „‘ÌƒGƒlƒ‹ƒM[ŒvZ
         double eng = 0;
         for(unsigned int irb=0;irb<aRB.size();irb++){
             double e = 0;
@@ -264,37 +266,27 @@ void myGlutDisplay(void)
     }
 
     DrawBackGround();
-/*
-    {
+/*  {
         ::glColor3d(0.7,0.7,0.7);
         ::glBegin(GL_QUADS);
-        ::glVertex3d(-2,-2,0);
-        ::glVertex3d( 2,-2,0);
-        ::glVertex3d( 2, 2,0);
-        ::glVertex3d(-2, 2,0);
+        ::glVertex3d(-2,-2,0);	::glVertex3d( 2,-2,0);	::glVertex3d( 2, 2,0);	::glVertex3d(-2, 2,0);
         ::glEnd();
-    }
-    */
+    } */
     {
         ::glLineWidth(1);
         ::glBegin(GL_LINES);
-        ::glColor3d(1,0,0);
-        ::glVertex3d(0,0,0);
-        ::glVertex3d(1,0,0);
-        ::glColor3d(0,1,0);
-        ::glVertex3d(0,0,0);
-        ::glVertex3d(0,1,0);
-        ::glColor3d(0,0,1);
-        ::glVertex3d(0,0,0);
-        ::glVertex3d(0,0,1);
+        ::glColor3d(1,0,0);	::glVertex3d(0,0,0);	::glVertex3d(1,0,0);
+        ::glColor3d(0,1,0);	::glVertex3d(0,0,0);	::glVertex3d(0,1,0);
+        ::glColor3d(0,0,1);	::glVertex3d(0,0,0);	::glVertex3d(0,0,1);
         ::glEnd();
     }
 
     for(unsigned int irb=0;irb<aRB.size();irb++){
-	    aRB[irb].Draw();
+		DrawRigidBody(aRB[irb]);
+//	    aRB[irb].Draw();
     }
     for(unsigned int ifix=0;ifix<apFix.size();ifix++){
-	    apFix[ifix]->Draw(aRB);
+//		apFix[ifix]->Draw(aRB);
     }
 
     ShowFPS();

@@ -102,7 +102,7 @@ void MakeRotMatrix33_CartesianRotationVector(double* rot, const Com::CVector3D& 
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
-
+/*
 void Rigid::CRigidBody3D::Draw() const
 {
     const unsigned int imode = 1;
@@ -140,6 +140,7 @@ void Rigid::CRigidBody3D::Draw() const
 	    ::glPopMatrix();
     }
 }
+*/
 
 void Rigid::CRigidBody3D::GetInvRotMatrix44(double* rot) const 
 {
@@ -427,6 +428,7 @@ void Rigid::CFix_Spherical::UpdateSolution(const double* upd,
     lambda[2] += tmp1*upd[2];
 }
 
+/*
 void Rigid::CFix_Spherical::Draw(const std::vector<CRigidBody3D>& aRB) const
 {
     const unsigned int imode = 2;
@@ -458,6 +460,7 @@ void Rigid::CFix_Spherical::Draw(const std::vector<CRigidBody3D>& aRB) const
         ::glEnd();
     }
 }
+*/
 
 ////////////////////////////////////////////////////////////////
 
@@ -558,7 +561,7 @@ void Rigid::CFix_Hinge::AddLinearSystem(Ls::CLinearSystem_RigidBody& ls, unsigne
         ls.AddMatrix_Vector(icst,false,4, irb, true, 3, wm1Rta,dtmp1, false);
 	}
 }
-
+/*
 void Rigid::CFix_Hinge::Draw(const std::vector<CRigidBody3D>& aRB) const
 {
     const unsigned int imode = 1;
@@ -598,6 +601,7 @@ void Rigid::CFix_Hinge::Draw(const std::vector<CRigidBody3D>& aRB) const
         ::glEnd();
     }
 }
+*/
 
 ////////////////////////////////////////////////////////////////
 
@@ -819,7 +823,7 @@ void Rigid::CFix_HingeRange::AddLinearSystem(Ls::CLinearSystem_RigidBody& ls, un
 //        ls.AddMatrix_Vector(icst,false,5, irb, true, 5, 1,dtmp1, false);
 	}
 }
-
+/*
 void Rigid::CFix_HingeRange::Draw(const std::vector<CRigidBody3D>& aRB) const
 {
     const unsigned int imode = 1;
@@ -862,6 +866,7 @@ void Rigid::CFix_HingeRange::Draw(const std::vector<CRigidBody3D>& aRB) const
         ::glEnd();
     }
 }
+*/
 ////////////////////////////////////////////////////////////////
 
 void Rigid::CJoint_Spherical::AddLinearSystem(Ls::CLinearSystem_RigidBody& ls, unsigned int icst,
@@ -950,7 +955,7 @@ void Rigid::CJoint_Spherical::UpdateSolution(const double* upd,
     lambda[1] += tmp1*upd[1];
     lambda[2] += tmp1*upd[2];
 }
-
+/*
 void Rigid::CJoint_Spherical::Draw(const std::vector<CRigidBody3D>& aRB) const
 {
     const unsigned int imode = 1;
@@ -982,6 +987,7 @@ void Rigid::CJoint_Spherical::Draw(const std::vector<CRigidBody3D>& aRB) const
         ::glEnd();
     }
 }
+*/
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
@@ -995,6 +1001,7 @@ void Rigid::CJoint_Hinge::SetAxis(double ax, double ay, double az){
     GetVertical2Vector(axis,loc_coord[0],loc_coord[1]);
 }
 
+/*
 void Rigid::CJoint_Hinge::Draw(const std::vector<CRigidBody3D>& aRB) const
 {
     const unsigned int imode = 2;
@@ -1048,6 +1055,7 @@ void Rigid::CJoint_Hinge::Draw(const std::vector<CRigidBody3D>& aRB) const
         ::glEnd();
     }
 }
+*/
 
 void Rigid::CJoint_Hinge::UpdateSolution(const double* upd,
                     double dt, double newmark_gamma, double newmark_beta)
@@ -1185,7 +1193,7 @@ void Rigid::CJoint_HingeRange::SetAxis(double ax, double ay, double az){
     axis.Normalize();
     GetVertical2Vector(axis,loc_coord[0],loc_coord[1]);
 }
-
+/*
 void Rigid::CJoint_HingeRange::Draw(const std::vector<CRigidBody3D>& aRB) const
 {
     const unsigned int imode = 2;
@@ -1242,6 +1250,7 @@ void Rigid::CJoint_HingeRange::Draw(const std::vector<CRigidBody3D>& aRB) const
         ::glEnd();
     }
 }
+*/
 
 void Rigid::CJoint_HingeRange::UpdateSolution(const double* upd,
                     double dt, double newmark_gamma, double newmark_beta)

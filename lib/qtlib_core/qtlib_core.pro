@@ -7,7 +7,7 @@ TARGET = dfmcore
 VPATH += ../../src \
     ../../include/delfem/
 QT += opengl
-DEFINES += NDEBUG
+#DEFINES += NDEBUG
 //MAKE_CXXFLAGS_RELEASE = -O3
 SOURCES += \
 #   Com
