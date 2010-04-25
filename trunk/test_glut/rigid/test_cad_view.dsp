@@ -127,39 +127,39 @@ SOURCE="..\..\..\..\..\Program Files\Microsoft Visual Studio\VC98\Include\GL\glu
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\Rigid\LinearSystem_Rigid.h
+SOURCE=..\..\include\delfem\ls\linearsystem_interface_solver.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\MatVec\Mat_BlkCrs.h
+SOURCE=..\..\include\delfem\rigid\linearsystem_rigid.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\MatVec\MatDia_BlkCrs.h
+SOURCE=..\..\include\delfem\matvec\mat_blkcrs.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\MatVec\MatDiaFrac_BlkCrs.h
+SOURCE=..\..\include\delfem\matvec\matdia_blkcrs.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\MatVec\MatPrecond_Blk.h
+SOURCE=..\..\include\delfem\matvec\matdiafrac_blkcrs.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\Rigid\RigidBody.h
+SOURCE=..\..\include\delfem\matvec\matfrac_blkcrs.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\LsSol\Solver_Interface.h
+SOURCE=..\..\include\delfem\matvec\matprecond_blk.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\LsSol\SolverLS_Iter.h
+SOURCE=..\..\include\delfem\rigid\rigidbody.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\MatVec\Vector_Blk.h
+SOURCE=..\..\include\delfem\ls\solver_ls_iter.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

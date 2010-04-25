@@ -65,6 +65,21 @@ static void TriDlDx(double dldx[][2], double const_term[],
 }
 
 
+bool CField::CValueFieldDof::GetValue(double cur_t, double& value) const {
+    if( itype == 0 ){ return false; }
+    if( itype == 1 ){ value = val; return true; }
+    if( itype == 2 ){
+        Fem::Field::CEval eval;
+        eval.SetKey("t",cur_t);
+        if( !eval.SetExp(math_exp) ){ return false; }
+        value = eval.Calc();
+        return true;
+    }
+    return false;
+}
+
+
+
 CField::CField(
 	unsigned int id_field_parent,	// 親フィールド
 	const std::vector<CElemInterpolation>& aEI, 

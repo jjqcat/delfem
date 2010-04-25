@@ -119,6 +119,7 @@ public :
     void ShowEffected(const Cad::ICad2D& cad_2d, Cad::CAD_ELEM_TYPE part_type, unsigned int part_id);
     void SetIsShow(bool is_show, Cad::CAD_ELEM_TYPE part_type, unsigned int part_id);
     void SetIsShow(bool is_show, Cad::CAD_ELEM_TYPE part_type, const std::vector<unsigned int>& aIdPart );
+    void SetRigidDisp(unsigned int id_l, double xdisp, double ydisp);
 //    void Show(Cad::CAD_ELEM_TYPE part_type, unsigned int part_id);
 private:	
 	////////////////
@@ -129,6 +130,7 @@ private:
 			is_selected = false; itype = Cad::VERTEX; is_show=true;
             color[0]=0; color[1]=0; color[2]=0;
 			height = 0;
+			xdisp=0; ydisp=0;
 		}
 		virtual ~CDrawPart(){
 			this->Clear();
@@ -157,6 +159,7 @@ private:
         unsigned int* pIndexArray;
 		////////////////
 		double height;
+		double xdisp, ydisp;
 	};
 	////////////////
 	class CDrawPart_CadVertex{
