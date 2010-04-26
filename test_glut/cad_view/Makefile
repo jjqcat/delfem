@@ -3,13 +3,13 @@ CFLAGS = -Wall -O2
 LDFLAGS =
 INCLUDES = -I../../include
 LIBS = -L../../lib -ldfm
-#Linux(defalut)
-ifeq ($(OS),linux)
-	LIBS_GL = -lglut -lGL -lGLU
-else ifeq ($(OS),Windows_NT)
-	LIBS_GL = -lfreeglut -lglu32 -lopengl32	# on Windows
-else ifeq ($(shell uname -s),Darwin)
-	LIBS_GL = -framework OpenGL -framework GLUT
+
+ifeq ($(OS),Windows_NT) 
+	LIBS_GL = -lfreeglut -lglu32 -lopengl32		#Windows
+else ifeq ($(shell uname -s),Darwin)	
+	LIBS_GL = -framework OpenGL -framework GLUT	#Mac
+else	
+	LIBS_GL = -lglut -lGL -lGLU			#Linux(defalut)
 endif
 OBJS = main.o
 TARGET = main.exe
@@ -17,8 +17,7 @@ TARGET = main.exe
 all: $(TARGET)
 					
 $(TARGET): $(OBJS)
-	$(OS)
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIBS_GL) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIBS) $(LIBS_GL)
 
 clean:
 	-rm -f $(OBJS)
