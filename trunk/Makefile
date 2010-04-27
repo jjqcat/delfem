@@ -3,9 +3,9 @@ CXXFLAGS = -Wall -O2
 LDFLAGS = 
 INCLUDES = -Iinclude
 ifeq ($(OS),Windows_NT)
-	LIBS_GL = -lglut32 -lglu32 -lopengl32	# on Windows
+	LIBS_GL = -lglu32 -lopengl32	# on Windows
 else
-	LIBS_GL = -lglut -lGL -lGLU
+	LIBS_GL = -lGL -lGLU	
 endif
 
 OBJS = drawer.o drawer_gl_utility.o quaternion.o uglyfont.o vector3d.o \

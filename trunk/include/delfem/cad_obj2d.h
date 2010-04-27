@@ -227,7 +227,7 @@ public:
 
     bool SetCurve_Polyline(const unsigned int id_e);
 	//! ID:id_eの辺をメッシュにセットする
-	bool SetCurve_Polyline(const unsigned int id_e, const std::vector<Com::CVector2D>& aVec);
+	bool SetCurve_Polyline(unsigned int id_e, const std::vector<Com::CVector2D>& aVec);
 	//! ID:id_eの辺を円弧にセットする
     bool SetCurve_Arc(const unsigned int id_e, bool is_left_side=false, double rdist=10.0);
     //! ID:id_eの辺を直線にセットする

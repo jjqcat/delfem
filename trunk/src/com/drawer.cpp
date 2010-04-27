@@ -91,7 +91,7 @@ Com::CBoundingBox CVertexArray::GetBoundingBox( double rot[] ) const
 }
 
 void CDrawerArray::InitTrans(Com::View::CCamera& mvp_trans){
-	{	// 回転モードの設定
+	{	// ‰?“]???[?h????’?
 		unsigned int irot_mode = 0;
 		for(unsigned int idraw=0;idraw<m_drawer_ary.size();idraw++){
 			unsigned int irot_mode0 = m_drawer_ary[idraw]->GetSutableRotMode();
@@ -101,7 +101,7 @@ void CDrawerArray::InitTrans(Com::View::CCamera& mvp_trans){
 		else if( irot_mode == 2 ){ mvp_trans.SetRotationMode(ROT_2DH); }
 		else if( irot_mode == 3 ){ mvp_trans.SetRotationMode(ROT_3D);  }
 	}
-	{	// バウンディングボックスの設定
+	{	// ?o?E?“?f?B?“?O?{?b?N?X????’?
 		double rot[9];
 		mvp_trans.RotMatrix33(rot);
 		Com::CBoundingBox bb = this->GetBoundingBox( rot );

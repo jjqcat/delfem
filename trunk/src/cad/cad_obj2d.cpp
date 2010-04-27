@@ -772,7 +772,7 @@ bool CCadObj2D::RemoveElement(Cad::CAD_ELEM_TYPE itype, unsigned int id)
 	return false;
 }
 
-unsigned int CCadObj2D::AddPolygon( const std::vector<CVector2D>& aPoint_input, unsigned int id_l )
+unsigned int CCadObj2D::AddPolygon(const std::vector<Com::CVector2D>& aPoint_input, unsigned int id_l )
 {
 	const unsigned int npoint = aPoint_input.size();
 	if( npoint < 3 ) return 0;
@@ -1000,7 +1000,7 @@ FAILURE:
     return false;
 }
 
-bool CCadObj2D::SetCurve_Polyline(const unsigned int id_e, const std::vector<Com::CVector2D>& aCo)
+bool CCadObj2D::SetCurve_Polyline(unsigned int id_e, const std::vector<Com::CVector2D>& aCo)
 {
 	if( !m_EdgeSet.IsObjID(id_e) ){
 		std::cout << "SetCurve_Arc Failure(this Edge is not exist)" << std::endl;

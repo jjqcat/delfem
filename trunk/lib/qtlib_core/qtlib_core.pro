@@ -4,11 +4,13 @@
 TEMPLATE = lib
 DESTDIR = ..
 TARGET = dfmcore
+INCLUDEPATH += ../../include/
 VPATH += ../../src \
     ../../include/delfem/
+VERSION = 1.1.12
 QT += opengl
 #DEFINES += NDEBUG
-//MAKE_CXXFLAGS_RELEASE = -O3
+#MAKE_CXXFLAGS_RELEASE = -O3
 SOURCES += \
 #   Com
     com/drawer.cpp \
@@ -27,7 +29,6 @@ SOURCES += \
     msh/meshkernel3d.cpp \
     msh/mesher2d.cpp \
     msh/mesher3d.cpp \
-    msh/mesher2d_edit.cpp \
     msh/mesh3d.cpp \
     msh/drawer_msh.cpp \
     msh/mesh3d_extrude.cpp \
