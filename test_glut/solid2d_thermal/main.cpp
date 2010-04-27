@@ -6,7 +6,9 @@
 //          e-mail : numetani@gmail.com                       //
 ////////////////////////////////////////////////////////////////
 
-#pragma warning( disable : 4786 )
+#if defined(__VISUALC__)
+#pragma warning( disable : 4786 ) 
+#endif
 #define for if(0); else for
 
 #include <cassert>
@@ -17,7 +19,12 @@
 #include <math.h>
 #include <fstream>
 #include <time.h>
-#include <GL/glut.h>
+
+#if defined(__APPLE__) && defined(__MACH__)
+#  include <GLUT/glut.h>
+#else
+#  include <GL/glut.h>
+#endif
 
 #include "delfem/camera.h"
 #include "delfem/cad_obj2d.h"
@@ -47,20 +54,22 @@ void RenderBitmapString(float x, float y, void *font,char *string)
   }
 }
 
-
-void ShowFPS(){
-	static int frame, timebase;
-	static char s[30];
-	int time;
-	int font=(int)GLUT_BITMAP_8_BY_13;
-
-	frame++;
-	time=glutGet(GLUT_ELAPSED_TIME);
-	if (time - timebase > 500) {
-		sprintf(s,"FPS:%4.2f",frame*1000.0/(time-timebase));
-		timebase = time;
-		frame = 0;
+void ShowFPS()
+{
+	int* font=(int*)GLUT_BITMAP_8_BY_13;
+	static char s_fps[32];
+	{
+		static int frame, timebase;
+		int time;
+		frame++;
+		time=glutGet(GLUT_ELAPSED_TIME);
+		if (time - timebase > 500) {
+			sprintf(s_fps,"FPS:%4.2f",frame*1000.0/(time-timebase));
+			timebase = time;
+			frame = 0;
+		}
 	}
+	char s_tmp[32];
 
 	GLint viewport[4];
 	::glGetIntegerv(GL_VIEWPORT,viewport);
@@ -76,12 +85,16 @@ void ShowFPS(){
 	::glLoadIdentity();
 	::glScalef(1, -1, 1);
 	::glTranslatef(0, -win_h, 0);
-	::glDisable(GL_LIGHTING);
-//	::glDisable(GL_DEPTH_TEST);
-	::glColor3d(1.0, 1.0, 0.0);
-	RenderBitmapString(10,15, (void*)font, "DelFEM demo");
-	::glColor3d(1.0, 1.0, 1.0);
-	RenderBitmapString(10,30,(void *)font,s);
+//	::glDisable(GL_LIGHTING);
+	::glDisable(GL_DEPTH_TEST);
+	::glColor3d(1.0, 0.0, 0.0);
+	strcpy(s_tmp,"DelFEM demo");
+	RenderBitmapString(10,15, (void*)font, s_tmp);
+	::glColor3d(0.0, 0.0, 1.0);
+	strcpy(s_tmp,"Press \"space\" key!");
+	RenderBitmapString(120,15, (void*)font, s_tmp);
+	::glColor3d(0.0, 0.0, 0.0);
+	RenderBitmapString(10,30, (void*)font, s_fps);
 //	::glEnable(GL_LIGHTING);
 	::glEnable(GL_DEPTH_TEST);
 	::glPopMatrix();

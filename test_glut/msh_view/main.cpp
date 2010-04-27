@@ -14,7 +14,7 @@
 #include <cstdlib> //(exit)
 
 #if defined(__APPLE__) && defined(__MACH__)
-#  include <OpenGL/glut.h>
+#  include <GLUT/glut.h>
 #else
 #  include <GL/glut.h>
 #endif
@@ -162,7 +162,7 @@ void myGlutMouse(int button, int state, int x, int y){
 bool SetNewProblem()
 {
 	const unsigned int nprob = 14;
-	static unsigned int iprob = 13;
+	static unsigned int iprob = 0;
 
 	if( iprob == 0 )
 	{
@@ -180,8 +180,7 @@ bool SetNewProblem()
 			cad_2d.AddPolygon( vec_ary );
 			cad_2d.ConnectVertex_Line(6,3);
 		}
-		Msh::CMesher2D mesh_2d;
-		mesh_2d.Meshing_ElemLength(cad_2d,0.05);
+		Msh::CMesher2D mesh_2d(cad_2d,0.05);
 		{	// ファイル保存
 			Com::CSerializer fout("hoge.txt",false);
 			mesh_2d.Serialize(fout);
@@ -239,8 +238,7 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
 			cad_2d.AddPolygon( vec_ary );
 		}
-		Msh::CMesher2D mesh_2d;
-		mesh_2d.Meshing_ElemLength(cad_2d, 0.1);
+		Msh::CMesher2D mesh_2d(cad_2d, 0.1);
 		Msh::CMesh3D_Extrude mesh_3d;
 		mesh_3d.Extrude(mesh_2d, 0.5, 0.1 );
 		{	// ファイル保存
@@ -343,8 +341,7 @@ bool SetNewProblem()
 		cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.6,0.4) );
 		cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.4,0.4) );
 		cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.2,0.4) );
-		Msh::CMesher2D mesh_2d;
-		mesh_2d.Meshing_ElemLength(cad_2d,0.02);
+		Msh::CMesher2D mesh_2d(cad_2d,0.02);
 		{	// ファイル保存
 			Com::CSerializer fout("hoge.txt",false);
 			mesh_2d.Serialize(fout);
@@ -373,8 +370,7 @@ bool SetNewProblem()
 		cad_2d.SetCurve_Arc(2,false,-0.5);
 		cad_2d.SetCurve_Arc(3,true, -0.5);
 		cad_2d.SetCurve_Arc(4,false,-0.5);
-		Msh::CMesher2D mesh_2d;
-		mesh_2d.Meshing_ElemLength(cad_2d,0.05);
+		Msh::CMesher2D mesh_2d(cad_2d,0.05);
 		{	// ファイル保存
 			Com::CSerializer fout("hoge.txt",false);
 			mesh_2d.Serialize(fout);
@@ -407,7 +403,12 @@ bool SetNewProblem()
 			cad_2d.ConnectVertex_Line(id_v4,id_v1);
 		}
 		Msh::CMesher2D mesh_2d;
-		mesh_2d.Meshing_ElemLength(cad_2d,0.05,1);
+		{
+		  mesh_2d.setIdLCad_CutMesh.insert(1);
+		  mesh_2d.m_imode_meshing = 1;
+		  mesh_2d.m_elen = 0.05;
+		  mesh_2d.Meshing(cad_2d);
+		}
 		{	// ファイル保存
 			Com::CSerializer fout("hoge.txt",false);
 			mesh_2d.Serialize(fout);
@@ -445,8 +446,7 @@ bool SetNewProblem()
 			id_e4 = cad_2d.ConnectVertex_Line(id_v2,id_v5);
 			id_e5 = cad_2d.ConnectVertex_Line(id_v2,id_v6);
 		}
-		Msh::CMesher2D mesh_2d;
-		mesh_2d.Meshing_ElemLength(cad_2d,0.2);
+		Msh::CMesher2D mesh_2d(cad_2d,0.2);
 //		mesh_2d.Tesselation(cad_2d);
 
 		{
@@ -494,8 +494,7 @@ bool SetNewProblem()
 			id_l1 = 1;
 			id_l2 = 2;
 		}
-		Msh::CMesher2D mesh_2d;
-		mesh_2d.Meshing_ElemLength(cad_2d,0.2);
+		Msh::CMesher2D mesh_2d(cad_2d,0.2);
 //		mesh_2d.Tesselation(cad_2d);
 		{
 			std::vector<unsigned int> aIdMsh_Inc;
@@ -535,8 +534,7 @@ bool SetNewProblem()
 			cad_2d.SetColor_Loop(id_l0, col);
 			cad_2d.AddVertex(Cad::EDGE,3, Com::CVector2D(1.3,0.5) );
 		}
-		Msh::CMesher2D mesh_2d;
-		mesh_2d.Meshing_ElemLength(cad_2d,0.05);
+		Msh::CMesher2D mesh_2d(cad_2d,0.05);
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh2D(mesh_2d) );
 		drawer_ary.InitTrans( mvp_trans );

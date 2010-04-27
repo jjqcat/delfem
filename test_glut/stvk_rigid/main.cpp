@@ -13,7 +13,7 @@
 #include <deque>
 
 #if defined(__APPLE__) && defined(__MACH__)
-#  include <OpenGL/glut.h>
+#  include <GLUT/glut.h>
 #else
 #  include <GL/glut.h>
 #endif
@@ -724,10 +724,10 @@ void myGlutDisplay(void)
     }
 
     for(unsigned int irb=0;irb<aRB.size();irb++){
-	    aRB[irb].Draw();
+      //	    aRB[irb].Draw();
     }
     for(unsigned int ifix=0;ifix<apFix.size();ifix++){
-	    apFix[ifix]->Draw(aRB);
+      //	    apFix[ifix]->Draw(aRB);
     }
 
     drawer_ary.Draw();

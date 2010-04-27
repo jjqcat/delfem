@@ -22,7 +22,7 @@
 #include <cstdlib> //(exit)
 
 #if defined(__APPLE__) && defined(__MACH__)
-#  include <OpenGL/glut.h>
+#  include <GLUT/glut.h>
 #else
 #  include <GL/glut.h>
 #endif
@@ -724,8 +724,7 @@ void SetNewProblem()
 			id_e4 = cad_2d.ConnectVertex_Line(id_v3,id_v5);
 			id_e5 = cad_2d.ConnectVertex_Line(id_v3,id_v6);
 		}
-		Msh::CMesher2D mesh_2d;
-		mesh_2d.Meshing_ElemLength(cad_2d,0.1);
+		Msh::CMesher2D mesh_2d(cad_2d,0.1);
 
 		world.Clear();
 		const unsigned int id_base = world.AddMesh(mesh_2d);

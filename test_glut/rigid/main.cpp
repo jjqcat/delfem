@@ -17,7 +17,7 @@
 #include <deque>
 
 #if defined(__APPLE__) && defined(__MACH__)
-#  include <OpenGL/glut.h>
+#  include <GLUT/glut.h>
 #else
 #  include <GL/glut.h>
 #endif

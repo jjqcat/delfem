@@ -26,7 +26,6 @@
 #include "delfem/drawer_gl_utility.h"
 #include "delfem/serialize.h"
 #include "delfem/cad_obj2d.h"
-#include "delfem/cad/brep2d.h"
 #include "delfem/drawer_cad.h"
 
 Com::View::CCamera mvp_trans;
@@ -170,6 +169,7 @@ bool SetNewProblem()
 {
 	const unsigned int nprob = 12;
 	static unsigned int iprob = 0;
+	iprob = 3;
 
 	Cad::CCadObj2D cad_2d;
 	if( iprob == 0 )
@@ -182,7 +182,7 @@ bool SetNewProblem()
 			vec_ary[1] = Com::CVector2D(1.0,0.0);
 			vec_ary[2] = Com::CVector2D(1.0,1.0);
 			vec_ary[3] = Com::CVector2D(0.0,1.0);
-			id_l0 = cad_2d.AddPolygon( vec_ary );
+			id_l0 = cad_2d.AddPolygon( vec_ary,0 );
 		}
 		const unsigned int id_v5 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.5,0.5));
 		const unsigned int id_v6 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.5,0.8));
@@ -258,7 +258,7 @@ bool SetNewProblem()
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
 		drawer_ary.InitTrans(mvp_trans);
 	}
-	else if( iprob == 3 )	// AddPolygonを使わずに形をつくる
+	else  if( iprob == 3 )	// AddPolygonを使わずに形をつくる
 	{
 		const unsigned int id_v1 = cad_2d.AddVertex(Cad::NOT_SET,0,Com::CVector2D(0,0));
 		const unsigned int id_v2 = cad_2d.AddVertex(Cad::NOT_SET,0,Com::CVector2D(1,0));
