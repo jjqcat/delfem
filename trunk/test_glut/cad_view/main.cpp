@@ -169,7 +169,6 @@ bool SetNewProblem()
 {
 	const unsigned int nprob = 12;
 	static unsigned int iprob = 0;
-	iprob = 3;
 
 	Cad::CCadObj2D cad_2d;
 	if( iprob == 0 )

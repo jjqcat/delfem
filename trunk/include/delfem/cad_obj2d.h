@@ -23,8 +23,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 @author Nobuyuki Umetani
 */
 
-#if !defined(CAD_OBJ_2D_M_H)
-#define CAD_OBJ_2D_M_H
+#if !defined(CAD_OBJ_2D_H)
+#define CAD_OBJ_2D_H
+
+#include <vector>
 
 #include "delfem/vector2d.h"
 #include "delfem/serialize.h"
