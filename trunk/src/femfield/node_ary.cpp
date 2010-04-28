@@ -325,7 +325,7 @@ int CNodeAry::WriteToFile(const std::string& file_name, long& offset, unsigned i
 	fprintf(fp,"%d %d\n",this->m_Size,this->m_DofSize);
 
 	std::vector<unsigned int> id_ary_ns = this->m_aSeg.GetAry_ObjID();
-	fprintf(fp,"%d\n",id_ary_ns.size());
+	fprintf(fp,"%d\n",(int)id_ary_ns.size());
 	for(unsigned int iid_ns=0;iid_ns<id_ary_ns.size();iid_ns++){
 		unsigned int id_ns = id_ary_ns[iid_ns];
 		const CNodeSeg& ns = m_aSeg.GetObj(id_ns);

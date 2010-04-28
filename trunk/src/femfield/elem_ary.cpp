@@ -973,7 +973,7 @@ int CElemAry::WriteToFile(const std::string& file_name, long& offset, unsigned i
 
 	{	// 要素セグメントの出力
 		std::vector<unsigned int> id_ary_es = this->m_aSeg.GetAry_ObjID();
-		fprintf(fp,"%d\n",id_ary_es.size());
+		fprintf(fp,"%d\n",(int)id_ary_es.size());
 		for(unsigned int iid_es=0;iid_es<id_ary_es.size();iid_es++){
 			unsigned int id_es = id_ary_es[iid_es];
 			assert( m_aSeg.IsObjID(id_es) );

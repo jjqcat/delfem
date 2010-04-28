@@ -1,0 +1,155 @@
+// !$*UTF8*$!
+{
+	08FB7793FE84155DC02AAC07 /* Project object */ = {
+		activeBuildConfigurationName = Debug;
+		activeExecutable = A937791C11889E340005F42F /* cad_view */;
+		activeTarget = 8DD76F620486A84900D96B5E /* cad_view */;
+		addToTargets = (
+			8DD76F620486A84900D96B5E /* cad_view */,
+		);
+		codeSenseManager = A937792811889E3F0005F42F /* Code sense */;
+		executables = (
+			A937791C11889E340005F42F /* cad_view */,
+		);
+		perUserDictionary = {
+			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					778,
+					20,
+					48,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXConfiguration.PBXTargetDataSource.PBXTargetDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					738,
+					60,
+					20,
+					48,
+					43,
+					43,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXTargetDataSource_PrimaryAttribute,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+				);
+			};
+			PBXPerProjectTemplateStateSaveDate = 294166147;
+			PBXWorkspaceStateSaveDate = 294166147;
+		};
+		perUserProjectItems = {
+			A99985D11188A33A00DBA052 /* PBXTextBookmark */ = A99985D11188A33A00DBA052 /* PBXTextBookmark */;
+			A99985D21188A33A00DBA052 /* PBXTextBookmark */ = A99985D21188A33A00DBA052 /* PBXTextBookmark */;
+		};
+		sourceControlManager = A937792711889E3F0005F42F /* Source Control */;
+		userBuildSettings = {
+		};
+	};
+	08FB7796FE84155DC02AAC07 /* main.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {956, 7098}}";
+			sepNavSelRange = "{5994, 0}";
+			sepNavVisRange = "{5427, 1041}";
+		};
+	};
+	8DD76F620486A84900D96B5E /* cad_view */ = {
+		activeExec = 0;
+		executables = (
+			A937791C11889E340005F42F /* cad_view */,
+		);
+	};
+	A937791C11889E340005F42F /* cad_view */ = {
+		isa = PBXExecutable;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		autoAttachOnCrash = 1;
+		breakpointsEnabled = 0;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		dataTipCustomDataFormattersEnabled = 1;
+		dataTipShowTypeColumn = 1;
+		dataTipSortType = 0;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		dylibVariantSuffix = "";
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		libgmallocEnabled = 0;
+		name = cad_view;
+		savedGlobals = {
+		};
+		showTypeColumn = 0;
+		sourceDirectories = (
+		);
+	};
+	A937792711889E3F0005F42F /* Source Control */ = {
+		isa = PBXSourceControlManager;
+		fallbackIsa = XCSourceControlManager;
+		isSCMEnabled = 0;
+		scmConfiguration = {
+			repositoryNamesForRoots = {
+				"" = "";
+			};
+		};
+	};
+	A937792811889E3F0005F42F /* Code sense */ = {
+		isa = PBXCodeSenseManager;
+		indexTemplatePath = "";
+	};
+	A99985D11188A33A00DBA052 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 08FB7796FE84155DC02AAC07 /* main.cpp */;
+		name = "main.cpp: 218";
+		rLen = 0;
+		rLoc = 5994;
+		rType = 0;
+		vrLen = 1041;
+		vrLoc = 5427;
+	};
+	A99985D21188A33A00DBA052 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 08FB7796FE84155DC02AAC07 /* main.cpp */;
+		name = "main.cpp: 218";
+		rLen = 0;
+		rLoc = 5994;
+		rType = 0;
+		vrLen = 1041;
+		vrLoc = 5427;
+	};
+	C6859E8B029090EE04C91782 /* cad_view.1 */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {691, 1027}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 1572}";
+			sepNavWindowFrame = "{{70, 215}, {750, 558}}";
+		};
+	};
+}
