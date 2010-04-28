@@ -1,7 +1,9 @@
 
 //#pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"")
 
-#pragma warning( disable : 4786 ) 
+#if defined(__VISUALC__)
+#pragma warning( disable : 4786 )
+#endif
 #define for if(0);else for
 
 #include <iostream>
@@ -724,10 +726,10 @@ void myGlutDisplay(void)
     }
 
     for(unsigned int irb=0;irb<aRB.size();irb++){
-      //	    aRB[irb].Draw();
+//	    aRB[irb].Draw();
     }
     for(unsigned int ifix=0;ifix<apFix.size();ifix++){
-      //	    apFix[ifix]->Draw(aRB);
+//	    apFix[ifix]->Draw(aRB);
     }
 
     drawer_ary.Draw();
