@@ -264,7 +264,7 @@ void myGlutDisplay(void)
 
 void SetNewProblem()
 {
-	const unsigned int nprob = 10;	// –â‘è”
+	const unsigned int nprob = 28;	// number of problem settings
 	static unsigned int iprob = 0;
 
 	static unsigned int id_field_disp_fix0 = 0;
