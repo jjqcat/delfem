@@ -534,7 +534,7 @@ int CMesher2D::CheckMesh()
 		for(unsigned int isidebar=0;isidebar<2;isidebar++){
 			int id_msh_adj = this->m_aBarAry[iloc_bar].id_lr[isidebar];
 			if( id_msh_adj <= 0 ) continue;	// ŠO•”‚ÆÚ‚µ‚Ä‚¢‚éê‡
-			std::cout << id_msh_adj << " " << m_ElemLoc.size() << std::endl;
+//			std::cout << id_msh_adj << " " << m_ElemLoc.size() << std::endl;
 			assert(id_msh_adj<m_ElemLoc.size());
 			const int iloc_adj = this->m_ElemLoc[id_msh_adj];
 			if( this->m_ElemType[id_msh_adj] == 2 ){	// OŠpŒ`‚ÆÚ‚µ‚Ä‚¢‚éê‡
