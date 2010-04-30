@@ -3,13 +3,13 @@
 # #####################################################################
 TEMPLATE = lib
 DESTDIR = ..
-TARGET = dfmcore
+TARGET = dfm_core
 INCLUDEPATH += ../../include/
 VPATH += ../../src \
     ../../include/delfem/
-VERSION = 1.1.12
+#VERSION = 1.1.12
 QT += opengl
-#DEFINES += NDEBUG
+DEFINES += NDEBUG
 #MAKE_CXXFLAGS_RELEASE = -O3
 SOURCES += \
 #   Com

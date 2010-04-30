@@ -135,7 +135,7 @@ public:
 
 	////////////////////////////////
 	
-	bool Meshing(const Cad::ICad2D& cad_2d){
+	virtual bool Meshing(const Cad::ICad2D& cad_2d){
 		std::vector<unsigned int> aIdL_Cut;
 		{
 			std::set<unsigned int>::iterator itr = setIdLCad_CutMesh.begin();
