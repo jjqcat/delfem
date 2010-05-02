@@ -32,7 +32,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "delfem/femeqn/ker_emat_tri.h"
 #include "delfem/femeqn/ker_emat_quad.h"
 #include "delfem/femeqn/ker_emat_tet.h"
-#include "delfem/femeqn/eqn_linear_solid.h"
+#include "delfem/femeqn/eqn_linear_solid2d.h"
+#include "delfem/femeqn/eqn_linear_solid3d.h"
 #include "delfem/femeqn/eqn_st_venant.h"
 
 #include "delfem/eqnsys_solid.h"
@@ -428,6 +429,8 @@ bool CEqn_Solid2D::AddLinSys_Save( Fem::Ls::CLinearSystem_Save& ls, const Fem::F
 	return false;
 }
 
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 
 CEqnSystem_Solid2D::CEqnSystem_Solid2D(unsigned int id_field, Fem::Field::CFieldWorld& world) 
 : m_IsSaveStiffMat(false)

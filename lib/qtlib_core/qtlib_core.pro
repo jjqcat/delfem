@@ -76,7 +76,8 @@ SOURCES += \
     femeqn/eqn_diffusion.cpp \
     femeqn/eqn_advection_diffusion.cpp \
     femeqn/eqn_st_venant.cpp \
-    femeqn/eqn_linear_solid.cpp \
+    femeqn/eqn_linear_solid2d.cpp \
+    femeqn/eqn_linear_solid3d.cpp \
     femeqn/eqn_hyper.cpp \
     femeqn/eqn_navier_stokes.cpp \
     femeqn/eqn_stokes.cpp \
@@ -171,7 +172,8 @@ HEADERS += \
     femeqn/eqn_poisson.h \
     femeqn/eqn_diffusion.h \
     femeqn/eqn_advection_diffusion.h \
-    femeqn/eqn_linear_solid.h \
+    femeqn/eqn_linear_solid2d.h \
+    femeqn/eqn_linear_solid3d.h \
     femeqn/eqn_st_venant.h \
     femeqn/eqn_hyper.h \
     femeqn/eqn_navier_stokes.h \
