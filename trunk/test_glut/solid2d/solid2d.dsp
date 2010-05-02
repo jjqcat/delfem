@@ -85,7 +85,11 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=..\..\src\femeqn\eqn_linear_solid.cpp
+SOURCE=..\..\src\femeqn\eqn_linear_solid2d.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\femeqn\eqn_linear_solid3d.cpp
 # End Source File
 # Begin Source File
 
@@ -113,7 +117,11 @@ SOURCE=.\main.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=..\..\include\delfem\femeqn\eqn_linear_solid.h
+SOURCE=..\..\include\delfem\femeqn\eqn_linear_solid2d.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\delfem\femeqn\eqn_linear_solid3d.h
 # End Source File
 # Begin Source File
 
