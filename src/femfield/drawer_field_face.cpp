@@ -142,6 +142,7 @@ void CDrawerFace::Draw() const
 			}
 			if( pIndexArray->GetElemDim() == 3 ){	// –Ê‚Ì•`‰æ
 				 ::glColor3d(0.8,0.8,0.8);
+//				 ::glColor3d(0.8,0.2,0.2);
 			}
 			this->m_apIndexArrayElem[idp]->DrawElements(); 
 		}
