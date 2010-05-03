@@ -132,7 +132,7 @@ public:
 //! 点を囲む三角形のリストを作る
 bool MakePointSurTri(const std::vector<Msh::STri2D>& aTri, const unsigned int npoin, 
 		unsigned int* const elsup_ind, unsigned int& nelsup, unsigned int*& elsup );
-		
+
 //! 点を囲む４角形のリストを作る
 bool MakePointSurQuad(const std::vector<Msh::SQuad2D>& aQuad, const unsigned int npoin, 
 		unsigned int* const elsup_ind, unsigned int& nelsup, unsigned int*& elsup );
@@ -176,7 +176,7 @@ bool InsertPoint_ElemEdge( const unsigned int ipo_ins,
 //! 点周りのデローニ分割
 bool DelaunayAroundPoint( unsigned int ipo0,
 						 std::vector<Msh::CPoint2D>& po, std::vector<Msh::STri2D>& tri );
-						 
+
 /*!
 @brief 点周りのデローニ分割
 num_flipは辺をFlipした回数を引数に足し合わせる．０で初期化はしない．
