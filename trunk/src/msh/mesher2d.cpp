@@ -61,7 +61,7 @@ void CMesher2D::Clear()
 unsigned int CMesher2D::FindMaxID() const
 {
 	unsigned int max_id = 0;
-	{	// —v‘fID‚ÌÅ‘å’l‚ğ‹‚ß‚é
+	{	// get the maximum id
 		for(unsigned int iver=0;iver<m_aVertex.size();iver++){
 			if( max_id < m_aVertex[iver].id ) max_id = m_aVertex[iver].id;
 		}
@@ -81,7 +81,7 @@ unsigned int CMesher2D::FindMaxID() const
 unsigned int CMesher2D::GetFreeObjID(){
 	unsigned int max_id = this->FindMaxID();
 	std::vector<unsigned int> is_used_flg_ary;
-	{	// ‚±‚ÌID‚ªg‚í‚ê‚Ä‚¢‚é‚©‚Ç‚¤‚©‚ğ¦‚·ƒnƒbƒVƒ…‚ğì‚é
+	{	// ã“ã®IDãŒä½¿ã‚ã‚Œã¦ã„ã‚‹ã‹ã©ã†ã‹ã‚’ç¤ºã™ãƒãƒƒã‚·ãƒ¥ã‚’ä½œã‚‹
 		is_used_flg_ary.resize( max_id+1, 0 );
 		for(unsigned int iver=0;iver<m_aVertex.size();iver++){
 			assert( is_used_flg_ary[ m_aVertex[iver].id ] == 0 );
@@ -118,7 +118,7 @@ bool CMesher2D::IsID(unsigned int id) const
 	const int iloc = this->m_ElemLoc[id];
 	if( iloc == -1 ) return false;
 
-	// ˆÈ‰ºassertƒ‹[ƒeƒBƒ“
+	// ä»¥ä¸‹assertãƒ«ãƒ¼ãƒ†ã‚£ãƒ³
 	assert( this->m_ElemType.size() > id );
 	const int itype = this->m_ElemType[id];
 	assert( itype >= 0 );
@@ -247,8 +247,8 @@ MSH_TYPE CMesher2D::GetConnectivity(unsigned int id_msh,std::vector<int>& lnods)
 }
 
 
-// CAD‚ÌID‚©‚çMsh‚Ì—v‘fID‚ğŒ©‚Â‚¯‚éŠÖ”
-// puclicŠÖ”
+// CADã®IDã‹ã‚‰Mshã®è¦ç´ IDã‚’è¦‹ã¤ã‘ã‚‹é–¢æ•°
+// puclicé–¢æ•°
 unsigned int CMesher2D::GetElemID_FromCadID(unsigned int id_cad, Cad::CAD_ELEM_TYPE itype_cad)	const
 {
 	switch(itype_cad){
@@ -297,8 +297,8 @@ unsigned int CMesher2D::GetElemID_FromCadID(unsigned int id_cad, Cad::CAD_ELEM_T
 	return 0;
 }
 
-// —v‘f‚ÌIndex‚Æí—Ş‚ğCAD‚ÌID‚Æí—Ş‚©‚çŒ©‚Â‚¯‚é
-// privateŠÖ”
+// è¦ç´ ã®Indexã¨ç¨®é¡ã‚’CADã®IDã¨ç¨®é¡ã‹ã‚‰è¦‹ã¤ã‘ã‚‹
+// privateé–¢æ•°
 bool CMesher2D::FindElemLocType_CadIDType(
 	unsigned int& iloc, unsigned int& itype, 
 	unsigned int id_cad, Cad::CAD_ELEM_TYPE itype_cad )
@@ -357,7 +357,7 @@ bool CMesher2D::FindElemLocType_CadIDType(
 	return false;
 }
 
-// —v‘f‚ÌêŠ‚Æí—Ş‚ğƒnƒbƒVƒ…iID‚ªˆø”j‚µ‚Ä‚¢‚é”z—ñ‚ğ‰Šú‰»
+// è¦ç´ ã®å ´æ‰€ã¨ç¨®é¡ã‚’ãƒãƒƒã‚·ãƒ¥ï¼ˆIDãŒå¼•æ•°ï¼‰ã—ã¦ã„ã‚‹é…åˆ—ã‚’åˆæœŸåŒ–
 void CMesher2D::MakeElemLocationType()
 {
 	unsigned int max_id = this->FindMaxID();
@@ -390,7 +390,7 @@ void CMesher2D::MakeElemLocationType()
 }
 
 
-// include_relation‚ğì‚é
+// include_relationã‚’ä½œã‚‹
 void CMesher2D::MakeIncludeRelation(const Cad::ICad2D& cad)
 {
 	assert( m_ElemLoc.size() != 0 );
@@ -429,7 +429,7 @@ void CMesher2D::MakeIncludeRelation(const Cad::ICad2D& cad)
 		unsigned int id_e = id_e_ary[iid_e];
         assert( cad.IsElemID(Cad::EDGE,id_e) );
 		unsigned int id_abar = this->GetElemID_FromCadID(id_e,Cad::EDGE);
-        if( !this->IsID(id_abar) ){ continue; } // •‚‚¢‚Ä‚¢‚é•Ó‚ª‚ ‚Á‚ÄC•ÓƒƒbƒVƒ…‚ªØ‚ç‚ê‚È‚©‚Á‚½ê‡
+        if( !this->IsID(id_abar) ){ continue; } // æµ®ã„ã¦ã„ã‚‹è¾ºãŒã‚ã£ã¦ï¼Œè¾ºãƒ¡ãƒƒã‚·ãƒ¥ãŒåˆ‡ã‚‰ã‚Œãªã‹ã£ãŸå ´åˆ
 		unsigned int id_v_s, id_v_e;
 		if( !cad.GetIdVertex_Edge(id_v_s,id_v_e,id_e) ) assert(0);
 		unsigned int id_v_s_msh = this->GetElemID_FromCadID(id_v_s,Cad::VERTEX);
@@ -533,11 +533,11 @@ int CMesher2D::CheckMesh()
 		const std::vector<SBar>& aBar = this->m_aBarAry[iloc_bar].m_aBar;
 		for(unsigned int isidebar=0;isidebar<2;isidebar++){
 			int id_msh_adj = this->m_aBarAry[iloc_bar].id_lr[isidebar];
-			if( id_msh_adj <= 0 ) continue;	// ŠO•”‚ÆÚ‚µ‚Ä‚¢‚éê‡
+			if( id_msh_adj <= 0 ) continue;	// å¤–éƒ¨ã¨æ¥ã—ã¦ã„ã‚‹å ´åˆ
 //			std::cout << id_msh_adj << " " << m_ElemLoc.size() << std::endl;
-			assert(id_msh_adj<m_ElemLoc.size());
+			assert(id_msh_adj<(int)m_ElemLoc.size());
 			const int iloc_adj = this->m_ElemLoc[id_msh_adj];
-			if( this->m_ElemType[id_msh_adj] == 2 ){	// OŠpŒ`‚ÆÚ‚µ‚Ä‚¢‚éê‡
+			if( this->m_ElemType[id_msh_adj] == 2 ){	// ä¸‰è§’å½¢ã¨æ¥ã—ã¦ã„ã‚‹å ´åˆ
 				const std::vector<STri2D>& aTri = this->m_aTriAry[iloc_adj].m_aTri;
 				for(unsigned int ibar=0;ibar<aBar.size();ibar++){
 					unsigned int itri = aBar[ibar].s2[isidebar];
@@ -559,7 +559,7 @@ void CMesher2D::SmoothingMesh_Delaunay(unsigned int& num_flip)
 	flg_vec.resize(aVec2D.size(),0);
 	for(unsigned int itriary=0;itriary<m_aTriAry.size();itriary++){
 		std::vector<STri2D>& aTri = m_aTriAry[itriary].m_aTri;
-		for(unsigned int itri=0;itri<aTri.size();itri++){	// “_ü‚è‚Ì“_‚ğ’Tõ‚µ‚Ä’²‚×‚éB
+		for(unsigned int itri=0;itri<aTri.size();itri++){	// ç‚¹å‘¨ã‚Šã®ç‚¹ã‚’æ¢ç´¢ã—ã¦èª¿ã¹ã‚‹ã€‚
 		for(unsigned int inotri=0;inotri<3;inotri++){
 			const unsigned int ipoin = aTri[itri].v[inotri];
 			assert( ipoin < aVec2D.size() );
@@ -571,7 +571,7 @@ void CMesher2D::SmoothingMesh_Delaunay(unsigned int& num_flip)
 	}	// itriary
 	if( num_flip == 0 ) return;
 	////////////////
-	// ‹«ŠE‚É‚¨‚¯‚é—v‘f‚Æ‚Ì®‡«‚ğ‚Æ‚é
+	// å¢ƒç•Œã«ãŠã‘ã‚‹è¦ç´ ã¨ã®æ•´åˆæ€§ã‚’ã¨ã‚‹
 	for(unsigned int itriary=0;itriary<m_aTriAry.size();itriary++){
 		std::vector<STri2D>& aTri = m_aTriAry[itriary].m_aTri;		
 		unsigned int id_this_loop = m_aTriAry[itriary].id;
@@ -607,7 +607,7 @@ void CMesher2D::SmoothingMesh_Delaunay(unsigned int& num_flip)
 				}
 			}
 			else{
-				std::cout << "–¢À‘• : Tri‚ÉÚ‚·‚é—v‘fƒ^ƒCƒv" << itype0 << std::endl;
+				std::cout << "æœªå®Ÿè£… : Triã«æ¥ã™ã‚‹è¦ç´ ã‚¿ã‚¤ãƒ—" << itype0 << std::endl;
 				assert(0);
 			}
 		}
@@ -627,7 +627,7 @@ void CMesher2D::SmoothingMesh_Laplace(unsigned int num_iter)
 		}
 		for(unsigned int itriary=0;itriary<m_aTriAry.size();itriary++){
 			const std::vector<STri2D>& aTri = m_aTriAry[itriary].m_aTri;
-			for(unsigned int itri=0;itri<aTri.size();itri++){	// “_ü‚è‚Ì“_‚ğ’Tõ‚µ‚Ä’²‚×‚éB
+			for(unsigned int itri=0;itri<aTri.size();itri++){	// ç‚¹å‘¨ã‚Šã®ç‚¹ã‚’æ¢ç´¢ã—ã¦èª¿ã¹ã‚‹ã€‚
 			for(unsigned int inotri=0;inotri<3;inotri++){
 				const unsigned int ipoin = aTri[itri].v[inotri];
 				assert( ipoin < aVec2D.size() );
@@ -664,7 +664,7 @@ void CMesher2D::SmoothingMesh_Laplace(unsigned int num_iter)
 						inoel_c0 = inoel_c1;
 						inoel_b0 = inoel_b1;
 					}
-					else{	// ‚±‚Ì“_‚Í‹«ŠEã‚Ì“_‚¾‚©‚ç“®‚©‚µ‚Ä‚Í‚È‚ç‚È‚¢B
+					else{	// ã“ã®ç‚¹ã¯å¢ƒç•Œä¸Šã®ç‚¹ã ã‹ã‚‰å‹•ã‹ã—ã¦ã¯ãªã‚‰ãªã„ã€‚
 						is_bound_flg = true;
 						break;
 					}
@@ -679,14 +679,14 @@ void CMesher2D::SmoothingMesh_Laplace(unsigned int num_iter)
 }
 
 
-	// •‰‚Ì‘ÌÏ‚â˜c‚ñ‚¾—v‘f‚ª‚È‚¢‚©’²‚×‚é
+	// è² ã®ä½“ç©ã‚„æ­ªã‚“ã è¦ç´ ãŒãªã„ã‹èª¿ã¹ã‚‹
 void CMesher2D::CheckMeshQuality(bool& is_inverted, double& max_aspect, const double ave_edge_len )
 {
 	is_inverted = false;
 	max_aspect = 0.0;
 	for(unsigned int itriary=0;itriary<m_aTriAry.size();itriary++){
 		const std::vector<STri2D>& aTri = m_aTriAry[itriary].m_aTri;
-		for(unsigned int itri=0;itri<aTri.size();itri++){	// “_ü‚è‚Ì“_‚ğ’Tõ‚µ‚Ä’²‚×‚éB
+		for(unsigned int itri=0;itri<aTri.size();itri++){	// ç‚¹å‘¨ã‚Šã®ç‚¹ã‚’æ¢ç´¢ã—ã¦èª¿ã¹ã‚‹ã€‚
 			const double area = TriArea( aVec2D[ aTri[itri].v[0] ], aVec2D[ aTri[itri].v[1] ], aVec2D[ aTri[itri].v[2] ] );
 			const double len0 = sqrt( SquareLength(aVec2D[aTri[itri].v[1]], aVec2D[aTri[itri].v[2]] ) );
 			const double len1 = sqrt( SquareLength(aVec2D[aTri[itri].v[0]], aVec2D[aTri[itri].v[2]] ) );
@@ -712,18 +712,18 @@ void CMesher2D::CheckMeshQuality(bool& is_inverted, double& max_aspect, const do
 
 
 
-// •½‹ÏƒƒbƒVƒ…’·‚ÌŒvZ
+// å¹³å‡ãƒ¡ãƒƒã‚·ãƒ¥é•·ã®è¨ˆç®—
 double CMesher2D::GetAverageEdgeLength(
 		const Cad::ICad2D& cad_2d, 
         const std::set<unsigned int>& setIdL)
 {
-	double area = 0; // ‚±‚Ì“_ü‚è‚Ìƒ‹[ƒv‚Ì–ÊÏ
-	unsigned int ntri = 0;	// ‚±‚Ì“_ü‚è‚Ìƒ‹[ƒv‚Ì‚RŠpŒ`•ªŠ„”
+	double area = 0; // ã“ã®ç‚¹å‘¨ã‚Šã®ãƒ«ãƒ¼ãƒ—ã®é¢ç©
+	unsigned int ntri = 0;	// ã“ã®ç‚¹å‘¨ã‚Šã®ãƒ«ãƒ¼ãƒ—ã®ï¼“è§’å½¢åˆ†å‰²æ•°
     for(std::set<unsigned int>::const_iterator itrl=setIdL.begin();itrl!=setIdL.end();itrl++){
         unsigned int id_l_cad = (*itrl);
         if( !cad_2d.IsElemID(Cad::LOOP,id_l_cad) ) continue;
 		unsigned int iloc,itype;
-		if( !this->FindElemLocType_CadIDType(iloc,itype,id_l_cad,Cad::LOOP) ) continue;	// ‚±‚Ìƒ‹[ƒv‚ÉƒƒbƒVƒ…‚ªØ‚ç‚ê‚Ä‚È‚©‚Á‚½‚ç–³‹
+		if( !this->FindElemLocType_CadIDType(iloc,itype,id_l_cad,Cad::LOOP) ) continue;	// ã“ã®ãƒ«ãƒ¼ãƒ—ã«ãƒ¡ãƒƒã‚·ãƒ¥ãŒåˆ‡ã‚‰ã‚Œã¦ãªã‹ã£ãŸã‚‰ç„¡è¦–
 		ntri += this->m_aTriAry[iloc].m_aTri.size();
 		area += cad_2d.GetArea_Loop(id_l_cad);
 	}
@@ -740,8 +740,8 @@ bool CMesher2D::Tessalate_Edge(
 		const unsigned int id_e )
 {
 	/*
-	‚±‚ÌEdge‚ÉŠÜ‚Ü‚ê‚éVertex‚ªˆø”‚É‘¶İ‚·‚é‚©‚Ç‚¤‚©
-	’²‚×‚Ä‘¶İ‚µ‚È‚©‚Á‚½‚ç•t‚¯‘«‚·ƒ‹[ƒeƒBƒ“‚ğ‚»‚Ì‚¤‚¿’Ç‰Á
+	ã“ã®Edgeã«å«ã¾ã‚Œã‚‹VertexãŒå¼•æ•°ã«å­˜åœ¨ã™ã‚‹ã‹ã©ã†ã‹
+	èª¿ã¹ã¦å­˜åœ¨ã—ãªã‹ã£ãŸã‚‰ä»˜ã‘è¶³ã™ãƒ«ãƒ¼ãƒ†ã‚£ãƒ³ã‚’ãã®ã†ã¡è¿½åŠ 
 	*/
 
 	unsigned int id_v_s, id_v_e;
@@ -822,15 +822,15 @@ bool CMesher2D::MakeMesh_Edge(
 	{
 		assert( this->GetElemID_FromCadID(id_e,Cad::EDGE)==0 );
 		/*
-		‚±‚ÌEdge‚ÉŠÜ‚Ü‚ê‚éVertex‚ªˆø”‚É‘¶İ‚·‚é‚©‚Ç‚¤‚©
-		’²‚×‚Ä‘¶İ‚µ‚È‚©‚Á‚½‚ç•t‚¯‘«‚·ƒ‹[ƒeƒBƒ“‚ğ‚»‚Ì‚¤‚¿’Ç‰Á
+		ã“ã®Edgeã«å«ã¾ã‚Œã‚‹VertexãŒå¼•æ•°ã«å­˜åœ¨ã™ã‚‹ã‹ã©ã†ã‹
+		èª¿ã¹ã¦å­˜åœ¨ã—ãªã‹ã£ãŸã‚‰ä»˜ã‘è¶³ã™ãƒ«ãƒ¼ãƒ†ã‚£ãƒ³ã‚’ãã®ã†ã¡è¿½åŠ 
 		*/
 	}
 
 	unsigned int id_v_s, id_v_e;
 	if( !cad_2d.GetIdVertex_Edge(id_v_s,id_v_e,id_e) ) assert(0);
 
-	// n“_AI“_‚ÌƒƒbƒVƒ…“_”Ô†‚ğip_s,ip_e‚É‘ã“ü
+	// å§‹ç‚¹ã€çµ‚ç‚¹ã®ãƒ¡ãƒƒã‚·ãƒ¥ç‚¹ç•ªå·ã‚’ip_s,ip_eã«ä»£å…¥
 	unsigned int ip_s, ip_e;
 	unsigned int id_msh_s, id_msh_e;
 	{		
@@ -899,27 +899,27 @@ bool CMesher2D::Tesselate_Loop(
 		const unsigned int id_l )
 {
 	/*
-	‚±‚ÌLoop’†‚ÌEdge‚ÉŠÜ‚Ü‚ê‚éVertex‚ªˆø”‚É‘¶İ‚·‚é‚©‚Ç‚¤‚©
-	’²‚×‚Ä‘¶İ‚µ‚È‚©‚Á‚½‚ç•t‚¯‘«‚·ƒ‹[ƒeƒBƒ“‚ğ‚»‚Ì‚¤‚¿’Ç‰Á
+	ã“ã®Loopä¸­ã®Edgeã«å«ã¾ã‚Œã‚‹VertexãŒå¼•æ•°ã«å­˜åœ¨ã™ã‚‹ã‹ã©ã†ã‹
+	èª¿ã¹ã¦å­˜åœ¨ã—ãªã‹ã£ãŸã‚‰ä»˜ã‘è¶³ã™ãƒ«ãƒ¼ãƒ†ã‚£ãƒ³ã‚’ãã®ã†ã¡è¿½åŠ 
 	*/
 
 	/*
-	‚±‚ÌLoop’†‚ÌEdg‚ªˆø”‚É‘¶İ‚·‚é‚©‚Ç‚¤‚©
-	’²‚×‚Ä‘¶İ‚µ‚È‚©‚Á‚½‚ç•t‚¯‘«‚·ƒ‹[ƒeƒBƒ“‚ğ‚»‚Ì‚¤‚¿’Ç‰Á
+	ã“ã®Loopä¸­ã®EdgãŒå¼•æ•°ã«å­˜åœ¨ã™ã‚‹ã‹ã©ã†ã‹
+	èª¿ã¹ã¦å­˜åœ¨ã—ãªã‹ã£ãŸã‚‰ä»˜ã‘è¶³ã™ãƒ«ãƒ¼ãƒ†ã‚£ãƒ³ã‚’ãã®ã†ã¡è¿½åŠ 
 	*/
 
 	std::vector<CPoint2D> aPo2D;
 	std::vector<int> vec2po;
 	{
-		// —v‘f•ªŠ„‚·‚é—Ìˆæ‚Ìß“_@aPo2D‚ğì¬
-		// •Ó‚É‘®‚·‚éß“_‚Ì‘S‘Ì”Ô†‚©‚çA—v‘f•ªŠ„‚·‚é—Ìˆæ‚Ìƒ[ƒJƒ‹”Ô†‚Ö‚Ì‘Î‰(vec2po)‚ğì¬
+		// è¦ç´ åˆ†å‰²ã™ã‚‹é ˜åŸŸã®ç¯€ç‚¹ã€€aPo2Dã‚’ä½œæˆ
+		// è¾ºã«å±ã™ã‚‹ç¯€ç‚¹ã®å…¨ä½“ç•ªå·ã‹ã‚‰ã€è¦ç´ åˆ†å‰²ã™ã‚‹é ˜åŸŸã®ãƒ­ãƒ¼ã‚«ãƒ«ç•ªå·ã¸ã®å¯¾å¿œ(vec2po)ã‚’ä½œæˆ
 
 		////////////////////////////////
 		vec2po.resize( aVec2D.size(), -1 );
-		{	// ‚±‚Ìƒ‹[ƒv‚Åg—p‚³‚ê‚éß“_‚Ìƒtƒ‰ƒO‚ğ—§‚Ä‚é
+		{	// ã“ã®ãƒ«ãƒ¼ãƒ—ã§ä½¿ç”¨ã•ã‚Œã‚‹ç¯€ç‚¹ã®ãƒ•ãƒ©ã‚°ã‚’ç«‹ã¦ã‚‹
             std::auto_ptr<Cad::ICad2D::CItrLoop> pItrEdgeLoop = cad_2d.GetItrLoop(id_l);
-			for(;;){	// ƒ‹[ƒv‚ğ‚ß‚®‚é
-				for(;!pItrEdgeLoop->IsEnd();(*pItrEdgeLoop)++){	// ‚±‚Ìƒ‹[ƒv‚Ì’†‚ÌƒGƒbƒW‚ğ‚ß‚®‚é
+			for(;;){	// ãƒ«ãƒ¼ãƒ—ã‚’ã‚ãã‚‹
+				for(;!pItrEdgeLoop->IsEnd();(*pItrEdgeLoop)++){	// ã“ã®ãƒ«ãƒ¼ãƒ—ã®ä¸­ã®ã‚¨ãƒƒã‚¸ã‚’ã‚ãã‚‹
 					{
 						const unsigned int id_v = pItrEdgeLoop->GetIdVertex();
 						unsigned int iloc, itype;
@@ -930,7 +930,7 @@ bool CMesher2D::Tesselate_Loop(
 					}
 					unsigned int id_e;
 					bool is_same_dir;
-					if( !pItrEdgeLoop->GetIdEdge(id_e,is_same_dir) ) continue; // •‚—V“_‚Í”ò‚Î‚·
+					if( !pItrEdgeLoop->GetIdEdge(id_e,is_same_dir) ) continue; // æµ®éŠç‚¹ã¯é£›ã°ã™
 					unsigned int itype, iloc;
 					if( !this->FindElemLocType_CadIDType(iloc,itype,id_e,Cad::EDGE) ) assert(0);
 					assert( iloc < m_aBarAry.size() );
@@ -946,7 +946,7 @@ bool CMesher2D::Tesselate_Loop(
 				if( !pItrEdgeLoop->ShiftChildLoop() ) break;
 			}
 		}
-		{	// vec2po‚ğì‚éAaPo2D‚ğŠm•Û‚·‚é
+		{	// vec2poã‚’ä½œã‚‹ã€aPo2Dã‚’ç¢ºä¿ã™ã‚‹
 			int ipo=0;
 			for(unsigned int ivec=0;ivec<vec2po.size();ivec++){
 				if( vec2po[ivec] != -1 ){
@@ -970,7 +970,7 @@ bool CMesher2D::Tesselate_Loop(
 	}
 
 	std::vector<STri2D> aTri;
-	{	// —^‚¦‚ç‚ê‚½“_ŒQ‚ğ“à•”‚É‚ÂA‘å‚«‚ÈOŠpŒ`‚ğì‚é
+	{	// ä¸ãˆã‚‰ã‚ŒãŸç‚¹ç¾¤ã‚’å†…éƒ¨ã«æŒã¤ã€å¤§ããªä¸‰è§’å½¢ã‚’ä½œã‚‹
 		assert( aVec2D.size() >= 3 );
 		double max_len;
 		double center[2];
@@ -1014,7 +1014,7 @@ bool CMesher2D::Tesselate_Loop(
 
 	// Make Delaunay Division
 	for(unsigned int ipoin=0;ipoin<aPo2D.size();ipoin++){
-		if( aPo2D[ipoin].e >= 0 ) continue;	// Šù‚ÉƒƒbƒVƒ…‚Ìˆê•”‚Å‚ ‚éB
+		if( aPo2D[ipoin].e >= 0 ) continue;	// æ—¢ã«ãƒ¡ãƒƒã‚·ãƒ¥ã®ä¸€éƒ¨ã§ã‚ã‚‹ã€‚
 		const CVector2D& po_add = aPo2D[ipoin].p;
 		int itri_in = -1;
 		int iedge = -1;
@@ -1076,13 +1076,13 @@ bool CMesher2D::Tesselate_Loop(
 
 	const unsigned int id_new_tri_ary = this->GetFreeObjID();
 
-	{	// ƒGƒbƒW‚ğ‰ñ•œ‚·‚é
+	{	// ã‚¨ãƒƒã‚¸ã‚’å›å¾©ã™ã‚‹
         std::auto_ptr<Cad::ICad2D::CItrLoop> pItrEdgeLoop = cad_2d.GetItrLoop(id_l);
-		for(;;){	// qƒ‹[ƒv‚Ì‚½‚ß‚Ìƒ‹[ƒv
+		for(;;){	// å­ãƒ«ãƒ¼ãƒ—ã®ãŸã‚ã®ãƒ«ãƒ¼ãƒ—
 		for(;!pItrEdgeLoop->IsEnd();(*pItrEdgeLoop)++){
 			unsigned int id_e;
 			bool is_same_dir;
-			if( !pItrEdgeLoop->GetIdEdge(id_e,is_same_dir) ) continue;	// ƒ‹[ƒv‚Ì’†‚Ì“_
+			if( !pItrEdgeLoop->GetIdEdge(id_e,is_same_dir) ) continue;	// ãƒ«ãƒ¼ãƒ—ã®ä¸­ã®ç‚¹
 			unsigned int iloc, itype;
 			if( !FindElemLocType_CadIDType(iloc,itype, id_e,Cad::EDGE) ) assert(0);
 			assert( iloc < m_aBarAry.size() );
@@ -1093,15 +1093,15 @@ bool CMesher2D::Tesselate_Loop(
 			const unsigned int id_elem_bar = BarAry.id;
 			assert( id_elem_bar != id_new_tri_ary );
 			for(unsigned int ibar=0;ibar<aBar.size();ibar++){
-				for(;;){ // Edge‚ğFlip‚µ‚½‚ç“¯‚¶•Ó‚É‚Â‚¢‚ÄŒJ‚è•Ô‚·				
-				unsigned int ipoi0,ipoi1; // ipoi0‚Í¶ü‚è‚Ìbar‚Ìn“_Aipoi1‚ÍI“_
+				for(;;){ // Edgeã‚’Flipã—ãŸã‚‰åŒã˜è¾ºã«ã¤ã„ã¦ç¹°ã‚Šè¿”ã™				
+				unsigned int ipoi0,ipoi1; // ipoi0ã¯å·¦å‘¨ã‚Šã®barã®å§‹ç‚¹ã€ipoi1ã¯çµ‚ç‚¹
 				if( is_same_dir ){	ipoi0 = vec2po[ aBar[ibar].v[0] ]; ipoi1 = vec2po[ aBar[ibar].v[1] ]; }
 				else{				ipoi0 = vec2po[ aBar[ibar].v[1] ]; ipoi1 = vec2po[ aBar[ibar].v[0] ]; }
 				assert( ipoi0 < aPo2D.size() ); assert( ipoi1 < aPo2D.size() );
 				////////////////
 				unsigned int itri0;
 				unsigned int inotri0,inotri1;
-				if( FindEdge(ipoi0,ipoi1,itri0,inotri0,inotri1,aPo2D,aTri) ){	// ƒ‹[ƒv‚Ì“à‘¤‚ÉÚ‚·‚é—v‘f‚ğŒ©‚Â‚¯‚é
+				if( FindEdge(ipoi0,ipoi1,itri0,inotri0,inotri1,aPo2D,aTri) ){	// ãƒ«ãƒ¼ãƒ—ã®å†…å´ã«æ¥ã™ã‚‹è¦ç´ ã‚’è¦‹ã¤ã‘ã‚‹
 					// Split Triangle
 					assert( inotri0 != inotri1 );
 					assert( inotri0 < 3 );
@@ -1116,12 +1116,12 @@ bool CMesher2D::Tesselate_Loop(
 						aTri[itri1].g2[ied1] = -3;	
 						aTri[itri0].g2[ied0] = -3;
 					}
-					break;	// Ÿ‚ÌBar‚Ö@for(;;)‚ğ”²‚¯‚é
+					break;	// æ¬¡ã®Barã¸ã€€for(;;)ã‚’æŠœã‘ã‚‹
 				}
 				else{
 					double ratio;
 					if( !FindEdgePoint_AcrossEdge(ipoi0,ipoi1,   itri0,inotri0,inotri1,ratio,   aPo2D,aTri) ){ 
-                        std::cout << "˜c‚ñ‚¾ƒƒbƒVƒ…" << std::endl;
+                        std::cout << "æ­ªã‚“ã ãƒ¡ãƒƒã‚·ãƒ¥" << std::endl;
 						return false;
 						assert(0); 
 					}
@@ -1133,12 +1133,12 @@ bool CMesher2D::Tesselate_Loop(
 					assert( TriArea( aPo2D[ipoi0].p, aPo2D[ aTri[itri0].v[inotri0] ].p, aPo2D[ipoi1].p ) > 1.0e-20 );
 					assert( TriArea( aPo2D[ipoi0].p, aPo2D[ipoi1].p, aPo2D[ aTri[itri0].v[inotri1] ].p ) > 1.0e-20 );*/
 					if( ratio < 1.0e-20 ){
-//						std::cout << "–¢À‘• •Óã‚É“_‚ª‚ ‚éê‡" << std::endl;
+//						std::cout << "æœªå®Ÿè£… è¾ºä¸Šã«ç‚¹ãŒã‚ã‚‹å ´åˆ" << std::endl;
 						return false;
 						assert(0);
 					}
 					else if( ratio > 1.0-1.0e-10 ){
-//						std::cout << "–¢À‘• •Óã‚É“_‚ª‚ ‚éê‡" << std::endl;
+//						std::cout << "æœªå®Ÿè£… è¾ºä¸Šã«ç‚¹ãŒã‚ã‚‹å ´åˆ" << std::endl;
 						return false;
 						assert(0);
 					}
@@ -1163,19 +1163,19 @@ bool CMesher2D::Tesselate_Loop(
 	}
 
 	////////////////////////////////////////////////
-	// ‚±‚±‚©‚ç‚ÍƒNƒ‰ƒX‚Ì“à—e‚ğ•ÏX‚·‚é
-	// ƒGƒ‰[‚ğo‚µ‚Ä–ß‚é‚È‚çA‚±‚±ˆÈ‘O‚É‚·‚é‚±‚Æ
+	// ã“ã“ã‹ã‚‰ã¯ã‚¯ãƒ©ã‚¹ã®å†…å®¹ã‚’å¤‰æ›´ã™ã‚‹
+	// ã‚¨ãƒ©ãƒ¼ã‚’å‡ºã—ã¦æˆ»ã‚‹ãªã‚‰ã€ã“ã“ä»¥å‰ã«ã™ã‚‹ã“ã¨
 	////////////////////////////////////////////////
 
-	// ‚±‚±‚©‚ç•Ó—v‘f‚Ì—×ÚŠÖŒW‚ğ•ÏX‚·‚éD‚RŠpŒ`‚É‚Â‚¢‚Ä‚Í‚»‚Ì‚Ü‚Ü
+	// ã“ã“ã‹ã‚‰è¾ºè¦ç´ ã®éš£æ¥é–¢ä¿‚ã‚’å¤‰æ›´ã™ã‚‹ï¼ï¼“è§’å½¢ã«ã¤ã„ã¦ã¯ãã®ã¾ã¾
 
-	{	// •Ó—v‘f‚©‚ç‚RŠpŒ`—v‘f‚Ö‚Ì—×Úî•ñ‚ğì¬
+	{	// è¾ºè¦ç´ ã‹ã‚‰ï¼“è§’å½¢è¦ç´ ã¸ã®éš£æ¥æƒ…å ±ã‚’ä½œæˆ
         std::auto_ptr<Cad::ICad2D::CItrLoop> pItrEdgeLoop = cad_2d.GetItrLoop(id_l);
-		for(;;){	// qƒ‹[ƒv‚Ì‚½‚ß‚Ìƒ‹[ƒv
+		for(;;){	// å­ãƒ«ãƒ¼ãƒ—ã®ãŸã‚ã®ãƒ«ãƒ¼ãƒ—
 		for(;!pItrEdgeLoop->IsEnd();(*pItrEdgeLoop)++){
 			unsigned int id_e;
 			bool is_same_dir;
-			if( !pItrEdgeLoop->GetIdEdge(id_e,is_same_dir) ) continue;	// ƒ‹[ƒv‚Ì’†‚Ì“_
+			if( !pItrEdgeLoop->GetIdEdge(id_e,is_same_dir) ) continue;	// ãƒ«ãƒ¼ãƒ—ã®ä¸­ã®ç‚¹
 			unsigned int iloc, itype;
 			if( !FindElemLocType_CadIDType(iloc,itype, id_e,Cad::EDGE) ) assert(0);
 			assert( iloc < m_aBarAry.size() );
@@ -1186,21 +1186,21 @@ bool CMesher2D::Tesselate_Loop(
 			const unsigned int id_elem_bar = BarAry.id;
 			assert( id_elem_bar != id_new_tri_ary );
 			for(unsigned int ibar=0;ibar<aBar.size();ibar++){					
-				unsigned int ipoi0,ipoi1; // ipoi0‚Í¶ü‚è‚Ìbar‚Ìn“_Aipoi1‚ÍI“_
+				unsigned int ipoi0,ipoi1; // ipoi0ã¯å·¦å‘¨ã‚Šã®barã®å§‹ç‚¹ã€ipoi1ã¯çµ‚ç‚¹
 				if( is_same_dir ){	ipoi0 = vec2po[ aBar[ibar].v[0] ]; ipoi1 = vec2po[ aBar[ibar].v[1] ]; }
 				else{				ipoi0 = vec2po[ aBar[ibar].v[1] ]; ipoi1 = vec2po[ aBar[ibar].v[0] ]; }
 				assert( ipoi0 < aPo2D.size() ); assert( ipoi1 < aPo2D.size() );
 				////////////////
 				unsigned int itri0;
 				unsigned int inotri0,inotri1;
-				if( !FindEdge(ipoi0,ipoi1,itri0,inotri0,inotri1,aPo2D,aTri) ){	assert(0); }// ƒ‹[ƒv‚Ì“à‘¤‚ÉÚ‚·‚é—v‘f‚ğŒ©‚Â‚¯‚é
+				if( !FindEdge(ipoi0,ipoi1,itri0,inotri0,inotri1,aPo2D,aTri) ){	assert(0); }// ãƒ«ãƒ¼ãƒ—ã®å†…å´ã«æ¥ã™ã‚‹è¦ç´ ã‚’è¦‹ã¤ã‘ã‚‹
 				assert( inotri0 != inotri1 );
 				assert( inotri0 < 3 );
 				assert( inotri1 < 3 );
 				assert( aTri[itri0].v[ inotri0 ] == ipoi0 );
 				assert( aTri[itri0].v[ inotri1 ] == ipoi1 );
 				const unsigned int ied0 = 3 - inotri0 - inotri1;
-				// •Ó—v‘f‚Ì—×Úî•ñ‚ğì‚é
+				// è¾ºè¦ç´ ã®éš£æ¥æƒ…å ±ã‚’ä½œã‚‹
 				if( is_same_dir ){	
                     assert( BarAry.id_lr[0] == id_new_tri_ary || BarAry.id_lr[0] == 0 );
 					BarAry.id_lr[0] = id_new_tri_ary;
@@ -1218,17 +1218,17 @@ bool CMesher2D::Tesselate_Loop(
 		assert( CheckTri(aPo2D,aTri) );
 	}
 	
-	// ¡Œã‚Í•Ó—v‘f‚ğ•ÏX‚·‚é‚Ì‚ÍCTriAry‚Ì”Ô†•t‚¯‚ğ•Ï‰»‚³‚¹‚é‚Æ‚«
+	// ä»Šå¾Œã¯è¾ºè¦ç´ ã‚’å¤‰æ›´ã™ã‚‹ã®ã¯ï¼ŒTriAryã®ç•ªå·ä»˜ã‘ã‚’å¤‰åŒ–ã•ã›ã‚‹ã¨ã
 
 //	OutInp("hoge2.inp",aPo2D,aTri);
 
-	{	// •Ó‚Æ‚Ì—×Ú”Ô†‚Ì®‡«‚ğ‚Æ‚é
+	{	// è¾ºã¨ã®éš£æ¥ç•ªå·ã®æ•´åˆæ€§ã‚’ã¨ã‚‹
         std::auto_ptr<Cad::ICad2D::CItrLoop> pItrEdgeLoop = cad_2d.GetItrLoop(id_l);
-		for(;;){	// qƒ‹[ƒv‚Ì‚½‚ß‚Ìƒ‹[ƒv
+		for(;;){	// å­ãƒ«ãƒ¼ãƒ—ã®ãŸã‚ã®ãƒ«ãƒ¼ãƒ—
 		for(;!pItrEdgeLoop->IsEnd();(*pItrEdgeLoop)++){
 			unsigned int id_e;
 			bool is_same_dir;
-			if( !pItrEdgeLoop->GetIdEdge(id_e,is_same_dir) ) continue;	// qƒ‹[ƒv‚ª“_‚Ìê‡
+			if( !pItrEdgeLoop->GetIdEdge(id_e,is_same_dir) ) continue;	// å­ãƒ«ãƒ¼ãƒ—ãŒç‚¹ã®å ´åˆ
 			unsigned int iloc, itype;
 			if( !FindElemLocType_CadIDType(iloc,itype, id_e,Cad::EDGE) ) assert(0);
 			assert( iloc < m_aBarAry.size() );
@@ -1238,7 +1238,7 @@ bool CMesher2D::Tesselate_Loop(
 			const std::vector<SBar>& aBar = BarAry.m_aBar;
 			const unsigned int id_elem_bar = BarAry.id;
 			assert( id_elem_bar != id_new_tri_ary );
-            if( BarAry.id_lr[0] == id_new_tri_ary ){	// ¶‘¤‚ğØ‚è—£‚·
+            if( BarAry.id_lr[0] == id_new_tri_ary ){	// å·¦å´ã‚’åˆ‡ã‚Šé›¢ã™
 				for(unsigned int ibar=0;ibar<aBar.size();ibar++){
 					const SBar& bar = aBar[ibar];
 					const unsigned int itri0 = bar.s2[0];
@@ -1247,52 +1247,52 @@ bool CMesher2D::Tesselate_Loop(
 					assert( ied0 < 3 );
                     assert( (int)aTri[itri0].v[noelTriEdge[ied0][0]]==vec2po[bar.v[0]] || (int)aTri[itri0].v[noelTriEdge[ied0][0]]==vec2po[bar.v[1]]);
                     assert( (int)aTri[itri0].v[noelTriEdge[ied0][1]]==vec2po[bar.v[0]] || (int)aTri[itri0].v[noelTriEdge[ied0][1]]==vec2po[bar.v[1]]);
-                    if( aTri[itri0].g2[ied0] == (int)id_elem_bar ) continue;	// ‚·‚Å‚ÉØ‚è—£‚³‚ê‚Ä‚é
-					{	// Œü‚©‚¢‘¤‚Ì—v‘f‚Ìˆ—
+                    if( aTri[itri0].g2[ied0] == (int)id_elem_bar ) continue;	// ã™ã§ã«åˆ‡ã‚Šé›¢ã•ã‚Œã¦ã‚‹
+					{	// å‘ã‹ã„å´ã®è¦ç´ ã®å‡¦ç†
 						const unsigned int itri1 = aTri[itri0].s2[ied0];
                         const unsigned int ied1 = (unsigned int)relTriTri[ (int)aTri[itri0].r2[ied0] ][ied0];
 						assert( aTri[itri1].s2[ied1] == itri0 );
-                        if( BarAry.id_lr[1] != id_new_tri_ary ){	// ŠO‘¤‚Ì—v‘f‚ğØ‚è—£‚·
+                        if( BarAry.id_lr[1] != id_new_tri_ary ){	// å¤–å´ã®è¦ç´ ã‚’åˆ‡ã‚Šé›¢ã™
 							assert( aTri[itri1].s2[ied1] == itri0 );
 							aTri[itri1].g2[ied1] = -1;
 						}
-						else{ // •Ó‚ğ‚Í‚³‚ñ‚ÅŒü‚©‚¢‘¤‚Ì—v‘f‚à“à‘¤‚¾‚©‚ç•Ó‚É‚­‚Á‚Â‚¯‚é
+						else{ // è¾ºã‚’ã¯ã•ã‚“ã§å‘ã‹ã„å´ã®è¦ç´ ã‚‚å†…å´ã ã‹ã‚‰è¾ºã«ãã£ã¤ã‘ã‚‹
 							aTri[itri1].g2[ied1] = id_elem_bar;
 							aTri[itri1].s2[ied1] = ibar;
 							aTri[itri1].r2[ied1] = 1;
 						}
 					}
-					{	// “à‘¤‚Ì—v‘f‚ğ•Ó‚É‚­‚Á‚Â‚¯‚é
+					{	// å†…å´ã®è¦ç´ ã‚’è¾ºã«ãã£ã¤ã‘ã‚‹
 						aTri[itri0].g2[ied0] = id_elem_bar;
 						aTri[itri0].s2[ied0] = ibar;
 						aTri[itri0].r2[ied0] = 0;
 					}
 				}
 			}			
-            if( BarAry.id_lr[1] == id_new_tri_ary ){	// •Ó‚Ì‰E‘¤‚ğØ‚è—£‚·
+            if( BarAry.id_lr[1] == id_new_tri_ary ){	// è¾ºã®å³å´ã‚’åˆ‡ã‚Šé›¢ã™
 				for(unsigned int ibar=0;ibar<aBar.size();ibar++){
 					const SBar& bar = aBar[ibar];
 					const unsigned int itri0 = bar.s2[1];
 					const unsigned int ied0= bar.r2[1];
-                    if( aTri[itri0].g2[ied0] == (int)id_elem_bar ) continue;	// ‚·‚Å‚ÉØ‚è—£‚³‚ê‚Ä‚é
-					{	// ŠO‘¤‚Ì—v‘f‚ğØ‚è—£‚·
+                    if( aTri[itri0].g2[ied0] == (int)id_elem_bar ) continue;	// ã™ã§ã«åˆ‡ã‚Šé›¢ã•ã‚Œã¦ã‚‹
+					{	// å¤–å´ã®è¦ç´ ã‚’åˆ‡ã‚Šé›¢ã™
 						const unsigned int itri1 = aTri[itri0].s2[ied0];
                         const unsigned int ied1 = relTriTri[ (int)aTri[itri0].r2[ied0] ][ied0];
 						assert( itri1 < aTri.size() );
 						assert( ied1 < 3 );
                         assert( (int)aTri[itri0].v[noelTriEdge[ied0][0]]==vec2po[bar.v[1]] );
                         assert( (int)aTri[itri0].v[noelTriEdge[ied0][1]]==vec2po[bar.v[0]] );
-                        if( BarAry.id_lr[0] != id_new_tri_ary ){	// ŠO‘¤‚Ì—v‘f‚ğØ‚è—£‚·
+                        if( BarAry.id_lr[0] != id_new_tri_ary ){	// å¤–å´ã®è¦ç´ ã‚’åˆ‡ã‚Šé›¢ã™
 							assert( aTri[itri1].s2[ied1] == itri0 );
 							aTri[itri1].g2[ied1] = -1;
 						}
-						else{ // •Ó‚ğ‚Í‚³‚ñ‚ÅŒü‚©‚¢‘¤‚Ì—v‘f‚à“à‘¤‚¾‚©‚ç•Ó‚É‚­‚Á‚Â‚¯‚é
+						else{ // è¾ºã‚’ã¯ã•ã‚“ã§å‘ã‹ã„å´ã®è¦ç´ ã‚‚å†…å´ã ã‹ã‚‰è¾ºã«ãã£ã¤ã‘ã‚‹
 							aTri[itri1].g2[ied1] = id_elem_bar;
 							aTri[itri1].s2[ied1] = ibar;
 							aTri[itri1].r2[ied1] = 0;
 						}
 					}
-					{	// “à‘¤‚Ì—v‘f‚ğ•Ó‚É‚­‚Á‚Â‚¯‚é
+					{	// å†…å´ã®è¦ç´ ã‚’è¾ºã«ãã£ã¤ã‘ã‚‹
 						aTri[itri0].g2[ied0] = id_elem_bar;
 						aTri[itri0].s2[ied0] = ibar;
 						aTri[itri0].r2[ied0] = 1;
@@ -1301,17 +1301,17 @@ bool CMesher2D::Tesselate_Loop(
 			}
 		}
 		if( !pItrEdgeLoop->ShiftChildLoop() ) break;
-		}	// ƒ‹[ƒv‚Ìfor•¶I‚í‚è
-		// ‚±‚±‚©‚çæ‚ÍFlip‹Ö~ƒtƒ‰ƒO(—×Ú—v‘f”z—ñ”Ô†-3)‚Í‚È‚¢‚Í‚¸
+		}	// ãƒ«ãƒ¼ãƒ—ã®foræ–‡çµ‚ã‚ã‚Š
+		// ã“ã“ã‹ã‚‰å…ˆã¯Flipç¦æ­¢ãƒ•ãƒ©ã‚°(éš£æ¥è¦ç´ é…åˆ—ç•ªå·-3)ã¯ãªã„ã¯ãš
 		assert( CheckTri(aPo2D,aTri) );	
 	}
 
-	// ŠO‘¤‚Ì‚RŠpŒ`‚ÌÁ‹
+	// å¤–å´ã®ï¼“è§’å½¢ã®æ¶ˆå»
 	////////////////////////////////////////////////
 
-	std::vector<STri2D> aTri_in;	// “à‘¤‚ÌOŠpŒ`
-	{	// ŠO‘¤‚ÌOŠpŒ`‚Ìœ‹
-		// “à‘¤‚É‚ ‚éOŠpŒ`‚ğ‚Ğ‚Æ‚Â(itri0_ker)Œ©‚Â‚¯‚é
+	std::vector<STri2D> aTri_in;	// å†…å´ã®ä¸‰è§’å½¢
+	{	// å¤–å´ã®ä¸‰è§’å½¢ã®é™¤å»
+		// å†…å´ã«ã‚ã‚‹ä¸‰è§’å½¢ã‚’ã²ã¨ã¤(itri0_ker)è¦‹ã¤ã‘ã‚‹
 		unsigned int itri0_ker = aTri.size();
 		{
             std::auto_ptr<Cad::ICad2D::CItrLoop> pItrEdgeLoop = cad_2d.GetItrLoop(id_l);
@@ -1343,14 +1343,14 @@ bool CMesher2D::Tesselate_Loop(
 		}
 		assert( itri0_ker < aTri.size() );
 
-		// —Ìˆæ‚ÌŠO‚Ì—v‘f‚È‚çƒtƒ‰ƒO‚ª-1A‚»‚¤‚Å‚È‚¯‚ê‚Îƒtƒ‰ƒO‚Í¸‡‚Ì—v‘f”Ô†‚ª“ü‚Á‚½”z—ñinout_flg‚ğì‚é
+		// é ˜åŸŸã®å¤–ã®è¦ç´ ãªã‚‰ãƒ•ãƒ©ã‚°ãŒ-1ã€ãã†ã§ãªã‘ã‚Œã°ãƒ•ãƒ©ã‚°ã¯æ˜‡é †ã®è¦ç´ ç•ªå·ãŒå…¥ã£ãŸé…åˆ—inout_flgã‚’ä½œã‚‹
 		unsigned int ntri_in;
-		std::vector<int> inout_flg;	// ƒtƒ‰ƒO”z—ñ
-		{	// ã‚ÅŒ©‚Â‚¯‚½“à‘¤‚ÌOŠpŒ`‚ğŠj‚Æ‚µ‚Ä“à‘¤‚ÌOŠpŒ`‚ğüˆÍ‚ÉŠg‘å‚µ‚Ä‚¢‚­
+		std::vector<int> inout_flg;	// ãƒ•ãƒ©ã‚°é…åˆ—
+		{	// ä¸Šã§è¦‹ã¤ã‘ãŸå†…å´ã®ä¸‰è§’å½¢ã‚’æ ¸ã¨ã—ã¦å†…å´ã®ä¸‰è§’å½¢ã‚’å‘¨å›²ã«æ‹¡å¤§ã—ã¦ã„ã
 			inout_flg.resize(aTri.size(),-1);
 			inout_flg[itri0_ker] = 0;
 			ntri_in = 1;
-			std::stack<unsigned int> ind_stack;	// üˆÍ‚ª’Tõ‚³‚ê‚Ä‚¢‚È‚¢OŠpŒ`
+			std::stack<unsigned int> ind_stack;	// å‘¨å›²ãŒæ¢ç´¢ã•ã‚Œã¦ã„ãªã„ä¸‰è§’å½¢
 			ind_stack.push(itri0_ker);
 			for(;;){
 				if( ind_stack.empty() ) break;
@@ -1368,7 +1368,7 @@ bool CMesher2D::Tesselate_Loop(
 			}
 		}
 
-		// ƒtƒ‰ƒO”z—ñ‚É‰ˆ‚Á‚Ä“à‘¤‚ÌOŠpŒ`‚ğW‚ß‚½”z—ñaTri_in‚ğì‚é
+		// ãƒ•ãƒ©ã‚°é…åˆ—ã«æ²¿ã£ã¦å†…å´ã®ä¸‰è§’å½¢ã‚’é›†ã‚ãŸé…åˆ—aTri_inã‚’ä½œã‚‹
 		aTri_in.resize( ntri_in );
 		for(unsigned int itri=0;itri<aTri.size();itri++){
 			if( inout_flg[itri] != -1 ){
@@ -1377,7 +1377,7 @@ bool CMesher2D::Tesselate_Loop(
 				aTri_in[itri_in] = aTri[itri];
 			}
 		}
-		// “à‘¤‚ÌOŠpŒ`”z—ñ‚Ì‚Ì—×Úî•ñ‚ğì‚é
+		// å†…å´ã®ä¸‰è§’å½¢é…åˆ—ã®ã®éš£æ¥æƒ…å ±ã‚’ä½œã‚‹
 		for(unsigned int itri=0;itri<aTri_in.size();itri++){
 			for(unsigned int ifatri=0;ifatri<3;ifatri++){
 				if( aTri_in[itri].g2[ifatri] != -2 ) continue;
@@ -1388,13 +1388,13 @@ bool CMesher2D::Tesselate_Loop(
 				aTri_in[itri].s2[ifatri] = itri_in_s0;
 			}
 		}
-		{	// •Ó‚Ì—×Úî•ñ‚ğXV
+		{	// è¾ºã®éš£æ¥æƒ…å ±ã‚’æ›´æ–°
 			std::auto_ptr<Cad::ICad2D::CItrLoop> pItrEdgeLoop = cad_2d.GetItrLoop(id_l);
-			for(;;){	// qƒ‹[ƒv‚Ì‚½‚ß‚Ìƒ‹[ƒv
+			for(;;){	// å­ãƒ«ãƒ¼ãƒ—ã®ãŸã‚ã®ãƒ«ãƒ¼ãƒ—
 			for(;!pItrEdgeLoop->IsEnd();(*pItrEdgeLoop)++){
 				unsigned int id_e;
 				bool is_same_dir;
-				if( !pItrEdgeLoop->GetIdEdge(id_e,is_same_dir) ) continue;	// ƒ‹[ƒv‚Ì’†‚Ì“_
+				if( !pItrEdgeLoop->GetIdEdge(id_e,is_same_dir) ) continue;	// ãƒ«ãƒ¼ãƒ—ã®ä¸­ã®ç‚¹
 				unsigned int iloc, itype;
 				if( !FindElemLocType_CadIDType(iloc,itype, id_e,Cad::EDGE) ) assert(0);
 				assert( iloc < m_aBarAry.size() );
@@ -1433,7 +1433,7 @@ bool CMesher2D::Tesselate_Loop(
 		for(unsigned int ivec=0;ivec<vec2po.size();ivec++){
 			if( vec2po[ivec] != -1 ){
 				const unsigned int ipo0 = vec2po[ivec];
-                if( po2vec[ipo0] != -1 ){ std::cout << "‘Î‰‚µ‚È‚¢“_" << std::endl; return false; }
+                if( po2vec[ipo0] != -1 ){ std::cout << "å¯¾å¿œã—ãªã„ç‚¹" << std::endl; return false; }
 				assert( po2vec[ipo0] == -1 );
 				po2vec[ipo0] = ivec;
 			}
@@ -1441,7 +1441,7 @@ bool CMesher2D::Tesselate_Loop(
 		for(unsigned  int ipo=0;ipo<po2vec.size();ipo++){
 			if( po2vec[ipo] == -1 ){
 				std::cout << ipo << " " << aPo2D[ipo].p.x << " " << aPo2D[ipo].p.y << std::endl;
-//				std::cout << "–¢À‘•  ‚k‚‚‚‚ÉV‚µ‚¢ß“_‚Ì’Ç‰Á‚µ‚½‚Æ‚«‚Ìˆ—" << std::endl;
+//				std::cout << "æœªå®Ÿè£…  ï¼¬ï½ï½ï½ã«æ–°ã—ã„ç¯€ç‚¹ã®è¿½åŠ ã—ãŸã¨ãã®å‡¦ç†" << std::endl;
 				return false;
 				assert(0);
 			}
@@ -1484,13 +1484,13 @@ bool CMesher2D::MakeMesh_Loop(
 		return false;
 	}
 
-	// ‚³‚ê‚½Loop‚ğ•ÒW‚·‚é‚½‚ß
-	// vec2po‚ğì¬
-	// aPo2D‚ğì¬
-	// aTri‚ğƒRƒs[‚µ‚Äì¬
+	// ã•ã‚ŒãŸLoopã‚’ç·¨é›†ã™ã‚‹ãŸã‚
+	// vec2poã‚’ä½œæˆ
+	// aPo2Dã‚’ä½œæˆ
+	// aTriã‚’ã‚³ãƒ”ãƒ¼ã—ã¦ä½œæˆ
 	std::vector<CPoint2D> aPo2D;
 	std::vector<STri2D> aTri;
-	std::vector<int> vec2po; // MSHß“_”Ô†vec‚©‚çƒ[ƒJƒ‹ß“_”Ô†po‚Ö‚Ìƒtƒ‰ƒOA‘Î‰‚µ‚Ä‚È‚¢ê‡‚Í-2‚ª“ü‚é
+	std::vector<int> vec2po; // MSHç¯€ç‚¹ç•ªå·vecã‹ã‚‰ãƒ­ãƒ¼ã‚«ãƒ«ç¯€ç‚¹ç•ªå·poã¸ã®ãƒ•ãƒ©ã‚°ã€å¯¾å¿œã—ã¦ãªã„å ´åˆã¯-2ãŒå…¥ã‚‹
 	{
 		vec2po.resize( aVec2D.size(), -2 );
 		unsigned int iloc,itype;
@@ -1499,7 +1499,7 @@ bool CMesher2D::MakeMesh_Loop(
 		assert( iloc < m_aTriAry.size() );
 		const CTriAry2D& TriAry = m_aTriAry[iloc];
 		const std::vector<STri2D>& aTri_ini = TriAry.m_aTri;
-		for(unsigned int itri=0;itri<aTri_ini.size();itri++){	// ‚RŠpŒ`‚Ég‚í‚ê‚Ä‚¢‚é‘S‚Ä‚Ìß“_‚ğƒ}[ƒN
+		for(unsigned int itri=0;itri<aTri_ini.size();itri++){	// ï¼“è§’å½¢ã«ä½¿ã‚ã‚Œã¦ã„ã‚‹å…¨ã¦ã®ç¯€ç‚¹ã‚’ãƒãƒ¼ã‚¯
 			for(unsigned int inotri=0;inotri<3;inotri++){
 				const unsigned int ivec0 = aTri_ini[itri].v[inotri];
 				assert( ivec0 < aVec2D.size() );
@@ -1548,7 +1548,7 @@ bool CMesher2D::MakeMesh_Loop(
 		assert( CheckTri(aPo2D,aTri) );
 	}
 
-	std::vector<unsigned int> aflag_isnt_move;	// ƒtƒ‰ƒO‚ª‚P‚È‚ç“®‚©‚³‚È‚¢
+	std::vector<unsigned int> aflag_isnt_move;	// ãƒ•ãƒ©ã‚°ãŒï¼‘ãªã‚‰å‹•ã‹ã•ãªã„
 	{
 		aflag_isnt_move.resize( aPo2D.size(), 0 );
 		for(unsigned int iver=0;iver<m_aVertex.size();iver++){
@@ -1564,7 +1564,7 @@ bool CMesher2D::MakeMesh_Loop(
 		}
 	}
 
-	{	// aTri‚Éß“_‚ğ’Ç‰Á
+	{	// aTriã«ç¯€ç‚¹ã‚’è¿½åŠ 
 		double ratio = 3.0;
 		for(;;){
 			unsigned int nadd = 0;
@@ -1574,8 +1574,8 @@ bool CMesher2D::MakeMesh_Loop(
 					aPo2D[aTri[itri].v[1]].p, 
 					aPo2D[aTri[itri].v[2]].p);
 				if( area > len * len * ratio ){
-					// itri‚ÌdS‚ÉV‚µ‚¢ß“_‚ğ’Ç‰Á
-					const unsigned int ipo0 = aPo2D.size();	// ipo0‚ÍV‚µ‚¢ß“_”Ô†
+					// itriã®é‡å¿ƒã«æ–°ã—ã„ç¯€ç‚¹ã‚’è¿½åŠ 
+					const unsigned int ipo0 = aPo2D.size();	// ipo0ã¯æ–°ã—ã„ç¯€ç‚¹ç•ªå·
 					aPo2D.resize( aPo2D.size()+1 );
 					aPo2D[ipo0].p.x = (aPo2D[aTri[itri].v[0]].p.x+aPo2D[aTri[itri].v[1]].p.x+aPo2D[aTri[itri].v[2]].p.x)/3.0;
 					aPo2D[ipo0].p.y = (aPo2D[aTri[itri].v[0]].p.y+aPo2D[aTri[itri].v[1]].p.y+aPo2D[aTri[itri].v[2]].p.y)/3.0;
@@ -1600,7 +1600,7 @@ bool CMesher2D::MakeMesh_Loop(
 //		LaplacianSmoothing(aPo2D,aTri);
 	}
 
-	// ‘S‘Ìß“_”Ô†‚Ö’¼‚·
+	// å…¨ä½“ç¯€ç‚¹ç•ªå·ã¸ç›´ã™
 	std::vector<int> po2vec;
 	po2vec.resize(aPo2D.size(),-2);
 	for(unsigned int itri=0;itri<aTri.size();itri++){
@@ -1618,7 +1618,7 @@ bool CMesher2D::MakeMesh_Loop(
 			assert( vec2po[ivec] == -2 );
 		}
 	}
-	{	// ‘S‘Ìß“_‚ğ’Ç‰Á
+	{	// å…¨ä½“ç¯€ç‚¹ã‚’è¿½åŠ 
 		unsigned int npo_add = 0;
 		for(unsigned  int ipo=0;ipo<po2vec.size();ipo++){
 			if( po2vec[ipo] == -1 ){
@@ -1637,7 +1637,7 @@ bool CMesher2D::MakeMesh_Loop(
 			}
 		}
 	}
-	{	// ƒ[ƒJƒ‹ß“_”Ô†‚©‚ç‘S‘Ìß“_”Ô†‚Ö‚Ì•À‚Ñ‘Ö‚¦
+	{	// ãƒ­ãƒ¼ã‚«ãƒ«ç¯€ç‚¹ç•ªå·ã‹ã‚‰å…¨ä½“ç¯€ç‚¹ç•ªå·ã¸ã®ä¸¦ã³æ›¿ãˆ
 		for(unsigned int itri=0;itri<aTri.size();itri++){
 			for(unsigned int inotri=0;inotri<3;inotri++){
 				const int ipo0 = aTri[itri].v[inotri];
@@ -1659,7 +1659,7 @@ bool CMesher2D::MakeMesh_Loop(
 		id_this_loop = TriAry.id;
 	}
 
-	{	// ‹«ŠE‚É‚¨‚¯‚é—v‘f‚Æ‚Ì®‡«‚ğ‚Æ‚é
+	{	// å¢ƒç•Œã«ãŠã‘ã‚‹è¦ç´ ã¨ã®æ•´åˆæ€§ã‚’ã¨ã‚‹
 		for(unsigned int itri=0;itri<aTri.size();itri++){
 			for(unsigned int ifatri=0;ifatri<3;ifatri++){
 				if( aTri[itri].g2[ifatri] < 0 ) continue;
@@ -1692,7 +1692,7 @@ bool CMesher2D::MakeMesh_Loop(
 					}
 				}
 				else{
-					std::cout << "–¢À‘• : Tri‚ÉÚ‚·‚é—v‘fƒ^ƒCƒv" << itype0 << std::endl;
+					std::cout << "æœªå®Ÿè£… : Triã«æ¥ã™ã‚‹è¦ç´ ã‚¿ã‚¤ãƒ—" << itype0 << std::endl;
 					assert(0);
 				}
 			}
@@ -1822,7 +1822,7 @@ bool CMesher2D::Meshing_ElemLength(
 	assert( len > 0.0 ); 	
 	this->aVec2D.reserve(256);
 
-    {   // ƒ‹[ƒv‚Ég‚í‚ê‚Ä‚¢‚éVtx‚ğƒƒbƒVƒ…‚É¶¬‚µ‚Äƒtƒ‰ƒO‚ğ0‚©‚ç1‚É—§‚Ä‚é
+    {   // ãƒ«ãƒ¼ãƒ—ã«ä½¿ã‚ã‚Œã¦ã„ã‚‹Vtxã‚’ãƒ¡ãƒƒã‚·ãƒ¥ã«ç”Ÿæˆã—ã¦ãƒ•ãƒ©ã‚°ã‚’0ã‹ã‚‰1ã«ç«‹ã¦ã‚‹
 		std::vector<unsigned int> aFlgVtx;
         for(unsigned int iid_l=0;iid_l<aIdLoop.size();iid_l++){
 			const unsigned int id_l = aIdLoop[iid_l];
@@ -1863,13 +1863,13 @@ bool CMesher2D::Meshing_ElemLength(
 	}
 
     for(unsigned int iid_l=0;iid_l<aIdLoop.size();iid_l++)
-    {	// ƒ‹[ƒv‚É•K—v‚È•Ó‚ğì‚é
+    {	// ãƒ«ãƒ¼ãƒ—ã«å¿…è¦ãªè¾ºã‚’ä½œã‚‹
 		const unsigned int id_l = aIdLoop[iid_l];
 		for(std::auto_ptr<Cad::ICad2D::CItrLoop> pItr=cad_2d.GetItrLoop(id_l);!pItr->IsEndChild();pItr->ShiftChildLoop()){
 			for(pItr->Begin();!pItr->IsEnd();(*pItr)++){				
 				unsigned int id_e;   bool is_same_dir;
 				if( !pItr->GetIdEdge(id_e,is_same_dir) ) continue;
-				if( this->GetElemID_FromCadID(id_e,Cad::EDGE) != 0 ){ continue; }	// Šù‚É‚±‚Ì•Ó‚ÍMesh‚É‘¶İ
+				if( this->GetElemID_FromCadID(id_e,Cad::EDGE) != 0 ){ continue; }	// æ—¢ã«ã“ã®è¾ºã¯Meshã«å­˜åœ¨
                 this->MakeMesh_Edge(cad_2d, id_e, len);
 				assert( this->CheckMesh() == 0 );
 			}
@@ -1877,7 +1877,7 @@ bool CMesher2D::Meshing_ElemLength(
 	}
 	
     for(unsigned int iid_l=0;iid_l<aIdLoop.size();iid_l++)
-    {	// ƒ‹[ƒv‚ğì‚é
+    {	// ãƒ«ãƒ¼ãƒ—ã‚’ä½œã‚‹
 		const unsigned int id_l = aIdLoop[iid_l];
 		this->MakeMesh_Loop(cad_2d, id_l, len);
 		assert( this->CheckMesh() == 0 );
@@ -1933,7 +1933,7 @@ bool CMesher2D::GetTriMesh_Around(
 	}
 
 	unsigned int inoTriEdge_d, inoTriEdge_c;
-	if( is_left == (inobar0==0) ){	// ”½Œv‰ñ‚è
+	if( is_left == (inobar0==0) ){	// åæ™‚è¨ˆå›ã‚Š
 			inoTriEdge_d = 1;	inoTriEdge_c = 0; }
 	else{	inoTriEdge_d = 0;	inoTriEdge_c = 1; }
 	
@@ -1952,12 +1952,12 @@ bool CMesher2D::GetTriMesh_Around(
 		unsigned int itri1, ied1;
 		if( aTri0[itri0].g2[inotri_d] != -2 ){
 			const int id_msh_adj = aTri0[itri0].g2[inotri_d];
-            if( id_msh_adj == -1 ){ return false; }	// ˆêü‚µ‚È‚¢(ŠO‘¤‚É‚Ô‚Â‚©‚Á‚½)
+            if( id_msh_adj == -1 ){ return false; }	// ä¸€å‘¨ã—ãªã„(å¤–å´ã«ã¶ã¤ã‹ã£ãŸ)
             if( id_msh_adj == (int)id_msh_bar0 && aTri0[itri0].s2[inotri_d] == ibar0 ){
-				return true;	// ˆêü
+				return true;	// ä¸€å‘¨
 			}
             assert( id_msh_adj >= 0 && id_msh_adj < (int)aFlgMshCut.size() );
-            if( aFlgMshCut[id_msh_adj] == 1 ){ return false; }	// ˆêü‚µ‚È‚¢(CutMesh‚É‚Ô‚Â‚©‚Á‚½)
+            if( aFlgMshCut[id_msh_adj] == 1 ){ return false; }	// ä¸€å‘¨ã—ãªã„(CutMeshã«ã¶ã¤ã‹ã£ãŸ)
 			assert( m_ElemType[id_msh_adj] == 1 );
 			int iloc_adj = m_ElemLoc[id_msh_adj];	assert( iloc_adj != - 1);
 			const std::vector<SBar>& aBar_adj = m_aBarAry[(unsigned int)iloc_adj].m_aBar;
@@ -1967,7 +1967,7 @@ bool CMesher2D::GetTriMesh_Around(
 			assert( aBar_adj[ibar_adj].s2[iside_adj] == itri0 );
 			assert( aBar_adj[ibar_adj].r2[iside_adj] == inotri_d );
 			const unsigned int jside_adj = 1-iside_adj;
-            if( m_aBarAry[(unsigned int)iloc_adj].id_lr[jside_adj] == 0 ){    // ˆêü‚µ‚È‚¢(ŠO‘¤‚É‚Ô‚Â‚©‚Á‚½)
+            if( m_aBarAry[(unsigned int)iloc_adj].id_lr[jside_adj] == 0 ){    // ä¸€å‘¨ã—ãªã„(å¤–å´ã«ã¶ã¤ã‹ã£ãŸ)
                 return false;
             }
 			id_msh_tri1 = m_aBarAry[(unsigned int)iloc_adj].id_lr[jside_adj];
@@ -1996,9 +1996,9 @@ bool CMesher2D::GetTriMesh_Around(
 	return true;
 }
 
-// •Ó‚Å•ª—£‚µ‚½ƒƒbƒVƒ…‚ğ¶¬‚·‚é
-// •Ó‚Ì—¼—×‚Ì‚RŠpŒ`ƒƒbƒVƒ…‚ÌID‚Í“¯‚¶‚Å‚ ‚é‚Æ‚·‚é
-// •Ó‚Ì’[“_‚É‚Í—¼—×‚Ì‚RŠpŒ`ƒƒbƒVƒ…ˆÈŠO
+// è¾ºã§åˆ†é›¢ã—ãŸãƒ¡ãƒƒã‚·ãƒ¥ã‚’ç”Ÿæˆã™ã‚‹
+// è¾ºã®ä¸¡éš£ã®ï¼“è§’å½¢ãƒ¡ãƒƒã‚·ãƒ¥ã®IDã¯åŒã˜ã§ã‚ã‚‹ã¨ã™ã‚‹
+// è¾ºã®ç«¯ç‚¹ã«ã¯ä¸¡éš£ã®ï¼“è§’å½¢ãƒ¡ãƒƒã‚·ãƒ¥ä»¥å¤–
 bool CMesher2D::GetClipedMesh(
 		std::vector< std::vector<int> >& aLnods,
 		std::vector<unsigned int>& mapVal2Co,
@@ -2009,8 +2009,8 @@ bool CMesher2D::GetClipedMesh(
 	const unsigned int nTriAryInc =aIdMsh_Inc.size();
 
 	////////////////
-	std::vector<int> aTriId2Inc;	// OŠpŒ`‚ÌId‚©‚çInc‚Ìmap‚ğì‚éD‘Î‰‚ª‚È‚¯‚ê‚Î-1‚ª•Ô‚é
-	// aLnods‚ğì‚é
+	std::vector<int> aTriId2Inc;	// ä¸‰è§’å½¢ã®Idã‹ã‚‰Incã®mapã‚’ä½œã‚‹ï¼å¯¾å¿œãŒãªã‘ã‚Œã°-1ãŒè¿”ã‚‹
+	// aLnodsã‚’ä½œã‚‹
 	{
 		unsigned int max_id = this->FindMaxID();
 		aTriId2Inc.resize( max_id+1,-1 );
@@ -2020,8 +2020,8 @@ bool CMesher2D::GetClipedMesh(
 //			std::cout << "IdMshInc : " << id_msh << std::endl;
 			if( id_msh >= m_ElemLoc.size() ) return false;
 			int iloc = m_ElemLoc[id_msh];
-            if( iloc == -1 ) return false;  // aIdMsh_Inc‚Í‘¶İ‚·‚éƒƒbƒVƒ…ID‚Å‚È‚¯‚ê‚Î‚È‚ç‚È‚¢
-            if( m_ElemType[id_msh] != 2 ) return false; // aIdMsh_Inc‚ÍOŠpŒ`‚ÌƒƒbƒVƒ…ID‚Å‚È‚¯‚ê‚Î‚È‚ç‚È‚¢
+            if( iloc == -1 ) return false;  // aIdMsh_Incã¯å­˜åœ¨ã™ã‚‹ãƒ¡ãƒƒã‚·ãƒ¥IDã§ãªã‘ã‚Œã°ãªã‚‰ãªã„
+            if( m_ElemType[id_msh] != 2 ) return false; // aIdMsh_Incã¯ä¸‰è§’å½¢ã®ãƒ¡ãƒƒã‚·ãƒ¥IDã§ãªã‘ã‚Œã°ãªã‚‰ãªã„
 			aTriId2Inc[id_msh] = iidmsh_inc;
             if( iloc<0 || iloc>=(int)m_aTriAry.size() ){ return false; }
 			unsigned int ntri = m_aTriAry[iloc].m_aTri.size();
@@ -2030,7 +2030,7 @@ bool CMesher2D::GetClipedMesh(
 	}
 
 	////////////////
-    // ƒJƒbƒg‚·‚é•ÓƒƒbƒVƒ…‚ª1CƒJƒbƒg‚µ‚È‚¢ƒƒbƒVƒ…‚ª‚O‚Å‚ ‚é”z—ñ‚ª“ü‚Á‚Ä‚¢‚é
+    // ã‚«ãƒƒãƒˆã™ã‚‹è¾ºãƒ¡ãƒƒã‚·ãƒ¥ãŒ1ï¼Œã‚«ãƒƒãƒˆã—ãªã„ãƒ¡ãƒƒã‚·ãƒ¥ãŒï¼ã§ã‚ã‚‹é…åˆ—ãŒå…¥ã£ã¦ã„ã‚‹
 	std::vector<unsigned int> aFlgMshCut;
 	{	
 		unsigned int max_id = this->FindMaxID();
@@ -2038,8 +2038,8 @@ bool CMesher2D::GetClipedMesh(
 		for(unsigned int iid_msh_cut=0;iid_msh_cut<aIdMshBar_Cut.size();iid_msh_cut++){
 			unsigned int id_msh_cut = aIdMshBar_Cut[iid_msh_cut];
             int iloc = m_ElemLoc[id_msh_cut];
-            if( iloc == -1 ) return false;  // aIdMsh_Inc‚Í‘¶İ‚·‚éƒƒbƒVƒ…ID‚Å‚È‚¯‚ê‚Î‚È‚ç‚È‚¢
-            if( m_ElemType[id_msh_cut] != 1 ) return false; // aIdMsh_Inc‚ÍüƒƒbƒVƒ…ID‚Å‚È‚¯‚ê‚Î‚È‚ç‚È‚¢
+            if( iloc == -1 ) return false;  // aIdMsh_Incã¯å­˜åœ¨ã™ã‚‹ãƒ¡ãƒƒã‚·ãƒ¥IDã§ãªã‘ã‚Œã°ãªã‚‰ãªã„
+            if( m_ElemType[id_msh_cut] != 1 ) return false; // aIdMsh_Incã¯ç·šãƒ¡ãƒƒã‚·ãƒ¥IDã§ãªã‘ã‚Œã°ãªã‚‰ãªã„
             if( iloc<0 || iloc>=(int)m_aBarAry.size() ){ return false; }
 //			std::cout << " id_msh_cut " << id_msh_cut << std::endl;
 			aFlgMshCut[id_msh_cut] = 1;
@@ -2050,7 +2050,7 @@ bool CMesher2D::GetClipedMesh(
 	mapVal2Co.resize(aVec2D.size());
 	for(unsigned int ivec=0;ivec<aVec2D.size();ivec++){ mapVal2Co[ivec] = ivec; }
 
-    std::vector<unsigned int> aDupli;   // d•¡”‚ğ•Ô‚·
+    std::vector<unsigned int> aDupli;   // é‡è¤‡æ•°ã‚’è¿”ã™
 	aDupli.resize(aVec2D.size(),0);
 	////////////////////////////////
 	for(unsigned int iid_msh_cut=0;iid_msh_cut<aIdMshBar_Cut.size();iid_msh_cut++)
@@ -2075,8 +2075,8 @@ bool CMesher2D::GetClipedMesh(
 			else{ ibar=ivecbar-1; inobar=1; }
 			const unsigned int ivec0 = aBar[ibar].v[inobar];
 			if( !this->GetTriMesh_Around(aTriAround0,  id_msh_cut,ibar,inobar,true,  aFlgMshCut) ){
-				// ‚±‚Ì“_‚Í‚±‚Ì•Ó—v‘fü‚è‚É•ª—£‚³‚ê‚Ä‚¢‚é
-				// ¶‘¤•ª—£
+				// ã“ã®ç‚¹ã¯ã“ã®è¾ºè¦ç´ å‘¨ã‚Šã«åˆ†é›¢ã•ã‚Œã¦ã„ã‚‹
+				// å·¦å´åˆ†é›¢
 				if( aDupli[ivec0] == 0 ){
 					for(unsigned int itria=0;itria<aTriAround0.size();itria++){
 						const int id_msh_tri0 = aTriAround0[itria].id_msh;
@@ -2091,7 +2091,7 @@ bool CMesher2D::GetClipedMesh(
 						int iidmsh_inc = aTriId2Inc[id_msh_tri0];
                         assert( iidmsh_inc >=0 && iidmsh_inc < (int)aLnods.size() );
 						assert( aLnods[iidmsh_inc][itri0*3+inotri0] == -1 );
-						aLnods[iidmsh_inc][itri0*3+inotri0] = aTri0[itri0].v[inotri0];	// ‚±‚ÌOŠpŒ`’¸“_‚Í¡Œãl—¶‚µ‚Ü‚¹‚ñƒtƒ‰ƒO‚ğ—§‚Ä‚é
+						aLnods[iidmsh_inc][itri0*3+inotri0] = aTri0[itri0].v[inotri0];	// ã“ã®ä¸‰è§’å½¢é ‚ç‚¹ã¯ä»Šå¾Œè€ƒæ…®ã—ã¾ã›ã‚“ãƒ•ãƒ©ã‚°ã‚’ç«‹ã¦ã‚‹
 					}
 					aDupli[ivec0] += 1;
 				}
@@ -2112,16 +2112,16 @@ bool CMesher2D::GetClipedMesh(
                         assert( iidmsh_inc >=0 && iidmsh_inc < (int)aLnods.size() );
 						if( aLnods[iidmsh_inc][itri0*3+inotri0] != -1 ){ assert(itria==0); break; }
 						iflag = true;
-						aLnods[iidmsh_inc][itri0*3+inotri0] = ivec_add;	// ‚±‚ÌOŠpŒ`’¸“_‚Í¡Œãl—¶‚µ‚Ü‚¹‚ñƒtƒ‰ƒO‚ğ—§‚Ä‚é
+						aLnods[iidmsh_inc][itri0*3+inotri0] = ivec_add;	// ã“ã®ä¸‰è§’å½¢é ‚ç‚¹ã¯ä»Šå¾Œè€ƒæ…®ã—ã¾ã›ã‚“ãƒ•ãƒ©ã‚°ã‚’ç«‹ã¦ã‚‹
 					}
 					if( iflag ){ 
 						mapVal2Co.resize( mapVal2Co.size()+1, ivec0 ); 
 						aDupli[ivec0] += 1;
 					}
 				}
-				{	// ‰E‘¤•ª—£
+				{	// å³å´åˆ†é›¢
 					bool res = this->GetTriMesh_Around(aTriAround1,  id_msh_cut,ibar,inobar,false,  aFlgMshCut);
-					assert( !res );	// ¶‘¤‚Åˆêü‰ñ‚ç‚È‚¯‚ê‚Î‰E‘¤‚Åˆêü‰ñ‚ç‚È‚¢‚Í‚¸
+					assert( !res );	// å·¦å´ã§ä¸€å‘¨å›ã‚‰ãªã‘ã‚Œã°å³å´ã§ä¸€å‘¨å›ã‚‰ãªã„ã¯ãš
 					const unsigned int ivec_add = mapVal2Co.size();
 					bool iflag = false;
 					for(unsigned int itria=0;itria<aTriAround1.size();itria++){
@@ -2138,7 +2138,7 @@ bool CMesher2D::GetClipedMesh(
                         assert( iidmsh_inc >=0 && iidmsh_inc < (int)aLnods.size() );
 						if( aLnods[iidmsh_inc][itri0*3+inotri0] != -1 ){ assert(itria==0); break; }
 						iflag = true;
-						aLnods[iidmsh_inc][itri0*3+inotri0] = ivec_add;	// ‚±‚ÌOŠpŒ`’¸“_‚Í¡Œãl—¶‚µ‚Ü‚¹‚ñƒtƒ‰ƒO‚ğ—§‚Ä‚é
+						aLnods[iidmsh_inc][itri0*3+inotri0] = ivec_add;	// ã“ã®ä¸‰è§’å½¢é ‚ç‚¹ã¯ä»Šå¾Œè€ƒæ…®ã—ã¾ã›ã‚“ãƒ•ãƒ©ã‚°ã‚’ç«‹ã¦ã‚‹
 					}
 					if( iflag ){ 
 						mapVal2Co.resize( mapVal2Co.size()+1, ivec0 ); 
@@ -2180,7 +2180,7 @@ bool CMesher2D::GetClipedMesh(
 
 bool CMesher2D::Serialize( Com::CSerializer& arch, bool is_only_cadmshlink )
 {
-	if( arch.IsLoading() ){	// “Ç‚İ‚İ‚Ìˆ—
+	if( arch.IsLoading() ){	// èª­ã¿è¾¼ã¿æ™‚ã®å‡¦ç†
         CMesher2D::Clear();
 		const unsigned int buff_size = 256;
 		char class_name[buff_size];
@@ -2189,7 +2189,7 @@ bool CMesher2D::Serialize( Com::CSerializer& arch, bool is_only_cadmshlink )
 		arch.ShiftDepth(true);
 
 		////////////////////////////////
-		// CAD‚Æ‚ÌÚ‘±ŠÖŒW‚Ìƒ[ƒh
+		// CADã¨ã®æ¥ç¶šé–¢ä¿‚ã®ãƒ­ãƒ¼ãƒ‰
 
         {
             arch.ReadDepthClassName(class_name,buff_size); 
@@ -2203,7 +2203,7 @@ bool CMesher2D::Serialize( Com::CSerializer& arch, bool is_only_cadmshlink )
                 setIdLCad_CutMesh.insert(id_l);
             }
         }
-		{	// ƒƒbƒVƒ…¶¬ƒ‚[ƒh‚Ìƒ[ƒh
+		{	// ãƒ¡ãƒƒã‚·ãƒ¥ç”Ÿæˆãƒ¢ãƒ¼ãƒ‰ã®ãƒ­ãƒ¼ãƒ‰
 			int ntmp0, ntmp1;
 			double dtmp0;
 			arch.Get("%d%d%lf",&ntmp0,&ntmp1,&dtmp0);
@@ -2220,9 +2220,9 @@ bool CMesher2D::Serialize( Com::CSerializer& arch, bool is_only_cadmshlink )
 		}
 
 		////////////////////////////////
-		// ƒƒbƒVƒ…î•ñ‚Ìƒ[ƒh
+		// ãƒ¡ãƒƒã‚·ãƒ¥æƒ…å ±ã®ãƒ­ãƒ¼ãƒ‰
 
-		{	// À•W‚ğƒ[ƒh
+		{	// åº§æ¨™ã‚’ãƒ­ãƒ¼ãƒ‰
 			int nvec, ndim;	arch.Get("%d%d",&nvec,&ndim);	assert(nvec>0 && (ndim>0&&ndim<4) );
 			this->aVec2D.resize(nvec);
             for(unsigned int ivec=0;ivec<(unsigned int)nvec;ivec++){
@@ -2254,12 +2254,16 @@ bool CMesher2D::Serialize( Com::CSerializer& arch, bool is_only_cadmshlink )
 			assert( strncmp(class_name,"CBarAry",7)==0 );
 			int id;		arch.Get("%d",&id);		assert(id>0);
 			int id_cad;	arch.Get("%d",&id_cad);	assert(id_cad>=0);
+			int id_s, id_e; arch.Get("%d %d",&id_s,&id_e);
+			int id_l, id_r; arch.Get("%d %d",&id_l,&id_r);			
 			int nbar;	arch.Get("%d",&nbar);	assert(nbar>0);
 			const unsigned int ibar_ary = m_aBarAry.size();
 			m_aBarAry.resize( m_aBarAry.size()+1 );
 			CBarAry& aBar = m_aBarAry[ibar_ary];
 			aBar.id = id;
 			aBar.id_e_cad = id_cad;
+			aBar.id_se[0] = id_s;	aBar.id_se[1] = id_e;
+			aBar.id_lr[0] = id_l;	aBar.id_lr[1] = id_r;
 			aBar.m_aBar.resize(nbar);
 			for(int ibar=0;ibar<nbar;ibar++){
 				int tmp_ibar,iv0,iv1;
@@ -2320,12 +2324,12 @@ bool CMesher2D::Serialize( Com::CSerializer& arch, bool is_only_cadmshlink )
 		arch.ShiftDepth(false);
 		return true;
 	}
-	else{ // ‘‚«‚İ‚Ìˆ—	
+	else{ // write file
 		arch.WriteDepthClassName("CMesher2D");	
 		arch.ShiftDepth(true);
 		
 		////////////////////////////////
-		// CAD‚Æ‚ÌÚ‘±ŠÖŒW‚Ì‘‚«o‚µ
+		// write relation to CAD
 
 		{
 			arch.WriteDepthClassName("setIdLCad_CutMesh");
@@ -2345,14 +2349,14 @@ bool CMesher2D::Serialize( Com::CSerializer& arch, bool is_only_cadmshlink )
 		}
 
 		////////////////////////////////
-		// ƒƒbƒVƒ…î•ñ‚Ì‘‚«‚İ
+		// Write information of Msh
 
 		arch.Out("%d %d\n",aVec2D.size(),2);
 		for(unsigned int ivec=0;ivec<aVec2D.size();ivec++){
 			arch.Out("%d %lf %lf\n",ivec,aVec2D[ivec].x,aVec2D[ivec].y);
 		}
 		arch.Out("%d %d %d %d\n",m_aVertex.size(), m_aBarAry.size(), m_aTriAry.size(), m_aQuadAry.size() );
-		{	// Vertex‚Ìo—Í
+		{	// Vertexã®å‡ºåŠ›
 			for(unsigned int iver=0;iver<m_aVertex.size();iver++){
 				arch.WriteDepthClassName("SVertex");
 				arch.Out("%d\n",m_aVertex[iver].id);
@@ -2360,11 +2364,13 @@ bool CMesher2D::Serialize( Com::CSerializer& arch, bool is_only_cadmshlink )
 				arch.Out("%d\n",m_aVertex[iver].v);
 			}
 		}
-		{	// Bar‚Ìo—Í
+		{	// Barã®å‡ºåŠ›
 			for(unsigned int ibar_ary=0;ibar_ary<m_aBarAry.size();ibar_ary++){
 				arch.WriteDepthClassName("CBarAry");
 				arch.Out("%d\n",m_aBarAry[ibar_ary].id);
 				arch.Out("%d\n",m_aBarAry[ibar_ary].id_e_cad);
+				arch.Out("%d %d\n",m_aBarAry[ibar_ary].id_se[0],m_aBarAry[ibar_ary].id_se[1]);
+				arch.Out("%d %d\n",m_aBarAry[ibar_ary].id_lr[0],m_aBarAry[ibar_ary].id_lr[1]);				
 				arch.Out("%d\n",m_aBarAry[ibar_ary].m_aBar.size());
 				const std::vector<SBar>& aBar = m_aBarAry[ibar_ary].m_aBar;
 				for(unsigned int ibar=0;ibar<aBar.size();ibar++){
@@ -2372,7 +2378,7 @@ bool CMesher2D::Serialize( Com::CSerializer& arch, bool is_only_cadmshlink )
 				}
 			}
 		}
-		{	// Tri‚Ìo—Í
+		{	// Triã®å‡ºåŠ›
 			for(unsigned int itri_ary=0;itri_ary<m_aTriAry.size();itri_ary++){
 				arch.WriteDepthClassName("CTriAry2D");
 				arch.Out("%d\n",m_aTriAry[itri_ary].id);
@@ -2384,7 +2390,7 @@ bool CMesher2D::Serialize( Com::CSerializer& arch, bool is_only_cadmshlink )
 				}
 			}
 		}
-		{	// Quad‚Ìo—Í
+		{	// Quadã®å‡ºåŠ›
 			for(unsigned int iquad_ary=0;iquad_ary<m_aQuadAry.size();iquad_ary++){
 				arch.WriteDepthClassName("CQuadAry2D");
 				arch.Out("%d\n",m_aQuadAry[iquad_ary].id);
@@ -2427,21 +2433,21 @@ bool CMesher2D::ReadFromFile_GiDMsh(const std::string& file_name)
 		if( nnoel != 4 ) return false;
 	}
 	else{
-		std::cout << "‚RŠpŒ`‚Æ‚SŠpŒ`ˆÈŠO‚Ì—v‘f‚Í–¢‘Î‰" << std::endl;
+		std::cout << "ï¼“è§’å½¢ã¨ï¼”è§’å½¢ä»¥å¤–ã®è¦ç´ ã¯æœªå¯¾å¿œ" << std::endl;
 		return false;
 	}
 
 	////////////////////////////////
-	// ‚±‚±‚©‚ç‚Í“à—e‚ğ•ÏX‚·‚é
+	// ã“ã“ã‹ã‚‰ã¯å†…å®¹ã‚’å¤‰æ›´ã™ã‚‹
 
-    CMesher2D::Clear();	// Œ»İ‚ÌƒƒbƒVƒ…î•ñ‚ğ‘S‚ÄƒNƒŠƒA
+    CMesher2D::Clear();	// ç¾åœ¨ã®ãƒ¡ãƒƒã‚·ãƒ¥æƒ…å ±ã‚’å…¨ã¦ã‚¯ãƒªã‚¢
 
-	{	// ß“_‚Ì“Ç‚İ‚İ
+	{	// ç¯€ç‚¹ã®èª­ã¿è¾¼ã¿
 		fgets(stmp1,buff_size,fp);	// Coorinates
 		std::vector<double> tmp_buffer;
 		tmp_buffer.reserve(16384);
 		unsigned int counter = 0;
-		if( ndim == 3 ){	// ŸŒ³‚ª‚R‚Ìê‡‚Å“_ŒQ‚ª“¯ˆê•½–Êã‚É‚ ‚éê‡‚Í‚QŸŒ³‚Ék‘Ş‚³‚¹‚é
+		if( ndim == 3 ){	// æ¬¡å…ƒãŒï¼“ã®å ´åˆã§ç‚¹ç¾¤ãŒåŒä¸€å¹³é¢ä¸Šã«ã‚ã‚‹å ´åˆã¯ï¼’æ¬¡å…ƒã«ç¸®é€€ã•ã›ã‚‹
 			double v_x=0.0, v_y=0.0, v_z=0.0;
 			double a_x=0.0, a_y=0.0, a_z=0.0;
 			for(;;){
@@ -2480,12 +2486,12 @@ bool CMesher2D::ReadFromFile_GiDMsh(const std::string& file_name)
 				aVec2D[inode].y = tmp_buffer[inode*3+idim1];
 			}
 		}
-	}	// ß“_‚Ì“Ç‚İ‚İI—¹
+	}	// ç¯€ç‚¹ã®èª­ã¿è¾¼ã¿çµ‚äº†
 
-	fgets(stmp1,buff_size,fp);	// ‰üs
+	fgets(stmp1,buff_size,fp);	// æ”¹è¡Œ
 
-	std::vector<SBar> aBar;	// ‹«ŠE—v‘f
-	{	// —v‘f‚Ì“Ç‚İ‚İ
+	std::vector<SBar> aBar;	// å¢ƒç•Œè¦ç´ 
+	{	// è¦ç´ ã®èª­ã¿è¾¼ã¿
 		fgets(stmp1,buff_size,fp);	// Elements
 		std::vector<int> tmp_buffer;
 		tmp_buffer.reserve(16384);
@@ -2579,13 +2585,13 @@ bool CMesher2D::ReadFromFile_GiDMsh(const std::string& file_name)
 				delete[] elsup_ind;
 				delete[] elsup;
 			}
-//			Msh::CheckQuad(m_aQuadAry[0].m_aQuad);	// –¢À‘•
+//			Msh::CheckQuad(m_aQuadAry[0].m_aQuad);	// æœªå®Ÿè£…
 			Msh::MakeOuterBoundQuad(m_aQuadAry[0].m_aQuad,aBar);
 		}
 	}
 	fclose(fp);
 	////////////////////////////////
-	// ‹«ŠE•Ó‚Ì’Šo
+	// å¢ƒç•Œè¾ºã®æŠ½å‡º
 	{
 		std::vector< std::vector<unsigned  int> > aIndBarAry;
 		Msh::ColorCodeBarAry(aBar,aVec2D, aIndBarAry);
@@ -2616,7 +2622,7 @@ bool CMesher2D::ReadFromFile_GiDMsh(const std::string& file_name)
 		}
 	}
 	////////////////////////////////
-	// ‹«ŠEß“_‚ğ’Šo
+	// å¢ƒç•Œç¯€ç‚¹ã‚’æŠ½å‡º
 	{
 		std::map<unsigned int,unsigned int> aIndVec2IdVer;
 		for(unsigned int iibarary=0;iibarary<m_aBarAry.size();iibarary++){

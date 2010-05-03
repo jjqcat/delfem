@@ -9,7 +9,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <assert.h>
+#include <cassert>
 #include <math.h>
 #include <cstdlib> //(exit)
 
@@ -181,11 +181,11 @@ bool SetNewProblem()
 			cad_2d.ConnectVertex_Line(6,3);
 		}
 		Msh::CMesher2D mesh_2d(cad_2d,0.05);
-		{	// ファイル保存
+		{	// write file
 			Com::CSerializer fout("hoge.txt",false);
 			mesh_2d.Serialize(fout);
 		}
-		{	// ファイル読み込み
+		{	// load file
 			Com::CSerializer fin( "hoge.txt",true);
 			mesh_2d.Serialize(fin);
 		}
@@ -197,11 +197,11 @@ bool SetNewProblem()
 	{
 		Msh::CMesher2D mesh_2d;
 		mesh_2d.ReadFromFile_GiDMsh("../input_file/hexa_tri.msh");
-		{	// ファイル保存
+		{	// write file
 			Com::CSerializer fout("hoge.txt",false);
 			mesh_2d.Serialize(fout);
 		}
-		{	// ファイル読み込み
+		{	// read file
 			Com::CSerializer fin( "hoge.txt",true);
 			mesh_2d.Serialize(fin);
 		}
@@ -213,11 +213,11 @@ bool SetNewProblem()
 	{
 		Msh::CMesher2D mesh_2d;
 		mesh_2d.ReadFromFile_GiDMsh("../input_file/rect_quad.msh");
-		{	// ファイル保存
+		{	// write file
 			Com::CSerializer fout("hoge.txt",false);
 			mesh_2d.Serialize(fout);
 		}
-		{	// ファイル読み込み
+		{	// read file
 			Com::CSerializer fin( "hoge.txt",true);
 			mesh_2d.Serialize(fin);
 		}
@@ -241,11 +241,11 @@ bool SetNewProblem()
 		Msh::CMesher2D mesh_2d(cad_2d, 0.1);
 		Msh::CMesh3D_Extrude mesh_3d;
 		mesh_3d.Extrude(mesh_2d, 0.5, 0.1 );
-		{	// ファイル保存
+		{	// write file
 			Com::CSerializer fout("hoge.txt",false);
 			mesh_3d.Serialize(fout);
 		}
-		{	// ファイル読み込み
+		{	// read file
 			Com::CSerializer fin( "hoge.txt",true);
 			mesh_3d.Serialize(fin);
 		}
@@ -253,17 +253,17 @@ bool SetNewProblem()
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh3D(mesh_3d) );
 		drawer_ary.InitTrans(mvp_trans);
 	}
-	else if( iprob == 4 )	// ２次元問題の設定
+	else if( iprob == 4 )	// load mesh of GiD
 	{
 		Msh::CMesher2D mesh_2d;
 		mesh_2d.ReadFromFile_GiDMsh("../input_file/hexa_tri.msh");
 		Msh::CMesh3D_Extrude mesh_3d;
 		mesh_3d.Extrude(mesh_2d, 5.0, 0.5 );
-		{	// ファイル保存
+		{	// write file
 			Com::CSerializer fout("hoge.txt",false);
 			mesh_2d.Serialize(fout);
 		}
-		{	// ファイル読み込み
+		{	// read file
 			Com::CSerializer fin( "hoge.txt",true);
 			mesh_2d.Serialize(fin);
 		}
@@ -275,11 +275,11 @@ bool SetNewProblem()
 	{
 		Msh::CMesher3D mesh_3d;
 		mesh_3d.ReadFromFile_GiDMsh("../input_file/cylinder_hex.msh");
-		{	// ファイル保存
+		{	// write file
 			Com::CSerializer fout("hoge.txt",false);
 			mesh_3d.Serialize(fout);
 		}
-		{	// ファイル読み込み
+		{	// read file
 			Com::CSerializer fin( "hoge.txt",true);
 			mesh_3d.Serialize(fin);
 		}
@@ -291,11 +291,11 @@ bool SetNewProblem()
 	{
 		Msh::CMesher3D mesh_3d;
 		mesh_3d.ReadFromFile_GiDMsh("../input_file/cylinder_tet.msh");
-		{	// ファイル保存
+		{	// write file
 			Com::CSerializer fout("hoge.txt",false);
 			mesh_3d.Serialize(fout);
 		}
-		{	// ファイル読み込み
+		{	// read file
 			Com::CSerializer fin( "hoge.txt",true);
 			mesh_3d.Serialize(fin);
 		}
@@ -309,11 +309,11 @@ bool SetNewProblem()
 		mesh_2d.ReadFromFile_GiDMsh("../input_file/rect_quad.msh");
 		Msh::CMesh3D_Extrude mesh_3d;
 		mesh_3d.Extrude(mesh_2d, 5.0, 0.5 );
-		{	// ファイル保存
+		{	// write file
 			Com::CSerializer fout("hoge.txt",false);
 			mesh_2d.Serialize(fout);
 		}
-		{	// ファイル読み込み
+		{	// read file
 			Com::CSerializer fin( "hoge.txt",true);
 			mesh_2d.Serialize(fin);
 		}
@@ -342,11 +342,11 @@ bool SetNewProblem()
 		cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.4,0.4) );
 		cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.2,0.4) );
 		Msh::CMesher2D mesh_2d(cad_2d,0.02);
-		{	// ファイル保存
+		{	// write file
 			Com::CSerializer fout("hoge.txt",false);
 			mesh_2d.Serialize(fout);
 		}
-		{	// ファイル読み込み
+		{	// read file
 			Com::CSerializer fin( "hoge.txt",true);
 			mesh_2d.Serialize(fin);
 		}
@@ -371,11 +371,11 @@ bool SetNewProblem()
 		cad_2d.SetCurve_Arc(3,true, -0.5);
 		cad_2d.SetCurve_Arc(4,false,-0.5);
 		Msh::CMesher2D mesh_2d(cad_2d,0.05);
-		{	// ファイル保存
+		{	// write file
 			Com::CSerializer fout("hoge.txt",false);
 			mesh_2d.Serialize(fout);
 		}
-		{	// ファイル読み込み
+		{	// read file
 			Com::CSerializer fin( "hoge.txt",true);
 			mesh_2d.Serialize(fin);
 		}
@@ -386,7 +386,7 @@ bool SetNewProblem()
 	else if( iprob == 10 )
 	{
 		Cad::CCadObj2D cad_2d;
-		{	// 正方形に矩形の穴
+		{	// define shape
 			std::vector<Com::CVector2D> vec_ary;
 			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
@@ -409,11 +409,11 @@ bool SetNewProblem()
 		  mesh_2d.m_elen = 0.05;
 		  mesh_2d.Meshing(cad_2d);
 		}
-		{	// ファイル保存
+		{	// write file
 			Com::CSerializer fout("hoge.txt",false);
 			mesh_2d.Serialize(fout);
 		}
-		{	// ファイル読み出し
+		{	// read file
 			Com::CSerializer fin( "hoge.txt",true);
 			mesh_2d.Serialize(fin);
 		}
@@ -421,7 +421,7 @@ bool SetNewProblem()
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh2D(mesh_2d) );
 		drawer_ary.InitTrans( mvp_trans );
 	}
-	else if( iprob == 11 )	// カットされたメッシュ
+	else if( iprob == 11 )	// mesh with cut
 	{
 		Cad::CCadObj2D cad_2d;
 		unsigned int id_l;
@@ -468,7 +468,7 @@ bool SetNewProblem()
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh2D(mesh_2d) );
 		drawer_ary.InitTrans( mvp_trans );
 	}
-	else if( iprob == 12 )	// カットされたメッシュ
+	else if( iprob == 12 )	// mesh with cut
 	{
 		Cad::CCadObj2D cad_2d;
 		unsigned int id_l1, id_l2;
@@ -551,7 +551,7 @@ void myGlutKeyboard(unsigned char key, int x, int y)
   switch (key) {
   case 'q':
   case 'Q':
-  case '\033':  /* '\033' は ESC の ASCII コード */
+  case '\033': // ｴ033 is esc
 	  exit(0);
 	  break;
   case ' ':

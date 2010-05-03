@@ -19,14 +19,14 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = A99986A91188CF8D00DBA052 /* dfm_core.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = D2AAC046055464E500DB518D /* libdfm_core.a */;
+			remoteGlobalIDString = D2AAC046055464E500DB518D;
 			remoteInfo = dfm_core;
 		};
 		A99986CA1188D04A00DBA052 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A99986A91188CF8D00DBA052 /* dfm_core.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D /* dfm_core */;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = dfm_core;
 		};
 /* End PBXContainerItemProxy section */
@@ -224,7 +224,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
 				SDKROOT = macosx10.6;
-				USER_HEADER_SEARCH_PATHS = "~/develop/delfem/include/";
+				USER_HEADER_SEARCH_PATHS = ../../include/;
 			};
 			name = Debug;
 		};
@@ -237,7 +237,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
 				SDKROOT = macosx10.6;
-				USER_HEADER_SEARCH_PATHS = "~/develop/delfem/include/";
+				USER_HEADER_SEARCH_PATHS = ../../include/;
 			};
 			name = Release;
 		};

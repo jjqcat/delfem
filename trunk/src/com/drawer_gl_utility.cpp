@@ -88,7 +88,7 @@ void Com::View::PickPre(
     gluPickMatrix(point_x,viewport[3]-point_y,  delX,delY,  viewport);
 	View::SetProjectionTransform(mvp_trans);
 
-    //　Model-View  Transform From Here
+    // Model-View  Transform From Here
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 	View::SetModelViewTransform(mvp_trans);
@@ -107,11 +107,11 @@ std::vector<SSelectedObject> Com::View::PickPost(
 
 	std::vector<SSelectedObject> aSelecObj;
 
-    int nhits = glRenderMode(GL_RENDER);    // バッファを超えると-1が返るので注意
+    int nhits = glRenderMode(GL_RENDER);    // return value is number of hits
     if(nhits<=0){ return aSelecObj; }
 
     std::vector<SPickedObject> picked_object;
-    {   // picked_objectを作る
+    {   // get picked_object name and its depth
         picked_object.resize(nhits);
         unsigned int* ptr = select_buffer;
 		for(unsigned int i=0; i<picked_object.size(); i++){
@@ -128,7 +128,7 @@ std::vector<SSelectedObject> Com::View::PickPost(
 				ptr++;
 			}
 		}
-		// バブルソートを用いてmin_depthの小さいものから順番に並べる
+		// sort picked object in the order of min depth
 		for(unsigned int i=0;i<picked_object.size();i++){
 			for(unsigned int j=i+1;j<picked_object.size();j++){
 				if( picked_object[i].min_depth > picked_object[j].min_depth ){

@@ -269,17 +269,12 @@
 								<string>A99986A91188CF8D00DBA052</string>
 								<string>08FB7795FE84155DC02AAC07</string>
 								<string>1C37FBAC04509CD000000102</string>
-								<string>A99986D21188D05A00DBA052</string>
-								<string>A99986D31188D05A00DBA052</string>
-								<string>A99986D41188D05A00DBA052</string>
-								<string>A99986D51188D05A00DBA052</string>
 								<string>1C37FABC05509CD000000102</string>
 							</array>
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>10</integer>
-									<integer>9</integer>
+									<integer>0</integer>
 								</array>
 							</array>
 							<key>PBXSmartGroupTreeModuleOutlineStateVisibleRectKey</key>
@@ -337,14 +332,14 @@
 							<key>GeometryConfiguration</key>
 							<dict>
 								<key>Frame</key>
-								<string>{{0, 0}, {580, 269}}</string>
+								<string>{{0, 0}, {580, 251}}</string>
 								<key>RubberWindowFrame</key>
 								<string>71 251 788 504 0 0 1280 778 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXNavigatorGroup</string>
 							<key>Proportion</key>
-							<string>269pt</string>
+							<string>251pt</string>
 						</dict>
 						<dict>
 							<key>ContentConfiguration</key>
@@ -357,14 +352,14 @@
 							<key>GeometryConfiguration</key>
 							<dict>
 								<key>Frame</key>
-								<string>{{0, 274}, {580, 189}}</string>
+								<string>{{0, 256}, {580, 207}}</string>
 								<key>RubberWindowFrame</key>
 								<string>71 251 788 504 0 0 1280 778 </string>
 							</dict>
 							<key>Module</key>
 							<string>XCDetailModule</string>
 							<key>Proportion</key>
-							<string>189pt</string>
+							<string>207pt</string>
 						</dict>
 					</array>
 					<key>Proportion</key>
@@ -383,9 +378,9 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>A99986D61188D05A00DBA052</string>
+				<string>A9A0278C118DAB3200F2D39A</string>
 				<string>1CE0B1FE06471DED0097A5F4</string>
-				<string>A99986D71188D05A00DBA052</string>
+				<string>A9A0278D118DAB3200F2D39A</string>
 				<string>1CE0B20306471E060097A5F4</string>
 				<string>1CE0B20506471E060097A5F4</string>
 			</array>
@@ -523,10 +518,6 @@
 	<integer>5</integer>
 	<key>WindowOrderList</key>
 	<array>
-		<string>A99986E01188D05A00DBA052</string>
-		<string>A99986E11188D05A00DBA052</string>
-		<string>1C78EAAD065D492600B07095</string>
-		<string>1CD10A99069EF8BA00B06720</string>
 		<string>A999869E1188CF2B00DBA052</string>
 		<string>/Users/nobuyuki/develop/delfem/test_glut/fluid2d/fluid2d.xcodeproj</string>
 	</array>
@@ -569,8 +560,6 @@
 							<string>218pt</string>
 						</dict>
 						<dict>
-							<key>BecomeActive</key>
-							<true/>
 							<key>ContentConfiguration</key>
 							<dict>
 								<key>PBXProjectModuleGUID</key>
@@ -610,7 +599,7 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>A999869E1188CF2B00DBA052</string>
-				<string>A99986B71188D00000DBA052</string>
+				<string>A9A0278E118DAB3200F2D39A</string>
 				<string>1CD0528F0623707200166675</string>
 				<string>XCMainBuildResultsModuleGUID</string>
 			</array>
