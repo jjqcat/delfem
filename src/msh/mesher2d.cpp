@@ -607,7 +607,7 @@ void CMesher2D::SmoothingMesh_Delaunay(unsigned int& num_flip)
 				}
 			}
 			else{
-				std::cout << "未実装 : Triに接する要素タイプ" << itype0 << std::endl;
+				std::cout << "Error!-->not defined type" << itype0 << std::endl;
 				assert(0);
 			}
 		}
@@ -1692,7 +1692,7 @@ bool CMesher2D::MakeMesh_Loop(
 					}
 				}
 				else{
-					std::cout << "未実装 : Triに接する要素タイプ" << itype0 << std::endl;
+					std::cout << "Error!-->Not defined type" << itype0 << std::endl;
 					assert(0);
 				}
 			}
@@ -2266,12 +2266,16 @@ bool CMesher2D::Serialize( Com::CSerializer& arch, bool is_only_cadmshlink )
 			aBar.id_lr[0] = id_l;	aBar.id_lr[1] = id_r;
 			aBar.m_aBar.resize(nbar);
 			for(int ibar=0;ibar<nbar;ibar++){
-				int tmp_ibar,iv0,iv1;
-				arch.Get("%d%d%d",&tmp_ibar,&iv0,&iv1);
+				int tmp_ibar,iv0,iv1, s0,s1, r0,r1;
+				arch.Get("%d%d%d%d%d%d%d",&tmp_ibar, &iv0,&iv1, &s0,&s1, &r0,&r1);
 				assert( tmp_ibar == ibar );
 				assert( iv0>=0 && iv1>=0 );
-				aBar.m_aBar[ibar].v[0] = iv0;
-				aBar.m_aBar[ibar].v[1] = iv1;
+				aBar.m_aBar[ibar].v[ 0] = iv0;
+				aBar.m_aBar[ibar].v[ 1] = iv1;
+				aBar.m_aBar[ibar].s2[0] = s0;
+				aBar.m_aBar[ibar].s2[1] = s1;
+				aBar.m_aBar[ibar].r2[0] = r0;
+				aBar.m_aBar[ibar].r2[1] = r1;
 			}
 		}
         for(unsigned int iaTri=0;iaTri<(unsigned int)naTri;iaTri++){
@@ -2294,6 +2298,16 @@ bool CMesher2D::Serialize( Com::CSerializer& arch, bool is_only_cadmshlink )
 				aTri.m_aTri[itri].v[0] = iv0;
 				aTri.m_aTri[itri].v[1] = iv1;
 				aTri.m_aTri[itri].v[2] = iv2;
+			}
+			{
+				unsigned int npoin = aVec2D.size();
+				unsigned int* elsup_ind = new unsigned int [npoin+1];
+				unsigned int nelsup;
+				unsigned int* elsup;
+				Msh::MakePointSurTri(aTri.m_aTri,npoin,elsup_ind,nelsup,elsup);
+				Msh::MakeInnerRelationTri(aTri.m_aTri,npoin,elsup_ind,nelsup,elsup);
+				delete[] elsup_ind;
+				delete[] elsup;
 			}
 		}
         for(unsigned int iaQuad=0;iaQuad<(unsigned int)naQuad;iaQuad++){
@@ -2320,6 +2334,30 @@ bool CMesher2D::Serialize( Com::CSerializer& arch, bool is_only_cadmshlink )
 			}
 		}
 		this->MakeElemLocationType();
+		////////////////////////////////
+		// build the internal relationship
+		for(unsigned int ibarary=0;ibarary<m_aBarAry.size();ibarary++){
+			const unsigned int id_msh_bar = m_aBarAry[ibarary].id;
+			const int iloc_bar = this->m_ElemLoc[id_msh_bar];
+			const std::vector<SBar>& aBar = this->m_aBarAry[iloc_bar].m_aBar;
+			for(unsigned int isidebar=0;isidebar<2;isidebar++){
+				int id_msh_adj = this->m_aBarAry[iloc_bar].id_lr[isidebar];
+				if( id_msh_adj <= 0 ) continue;
+//				std::cout << id_msh_adj << " " << m_ElemLoc.size() << std::endl;
+				assert(id_msh_adj<(int)m_ElemLoc.size());
+				const int iloc_adj = this->m_ElemLoc[id_msh_adj];
+				if( this->m_ElemType[id_msh_adj] == 2 ){	// tri mesh
+					std::vector<STri2D>& aTri = this->m_aTriAry[iloc_adj].m_aTri;
+					for(unsigned int ibar=0;ibar<aBar.size();ibar++){
+						unsigned int itri   = aBar[ibar].s2[isidebar];
+						unsigned int inotri = aBar[ibar].r2[isidebar];
+						aTri[itri].g2[inotri] = (int)id_msh_bar;
+						aTri[itri].s2[inotri] = ibar;
+						aTri[itri].r2[inotri] = isidebar;
+					}
+				}
+			}
+		}
 		assert( this->CheckMesh() == 0 );
 		arch.ShiftDepth(false);
 		return true;
@@ -2374,7 +2412,10 @@ bool CMesher2D::Serialize( Com::CSerializer& arch, bool is_only_cadmshlink )
 				arch.Out("%d\n",m_aBarAry[ibar_ary].m_aBar.size());
 				const std::vector<SBar>& aBar = m_aBarAry[ibar_ary].m_aBar;
 				for(unsigned int ibar=0;ibar<aBar.size();ibar++){
-					arch.Out("%d %d %d\n",ibar,aBar[ibar].v[0],aBar[ibar].v[1]);
+					arch.Out("%d %d %d  %d %d  %d %d\n",ibar,
+						aBar[ibar].v[0], aBar[ibar].v[1],
+						aBar[ibar].s2[0],aBar[ibar].s2[1],
+						aBar[ibar].r2[0],aBar[ibar].r2[1]);
 				}
 			}
 		}
@@ -2433,12 +2474,12 @@ bool CMesher2D::ReadFromFile_GiDMsh(const std::string& file_name)
 		if( nnoel != 4 ) return false;
 	}
 	else{
-		std::cout << "３角形と４角形以外の要素は未対応" << std::endl;
+		std::cout << "Error!-->Not defined elem type" << std::endl;
 		return false;
 	}
 
 	////////////////////////////////
-	// ここからは内容を変更する
+	// Change Data from here
 
     CMesher2D::Clear();	// 現在のメッシュ情報を全てクリア
 
