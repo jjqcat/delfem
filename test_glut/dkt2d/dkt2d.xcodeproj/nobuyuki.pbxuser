@@ -12,6 +12,20 @@
 			A9A02610118DA84A00F2D39A /* dkt2d */,
 		);
 		perUserDictionary = {
+			PBXConfiguration.PBXFileTableDataSource3.PBXExecutablesDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXExecutablesDataSource_NameID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					22,
+					300,
+					229,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXExecutablesDataSource_ActiveFlagID,
+					PBXExecutablesDataSource_NameID,
+					PBXExecutablesDataSource_CommentsID,
+				);
+			};
 			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
 				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
@@ -56,12 +70,12 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 294508875;
-			PBXWorkspaceStateSaveDate = 294508875;
+			PBXPerProjectTemplateStateSaveDate = 294590127;
+			PBXWorkspaceStateSaveDate = 294590127;
 		};
 		perUserProjectItems = {
-			A9A027A0118DAB8500F2D39A /* PBXTextBookmark */ = A9A027A0118DAB8500F2D39A /* PBXTextBookmark */;
 			A9A02A04118DD94D00F2D39A /* PBXTextBookmark */ = A9A02A04118DD94D00F2D39A /* PBXTextBookmark */;
+			A9A02AF9118F172E00F2D39A /* PBXTextBookmark */ = A9A02AF9118F172E00F2D39A /* PBXTextBookmark */;
 		};
 		sourceControlManager = A9A02619118DA84E00F2D39A /* Source Control */;
 		userBuildSettings = {
@@ -89,6 +103,21 @@
 		autoAttachOnCrash = 1;
 		breakpointsEnabled = 0;
 		configStateDict = {
+			"PBXLSLaunchAction-0" = {
+				PBXLSLaunchAction = 0;
+				PBXLSLaunchStartAction = 1;
+				PBXLSLaunchStdioStyle = 2;
+				PBXLSLaunchStyle = 0;
+				class = PBXLSRunLaunchConfig;
+				commandLineArgs = (
+				);
+				displayName = "ランナーを有効にする";
+				environment = {
+				};
+				identifier = com.apple.Xcode.launch.runConfig;
+				remoteHostInfo = "";
+				startActionInfo = "";
+			};
 		};
 		customDataFormattersEnabled = 1;
 		dataTipCustomDataFormattersEnabled = 1;
@@ -109,6 +138,7 @@
 		showTypeColumn = 0;
 		sourceDirectories = (
 		);
+		startupPath = "<<ProjectDirectory>>";
 	};
 	A9A02619118DA84E00F2D39A /* Source Control */ = {
 		isa = PBXSourceControlManager;
@@ -124,17 +154,17 @@
 		isa = PBXCodeSenseManager;
 		indexTemplatePath = "";
 	};
-	A9A027A0118DAB8500F2D39A /* PBXTextBookmark */ = {
+	A9A02A04118DD94D00F2D39A /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = 08FB7796FE84155DC02AAC07 /* main.cpp */;
 		name = "main.cpp: 1";
 		rLen = 0;
 		rLoc = 0;
 		rType = 0;
-		vrLen = 333;
+		vrLen = 326;
 		vrLoc = 0;
 	};
-	A9A02A04118DD94D00F2D39A /* PBXTextBookmark */ = {
+	A9A02AF9118F172E00F2D39A /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = 08FB7796FE84155DC02AAC07 /* main.cpp */;
 		name = "main.cpp: 1";

@@ -12,6 +12,20 @@
 			A99985D61188A41900DBA052 /* msh_view */,
 		);
 		perUserDictionary = {
+			PBXConfiguration.PBXFileTableDataSource3.PBXExecutablesDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXExecutablesDataSource_NameID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					22,
+					300,
+					666,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXExecutablesDataSource_ActiveFlagID,
+					PBXExecutablesDataSource_NameID,
+					PBXExecutablesDataSource_CommentsID,
+				);
+			};
 			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
 				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
@@ -25,6 +39,30 @@
 					20,
 				);
 				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXConfiguration.PBXFileTableDataSource3.XCSCMDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					20,
+					754,
+					20,
+					48.16259765625,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_SCM_ColumnID,
 					PBXFileDataSource_FiletypeID,
 					PBXFileDataSource_Filename_ColumnID,
 					PBXFileDataSource_Built_ColumnID,
@@ -56,12 +94,12 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 294508902;
-			PBXWorkspaceStateSaveDate = 294508902;
+			PBXPerProjectTemplateStateSaveDate = 294590374;
+			PBXWorkspaceStateSaveDate = 294590374;
 		};
 		perUserProjectItems = {
-			A999863B1188A74500DBA052 = A999863B1188A74500DBA052 /* PBXTextBookmark */;
-			A9A029BA118DC00B00F2D39A = A9A029BA118DC00B00F2D39A /* PBXTextBookmark */;
+			A9A02A6E118F158000F2D39A /* PBXTextBookmark */ = A9A02A6E118F158000F2D39A /* PBXTextBookmark */;
+			A9A02B6B118F17B000F2D39A /* PBXTextBookmark */ = A9A02B6B118F17B000F2D39A /* PBXTextBookmark */;
 		};
 		sourceControlManager = A99985DF1188A41B00DBA052 /* Source Control */;
 		userBuildSettings = {
@@ -69,9 +107,9 @@
 	};
 	08FB7796FE84155DC02AAC07 /* main.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {956, 7787}}";
-			sepNavSelRange = "{7703, 0}";
-			sepNavVisRange = "{7521, 979}";
+			sepNavIntBoundsRect = "{{0, 0}, {956, 7878}}";
+			sepNavSelRange = "{4950, 0}";
+			sepNavVisRange = "{4602, 943}";
 			sepNavWindowFrame = "{{350, 0}, {750, 778}}";
 		};
 	};
@@ -90,6 +128,21 @@
 		autoAttachOnCrash = 1;
 		breakpointsEnabled = 0;
 		configStateDict = {
+			"PBXLSLaunchAction-0" = {
+				PBXLSLaunchAction = 0;
+				PBXLSLaunchStartAction = 1;
+				PBXLSLaunchStdioStyle = 2;
+				PBXLSLaunchStyle = 0;
+				class = PBXLSRunLaunchConfig;
+				commandLineArgs = (
+				);
+				displayName = "ランナーを有効にする";
+				environment = {
+				};
+				identifier = com.apple.Xcode.launch.runConfig;
+				remoteHostInfo = "";
+				startActionInfo = "";
+			};
 		};
 		customDataFormattersEnabled = 1;
 		dataTipCustomDataFormattersEnabled = 1;
@@ -110,6 +163,7 @@
 		showTypeColumn = 0;
 		sourceDirectories = (
 		);
+		startupPath = "<<ProjectDirectory>>";
 		variableFormatDictionary = {
 		};
 	};
@@ -127,24 +181,24 @@
 		isa = PBXCodeSenseManager;
 		indexTemplatePath = "";
 	};
-	A999863B1188A74500DBA052 /* PBXTextBookmark */ = {
+	A9A02A6E118F158000F2D39A /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = 08FB7796FE84155DC02AAC07 /* main.cpp */;
-		name = "main.cpp: 1";
+		name = "main.cpp: 197";
 		rLen = 0;
-		rLoc = 0;
+		rLoc = 4950;
 		rType = 0;
-		vrLen = 705;
-		vrLoc = 0;
+		vrLen = 972;
+		vrLoc = 4602;
 	};
-	A9A029BA118DC00B00F2D39A /* PBXTextBookmark */ = {
+	A9A02B6B118F17B000F2D39A /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = 08FB7796FE84155DC02AAC07 /* main.cpp */;
-		name = "main.cpp: 292";
+		name = "main.cpp: 197";
 		rLen = 0;
-		rLoc = 7703;
+		rLoc = 4950;
 		rType = 0;
-		vrLen = 979;
-		vrLoc = 7521;
+		vrLen = 943;
+		vrLoc = 4602;
 	};
 }

@@ -91,6 +91,20 @@
 			remoteGlobalIDString = 8DD76F6C0486A84900D96B5E;
 			remoteInfo = dkt2d;
 		};
+		A9A02C2C118F184900F2D39A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A9A02C24118F184900F2D39A /* rigid.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8DD76F6C0486A84900D96B5E;
+			remoteInfo = rigid;
+		};
+		A9A02C36118F185900F2D39A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A9A02C2E118F185900F2D39A /* stvk_rigid.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8DD76F6C0486A84900D96B5E;
+			remoteInfo = stvk_rigid;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -106,12 +120,16 @@
 		A94832F6118A00010041A31C /* solid2d_thermal.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = solid2d_thermal.xcodeproj; path = solid2d_thermal/solid2d_thermal.xcodeproj; sourceTree = "<group>"; };
 		A9483300118A001C0041A31C /* solid3d.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = solid3d.xcodeproj; path = solid3d/solid3d.xcodeproj; sourceTree = "<group>"; };
 		A9A026B0118DA95B00F2D39A /* dkt2d.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = dkt2d.xcodeproj; path = dkt2d/dkt2d.xcodeproj; sourceTree = "<group>"; };
+		A9A02C24118F184900F2D39A /* rigid.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = rigid.xcodeproj; path = rigid/rigid.xcodeproj; sourceTree = "<group>"; };
+		A9A02C2E118F185900F2D39A /* stvk_rigid.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = stvk_rigid.xcodeproj; path = stvk_rigid/stvk_rigid.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
 		A948327B1189F0540041A31C = {
 			isa = PBXGroup;
 			children = (
+				A9A02C2E118F185900F2D39A /* stvk_rigid.xcodeproj */,
+				A9A02C24118F184900F2D39A /* rigid.xcodeproj */,
 				A9A026B0118DA95B00F2D39A /* dkt2d.xcodeproj */,
 				A9483300118A001C0041A31C /* solid3d.xcodeproj */,
 				A94832F6118A00010041A31C /* solid2d_thermal.xcodeproj */,
@@ -223,6 +241,22 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		A9A02C25118F184900F2D39A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A9A02C2D118F184900F2D39A /* rigid */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A9A02C2F118F185900F2D39A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A9A02C37118F185900F2D39A /* stvk_rigid */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXProject section */
@@ -263,6 +297,10 @@
 					ProjectRef = A94832B61189F0D30041A31C /* msh_view.xcodeproj */;
 				},
 				{
+					ProductGroup = A9A02C25118F184900F2D39A /* Products */;
+					ProjectRef = A9A02C24118F184900F2D39A /* rigid.xcodeproj */;
+				},
+				{
 					ProductGroup = A94832C11189FE570041A31C /* Products */;
 					ProjectRef = A94832C01189FE570041A31C /* scalar2d.xcodeproj */;
 				},
@@ -281,6 +319,10 @@
 				{
 					ProductGroup = A9483301118A001C0041A31C /* Products */;
 					ProjectRef = A9483300118A001C0041A31C /* solid3d.xcodeproj */;
+				},
+				{
+					ProductGroup = A9A02C2F118F185900F2D39A /* Products */;
+					ProjectRef = A9A02C2E118F185900F2D39A /* stvk_rigid.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -372,6 +414,20 @@
 			fileType = "compiled.mach-o.executable";
 			path = dkt2d;
 			remoteRef = A9A026B8118DA95B00F2D39A /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		A9A02C2D118F184900F2D39A /* rigid */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = rigid;
+			remoteRef = A9A02C2C118F184900F2D39A /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		A9A02C37118F185900F2D39A /* stvk_rigid */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = stvk_rigid;
+			remoteRef = A9A02C36118F185900F2D39A /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */

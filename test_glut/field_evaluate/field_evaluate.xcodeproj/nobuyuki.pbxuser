@@ -12,6 +12,20 @@
 			A948290E1189E5E90041A31C /* field_evaluate */,
 		);
 		perUserDictionary = {
+			PBXConfiguration.PBXFileTableDataSource3.PBXExecutablesDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXExecutablesDataSource_NameID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					22,
+					300,
+					666,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXExecutablesDataSource_ActiveFlagID,
+					PBXExecutablesDataSource_NameID,
+					PBXExecutablesDataSource_CommentsID,
+				);
+			};
 			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
 				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
@@ -56,8 +70,8 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 294497086;
-			PBXWorkspaceStateSaveDate = 294497086;
+			PBXPerProjectTemplateStateSaveDate = 294590441;
+			PBXWorkspaceStateSaveDate = 294590441;
 		};
 		sourceControlManager = A94829171189E5EC0041A31C /* Source Control */;
 		userBuildSettings = {
@@ -78,6 +92,21 @@
 		autoAttachOnCrash = 1;
 		breakpointsEnabled = 0;
 		configStateDict = {
+			"PBXLSLaunchAction-0" = {
+				PBXLSLaunchAction = 0;
+				PBXLSLaunchStartAction = 1;
+				PBXLSLaunchStdioStyle = 2;
+				PBXLSLaunchStyle = 0;
+				class = PBXLSRunLaunchConfig;
+				commandLineArgs = (
+				);
+				displayName = "ランナーを有効にする";
+				environment = {
+				};
+				identifier = com.apple.Xcode.launch.runConfig;
+				remoteHostInfo = "";
+				startActionInfo = "";
+			};
 		};
 		customDataFormattersEnabled = 1;
 		dataTipCustomDataFormattersEnabled = 1;
@@ -98,6 +127,7 @@
 		showTypeColumn = 0;
 		sourceDirectories = (
 		);
+		startupPath = "<<ProjectDirectory>>";
 	};
 	A94829171189E5EC0041A31C /* Source Control */ = {
 		isa = PBXSourceControlManager;
