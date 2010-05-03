@@ -1,15 +1,15 @@
 // !$*UTF8*$!
 {
 	08FB7793FE84155DC02AAC07 /* Project object */ = {
-		activeBuildConfigurationName = Debug;
-		activeExecutable = A99985D61188A41900DBA052 /* msh_view */;
-		activeTarget = 8DD76F620486A84900D96B5E /* msh_view */;
+		activeBuildConfigurationName = Release;
+		activeExecutable = A94828CA1189E1160041A31C /* hyper3d */;
+		activeTarget = 8DD76F620486A84900D96B5E /* hyper3d */;
 		addToTargets = (
-			8DD76F620486A84900D96B5E /* msh_view */,
+			8DD76F620486A84900D96B5E /* hyper3d */,
 		);
-		codeSenseManager = A99985E01188A41B00DBA052 /* Code sense */;
+		codeSenseManager = A94828D41189E1180041A31C /* Code sense */;
 		executables = (
-			A99985D61188A41900DBA052 /* msh_view */,
+			A94828CA1189E1160041A31C /* hyper3d */,
 		);
 		perUserDictionary = {
 			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
@@ -42,7 +42,7 @@
 					738,
 					60,
 					20,
-					48,
+					48.16259765625,
 					43,
 					43,
 				);
@@ -56,32 +56,28 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 294508902;
-			PBXWorkspaceStateSaveDate = 294508902;
+			PBXPerProjectTemplateStateSaveDate = 294497034;
+			PBXWorkspaceStateSaveDate = 294497034;
 		};
-		perUserProjectItems = {
-			A999863B1188A74500DBA052 = A999863B1188A74500DBA052 /* PBXTextBookmark */;
-			A9A029BA118DC00B00F2D39A = A9A029BA118DC00B00F2D39A /* PBXTextBookmark */;
-		};
-		sourceControlManager = A99985DF1188A41B00DBA052 /* Source Control */;
+		sourceControlManager = A94828D31189E1180041A31C /* Source Control */;
 		userBuildSettings = {
 		};
 	};
 	08FB7796FE84155DC02AAC07 /* main.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {956, 7787}}";
-			sepNavSelRange = "{7703, 0}";
-			sepNavVisRange = "{7521, 979}";
-			sepNavWindowFrame = "{{350, 0}, {750, 778}}";
+			sepNavIntBoundsRect = "{{0, 0}, {691, 5473}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 1046}";
+			sepNavWindowFrame = "{{70, 215}, {750, 558}}";
 		};
 	};
-	8DD76F620486A84900D96B5E /* msh_view */ = {
+	8DD76F620486A84900D96B5E /* hyper3d */ = {
 		activeExec = 0;
 		executables = (
-			A99985D61188A41900DBA052 /* msh_view */,
+			A94828CA1189E1160041A31C /* hyper3d */,
 		);
 	};
-	A99985D61188A41900DBA052 /* msh_view */ = {
+	A94828CA1189E1160041A31C /* hyper3d */ = {
 		isa = PBXExecutable;
 		activeArgIndices = (
 		);
@@ -104,16 +100,14 @@
 		executableSystemSymbolLevel = 0;
 		executableUserSymbolLevel = 0;
 		libgmallocEnabled = 0;
-		name = msh_view;
+		name = hyper3d;
 		savedGlobals = {
 		};
 		showTypeColumn = 0;
 		sourceDirectories = (
 		);
-		variableFormatDictionary = {
-		};
 	};
-	A99985DF1188A41B00DBA052 /* Source Control */ = {
+	A94828D31189E1180041A31C /* Source Control */ = {
 		isa = PBXSourceControlManager;
 		fallbackIsa = XCSourceControlManager;
 		isSCMEnabled = 0;
@@ -123,28 +117,8 @@
 			};
 		};
 	};
-	A99985E01188A41B00DBA052 /* Code sense */ = {
+	A94828D41189E1180041A31C /* Code sense */ = {
 		isa = PBXCodeSenseManager;
 		indexTemplatePath = "";
-	};
-	A999863B1188A74500DBA052 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 08FB7796FE84155DC02AAC07 /* main.cpp */;
-		name = "main.cpp: 1";
-		rLen = 0;
-		rLoc = 0;
-		rType = 0;
-		vrLen = 705;
-		vrLoc = 0;
-	};
-	A9A029BA118DC00B00F2D39A /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 08FB7796FE84155DC02AAC07 /* main.cpp */;
-		name = "main.cpp: 292";
-		rLen = 0;
-		rLoc = 7703;
-		rType = 0;
-		vrLen = 979;
-		vrLoc = 7521;
 	};
 }

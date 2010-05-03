@@ -210,6 +210,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
 				SDKROOT = macosx10.6;
+				USER_HEADER_SEARCH_PATHS = ../../inlcude/;
 			};
 			name = Debug;
 		};
@@ -222,6 +223,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
 				SDKROOT = macosx10.6;
+				USER_HEADER_SEARCH_PATHS = ../../include/;
 			};
 			name = Release;
 		};
