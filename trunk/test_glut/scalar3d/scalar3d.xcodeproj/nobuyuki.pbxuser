@@ -12,6 +12,20 @@
 			A9C5FA651188D6C20064BFDD /* scalar3d */,
 		);
 		perUserDictionary = {
+			PBXConfiguration.PBXFileTableDataSource3.PBXExecutablesDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXExecutablesDataSource_NameID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					22,
+					300,
+					229,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXExecutablesDataSource_ActiveFlagID,
+					PBXExecutablesDataSource_NameID,
+					PBXExecutablesDataSource_CommentsID,
+				);
+			};
 			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
 				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
@@ -32,6 +46,18 @@
 					PBXFileDataSource_Errors_ColumnID,
 					PBXFileDataSource_Warnings_ColumnID,
 					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXConfiguration.PBXFileTableDataSource3.PBXFindDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFindDataSource_LocationID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					200,
+					355,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFindDataSource_MessageID,
+					PBXFindDataSource_LocationID,
 				);
 			};
 			PBXConfiguration.PBXTargetDataSource.PBXTargetDataSource = {
@@ -56,12 +82,12 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 294496862;
-			PBXWorkspaceStateSaveDate = 294496862;
+			PBXPerProjectTemplateStateSaveDate = 294590301;
+			PBXWorkspaceStateSaveDate = 294590301;
 		};
 		perUserProjectItems = {
 			A9A0273B118DAA8C00F2D39A /* PBXTextBookmark */ = A9A0273B118DAA8C00F2D39A /* PBXTextBookmark */;
-			A9C5FAAA1188D8130064BFDD /* PBXTextBookmark */ = A9C5FAAA1188D8130064BFDD /* PBXTextBookmark */;
+			A9A02B3F118F178B00F2D39A /* PBXTextBookmark */ = A9A02B3F118F178B00F2D39A /* PBXTextBookmark */;
 		};
 		sourceControlManager = A9C5FA6E1188D6C50064BFDD /* Source Control */;
 		userBuildSettings = {
@@ -70,8 +96,8 @@
 	08FB7796FE84155DC02AAC07 /* main.cpp */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {519, 5707}}";
-			sepNavSelRange = "{159, 0}";
-			sepNavVisRange = "{517, 457}";
+			sepNavSelRange = "{729, 0}";
+			sepNavVisRange = "{424, 446}";
 		};
 	};
 	8DD76F620486A84900D96B5E /* scalar3d */ = {
@@ -90,6 +116,16 @@
 		vrLen = 457;
 		vrLoc = 517;
 	};
+	A9A02B3F118F178B00F2D39A /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 08FB7796FE84155DC02AAC07 /* main.cpp */;
+		name = "main.cpp: 34";
+		rLen = 0;
+		rLoc = 729;
+		rType = 0;
+		vrLen = 446;
+		vrLoc = 424;
+	};
 	A9C5FA651188D6C20064BFDD /* scalar3d */ = {
 		isa = PBXExecutable;
 		activeArgIndices = (
@@ -99,6 +135,21 @@
 		autoAttachOnCrash = 1;
 		breakpointsEnabled = 0;
 		configStateDict = {
+			"PBXLSLaunchAction-0" = {
+				PBXLSLaunchAction = 0;
+				PBXLSLaunchStartAction = 1;
+				PBXLSLaunchStdioStyle = 2;
+				PBXLSLaunchStyle = 0;
+				class = PBXLSRunLaunchConfig;
+				commandLineArgs = (
+				);
+				displayName = "ランナーを有効にする";
+				environment = {
+				};
+				identifier = com.apple.Xcode.launch.runConfig;
+				remoteHostInfo = "";
+				startActionInfo = "";
+			};
 		};
 		customDataFormattersEnabled = 1;
 		dataTipCustomDataFormattersEnabled = 1;
@@ -119,6 +170,7 @@
 		showTypeColumn = 0;
 		sourceDirectories = (
 		);
+		startupPath = "<<ProjectDirectory>>";
 	};
 	A9C5FA6E1188D6C50064BFDD /* Source Control */ = {
 		isa = PBXSourceControlManager;
@@ -133,15 +185,5 @@
 	A9C5FA6F1188D6C50064BFDD /* Code sense */ = {
 		isa = PBXCodeSenseManager;
 		indexTemplatePath = "";
-	};
-	A9C5FAAA1188D8130064BFDD /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 08FB7796FE84155DC02AAC07 /* main.cpp */;
-		name = "main.cpp: 9";
-		rLen = 0;
-		rLoc = 159;
-		rType = 0;
-		vrLen = 525;
-		vrLoc = 517;
 	};
 }

@@ -33,7 +33,7 @@
 #include "delfem/rigid/linearsystem_rigid.h"
 #include "delfem/rigid/linearsystem_rigidfield.h"
 
-#include "delfem/femeqn/eqn_linear_solid.h"
+#include "delfem/femeqn/eqn_linear_solid3d.h"
 #include "delfem/femeqn/eqn_st_venant.h"
 #include "delfem/femls/linearsystem_field.h"
 #include "delfem/field_world.h"
