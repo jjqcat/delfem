@@ -62,6 +62,7 @@ public :
 		is_selected = false; is_shown = true; 
         r = 0.8; g = 0.8; b = 0.8;
 		height = 0;
+		line_width = 1;
     }
 	CDrawPart(const Msh::CTriAry2D& TriAry);
 	CDrawPart(const Msh::CTriAry3D& TriAry);
@@ -77,18 +78,18 @@ public :
 		if( pIA_Edge != 0 ){ delete[] pIA_Edge; }
 	}
 	void DrawElements(){
-		if(      type_elem == 1 ){ DrawElements_Bar(); }
-		else if( type_elem == 2 ){ DrawElements_Tri(); }
+		if(      type_elem == 1 ){ DrawElements_Bar();  }
+		else if( type_elem == 2 ){ DrawElements_Tri();  }
 		else if( type_elem == 3 ){ DrawElements_Quad(); }
-		else if( type_elem == 4 ){ DrawElements_Tet(); }
-		else if( type_elem == 5 ){ DrawElements_Hex(); }
+		else if( type_elem == 4 ){ DrawElements_Tet();  }
+		else if( type_elem == 5 ){ DrawElements_Hex();  }
 	}
 	void DrawElements_Select(){
-		if(      type_elem == 1 ){ DrawElements_Select_Bar(); }
-		else if( type_elem == 2 ){ DrawElements_Select_Tri(); }
+		if(      type_elem == 1 ){ DrawElements_Select_Bar();  }
+		else if( type_elem == 2 ){ DrawElements_Select_Tri();  }
 		else if( type_elem == 3 ){ DrawElements_Select_Quad(); }
-		else if( type_elem == 4 ){ DrawElements_Select_Tet(); }
-		else if( type_elem == 5 ){ DrawElements_Select_Hex(); }
+		else if( type_elem == 4 ){ DrawElements_Select_Tet();  }
+		else if( type_elem == 5 ){ DrawElements_Select_Hex();  }
 	}
 	unsigned int GetElemDim() const {
 		if(      type_elem == 1 ){ return 1; }
@@ -144,6 +145,7 @@ Msh::View::CDrawPart::CDrawPart(const Msh::CTetAry& TetAry)
 	pIA_Elem = 0; 
 	pIA_Edge = 0;
     r = 0.8; g = 0.8; b = 0.8;
+	line_width = 1;
 	height = 0;
 	is_selected = false; is_shown = true; 
 //	this->id_cad = TetAry.m_CadLoopID;
@@ -194,6 +196,7 @@ CDrawPart::CDrawPart(const Msh::CHexAry& HexAry)
 	pIA_Elem = 0; pIA_Edge = 0;
 	is_selected = false; is_shown = true; 
     r = 0.8; g = 0.8; b = 0.8;
+	line_width = 1;
 	height = 0;
 //	this->id_cad = TetAry.m_CadLoopID;
 //	std::cout << HexAry.id << std::endl;
@@ -251,6 +254,7 @@ CDrawPart::CDrawPart(const Msh::CQuadAry3D& QuadAry)
 	pIA_Elem = 0; pIA_Edge = 0;
 	is_selected = false; is_shown = true; 
     r = 0.8; g = 0.8; b = 0.8;
+	line_width = 1;
 	height = 0;
 //	this->id_cad = QuadAry.m_CadLoopID;
 	this->id_msh = QuadAry.id;			assert( id_msh != 0 );
@@ -291,6 +295,7 @@ CDrawPart::CDrawPart(const Msh::CQuadAry2D& QuadAry)
 	pIA_Elem = 0; pIA_Edge = 0;
 	is_selected = false; is_shown = true; 
     r = 0.8; g = 0.8; b = 0.8;
+	line_width = 1;
 	height = 0;
 	this->id_cad = QuadAry.id_l_cad;
 	this->id_msh = QuadAry.id;			assert( id_msh != 0 );
@@ -329,6 +334,7 @@ CDrawPart::CDrawPart(const Msh::CTriAry2D& TriAry)
 {
 	is_selected = false; is_shown = true; 
     r = 0.8; g = 0.8; b = 0.8;
+	line_width = 1;
 	height = 0;
 	pIA_Elem = 0; pIA_Edge = 0;
 	this->id_cad = TriAry.id_l_cad;
@@ -362,6 +368,7 @@ CDrawPart::CDrawPart(const Msh::CTriAry3D& TriAry)
 {
 	is_selected = false; is_shown = true; 
     r = 0.8; g = 0.8; b = 0.8;
+	line_width = 1;
 	height = 0;
 	pIA_Elem = 0; pIA_Edge = 0;
 	this->id_msh = TriAry.id;			assert( id_msh != 0 );
@@ -394,6 +401,7 @@ CDrawPart::CDrawPart(const Msh::CBarAry& BarAry)
 {
 	is_selected = false; is_shown = true; 
     r = 0.8; g = 0.8; b = 0.8;
+	line_width = 1;
 	height = 0;
 	pIA_Elem = 0; pIA_Edge = 0;
 	this->id_cad = BarAry.id_e_cad;
@@ -413,6 +421,7 @@ CDrawPart::CDrawPart(const Msh::CBarAry3D& BarAry)
 {
 	is_selected = false; is_shown = true; 
     r = 0.8; g = 0.8; b = 0.8;
+	line_width = 1;
 	height = 0;
 	pIA_Elem = 0; pIA_Edge = 0;
 	this->type_elem = 1;
@@ -435,10 +444,12 @@ void CDrawPart::DrawElements_Tet()
 	// •Ó‚ð•`‰æ
 	::glLineWidth(1);
 	if( this->is_selected ){ 
+//		std::cout << "DrawElements_Tet selec" << std::endl;
 		::glLineWidth(2); 
 		::glColor3d(1.0,1.0,0.0); 
 	}
 	else{ 
+//		std::cout << "DrawElements_Tet unselec" << std::endl;
 		::glLineWidth(1); 
 		::glColor3d(0.0,0.0,0.0);
 	}
@@ -598,6 +609,8 @@ void CDrawPart::DrawElements_Select_Quad()
 void CDrawPart::DrawElements_Tri()
 {
 	if( !is_shown ) return;
+	
+//	std::cout << "DrawElements_Tri line_width" << line_width << std::endl;
 
 	// •Ó‚ð•`‰æ
 	if( this->is_selected ){ 
@@ -688,6 +701,8 @@ CDrawerMsh2D::~CDrawerMsh2D(){
 }
 
 void CDrawerMsh2D::SetLineWidth(unsigned int iwidth){
+//	std::cout << "SetLineWidth" << iwidth << std::endl;
+//	getchar();
     for(unsigned int idp=0;idp<m_pIndexArySet.size();idp++){
         m_pIndexArySet[idp]->line_width = iwidth;
     }
