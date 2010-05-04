@@ -149,13 +149,8 @@ void myGlutMouse(int button, int state, int x, int y){
 		drawer_ary.DrawSelection();
 		std::vector<Com::View::SSelectedObject> aSelecObj
 			= Com::View::PickPost(select_buffer,   x,y,   mvp_trans );
-
-		if( aSelecObj.size() > 0 ){
-			drawer_ary.AddSelected( aSelecObj[0].name );	
-		}
-		else{
-			drawer_ary.ClearSelected();
-		}
+		if( aSelecObj.size() > 0 ){ drawer_ary.AddSelected( aSelecObj[0].name ); }
+		else{                       drawer_ary.ClearSelected(); }
 	}
 }
 
