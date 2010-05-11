@@ -114,7 +114,8 @@ bool MatVec::Sol::Solve_CG(double& conv_ratio,
 bool MatVec::Sol::Solve_PCG(double& conv_ratio,
 				unsigned int& iteration,
 				const CMatDia_BlkCrs& mat, CVector_Blk& r_vec, CVector_Blk& u_vec,
-				const CPrecond_Blk& precond, const CMatDia_BlkCrs& mat_p){
+				const CPrecond_Blk& precond, const CMatDia_BlkCrs& mat_p)
+{
 
 	const double conv_ratio_tol = conv_ratio;
 	const unsigned int mx_iter = iteration;
@@ -154,10 +155,11 @@ bool MatVec::Sol::Solve_PCG(double& conv_ratio,
 		}
 
 		r_vec.AXPY(-alpha,z_vec);
+		u_vec.AXPY(alpha, p_vec);
 
 		{	// Converge Judgement
 			double sq_norm_res = r_vec*r_vec;
-			std::cout << iitr << " " << sqrt(sq_norm_res * sq_inv_norm_res0) << std::endl;
+//			std::cout << iitr << " " << sqrt(sq_norm_res * sq_inv_norm_res0) << std::endl;
 			if( sq_norm_res * sq_inv_norm_res0 < conv_ratio_tol*conv_ratio_tol ){
 				conv_ratio = sqrt( sq_norm_res * sq_inv_norm_res0 );
 				iteration = iitr;
@@ -165,8 +167,6 @@ bool MatVec::Sol::Solve_PCG(double& conv_ratio,
 			}
 		}
 
-		u_vec.AXPY(alpha, p_vec);
-	
 		double beta;
 		{
 			z_vec = r_vec;
