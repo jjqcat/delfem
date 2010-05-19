@@ -2,28 +2,28 @@
 {
 	08FB7793FE84155DC02AAC07 /* Project object */ = {
 		activeBuildConfigurationName = Debug;
-		activeExecutable = A937791C11889E340005F42F /* cad_view */;
-		activeTarget = 8DD76F620486A84900D96B5E /* cad_view */;
+		activeExecutable = A9C5F9D51188D34F0064BFDD /* solid3d */;
+		activeTarget = 8DD76F620486A84900D96B5E /* solid3d */;
 		addToTargets = (
-			8DD76F620486A84900D96B5E /* cad_view */,
+			8DD76F620486A84900D96B5E /* solid3d */,
 		);
-		codeSenseManager = A937792811889E3F0005F42F /* Code sense */;
+		codeSenseManager = A9C5F9DF1188D3520064BFDD /* Code sense */;
 		executables = (
-			A937791C11889E340005F42F /* cad_view */,
+			A9C5F9D51188D34F0064BFDD /* solid3d */,
 		);
 		perUserDictionary = {
-			PBXConfiguration.PBXFileTableDataSource3.PBXBookmarksDataSource = {
+			PBXConfiguration.PBXFileTableDataSource3.PBXExecutablesDataSource = {
 				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
-				PBXFileTableDataSourceColumnSortingKey = PBXBookmarksDataSource_NameID;
+				PBXFileTableDataSourceColumnSortingKey = PBXExecutablesDataSource_NameID;
 				PBXFileTableDataSourceColumnWidthsKey = (
-					200,
-					200,
-					588,
+					22,
+					300,
+					229,
 				);
 				PBXFileTableDataSourceColumnsKey = (
-					PBXBookmarksDataSource_LocationID,
-					PBXBookmarksDataSource_NameID,
-					PBXBookmarksDataSource_CommentsID,
+					PBXExecutablesDataSource_ActiveFlagID,
+					PBXExecutablesDataSource_NameID,
+					PBXExecutablesDataSource_CommentsID,
 				);
 			};
 			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
@@ -31,7 +31,7 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					364,
+					341,
 					20,
 					48,
 					43,
@@ -53,10 +53,10 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					738,
+					301,
 					60,
 					20,
-					48,
+					48.16259765625,
 					43,
 					43,
 				);
@@ -70,31 +70,20 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 296003166;
-			PBXWorkspaceStateSaveDate = 296003166;
+			PBXPerProjectTemplateStateSaveDate = 294589964;
+			PBXWorkspaceStateSaveDate = 294589964;
 		};
-		perUserProjectItems = {
-			A9D0F68711A4A6A000CA581F /* PBXTextBookmark */ = A9D0F68711A4A6A000CA581F /* PBXTextBookmark */;
-			A9D0F68B11A4A6B500CA581F /* PBXTextBookmark */ = A9D0F68B11A4A6B500CA581F /* PBXTextBookmark */;
-		};
-		sourceControlManager = A937792711889E3F0005F42F /* Source Control */;
+		sourceControlManager = A9C5F9DE1188D3520064BFDD /* Source Control */;
 		userBuildSettings = {
 		};
 	};
-	08FB7796FE84155DC02AAC07 /* main.cpp */ = {
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {956, 6916}}";
-			sepNavSelRange = "{6058, 0}";
-			sepNavVisRange = "{5471, 954}";
-		};
-	};
-	8DD76F620486A84900D96B5E /* cad_view */ = {
+	8DD76F620486A84900D96B5E /* solid3d */ = {
 		activeExec = 0;
 		executables = (
-			A937791C11889E340005F42F /* cad_view */,
+			A9C5F9D51188D34F0064BFDD /* solid3d */,
 		);
 	};
-	A937791C11889E340005F42F /* cad_view */ = {
+	A9C5F9D51188D34F0064BFDD /* solid3d */ = {
 		isa = PBXExecutable;
 		activeArgIndices = (
 		);
@@ -103,6 +92,21 @@
 		autoAttachOnCrash = 1;
 		breakpointsEnabled = 0;
 		configStateDict = {
+			"PBXLSLaunchAction-0" = {
+				PBXLSLaunchAction = 0;
+				PBXLSLaunchStartAction = 1;
+				PBXLSLaunchStdioStyle = 2;
+				PBXLSLaunchStyle = 0;
+				class = PBXLSRunLaunchConfig;
+				commandLineArgs = (
+				);
+				displayName = "ランナーを有効にする";
+				environment = {
+				};
+				identifier = com.apple.Xcode.launch.runConfig;
+				remoteHostInfo = "";
+				startActionInfo = "";
+			};
 		};
 		customDataFormattersEnabled = 1;
 		dataTipCustomDataFormattersEnabled = 1;
@@ -117,14 +121,15 @@
 		executableSystemSymbolLevel = 0;
 		executableUserSymbolLevel = 0;
 		libgmallocEnabled = 0;
-		name = cad_view;
+		name = solid3d;
 		savedGlobals = {
 		};
 		showTypeColumn = 0;
 		sourceDirectories = (
 		);
+		startupPath = "<<ProjectDirectory>>";
 	};
-	A937792711889E3F0005F42F /* Source Control */ = {
+	A9C5F9DE1188D3520064BFDD /* Source Control */ = {
 		isa = PBXSourceControlManager;
 		fallbackIsa = XCSourceControlManager;
 		isSCMEnabled = 0;
@@ -134,36 +139,8 @@
 			};
 		};
 	};
-	A937792811889E3F0005F42F /* Code sense */ = {
+	A9C5F9DF1188D3520064BFDD /* Code sense */ = {
 		isa = PBXCodeSenseManager;
 		indexTemplatePath = "";
-	};
-	A9D0F68711A4A6A000CA581F /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = C6859E8B029090EE04C91782 /* cad_view.1 */;
-		name = "cad_view.1: 1";
-		rLen = 0;
-		rLoc = 0;
-		rType = 0;
-		vrLen = 339;
-		vrLoc = 0;
-	};
-	A9D0F68B11A4A6B500CA581F /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = C6859E8B029090EE04C91782 /* cad_view.1 */;
-		name = "cad_view.1: 1";
-		rLen = 0;
-		rLoc = 0;
-		rType = 0;
-		vrLen = 339;
-		vrLoc = 0;
-	};
-	C6859E8B029090EE04C91782 /* cad_view.1 */ = {
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {635, 936}}";
-			sepNavSelRange = "{0, 0}";
-			sepNavVisRange = "{0, 339}";
-			sepNavWindowFrame = "{{70, 215}, {750, 558}}";
-		};
 	};
 }
