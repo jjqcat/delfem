@@ -28,7 +28,7 @@
 #include "delfem/rigid/rigidbody.h"
 #include "delfem/rigid/linearsystem_rigid.h"
 
-Com::View::CCamera mvp_trans;
+Com::View::CCamera cameras;
 double mov_begin_x, mov_begin_y;
 int press_button;
 
@@ -159,36 +159,35 @@ void ShowFPS(){
 
 void DrawBackGround()
 {
-    // 背景描画
-    ::glMatrixMode(GL_MODELVIEW);  // ModelView行列をクリア
+    ::glMatrixMode(GL_MODELVIEW);
     ::glPushMatrix();
     ::glLoadIdentity();
-    ::glMatrixMode(GL_PROJECTION); // Projection行列をクリア
+    ::glMatrixMode(GL_PROJECTION);
     ::glPushMatrix();
     ::glLoadIdentity();
-    ::glDisable(GL_DEPTH_TEST);    // DepthTestを無効にする
+    ::glDisable(GL_DEPTH_TEST);   
     ::glBegin(GL_QUADS);
-    ::glColor3d(0.2,0.7,0.7);   // 下の色を設定
-    ::glVertex3d(-1,-1,0);  // 左下の点
-    ::glVertex3d( 1,-1,0);  // 右下の点
-    ::glColor3d(1,1,1);         // 上の色を設定
-    ::glVertex3d( 1, 1,0);  // 右上の点
-    ::glVertex3d(-1, 1,0);  // 左上の点
+    ::glColor3d(0.2,0.7,0.7);
+    ::glVertex3d(-1,-1,0);
+    ::glVertex3d( 1,-1,0);
+    ::glColor3d(1,1,1);   
+    ::glVertex3d( 1, 1,0);
+    ::glVertex3d(-1, 1,0);
     ::glEnd();
-    ::glEnable(GL_DEPTH_TEST);     // DepthTestを有効にする
-    ::glMatrixMode(GL_PROJECTION); // Projection行列を元に戻す
+    ::glEnable(GL_DEPTH_TEST);
+    ::glMatrixMode(GL_PROJECTION);
     ::glPopMatrix();
-    ::glMatrixMode(GL_MODELVIEW);  // ModelView行列を元に戻す
+    ::glMatrixMode(GL_MODELVIEW);
     ::glPopMatrix();
 }
 
 void myGlutResize(int w, int h)
 {
-	mvp_trans.SetWindowAspect((double)w/h);
+	cameras.SetWindowAspect((double)w/h);
 	glViewport(0, 0, w, h);
 	::glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	Com::View::SetProjectionTransform(mvp_trans);
+	Com::View::SetProjectionTransform(cameras);
 	glutPostRedisplay();
 }
 
@@ -229,8 +228,219 @@ void DrawRigidBody(const Rigid::CRigidBody3D& r){
     }
 }
 
+void DrawConstraint(const Rigid::CConstraint* c, const std::vector<Rigid::CRigidBody3D>& aRB)
+{	
+	if(      const Rigid::CFix_Hinge* cfh = dynamic_cast<const Rigid::CFix_Hinge*>(c) ){
+//		std::cout << "CFix_Hinge" << std::endl;
+        const unsigned int irb = cfh->aIndRB[0];
+        const Rigid::CRigidBody3D& rb = aRB[irb];
+        const Com::CVector3D& vec_j = rb.GetPositionFromInital(cfh->ini_pos_fix);
+        const Com::CVector3D& vec_cg = rb.ini_pos_cg + rb.disp_cg;
+		const Com::CVector3D& ini_pos_fix = cfh->ini_pos_fix;
 
-void DrawConstraint(const Rigid::CConstraint& c){
+        ::glPushMatrix();
+        ::glTranslated(ini_pos_fix.x, ini_pos_fix.y, ini_pos_fix.z);
+        ::glColor3d(1,1,0);
+        ::glutSolidSphere(0.1,10,5);
+	    ::glPopMatrix();
+
+        ::glColor3d(1,1,1);
+        ::glLineWidth(2);
+        ::glBegin(GL_LINES);
+        ::glVertex3d(vec_j.x,  vec_j.y,  vec_j.z);
+        ::glVertex3d(vec_cg.x,vec_cg.y,vec_cg.z);
+        ::glEnd();
+
+        const Com::CVector3D& lcb0 = cfh->loc_coord[0];
+        const Com::CVector3D& lcb1 = cfh->loc_coord[1];
+        unsigned int ndiv = 16;
+        const double dtheta = 2*3.1416/ndiv;
+        const double radius = 0.4;
+        ::glColor3d(0,1,1);
+        ::glBegin(GL_TRIANGLE_FAN);
+        ::glVertex3d(vec_j.x,  vec_j.y,  vec_j.z);
+        for(unsigned int idiv=0;idiv<ndiv+1;idiv++){
+            const Com::CVector3D v0 = vec_j + sin(idiv*dtheta  )*lcb0*radius + cos(idiv*dtheta  )*lcb1*radius;
+            ::glVertex3d(v0.x,  v0.y,  v0.z);
+        }
+        ::glEnd();
+		return;
+	}
+	else if( const Rigid::CFix_HingeRange* cfhr = dynamic_cast<const Rigid::CFix_HingeRange*>(c) ){
+//		std::cout << "CFix_HingeRange" << std::endl;
+        const unsigned int irb = cfhr->aIndRB[0];
+        const Rigid::CRigidBody3D& rb = aRB[irb];
+		const Com::CVector3D& ini_pos_fix = cfhr->ini_pos_fix;
+        const Com::CVector3D& vec_j = rb.GetPositionFromInital(ini_pos_fix);
+        const Com::CVector3D& vec_cg = rb.ini_pos_cg + rb.disp_cg;
+
+        ::glPushMatrix();
+        ::glTranslated(ini_pos_fix.x, ini_pos_fix.y, ini_pos_fix.z);
+        ::glColor3d(1,1,0);
+        ::glutSolidSphere(0.1,10,5);
+	    ::glPopMatrix();
+
+        ::glColor3d(1,1,1);
+        ::glLineWidth(2);
+        ::glBegin(GL_LINES);
+        ::glVertex3d(vec_j.x,  vec_j.y,  vec_j.z);
+        ::glVertex3d(vec_cg.x,vec_cg.y,vec_cg.z);
+        ::glEnd();
+
+		const double max_t=cfhr->max_t;
+		const double min_t=cfhr->min_t;
+        const Com::CVector3D& lcb0 = cfhr->loc_coord[0];
+        const Com::CVector3D& lcb1 = cfhr->loc_coord[1];
+        unsigned int ndiv_t = 32;
+        unsigned int ndiv0 = ndiv_t*(max_t-min_t      )/360.0 + 1;
+        const double dtheta0 = 2*3.1416/ndiv0*(max_t-min_t)/360.0;
+        const double radius = 1;
+        ::glColor3d(0,1,1);
+        ::glBegin(GL_TRIANGLE_FAN);
+        ::glVertex3d(vec_j.x,  vec_j.y,  vec_j.z);
+        for(unsigned int idiv=0;idiv<ndiv0+1;idiv++){
+            const Com::CVector3D v0 = vec_j + 
+                sin(idiv*dtheta0 - max_t*3.14/180)*lcb0*radius + 
+                cos(idiv*dtheta0 - max_t*3.14/180)*lcb1*radius;
+            ::glVertex3d(v0.x,  v0.y,  v0.z);
+        }
+        ::glEnd();
+		return;
+	}
+	else if( const Rigid::CFix_Spherical* cfs = dynamic_cast<const Rigid::CFix_Spherical*>(c) ){
+//		std::cout << "CFix_HingeSpherical" << std::endl;
+        const unsigned int irb = cfs->aIndRB[0];
+        const Rigid::CRigidBody3D& rb = aRB[irb];
+		const Com::CVector3D& ini_pos_fix = cfs->ini_pos_fix;
+        const Com::CVector3D& vec_j = rb.GetPositionFromInital(ini_pos_fix);
+        const Com::CVector3D& vec_cg = rb.ini_pos_cg + rb.disp_cg;
+
+        ::glPushMatrix();
+        ::glTranslated(ini_pos_fix.x, ini_pos_fix.y, ini_pos_fix.z);
+        ::glColor3d(1,1,0);
+        ::glutSolidSphere(0.1,10,5);
+	    ::glPopMatrix();
+
+        ::glColor3d(1,1,1);
+        ::glLineWidth(2);
+        ::glBegin(GL_LINES);
+        ::glVertex3d(vec_j.x,  vec_j.y,  vec_j.z  );
+        ::glVertex3d(vec_cg.x,vec_cg.y,vec_cg.z);
+        ::glEnd();
+		return;
+	}
+	else if( const Rigid::CJoint_Hinge* cjh = dynamic_cast<const Rigid::CJoint_Hinge*>(c) ){
+//		std::cout << "CJoint_Hinge" << std::endl;
+        const unsigned int irb0 = cjh->aIndRB[0];
+        const unsigned int irb1 = cjh->aIndRB[1];
+        const Rigid::CRigidBody3D& rb0 = aRB[irb0];
+        const Rigid::CRigidBody3D& rb1 = aRB[irb1];
+        const Com::CVector3D& vec_j = rb0.GetPositionFromInital(cjh->ini_pos_joint);
+        const Com::CVector3D& vec_cg0 = rb0.ini_pos_cg + rb0.disp_cg;
+        const Com::CVector3D& vec_cg1 = rb1.ini_pos_cg + rb1.disp_cg;
+
+        ::glPushMatrix();
+        ::glTranslated( vec_j.x, vec_j.y, vec_j.z );
+        ::glColor3d(1,1,0);
+        ::glutSolidSphere(0.1,10,5);
+	    ::glPopMatrix();
+        ::glColor3d(1,1,1);
+        ::glLineWidth(2);
+        ::glBegin(GL_LINES);
+        ::glVertex3d(vec_j.x,  vec_j.y,  vec_j.z  );
+        ::glVertex3d(vec_cg0.x,vec_cg0.y,vec_cg0.z);
+        ::glVertex3d(vec_j.x,  vec_j.y,  vec_j.z);
+        ::glVertex3d(vec_cg1.x,vec_cg1.y,vec_cg1.z);
+        ::glEnd();
+    
+        const Com::CMatrix3& mrot = rb0.GetRotMatrix();
+        const Com::CVector3D& lcb0 = mrot.MatVec(cjh->loc_coord[0]);
+        const Com::CVector3D& lcb1 = mrot.MatVec(cjh->loc_coord[1]);
+        unsigned int ndiv = 16;
+        const double dtheta = 2*3.1416/ndiv;
+        const double radius = 0.4;
+        ::glColor3d(0,1,1);
+        ::glBegin(GL_TRIANGLE_FAN);
+        ::glVertex3d(vec_j.x,  vec_j.y,  vec_j.z);
+        for(unsigned int idiv=0;idiv<ndiv+1;idiv++){
+            const Com::CVector3D v0 = vec_j + sin(idiv*dtheta  )*lcb0*radius + cos(idiv*dtheta  )*lcb1*radius;
+            ::glVertex3d(v0.x,  v0.y,  v0.z);
+        }
+        ::glEnd();
+		return;
+	}
+	else if( const Rigid::CJoint_HingeRange* cjhr = dynamic_cast<const Rigid::CJoint_HingeRange*>(c) ){
+//		std::cout << "CJoint_HingeRange" << std::endl;
+        const unsigned int irb0 = cjhr->aIndRB[0];
+        const unsigned int irb1 = cjhr->aIndRB[1];
+        const Rigid::CRigidBody3D& rb0 = aRB[irb0];
+        const Rigid::CRigidBody3D& rb1 = aRB[irb1];
+        const Com::CVector3D& vec_j = rb0.GetPositionFromInital(cjhr->ini_pos_joint);
+        const Com::CVector3D& vec_cg0 = rb0.ini_pos_cg + rb0.disp_cg;
+        const Com::CVector3D& vec_cg1 = rb1.ini_pos_cg + rb1.disp_cg;
+
+        ::glPushMatrix();
+        ::glTranslated( vec_j.x, vec_j.y, vec_j.z );
+        ::glColor3d(1,1,0);
+        ::glutSolidSphere(0.1,10,5);
+	    ::glPopMatrix();
+        ::glColor3d(1,1,1);
+        ::glLineWidth(2);
+        ::glBegin(GL_LINES);
+        ::glVertex3d(vec_j.x,  vec_j.y,  vec_j.z  );
+        ::glVertex3d(vec_cg0.x,vec_cg0.y,vec_cg0.z);
+        ::glVertex3d(vec_j.x,  vec_j.y,  vec_j.z);
+        ::glVertex3d(vec_cg1.x,vec_cg1.y,vec_cg1.z);
+        ::glEnd();
+    
+        const Com::CMatrix3& mrot = rb0.GetRotMatrix();
+        const Com::CVector3D& lcb0 = mrot.MatVec(cjhr->loc_coord[0]);
+        const Com::CVector3D& lcb1 = mrot.MatVec(cjhr->loc_coord[1]);
+        unsigned int ndiv_t = 32;
+		const double max_t=cjhr->max_t;
+		const double min_t=cjhr->min_t;
+        unsigned int ndiv0 = ndiv_t*(max_t-min_t)/360.0 + 1;
+        const double dtheta = 2*3.1416/ndiv0*(max_t-min_t)/360.0;
+        const double radius = 1;
+        ::glColor3d(0,1,1);
+        ::glBegin(GL_TRIANGLE_FAN);
+        ::glVertex3d(vec_j.x,  vec_j.y,  vec_j.z);
+        for(unsigned int idiv=0;idiv<ndiv0+1;idiv++){
+            const Com::CVector3D v0 = vec_j 
+                + sin(idiv*dtheta - max_t*3.1416/180.0 )*lcb0*radius 
+                + cos(idiv*dtheta - max_t*3.1416/180.0 )*lcb1*radius;
+            ::glVertex3d(v0.x,  v0.y,  v0.z);
+        }
+        ::glEnd();
+		return;
+	}
+	else if( const Rigid::CJoint_Spherical* cjs = dynamic_cast<const Rigid::CJoint_Spherical*>(c) ){
+//		std::cout << "CJoint_Spherical" << std::endl;			
+		const unsigned int irb0 = cjs->aIndRB[0];
+		const Rigid::CRigidBody3D& rb0 = aRB[irb0];
+		const Com::CVector3D& vec_cg0 = rb0.ini_pos_cg + rb0.disp_cg;
+
+		const unsigned int irb1 = cjs->aIndRB[1];
+		const Rigid::CRigidBody3D& rb1 = aRB[irb1];
+		const Com::CVector3D& vec_cg1 = rb1.ini_pos_cg + rb1.disp_cg;
+    
+		const Com::CVector3D& vec_j = rb0.GetPositionFromInital(cjs->ini_pos_joint);
+
+		::glPushMatrix();
+		::glTranslated( vec_j.x, vec_j.y, vec_j.z );
+		::glColor3d(1,1,0);
+		::glutSolidSphere(0.1,10,5);
+		::glPopMatrix();
+		::glColor3d(1,1,1);
+		::glLineWidth(2);
+		::glBegin(GL_LINES);
+		::glVertex3d(vec_j.x,  vec_j.y,  vec_j.z  );
+		::glVertex3d(vec_cg0.x,vec_cg0.y,vec_cg0.z);
+		::glVertex3d(vec_j.x,  vec_j.y,  vec_j.z);
+		::glVertex3d(vec_cg1.x,vec_cg1.y,vec_cg1.z);
+		::glEnd();
+		return;
+	}
 }
 
 void myGlutDisplay(void)
@@ -244,12 +454,12 @@ void myGlutDisplay(void)
 
 	::glMatrixMode(GL_MODELVIEW);
 	::glLoadIdentity();
-	Com::View::SetModelViewTransform(mvp_trans);
+	Com::View::SetModelViewTransform(cameras);
 
     if( is_animation ){        
-        StepTime3();	// 剛体の運動を解く
+        StepTime3();	// solve rigid motion
         cur_time += dt;
-		// 剛体エネルギー計算
+		// caliculation of kinematic energy
         double eng = 0;
         for(unsigned int irb=0;irb<aRB.size();irb++){
             double e = 0;
@@ -266,6 +476,7 @@ void myGlutDisplay(void)
     }
 
     DrawBackGround();
+
 /*  {
         ::glColor3d(0.7,0.7,0.7);
         ::glBegin(GL_QUADS);
@@ -286,6 +497,7 @@ void myGlutDisplay(void)
 //	    aRB[irb].Draw();
     }
     for(unsigned int ifix=0;ifix<apFix.size();ifix++){
+		DrawConstraint(apFix[ifix],aRB);
 //		apFix[ifix]->Draw(aRB);
     }
 
@@ -306,10 +518,10 @@ void myGlutMotion( int x, int y ){
 	const double mov_end_x = (2.0*x-win_w)/win_w;
 	const double mov_end_y = (win_h-2.0*y)/win_h;
 	if( press_button == GLUT_MIDDLE_BUTTON ){
-		mvp_trans.MouseRotation(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
+		cameras.MouseRotation(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
 	}
 	else if( press_button == GLUT_RIGHT_BUTTON ){
-		mvp_trans.MousePan(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
+		cameras.MousePan(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
 	}
 	mov_begin_x = mov_end_x;
 	mov_begin_y = mov_end_y;
@@ -542,15 +754,15 @@ void myGlutKeyboard(unsigned char key, int x, int y)
 void myGlutSpecialFunc(int key, int x, int y){
     switch(key){
     case GLUT_KEY_PAGE_UP :     
-        mvp_trans.SetScale( mvp_trans.GetScale()*0.9    );
+        cameras.SetScale( cameras.GetScale()*0.9    );
         break;
     case GLUT_KEY_PAGE_DOWN :
-        mvp_trans.SetScale( mvp_trans.GetScale()*1.1111 );
+        cameras.SetScale( cameras.GetScale()*1.1111 );
         break;
     }
 	::glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	Com::View::SetProjectionTransform(mvp_trans);
+	Com::View::SetProjectionTransform(cameras);
 }
 
 int main(int argc,char* argv[])
@@ -571,12 +783,12 @@ int main(int argc,char* argv[])
     ::glutSpecialFunc(myGlutSpecialFunc);
 	::glutIdleFunc(myGlutIdle);
 
-    mvp_trans.SetRotationMode(Com::View::ROT_3D);
-//    mvp_trans.SetIsPers(true);
+    cameras.SetRotationMode(Com::View::ROT_3D);
+//    cameras.SetIsPers(true);
     {
         Com::CBoundingBox bb(-2,2,-2,2,-2,2);
-        mvp_trans.SetObjectBoundingBox(bb);
-        mvp_trans.Fit(bb);
+        cameras.SetObjectBoundingBox(bb);
+        cameras.Fit(bb);
     }
     SetNewProblem();
 

@@ -42,7 +42,7 @@ RSC=rc.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /GR /GX /D "_LIB" /D "__VISUALC__" /D "_MBCS" /D "WIN32" /D "NDEBUG" /FD /c
-# SUBTRACT CPP /O<none> /YX
+# SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x411 /d "NDEBUG"
 # ADD RSC /l 0x411 /d "NDEBUG" /d "__VISUALC__"
 BSC32=bscmake.exe
@@ -65,7 +65,7 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /D "_LIB" /D "__VISUALC__" /D "WIN32" /D "_DEBUG" /D "_MBCS" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR- /GX /ZI /Od /D "_LIB" /D "__VISUALC__" /D "WIN32" /D "_DEBUG" /D "_MBCS" /YX /FD /GZ /c
 # ADD BASE RSC /l 0x411 /d "_DEBUG"
 # ADD RSC /l 0x411 /d "_DEBUG" /d "__VISUALC__"
 BSC32=bscmake.exe

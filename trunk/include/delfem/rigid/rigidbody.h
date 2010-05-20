@@ -141,8 +141,8 @@ public:
 //    virtual void Draw(const std::vector<CRigidBody3D>& aRB) const;
 public:
     double lambda[3];
-private:
     Com::CVector3D ini_pos_fix;
+private:
 };
 
 class CFix_Hinge : public CConstraint
@@ -172,10 +172,10 @@ public:
 //    virtual void Draw(const std::vector<CRigidBody3D>& aRB) const;
 public:
     double lambda[5];
-private:
     Com::CVector3D ini_pos_fix;
-    Com::CVector3D axis;
     Com::CVector3D loc_coord[2];
+private:
+    Com::CVector3D axis;
 };
 
 class CFix_HingeRange : public CConstraint
@@ -212,12 +212,12 @@ public:
 //    virtual void Draw(const std::vector<CRigidBody3D>& aRB) const;
 public:
     double lambda[6];
-private:
     Com::CVector3D ini_pos_fix;
-    Com::CVector3D axis;
     Com::CVector3D loc_coord[2];
     double min_t;
     double max_t;
+private:
+    Com::CVector3D axis;
 };
 
 class CJoint_Spherical : public CConstraint
@@ -245,8 +245,8 @@ public:
 //    virtual void Draw(const std::vector<CRigidBody3D>& aRB) const;
 public:
     double lambda[3];
-private:
     Com::CVector3D ini_pos_joint;
+private:
 };
 
 class CJoint_Hinge : public CConstraint
@@ -275,10 +275,10 @@ public:
 //    virtual void Draw(const std::vector<CRigidBody3D>& aRB) const;
 public:
     double lambda[5];
-private:
     Com::CVector3D ini_pos_joint;
-    Com::CVector3D axis;
     Com::CVector3D loc_coord[2];
+private:
+    Com::CVector3D axis;
 };
 
 class CJoint_HingeRange : public CConstraint
@@ -311,12 +311,12 @@ public:
 //    virtual void Draw(const std::vector<CRigidBody3D>& aRB) const;
 public:
     double lambda[6];
-private:
     Com::CVector3D ini_pos_joint;
-    Com::CVector3D axis;
     Com::CVector3D loc_coord[2];
     double min_t;
     double max_t;
+private:
+    Com::CVector3D axis;
 };
 
 
