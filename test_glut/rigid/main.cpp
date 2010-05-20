@@ -39,7 +39,7 @@ int press_button;
 std::vector<Rigid::CRigidBody3D> aRB;
 std::vector<Rigid::CConstraint*> apFix;
 
-bool is_animation = false;
+bool is_animation = true;
 
 double cur_time = 0;
 const double dt = 0.05;
