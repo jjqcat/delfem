@@ -264,7 +264,7 @@ void myGlutDisplay(void)
 
 void SetNewProblem()
 {
-	const unsigned int nprob = 28;	// number of problem settings
+	const unsigned int nprob = 27;	// number of problem settings
 	static unsigned int iprob = 0;
 
 	static unsigned int id_field_disp_fix0 = 0;
@@ -368,21 +368,7 @@ void SetNewProblem()
 		// View座標変換の設定
 		drawer_ary.InitTrans(mvp_trans);
 	}
-	else if( iprob == 9 )	// 応力の初期位置での表示
-	{
-		id_field_equiv_stress = 0;
-		id_field_stress = world.MakeField_FieldElemDim(id_field_disp,2,STSR2,VALUE,BUBBLE);
-		// 描画オブジェクトの登録
-		drawer_ary.Clear();
-		id_field_disp = solid.GetIdField_Disp();
-		drawer_ary.PushBack( new View::CDrawerVector(id_field_stress,world) );
-		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,true,world) );
-		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
-		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
-		// View座標変換の設定
-		drawer_ary.InitTrans(mvp_trans);
-	}
-	else if( iprob == 10 )	// 熱応力問題
+	else if( iprob == 9 )	// 熱応力問題
 	{
 		id_field_equiv_stress = 0;
 		id_field_stress = 0;
@@ -430,7 +416,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
 		drawer_ary.InitTrans(mvp_trans);	// View座標変換の設定
 	}
-	else if( iprob == 11 )	// 熱応力を考慮することをやめる
+	else if( iprob == 10 )	// 熱応力を考慮することをやめる
 	{
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_temp,true, world, id_field_temp, -1,1) );
@@ -438,11 +424,11 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
 		drawer_ary.InitTrans(mvp_trans);	// View座標変換の設定
 	}
-	else if( iprob == 12 )	// 熱応力を考慮することをやめる
+	else if( iprob == 11 )	// 熱応力を考慮することをやめる
 	{
 		solid.SetThermalStress(0);
 	}
-	else if( iprob == 13 )
+	else if( iprob == 12 )
 	{
 		Cad::CCadObj2D cad_2d;
 		{	// 正方形に矩形の穴
@@ -489,24 +475,24 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
 		drawer_ary.InitTrans(mvp_trans);	// View座標変換の設定
 	}
-	else if( iprob == 14 )
+	else if( iprob == 13 )
 	{
 		solid.SetSaveStiffMat(true);
 	}
-	else if( iprob == 15 )
+	else if( iprob == 14 )
 	{
 		solid.SetSaveStiffMat(false);
 		solid.SetStationary(false);
 	}
-	else if( iprob == 16 ){
+	else if( iprob == 15 ){
 		solid.SetStationary(true);
 		solid.SetGeometricalNonlinear(true);
 	}
-	else if( iprob == 17 ){
+	else if( iprob == 16 ){
 		solid.SetStationary(false);
 		solid.SetGeometricalNonlinear(true);
 	}
-	else if( iprob == 18 ){
+	else if( iprob == 17 ){
 		Cad::CCadObj2D cad_2d;
 		{	// 正方形にが２つに分割
 			std::vector<Com::CVector2D> vec_ary;
@@ -550,24 +536,24 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerEdge(id_base,true,world) );
 		drawer_ary.InitTrans(mvp_trans);	// View座標変換の設定
 	}
-	else if( iprob == 19 )
+	else if( iprob == 18 )
 	{
 		solid.SetSaveStiffMat(true);
 	}
-	else if( iprob == 20 )
+	else if( iprob == 19 )
 	{
 		solid.SetSaveStiffMat(false);
 		solid.SetStationary(false);
 	}
-	else if( iprob == 21 ){
+	else if( iprob == 20 ){
 		solid.SetStationary(true);
 		solid.SetGeometricalNonlinear(true);
 	}
-	else if( iprob == 22 ){
+	else if( iprob == 21 ){
 		solid.SetStationary(false);
 		solid.SetGeometricalNonlinear(true);
 	}
-	else if( iprob == 23 ){
+	else if( iprob == 22 ){
 		Cad::CCadObj2D cad_2d;
 		{	// 長方形が４つに分割
 			std::vector<Com::CVector2D> vec_ary;
@@ -637,7 +623,7 @@ void SetNewProblem()
 //		drawer_ary.PushBack( new View::CDrawerEdge(id_base,false,world) );
 		drawer_ary.InitTrans(mvp_trans);	// View座標変換の設定
 	}
-	else if( iprob == 24 ){
+	else if( iprob == 23 ){
 		solid.SetRho(0.0001);
 		solid.SetStationary(false);
 		{	// 変位の場を上下に単振動に設定
@@ -645,7 +631,7 @@ void SetNewProblem()
 			field.SetValue("0.5*cos(2*t)", 1,Fem::Field::VALUE, world,true);
 		}
 	}
-	else if( iprob == 25 ){
+	else if( iprob == 24 ){
 		Cad::CCadObj2D cad_2d;
 		{	// 長方形が４つに分割
 			std::vector<Com::CVector2D> vec_ary;
@@ -699,7 +685,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.InitTrans(mvp_trans);	// View座標変換の設定
 	}
-	else if( iprob == 26 )
+	else if( iprob == 25 )
 	{
 		Cad::CCadObj2D cad_2d;
 		unsigned int id_l;
@@ -776,7 +762,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
 		drawer_ary.InitTrans(mvp_trans);	// View座標変換の設定
 	}
-	else if( iprob == 27 )
+	else if( iprob == 26 )
 	{
 		Cad::CCadObj2D cad_2d;
 		unsigned int id_e;
@@ -841,7 +827,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
 		drawer_ary.InitTrans(mvp_trans);	// View座標変換の設定
 	}	
-	else if( iprob == 28 )
+	else if( iprob == 27 )
 	{
 		Cad::CCadObj2D cad_2d;
 		unsigned int id_e1, id_e2, id_e3;
@@ -906,14 +892,14 @@ void SetNewProblem()
 		
 		id_field_equiv_stress = world.MakeField_FieldElemDim(id_field_disp,2,SCALAR,VALUE,BUBBLE);
 
-		// 描画オブジェクトの登録
+		// registration of drawing objects
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world,id_field_equiv_stress,0,0.5) );
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp_edge,false,world) );
 //		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
-		drawer_ary.InitTrans(mvp_trans);	// View座標変換の設定
+		drawer_ary.InitTrans(mvp_trans);	// setting of model-view transformation
 	}
 
 	iprob++;
