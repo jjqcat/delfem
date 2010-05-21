@@ -44,7 +44,7 @@
 using namespace Fem::Ls;
 using namespace Fem::Field;
 
-Com::View::CCamera mvp_trans;
+Com::View::CCamera camera;
 double mov_begin_x, mov_begin_y;
 bool is_animation = true;
 
@@ -112,11 +112,11 @@ void ShowFPS()
 // リサイズ時のコールバック関数
 void myGlutResize(int w, int h)
 {
-	mvp_trans.SetWindowAspect((double)w/h);
+	camera.SetWindowAspect((double)w/h);
 	::glViewport(0, 0, w, h);
 	::glMatrixMode(GL_PROJECTION);
 	::glLoadIdentity();
-	Com::View::SetProjectionTransform(mvp_trans);
+	Com::View::SetProjectionTransform(camera);
 	::glutPostRedisplay();
 }
 
@@ -127,8 +127,8 @@ void myGlutMotion( int x, int y ){
 	const int win_h = viewport[3];
 	const double mov_end_x = (2.0*x-win_w)/win_w;
 	const double mov_end_y = (win_h-2.0*y)/win_h;
-//	mvp_trans.MouseRotation(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
-	mvp_trans.MousePan(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
+//	camera.MouseRotation(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
+	camera.MousePan(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
 	mov_begin_x = mov_end_x;
 	mov_begin_y = mov_end_y;
 	::glutPostRedisplay();
@@ -162,7 +162,7 @@ void myGlutKeyboard(unsigned char Key, int x, int y)
 	}
 	::glMatrixMode(GL_PROJECTION);
 	::glLoadIdentity();
-	Com::View::SetProjectionTransform(mvp_trans);
+	Com::View::SetProjectionTransform(camera);
 	::glutPostRedisplay();
 }
 
@@ -172,34 +172,34 @@ void myGlutSpecial(int Key, int x, int y)
 	{
 	case GLUT_KEY_PAGE_UP:
 		if( ::glutGetModifiers() && GLUT_ACTIVE_SHIFT ){
-			if( mvp_trans.IsPers() ){
-				const double tmp_fov_y = mvp_trans.GetFovY() + 10.0;
-				mvp_trans.SetFovY( tmp_fov_y );
+			if( camera.IsPers() ){
+				const double tmp_fov_y = camera.GetFovY() + 10.0;
+				camera.SetFovY( tmp_fov_y );
 			}
 		}
 		else{
-			const double tmp_scale = mvp_trans.GetScale() * 0.9;
-			mvp_trans.SetScale( tmp_scale );
+			const double tmp_scale = camera.GetScale() * 0.9;
+			camera.SetScale( tmp_scale );
 		}
 		break;
 	case GLUT_KEY_PAGE_DOWN:
 		if( ::glutGetModifiers() && GLUT_ACTIVE_SHIFT ){
-			if( mvp_trans.IsPers() ){
-				const double tmp_fov_y = mvp_trans.GetFovY() - 10.0;
-				mvp_trans.SetFovY( tmp_fov_y );
+			if( camera.IsPers() ){
+				const double tmp_fov_y = camera.GetFovY() - 10.0;
+				camera.SetFovY( tmp_fov_y );
 			}
 		}
 		else{
-			const double tmp_scale = mvp_trans.GetScale() * 1.111;
-			mvp_trans.SetScale( tmp_scale );
+			const double tmp_scale = camera.GetScale() * 1.111;
+			camera.SetScale( tmp_scale );
 		}
 		break;
 	case GLUT_KEY_HOME :
-		mvp_trans.Fit();
+		camera.Fit();
 		break;
 	case GLUT_KEY_END :
-		if( mvp_trans.IsPers() ) mvp_trans.SetIsPers(false);
-		else{ mvp_trans.SetIsPers(true); }
+		if( camera.IsPers() ) camera.SetIsPers(false);
+		else{ camera.SetIsPers(true); }
 		break;
 	default:
 		break;
@@ -207,7 +207,7 @@ void myGlutSpecial(int Key, int x, int y)
 	
 	::glMatrixMode(GL_PROJECTION);
 	::glLoadIdentity();
-	Com::View::SetProjectionTransform(mvp_trans);
+	Com::View::SetProjectionTransform(camera);
 	::glutPostRedisplay();
 }
 
@@ -218,9 +218,8 @@ void myGlutIdle(){
 
 ////////////////////////////////
 
-
 Fem::Field::CFieldWorld world;
-View::CDrawerArrayField drawer_ary;
+Fem::Field::View::CDrawerArrayField drawer_ary;
 double cur_time = 0.0;
 double dt = 0.05;
 Fem::Eqn::CEqnSystem_Solid2D solid;
@@ -241,7 +240,7 @@ void myGlutDisplay(void)
 
 	::glMatrixMode(GL_MODELVIEW);
 	::glLoadIdentity();
-	Com::View::SetModelViewTransform(mvp_trans);
+	Com::View::SetModelViewTransform(camera);
 
 	if( is_animation ){
 		cur_time += dt;
@@ -294,7 +293,7 @@ void SetNewProblem()
 	    solid.UpdateDomain_Field(id_base, world);
 		solid.SetSaveStiffMat(false);	
 		solid.SetStationary(true);
-		// 全体の物性値を設定
+		// Setting Material Parameter
 		solid.SetYoungPoisson(10.0,0.3,true);	// ヤング率とポアソン比の設定(平面応力)
 		solid.SetGeometricalNonlinear(false);
 		solid.SetGravitation(0.0,0.0);
@@ -307,13 +306,13 @@ void SetNewProblem()
 			bc1_field.SetValue("sin(t*PI*2*0.1)", 1,Fem::Field::VALUE, world,true);	// bc1_fieldのy座標に単振動を追加
 		}
 
-		// 描画オブジェクトの登録
+		// Setting Visualiziation
 		drawer_ary.Clear();
 		id_field_disp = solid.GetIdField_Disp();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
-		drawer_ary.InitTrans(mvp_trans);	// View座標変換の設定
+		drawer_ary.InitTrans(camera);	// View座標変換の設定
 	}
 	else if( iprob == 1 )	// 剛性行列を保存して，準静的問題
 	{
@@ -355,7 +354,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
 		// View座標変換の設定
-		drawer_ary.InitTrans(mvp_trans);
+		drawer_ary.InitTrans(camera);
 	}
 	else if( iprob == 8 )	// 線形ミーゼス応力の初期位置での表示
 	{
@@ -366,7 +365,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
 		// View座標変換の設定
-		drawer_ary.InitTrans(mvp_trans);
+		drawer_ary.InitTrans(camera);
 	}
 	else if( iprob == 9 )	// 熱応力問題
 	{
@@ -414,7 +413,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false, world, id_field_temp, -1,1) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
-		drawer_ary.InitTrans(mvp_trans);	// View座標変換の設定
+		drawer_ary.InitTrans(camera);	// View座標変換の設定
 	}
 	else if( iprob == 10 )	// 熱応力を考慮することをやめる
 	{
@@ -422,7 +421,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_temp,true, world, id_field_temp, -1,1) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
-		drawer_ary.InitTrans(mvp_trans);	// View座標変換の設定
+		drawer_ary.InitTrans(camera);	// View座標変換の設定
 	}
 	else if( iprob == 11 )	// 熱応力を考慮することをやめる
 	{
@@ -473,7 +472,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
-		drawer_ary.InitTrans(mvp_trans);	// View座標変換の設定
+		drawer_ary.InitTrans(camera);	// View座標変換の設定
 	}
 	else if( iprob == 13 )
 	{
@@ -534,7 +533,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 //		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_base,true,world) );
-		drawer_ary.InitTrans(mvp_trans);	// View座標変換の設定
+		drawer_ary.InitTrans(camera);	// View座標変換の設定
 	}
 	else if( iprob == 18 )
 	{
@@ -621,7 +620,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 //		drawer_ary.PushBack( new View::CDrawerEdge(id_base,false,world) );
-		drawer_ary.InitTrans(mvp_trans);	// View座標変換の設定
+		drawer_ary.InitTrans(camera);	// View座標変換の設定
 	}
 	else if( iprob == 23 ){
 		solid.SetRho(0.0001);
@@ -683,7 +682,7 @@ void SetNewProblem()
 		id_field_disp = solid.GetIdField_Disp();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
-		drawer_ary.InitTrans(mvp_trans);	// View座標変換の設定
+		drawer_ary.InitTrans(camera);	// View座標変換の設定
 	}
 	else if( iprob == 25 )
 	{
@@ -753,14 +752,14 @@ void SetNewProblem()
 			bc1_field.SetValue("0.1*(1-cos(t*PI*2*0.1))", 1,Fem::Field::VALUE, world,true);	// bc1_fieldのy座標に単振動を追加
 		}
 
-		// 描画オブジェクトの登録
+		// set visualization
 		drawer_ary.Clear();
 		id_field_disp = solid.GetIdField_Disp();
         std::cout << "id_field_disp : " << id_field_disp << std::endl;
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
-		drawer_ary.InitTrans(mvp_trans);	// View座標変換の設定
+		drawer_ary.InitTrans(camera);	// View座標変換の設定
 	}
 	else if( iprob == 26 )
 	{
@@ -802,7 +801,7 @@ void SetNewProblem()
 	    solid.UpdateDomain_Field(id_base2, world);
 		solid.SetSaveStiffMat(false);	
 		solid.SetStationary(true);
-		// 全体の物性値を設定
+		// set material parameter
 		solid.SetYoungPoisson(10.0,0.3,true);	// ヤング率とポアソン比の設定(平面応力)
 		solid.SetGeometricalNonlinear(false);
 		solid.SetGravitation(0.0,0.0);
@@ -825,14 +824,14 @@ void SetNewProblem()
 //		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
-		drawer_ary.InitTrans(mvp_trans);	// View座標変換の設定
+		drawer_ary.InitTrans(camera);	// set transformation
 	}	
 	else if( iprob == 27 )
 	{
 		Cad::CCadObj2D cad_2d;
 		unsigned int id_e1, id_e2, id_e3;
 		unsigned int id_l;
-		{	// 形を作る
+		{	// set shape
 			std::vector<Com::CVector2D> vec_ary;
 			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(5.0,0.0) );
@@ -873,7 +872,7 @@ void SetNewProblem()
 	    solid.UpdateDomain_Field(id_base2, world);
 		solid.SetSaveStiffMat(false);	
 		solid.SetStationary(true);
-		// 全体の物性値を設定
+		// set material parameter
 		solid.SetYoungPoisson(10.0,0.3,true);	// ヤング率とポアソン比の設定(平面応力)
 		solid.SetGeometricalNonlinear(false);
 		solid.SetGravitation(0.0,0.0);
@@ -899,7 +898,7 @@ void SetNewProblem()
 //		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
-		drawer_ary.InitTrans(mvp_trans);	// setting of model-view transformation
+		drawer_ary.InitTrans(camera);	// setting of model-view transformation
 	}
 
 	iprob++;
