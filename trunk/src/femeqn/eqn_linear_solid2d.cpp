@@ -449,7 +449,7 @@ static bool AddLinSys_LinearSolid2D_Static_P1(
 		unsigned int id_field_disp, const CFieldWorld& world,
 		unsigned int id_ea)
 {
-	std::cout << "LinearSolid2D Static Tri P1" << std::endl;
+//	std::cout << "LinearSolid2D Static Tri P1" << std::endl;
 
 	assert( world.IsIdEA(id_ea) );
 	const CElemAry& ea = world.GetEA(id_ea);

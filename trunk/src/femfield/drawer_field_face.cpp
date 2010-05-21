@@ -185,7 +185,7 @@ void CDrawerFace::Draw() const
 		::glMatrixMode(GL_MODELVIEW);
 		::glPushMatrix();
 		::glLoadIdentity();
-		::glTranslated((asp-9*0.03)-0.05,   (1-0.05*10.5*1.7)-0.05,   0.3);
+        ::glTranslated((asp-9*0.03)-0.05,   (1-0.05*10.5*1.7)-0.05,   0.3);
 	
 		double interval_n = 17.0;
 		const unsigned int ndiv_c = 20;
