@@ -38,8 +38,8 @@ private:
     double dt;
     Fem::Eqn::CEqnSystem_Solid2D solid;
     unsigned int id_field_disp;
-    unsigned int id_field_equiv_stress;	// e?g?ñ??I?I?e
-    unsigned int id_field_stress;	// e?g?ñ??I?I?e
+    unsigned int id_field_equiv_stress;
+    unsigned int id_field_stress;
 };
 
 #endif
