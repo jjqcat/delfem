@@ -1,17 +1,37 @@
 // !$*UTF8*$!
 {
-	08FB7793FE84155DC02AAC07 /* Project object */ = {
-		activeBuildConfigurationName = Release;
-		activeExecutable = A9A0283B118DAE4300F2D39A /* stvk_rigid */;
-		activeTarget = 8DD76F620486A84900D96B5E /* stvk_rigid */;
-		addToTargets = (
-			8DD76F620486A84900D96B5E /* stvk_rigid */,
-		);
-		codeSenseManager = A9A02845118DAE4500F2D39A /* Code sense */;
+	6014297316DC2139C726CD5D /* solid2d_demos */ = {
+		activeExec = 0;
 		executables = (
-			A9A0283B118DAE4300F2D39A /* stvk_rigid */,
+			A9D0FB9411A75B3700CA581F /* solid2d_demos */,
+		);
+	};
+	91B15E841AA80083484172DE /* Project object */ = {
+		activeBuildConfigurationName = Debug;
+		activeExecutable = A9D0FB9411A75B3700CA581F /* solid2d_demos */;
+		activeTarget = 6014297316DC2139C726CD5D /* solid2d_demos */;
+		addToTargets = (
+			6014297316DC2139C726CD5D /* solid2d_demos */,
+		);
+		codeSenseManager = A9D0FBA411A75B6A00CA581F /* Code sense */;
+		executables = (
+			A9D0FB9411A75B3700CA581F /* solid2d_demos */,
 		);
 		perUserDictionary = {
+			PBXConfiguration.PBXFileTableDataSource3.PBXExecutablesDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXExecutablesDataSource_NameID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					22,
+					300,
+					252,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXExecutablesDataSource_ActiveFlagID,
+					PBXExecutablesDataSource_NameID,
+					PBXExecutablesDataSource_CommentsID,
+				);
+			};
 			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
 				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
@@ -39,7 +59,7 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					740,
+					324,
 					60,
 					20,
 					48,
@@ -56,27 +76,14 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 296009208;
-			PBXWorkspaceStateSaveDate = 296009208;
+			PBXPerProjectTemplateStateSaveDate = 296181691;
+			PBXWorkspaceStateSaveDate = 296181691;
 		};
-		sourceControlManager = A9A02844118DAE4500F2D39A /* Source Control */;
+		sourceControlManager = A9D0FBA311A75B6A00CA581F /* Source Control */;
 		userBuildSettings = {
 		};
 	};
-	08FB7796FE84155DC02AAC07 /* main.cpp */ = {
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {551, 15093}}";
-			sepNavSelRange = "{783, 0}";
-			sepNavVisRange = "{564, 540}";
-		};
-	};
-	8DD76F620486A84900D96B5E /* stvk_rigid */ = {
-		activeExec = 0;
-		executables = (
-			A9A0283B118DAE4300F2D39A /* stvk_rigid */,
-		);
-	};
-	A9A0283B118DAE4300F2D39A /* stvk_rigid */ = {
+	A9D0FB9411A75B3700CA581F /* solid2d_demos */ = {
 		isa = PBXExecutable;
 		activeArgIndices = (
 		);
@@ -95,18 +102,23 @@
 		dylibVariantSuffix = "";
 		enableDebugStr = 1;
 		environmentEntries = (
+			{
+				active = YES;
+				name = DYLD_LIBRARY_PATH;
+				value = /Users/nobuyuki/develop/delfem/lib;
+			},
 		);
 		executableSystemSymbolLevel = 0;
 		executableUserSymbolLevel = 0;
 		libgmallocEnabled = 0;
-		name = stvk_rigid;
+		name = solid2d_demos;
 		savedGlobals = {
 		};
 		showTypeColumn = 0;
 		sourceDirectories = (
 		);
 	};
-	A9A02844118DAE4500F2D39A /* Source Control */ = {
+	A9D0FBA311A75B6A00CA581F /* Source Control */ = {
 		isa = PBXSourceControlManager;
 		fallbackIsa = XCSourceControlManager;
 		isSCMEnabled = 0;
@@ -116,7 +128,7 @@
 			};
 		};
 	};
-	A9A02845118DAE4500F2D39A /* Code sense */ = {
+	A9D0FBA411A75B6A00CA581F /* Code sense */ = {
 		isa = PBXCodeSenseManager;
 		indexTemplatePath = "";
 	};

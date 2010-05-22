@@ -7,7 +7,7 @@ TARGET = dfm_core
 INCLUDEPATH += ../../include/
 VPATH += ../../src \
     ../../include/delfem/
-#VERSION = 1.1.12
+VERSION = 1.2.0
 QT += opengl
 DEFINES += NDEBUG
 #MAKE_CXXFLAGS_RELEASE = -O3

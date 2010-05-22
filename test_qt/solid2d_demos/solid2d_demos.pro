@@ -4,10 +4,9 @@
 QT += opengl
 TARGET = solid2d_demos
 TEMPLATE = app
-QMAKE_INCDIR += ../../trunc/include
-QMAKE_LIBDIR += ../../trunc/lib
-QMAKE_LIBS += -ldfm_core \
-    -ldfm_ext
+QMAKE_INCDIR += ../../include
+QMAKE_LIBDIR += ../../lib
+QMAKE_LIBS += -ldfm_core.1.2.0
 SOURCES += main.cpp \
     mainwindow.cpp \
     glwidget.cpp
