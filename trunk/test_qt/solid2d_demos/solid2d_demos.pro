@@ -6,7 +6,7 @@ TARGET = solid2d_demos
 TEMPLATE = app
 QMAKE_INCDIR += ../../include
 QMAKE_LIBDIR += ../../lib
-QMAKE_LIBS += -ldfm_core.1.2.0
+QMAKE_LIBS += -ldfm_core
 SOURCES += main.cpp \
     mainwindow.cpp \
     glwidget.cpp
