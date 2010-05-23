@@ -11,15 +11,22 @@
 		8DD76F6A0486A84900D96B5E /* solid2d_thermal.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = C6859E8B029090EE04C91782 /* solid2d_thermal.1 */; };
 		A9C5FA2F1188D4EF0064BFDD /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9C5FA2E1188D4EF0064BFDD /* GLUT.framework */; };
 		A9C5FA311188D4FB0064BFDD /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9C5FA301188D4FB0064BFDD /* OpenGL.framework */; };
-		A9C5FA3D1188D5610064BFDD /* libdfm_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A9C5FA3C1188D5570064BFDD /* libdfm_core.a */; };
+		A9EDB5AC11A8B03E0003AC93 /* libdfm_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A9EDB5AB11A8B0350003AC93 /* libdfm_core.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		A9C5FA3B1188D5570064BFDD /* PBXContainerItemProxy */ = {
+		A9EDB5AA11A8B0350003AC93 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A9C5FA341188D5570064BFDD /* dfm_core.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = D2AAC046055464E500DB518D;
+			remoteGlobalIDString = D2AAC046055464E500DB518D /* libdfm_core.a */;
+			remoteInfo = dfm_core;
+		};
+		A9EDB5AD11A8B0470003AC93 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A9C5FA341188D5570064BFDD /* dfm_core.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC045055464E500DB518D /* dfm_core */;
 			remoteInfo = dfm_core;
 		};
 /* End PBXContainerItemProxy section */
@@ -42,7 +49,7 @@
 		8DD76F6C0486A84900D96B5E /* solid2d_thermal */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = solid2d_thermal; sourceTree = BUILT_PRODUCTS_DIR; };
 		A9C5FA2E1188D4EF0064BFDD /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = /System/Library/Frameworks/GLUT.framework; sourceTree = "<absolute>"; };
 		A9C5FA301188D4FB0064BFDD /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
-		A9C5FA341188D5570064BFDD /* dfm_core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = dfm_core.xcodeproj; path = ../../lib/xcodelib_core/dfm_core/dfm_core.xcodeproj; sourceTree = SOURCE_ROOT; };
+		A9C5FA341188D5570064BFDD /* dfm_core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = dfm_core.xcodeproj; path = ../../lib/xcodelib_core/dfm_core.xcodeproj; sourceTree = SOURCE_ROOT; };
 		C6859E8B029090EE04C91782 /* solid2d_thermal.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = solid2d_thermal.1; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -51,7 +58,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A9C5FA3D1188D5610064BFDD /* libdfm_core.a in Frameworks */,
+				A9EDB5AC11A8B03E0003AC93 /* libdfm_core.a in Frameworks */,
 				A9C5FA2F1188D4EF0064BFDD /* GLUT.framework in Frameworks */,
 				A9C5FA311188D4FB0064BFDD /* OpenGL.framework in Frameworks */,
 			);
@@ -89,10 +96,10 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		A9C5FA351188D5570064BFDD /* Products */ = {
+		A9EDB5A711A8B0350003AC93 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A9C5FA3C1188D5570064BFDD /* libdfm_core.a */,
+				A9EDB5AB11A8B0350003AC93 /* libdfm_core.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -119,6 +126,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				A9EDB5AE11A8B0470003AC93 /* PBXTargetDependency */,
 			);
 			name = solid2d_thermal;
 			productInstallPath = "$(HOME)/bin";
@@ -138,7 +146,7 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = A9C5FA351188D5570064BFDD /* Products */;
+					ProductGroup = A9EDB5A711A8B0350003AC93 /* Products */;
 					ProjectRef = A9C5FA341188D5570064BFDD /* dfm_core.xcodeproj */;
 				},
 			);
@@ -150,11 +158,11 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		A9C5FA3C1188D5570064BFDD /* libdfm_core.a */ = {
+		A9EDB5AB11A8B0350003AC93 /* libdfm_core.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libdfm_core.a;
-			remoteRef = A9C5FA3B1188D5570064BFDD /* PBXContainerItemProxy */;
+			remoteRef = A9EDB5AA11A8B0350003AC93 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -169,6 +177,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A9EDB5AE11A8B0470003AC93 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = dfm_core;
+			targetProxy = A9EDB5AD11A8B0470003AC93 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		1DEB923208733DC60010E9CD /* Debug */ = {

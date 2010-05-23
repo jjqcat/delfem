@@ -9,24 +9,24 @@
 /* Begin PBXBuildFile section */
 		8DD76F650486A84900D96B5E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* main.cpp */; settings = {ATTRIBUTES = (); }; };
 		8DD76F6A0486A84900D96B5E /* msh_view.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = C6859E8B029090EE04C91782 /* msh_view.1 */; };
-		A99985F11188A47D00DBA052 /* libdfm_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A99985F01188A47300DBA052 /* libdfm_core.a */; };
 		A99985F81188A4C400DBA052 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A99985F71188A4C400DBA052 /* GLUT.framework */; };
 		A99985FA1188A4D300DBA052 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A99985F91188A4D300DBA052 /* OpenGL.framework */; };
+		A9EDB51011A8AF020003AC93 /* libdfm_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A9EDB50F11A8AEF80003AC93 /* libdfm_core.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		A99985EF1188A47300DBA052 /* PBXContainerItemProxy */ = {
+		A9EDB50E11A8AEF80003AC93 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A99985E81188A47300DBA052 /* dfm_core.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = D2AAC046055464E500DB518D;
+			remoteGlobalIDString = D2AAC046055464E500DB518D /* libdfm_core.a */;
 			remoteInfo = dfm_core;
 		};
-		A99985F31188A48A00DBA052 /* PBXContainerItemProxy */ = {
+		A9EDB51111A8AF0C0003AC93 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A99985E81188A47300DBA052 /* dfm_core.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D;
+			remoteGlobalIDString = D2AAC045055464E500DB518D /* dfm_core */;
 			remoteInfo = dfm_core;
 		};
 /* End PBXContainerItemProxy section */
@@ -47,7 +47,7 @@
 /* Begin PBXFileReference section */
 		08FB7796FE84155DC02AAC07 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		8DD76F6C0486A84900D96B5E /* msh_view */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = msh_view; sourceTree = BUILT_PRODUCTS_DIR; };
-		A99985E81188A47300DBA052 /* dfm_core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = dfm_core.xcodeproj; path = ../../lib/xcodelib_core/dfm_core/dfm_core.xcodeproj; sourceTree = SOURCE_ROOT; };
+		A99985E81188A47300DBA052 /* dfm_core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = dfm_core.xcodeproj; path = ../../lib/xcodelib_core/dfm_core.xcodeproj; sourceTree = SOURCE_ROOT; };
 		A99985F71188A4C400DBA052 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = /System/Library/Frameworks/GLUT.framework; sourceTree = "<absolute>"; };
 		A99985F91188A4D300DBA052 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		C6859E8B029090EE04C91782 /* msh_view.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = msh_view.1; sourceTree = "<group>"; };
@@ -58,7 +58,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A99985F11188A47D00DBA052 /* libdfm_core.a in Frameworks */,
+				A9EDB51011A8AF020003AC93 /* libdfm_core.a in Frameworks */,
 				A99985F81188A4C400DBA052 /* GLUT.framework in Frameworks */,
 				A99985FA1188A4D300DBA052 /* OpenGL.framework in Frameworks */,
 			);
@@ -96,10 +96,10 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		A99985E91188A47300DBA052 /* Products */ = {
+		A9EDB50B11A8AEF80003AC93 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A99985F01188A47300DBA052 /* libdfm_core.a */,
+				A9EDB50F11A8AEF80003AC93 /* libdfm_core.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -126,7 +126,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				A99985F41188A48A00DBA052 /* PBXTargetDependency */,
+				A9EDB51211A8AF0C0003AC93 /* PBXTargetDependency */,
 			);
 			name = msh_view;
 			productInstallPath = "$(HOME)/bin";
@@ -146,7 +146,7 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = A99985E91188A47300DBA052 /* Products */;
+					ProductGroup = A9EDB50B11A8AEF80003AC93 /* Products */;
 					ProjectRef = A99985E81188A47300DBA052 /* dfm_core.xcodeproj */;
 				},
 			);
@@ -158,11 +158,11 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		A99985F01188A47300DBA052 /* libdfm_core.a */ = {
+		A9EDB50F11A8AEF80003AC93 /* libdfm_core.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libdfm_core.a;
-			remoteRef = A99985EF1188A47300DBA052 /* PBXContainerItemProxy */;
+			remoteRef = A9EDB50E11A8AEF80003AC93 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -179,10 +179,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		A99985F41188A48A00DBA052 /* PBXTargetDependency */ = {
+		A9EDB51211A8AF0C0003AC93 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = dfm_core;
-			targetProxy = A99985F31188A48A00DBA052 /* PBXContainerItemProxy */;
+			targetProxy = A9EDB51111A8AF0C0003AC93 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
