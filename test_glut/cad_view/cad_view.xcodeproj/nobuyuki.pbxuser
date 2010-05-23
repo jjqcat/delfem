@@ -26,12 +26,26 @@
 					PBXBookmarksDataSource_CommentsID,
 				);
 			};
+			PBXConfiguration.PBXFileTableDataSource3.PBXExecutablesDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXExecutablesDataSource_NameID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					22,
+					300,
+					184,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXExecutablesDataSource_ActiveFlagID,
+					PBXExecutablesDataSource_NameID,
+					PBXExecutablesDataSource_CommentsID,
+				);
+			};
 			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
 				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					364,
+					296,
 					20,
 					48,
 					43,
@@ -48,12 +62,36 @@
 					PBXFileDataSource_Target_ColumnID,
 				);
 			};
+			PBXConfiguration.PBXFileTableDataSource3.XCSCMDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					20,
+					272,
+					20,
+					48.16259765625,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_SCM_ColumnID,
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
 			PBXConfiguration.PBXTargetDataSource.PBXTargetDataSource = {
 				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					738,
+					256,
 					60,
 					20,
 					48,
@@ -70,13 +108,12 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 296180642;
-			PBXWorkspaceStateSaveDate = 296180642;
+			PBXPerProjectTemplateStateSaveDate = 296266827;
+			PBXWorkspaceStateSaveDate = 296266827;
 		};
 		perUserProjectItems = {
-			A9D0F68711A4A6A000CA581F = A9D0F68711A4A6A000CA581F /* PBXTextBookmark */;
-			A9D0F68B11A4A6B500CA581F = A9D0F68B11A4A6B500CA581F /* PBXTextBookmark */;
-			A9D0FC1211A75BA500CA581F /* PBXTextBookmark */ = A9D0FC1211A75BA500CA581F /* PBXTextBookmark */;
+			A9D726A311A8574A0012C008 /* PBXTextBookmark */ = A9D726A311A8574A0012C008 /* PBXTextBookmark */;
+			A9EDB45B11A8ACEB0003AC93 /* PBXTextBookmark */ = A9EDB45B11A8ACEB0003AC93 /* PBXTextBookmark */;
 		};
 		sourceControlManager = A937792711889E3F0005F42F /* Source Control */;
 		userBuildSettings = {
@@ -84,9 +121,10 @@
 	};
 	08FB7796FE84155DC02AAC07 /* main.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {956, 6916}}";
-			sepNavSelRange = "{6058, 0}";
-			sepNavVisRange = "{5471, 954}";
+			sepNavIntBoundsRect = "{{0, 0}, {691, 7202}}";
+			sepNavSelRange = "{354, 110}";
+			sepNavVisRange = "{0, 1065}";
+			sepNavWindowFrame = "{{71, 0}, {750, 778}}";
 		};
 	};
 	8DD76F620486A84900D96B5E /* cad_view */ = {
@@ -139,41 +177,31 @@
 		isa = PBXCodeSenseManager;
 		indexTemplatePath = "";
 	};
-	A9D0F68711A4A6A000CA581F /* PBXTextBookmark */ = {
+	A9D726A311A8574A0012C008 /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = C6859E8B029090EE04C91782 /* cad_view.1 */;
 		name = "cad_view.1: 1";
 		rLen = 0;
 		rLoc = 0;
 		rType = 0;
-		vrLen = 339;
+		vrLen = 677;
 		vrLoc = 0;
 	};
-	A9D0F68B11A4A6B500CA581F /* PBXTextBookmark */ = {
+	A9EDB45B11A8ACEB0003AC93 /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = C6859E8B029090EE04C91782 /* cad_view.1 */;
 		name = "cad_view.1: 1";
 		rLen = 0;
 		rLoc = 0;
 		rType = 0;
-		vrLen = 339;
-		vrLoc = 0;
-	};
-	A9D0FC1211A75BA500CA581F /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = C6859E8B029090EE04C91782 /* cad_view.1 */;
-		name = "cad_view.1: 1";
-		rLen = 0;
-		rLoc = 0;
-		rType = 0;
-		vrLen = 513;
+		vrLen = 677;
 		vrLoc = 0;
 	};
 	C6859E8B029090EE04C91782 /* cad_view.1 */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {749, 975}}";
+			sepNavIntBoundsRect = "{{0, 0}, {635, 962}}";
 			sepNavSelRange = "{0, 0}";
-			sepNavVisRange = "{0, 513}";
+			sepNavVisRange = "{0, 677}";
 			sepNavWindowFrame = "{{70, 215}, {750, 558}}";
 		};
 	};

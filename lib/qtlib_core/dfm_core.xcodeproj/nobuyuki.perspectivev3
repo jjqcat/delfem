@@ -611,9 +611,7 @@
 	<key>WindowJustification</key>
 	<integer>5</integer>
 	<key>WindowOrderList</key>
-	<array>
-		<string>/Users/nobuyuki/develop/delfem/lib/qtlib_core/dfm_core.xcodeproj</string>
-	</array>
+	<array/>
 	<key>WindowString</key>
 	<string>262 232 810 487 0 0 1280 778 </string>
 	<key>WindowToolsV3</key>

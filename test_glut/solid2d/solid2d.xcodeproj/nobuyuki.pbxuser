@@ -17,7 +17,7 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					341,
+					364,
 					20,
 					48,
 					43,
@@ -39,7 +39,7 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					301,
+					324,
 					60,
 					20,
 					48,
@@ -56,12 +56,8 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 294590278;
-			PBXWorkspaceStateSaveDate = 294590278;
-		};
-		perUserProjectItems = {
-			A9A02731118DAA5B00F2D39A /* PBXTextBookmark */ = A9A02731118DAA5B00F2D39A /* PBXTextBookmark */;
-			A9A02B24118F175C00F2D39A /* PBXTextBookmark */ = A9A02B24118F175C00F2D39A /* PBXTextBookmark */;
+			PBXPerProjectTemplateStateSaveDate = 296267697;
+			PBXWorkspaceStateSaveDate = 296267697;
 		};
 		sourceControlManager = A99986F31188D11000DBA052 /* Source Control */;
 		userBuildSettings = {
@@ -124,25 +120,5 @@
 	A99986F41188D11000DBA052 /* Code sense */ = {
 		isa = PBXCodeSenseManager;
 		indexTemplatePath = "";
-	};
-	A9A02731118DAA5B00F2D39A /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 08FB7796FE84155DC02AAC07 /* main.cpp */;
-		name = "main.cpp: 1";
-		rLen = 0;
-		rLoc = 0;
-		rType = 0;
-		vrLen = 639;
-		vrLoc = 0;
-	};
-	A9A02B24118F175C00F2D39A /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 08FB7796FE84155DC02AAC07 /* main.cpp */;
-		name = "main.cpp: 1";
-		rLen = 0;
-		rLoc = 0;
-		rType = 0;
-		vrLen = 639;
-		vrLoc = 0;
 	};
 }

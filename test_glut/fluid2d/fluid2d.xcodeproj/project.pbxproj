@@ -9,24 +9,24 @@
 /* Begin PBXBuildFile section */
 		8DD76F650486A84900D96B5E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* main.cpp */; settings = {ATTRIBUTES = (); }; };
 		8DD76F6A0486A84900D96B5E /* fluid2d.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = C6859E8B029090EE04C91782 /* fluid2d.1 */; };
-		A99986AF1188CF9B00DBA052 /* libdfm_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A99986AE1188CF8D00DBA052 /* libdfm_core.a */; };
 		A99986B11188CFEB00DBA052 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A99986B01188CFEB00DBA052 /* GLUT.framework */; };
 		A99986B31188CFF500DBA052 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A99986B21188CFF500DBA052 /* OpenGL.framework */; };
+		A9EDB4A711A8AD800003AC93 /* libdfm_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A9EDB4A611A8AD740003AC93 /* libdfm_core.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		A99986AD1188CF8D00DBA052 /* PBXContainerItemProxy */ = {
+		A9EDB4A511A8AD740003AC93 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A99986A91188CF8D00DBA052 /* dfm_core.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = D2AAC046055464E500DB518D;
+			remoteGlobalIDString = D2AAC046055464E500DB518D /* libdfm_core.a */;
 			remoteInfo = dfm_core;
 		};
-		A99986CA1188D04A00DBA052 /* PBXContainerItemProxy */ = {
+		A9EDB4A811A8AD8B0003AC93 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A99986A91188CF8D00DBA052 /* dfm_core.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D;
+			remoteGlobalIDString = D2AAC045055464E500DB518D /* dfm_core */;
 			remoteInfo = dfm_core;
 		};
 /* End PBXContainerItemProxy section */
@@ -47,7 +47,7 @@
 /* Begin PBXFileReference section */
 		08FB7796FE84155DC02AAC07 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		8DD76F6C0486A84900D96B5E /* fluid2d */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = fluid2d; sourceTree = BUILT_PRODUCTS_DIR; };
-		A99986A91188CF8D00DBA052 /* dfm_core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = dfm_core.xcodeproj; path = ../../lib/xcodelib_core/dfm_core/dfm_core.xcodeproj; sourceTree = SOURCE_ROOT; };
+		A99986A91188CF8D00DBA052 /* dfm_core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = dfm_core.xcodeproj; path = ../../lib/xcodelib_core/dfm_core.xcodeproj; sourceTree = SOURCE_ROOT; };
 		A99986B01188CFEB00DBA052 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = /System/Library/Frameworks/GLUT.framework; sourceTree = "<absolute>"; };
 		A99986B21188CFF500DBA052 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		C6859E8B029090EE04C91782 /* fluid2d.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = fluid2d.1; sourceTree = "<group>"; };
@@ -58,7 +58,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A99986AF1188CF9B00DBA052 /* libdfm_core.a in Frameworks */,
+				A9EDB4A711A8AD800003AC93 /* libdfm_core.a in Frameworks */,
 				A99986B11188CFEB00DBA052 /* GLUT.framework in Frameworks */,
 				A99986B31188CFF500DBA052 /* OpenGL.framework in Frameworks */,
 			);
@@ -96,10 +96,10 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		A99986AA1188CF8D00DBA052 /* Products */ = {
+		A9EDB4A211A8AD740003AC93 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A99986AE1188CF8D00DBA052 /* libdfm_core.a */,
+				A9EDB4A611A8AD740003AC93 /* libdfm_core.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -126,7 +126,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				A99986CB1188D04A00DBA052 /* PBXTargetDependency */,
+				A9EDB4A911A8AD8B0003AC93 /* PBXTargetDependency */,
 			);
 			name = fluid2d;
 			productInstallPath = "$(HOME)/bin";
@@ -146,7 +146,7 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = A99986AA1188CF8D00DBA052 /* Products */;
+					ProductGroup = A9EDB4A211A8AD740003AC93 /* Products */;
 					ProjectRef = A99986A91188CF8D00DBA052 /* dfm_core.xcodeproj */;
 				},
 			);
@@ -158,11 +158,11 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		A99986AE1188CF8D00DBA052 /* libdfm_core.a */ = {
+		A9EDB4A611A8AD740003AC93 /* libdfm_core.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libdfm_core.a;
-			remoteRef = A99986AD1188CF8D00DBA052 /* PBXContainerItemProxy */;
+			remoteRef = A9EDB4A511A8AD740003AC93 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -179,10 +179,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		A99986CB1188D04A00DBA052 /* PBXTargetDependency */ = {
+		A9EDB4A911A8AD8B0003AC93 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = dfm_core;
-			targetProxy = A99986CA1188D04A00DBA052 /* PBXContainerItemProxy */;
+			targetProxy = A9EDB4A811A8AD8B0003AC93 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -235,6 +235,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
 				SDKROOT = macosx10.6;
 				USER_HEADER_SEARCH_PATHS = ../../include/;
