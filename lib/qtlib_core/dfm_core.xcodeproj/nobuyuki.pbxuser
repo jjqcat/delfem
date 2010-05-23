@@ -1,11 +1,14 @@
 // !$*UTF8*$!
 {
-	4D5B9EB26B6251C7D509FCF8 /* libdfm_core */ = {
+	6492AF93835B6BDC99503684 /* libdfm_core */ = {
 		activeExec = 0;
 	};
 	91B15E841AA80083484172DE /* Project object */ = {
-		activeBuildConfigurationName = Debug;
-		activeTarget = 4D5B9EB26B6251C7D509FCF8 /* libdfm_core */;
+		activeBuildConfigurationName = Release;
+		activeTarget = 6492AF93835B6BDC99503684 /* libdfm_core */;
+		addToTargets = (
+			6492AF93835B6BDC99503684 /* libdfm_core */,
+		);
 		codeSenseManager = A9D7255311A75FB20012C008 /* Code sense */;
 		perUserDictionary = {
 			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
@@ -15,7 +18,7 @@
 					20,
 					364,
 					20,
-					48.16259765625,
+					48,
 					43,
 					43,
 					20,
@@ -30,8 +33,8 @@
 					PBXFileDataSource_Target_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 296181673;
-			PBXWorkspaceStateSaveDate = 296181673;
+			PBXPerProjectTemplateStateSaveDate = 296310882;
+			PBXWorkspaceStateSaveDate = 296310882;
 		};
 		sourceControlManager = A9D7255211A75FB20012C008 /* Source Control */;
 		userBuildSettings = {
@@ -50,5 +53,19 @@
 	A9D7255311A75FB20012C008 /* Code sense */ = {
 		isa = PBXCodeSenseManager;
 		indexTemplatePath = "";
+	};
+	A9EDB7CB11A8F8330003AC93 /* brep.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {749, 24739}}";
+			sepNavSelRange = "{1003, 0}";
+			sepNavVisRange = "{869, 190}";
+		};
+	};
+	A9EDB7E311A8F8330003AC93 /* eqnsys_fluid.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {749, 9295}}";
+			sepNavSelRange = "{16409, 0}";
+			sepNavVisRange = "{16229, 313}";
+		};
 	};
 }
