@@ -2,7 +2,7 @@
 # Project created by QtCreator 2010-05-21T13:41:55
 # -------------------------------------------------
 QT += opengl
-TARGET = solid2d_demos
+TARGET = scalar2d
 TEMPLATE = app
 QMAKE_INCDIR += ../../include
 QMAKE_LIBDIR += ../../lib

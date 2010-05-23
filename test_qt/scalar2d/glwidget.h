@@ -7,7 +7,7 @@
 #include "delfem/field.h"
 #include "delfem/field_world.h"
 #include "delfem/drawer_field.h"
-#include "delfem/eqnsys_solid.h"
+#include "delfem/eqnsys_scalar.h"
 
 class GLWidget : public QGLWidget
 {
@@ -36,10 +36,8 @@ private:
     Fem::Field::View::CDrawerArrayField drawer_ary;
     double cur_time;
     double dt;
-    Fem::Eqn::CEqnSystem_Solid2D solid;
-    unsigned int id_field_disp;
-    unsigned int id_field_equiv_stress;
-    unsigned int id_field_stress;
+    Fem::Eqn::CEqnSystem_Scalar2D eqn_scalar;
+    unsigned int id_base;
 };
 
 #endif
