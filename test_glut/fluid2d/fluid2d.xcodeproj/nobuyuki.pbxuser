@@ -56,12 +56,8 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 296267106;
-			PBXWorkspaceStateSaveDate = 296267106;
-		};
-		perUserProjectItems = {
-			A9EDB4AE11A8ADF70003AC93 /* XCBuildMessageTextBookmark */ = A9EDB4AE11A8ADF70003AC93 /* XCBuildMessageTextBookmark */;
-			A9EDB4C111A8ADFC0003AC93 /* PBXTextBookmark */ = A9EDB4C111A8ADFC0003AC93 /* PBXTextBookmark */;
+			PBXPerProjectTemplateStateSaveDate = 296353934;
+			PBXWorkspaceStateSaveDate = 296353934;
 		};
 		sourceControlManager = A99986A01188CF2B00DBA052 /* Source Control */;
 		userBuildSettings = {
@@ -116,41 +112,5 @@
 	A99986A11188CF2B00DBA052 /* Code sense */ = {
 		isa = PBXCodeSenseManager;
 		indexTemplatePath = "";
-	};
-	A9EDB4AE11A8ADF70003AC93 /* XCBuildMessageTextBookmark */ = {
-		isa = PBXTextBookmark;
-		comments = "Unused variable 'res'";
-		fRef = A9EDB4AF11A8ADF70003AC93 /* eqnsys_fluid.cpp */;
-		fallbackIsa = XCBuildMessageTextBookmark;
-		rLen = 1;
-		rLoc = 457;
-		rType = 1;
-	};
-	A9EDB4AF11A8ADF70003AC93 /* eqnsys_fluid.cpp */ = {
-		isa = PBXFileReference;
-		name = eqnsys_fluid.cpp;
-		path = /Users/nobuyuki/develop/delfem/lib/xcodelib_core/../../src/femeqn/eqnsys_fluid.cpp;
-		sourceTree = "<absolute>";
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {733, 9256}}";
-			sepNavSelRange = "{16409, 0}";
-			sepNavVisRange = "{16272, 221}";
-		};
-	};
-	A9EDB4C111A8ADFC0003AC93 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = A9EDB4C211A8ADFC0003AC93 /* eqnsys_fluid.cpp */;
-		name = "eqnsys_fluid.cpp: 458";
-		rLen = 0;
-		rLoc = 16409;
-		rType = 0;
-		vrLen = 270;
-		vrLoc = 16272;
-	};
-	A9EDB4C211A8ADFC0003AC93 /* eqnsys_fluid.cpp */ = {
-		isa = PBXFileReference;
-		name = eqnsys_fluid.cpp;
-		path = /Users/nobuyuki/develop/delfem/lib/xcodelib_core/../../src/femeqn/eqnsys_fluid.cpp;
-		sourceTree = "<absolute>";
 	};
 }
