@@ -792,6 +792,155 @@ unsigned int CFieldWorld::MakeField_FieldElemDim(
 	return id_field;
 }
 
+
+unsigned int CFieldWorld::MakeEdgeField_Tri(unsigned int id_field_base)
+{
+	assert( this->IsIdField(id_field_base) );
+	const CField& field_base = this->GetField(id_field_base);
+
+	unsigned int id_na = field_base.GetNodeSegInNodeAry(CORNER).id_na_va;
+
+	unsigned int id_ea0 = field_base.GetAry_IdElemAry()[0];
+	unsigned int id_es_co = field_base.GetIdElemSeg(id_ea0,CORNER,false,*this);
+	const CElemAry& ea = this->GetEA(id_ea0);
+	unsigned int nedge;
+	std::vector<int> edge_ary_int;
+	{
+		std::vector<unsigned int> edge_ary;
+		ea.MakeEdge(id_es_co,nedge,edge_ary);
+		edge_ary_int.resize( edge_ary.size() );
+		for(unsigned int i=0;i<edge_ary.size();i++){ edge_ary_int[i] = edge_ary[i]; }
+//		std::cout << nedge << " " << edge_ary.size() << std::endl;
+	}
+
+
+	unsigned int id_ea_add = this->m_apEA.AddObj( std::make_pair(0,new CElemAry(nedge,LINE)) );
+	unsigned int id_es_add = 0;
+	{
+		
+		std::vector<CElemAry::CElemSeg> es_ary_add;
+		es_ary_add.push_back( CElemAry::CElemSeg(0,id_na,CORNER) );
+		CElemAry& ea_add = this->GetEA(id_ea_add);
+		std::vector<int> res = ea_add.AddSegment( es_ary_add, edge_ary_int );
+		id_es_add = res[0];
+	}
+
+	std::vector<Fem::Field::CField::CElemInterpolation> aElemIntp;
+	{
+		Fem::Field::CField::CElemInterpolation ei(id_ea_add, id_es_add,id_es_add, 0,0, 0,0);
+		aElemIntp.push_back(ei);
+	}
+
+	const Fem::Field::CField::CNodeSegInNodeAry na_c = field_base.GetNodeSegInNodeAry(CORNER);
+	const Fem::Field::CField::CNodeSegInNodeAry na_b;
+
+	CField* pField = new CField( id_field_base, // 親フィールド
+		aElemIntp,	// 要素Index
+		na_c, na_b,	// 節点Index
+		*this );	// world
+
+	const unsigned int id_field = this->m_apField.AddObj( std::make_pair(0,pField) );
+	return id_field;
+}
+
+
+unsigned int CFieldWorld::MakeHingeField_Tri(unsigned int id_field_base)
+{
+	assert( this->IsIdField(id_field_base) );
+	const CField& field_base = this->GetField(id_field_base);
+
+	unsigned int id_na = field_base.GetNodeSegInNodeAry(CORNER).id_na_va;
+
+	unsigned int id_ea0 = field_base.GetAry_IdElemAry()[0];
+	unsigned int id_es_co = field_base.GetIdElemSeg(id_ea0,CORNER,false,*this);
+	const CElemAry& ea = this->GetEA(id_ea0);	
+	int* elsuel = new int [ea.Size()*3];
+	ea.MakeElemSurElem(id_es_co,elsuel);
+
+	unsigned int nedge = 0;
+	{
+		const CElemAry::CElemSeg& es = ea.GetSeg(id_es_co);
+		for(unsigned int ielem=0;ielem<ea.Size();ielem++){
+			unsigned int no[3];
+			es.GetNodes(ielem,no);
+			if( elsuel[ielem*3+0] >= 0 && no[1] < no[2] ){ nedge++; }
+			if( elsuel[ielem*3+1] >= 0 && no[2] < no[0] ){ nedge++; }
+			if( elsuel[ielem*3+2] >= 0 && no[0] < no[1] ){ nedge++; }
+		}
+	}
+	std::vector<int> lnods;
+	{
+		lnods.resize(nedge*4);
+		unsigned int iedge=0;
+		const CElemAry::CElemSeg& es = ea.GetSeg(id_es_co);
+		for(unsigned int ielem=0;ielem<ea.Size();ielem++){
+			unsigned int no[3];	es.GetNodes(ielem,no);
+			if( elsuel[ielem*3+0] >= 0 && no[1] < no[2] ){
+				lnods[iedge*4+0]=no[0];	lnods[iedge*4+2]=no[1];	lnods[iedge*4+3]=no[2];
+				const unsigned int ielem0 = elsuel[ielem*3+0];
+				unsigned int no0[3];	es.GetNodes(ielem0,no0);
+				if(      no0[1]==no[2] && no0[2]==no[1] ){ lnods[iedge*4+1] = no0[0]; }
+				else if( no0[2]==no[2] && no0[0]==no[1] ){ lnods[iedge*4+1] = no0[1]; }
+				else if( no0[0]==no[2] && no0[1]==no[1] ){ lnods[iedge*4+1] = no0[2]; }
+				else{ assert(0); }
+				iedge++; 
+			}
+			if( elsuel[ielem*3+1] >= 0 && no[2] < no[0] ){
+				lnods[iedge*4+0]=no[1];	lnods[iedge*4+2]=no[2];	lnods[iedge*4+3]=no[0];
+				const unsigned int ielem0 = elsuel[ielem*3+1];
+				unsigned int no0[3];	es.GetNodes(ielem0,no0);
+				if(      no0[1]==no[0] && no0[2]==no[2] ){ lnods[iedge*4+1] = no0[0]; }
+				else if( no0[2]==no[0] && no0[0]==no[2] ){ lnods[iedge*4+1] = no0[1]; }
+				else if( no0[0]==no[0] && no0[1]==no[2] ){ lnods[iedge*4+1] = no0[2]; }
+				else{ assert(0); }
+				iedge++; 
+			}
+			if( elsuel[ielem*3+2] >= 0 && no[0] < no[1] ){
+				lnods[iedge*4+0]=no[2];	lnods[iedge*4+2]=no[0];	lnods[iedge*4+3]=no[1];
+				const unsigned int ielem0 = elsuel[ielem*3+2];
+				unsigned int no0[3];	es.GetNodes(ielem0,no0);
+				if(      no0[1]==no[1] && no0[2]==no[0] ){ lnods[iedge*4+1] = no0[0]; }
+				else if( no0[2]==no[1] && no0[0]==no[0] ){ lnods[iedge*4+1] = no0[1]; }
+				else if( no0[0]==no[1] && no0[1]==no[0] ){ lnods[iedge*4+1] = no0[2]; }
+				else{ assert(0); }
+				iedge++; 
+			}
+		}
+		assert( iedge == nedge );
+	}
+	std::cout << "nedge : " << nedge << std::endl;
+
+	unsigned int id_ea_add = this->m_apEA.AddObj( std::make_pair(0,new CElemAry(nedge,QUAD)) );
+	unsigned int id_es_add = 0;
+	{
+		
+		std::vector<CElemAry::CElemSeg> es_ary_add;
+		es_ary_add.push_back( CElemAry::CElemSeg(0,id_na,CORNER) );
+		CElemAry& ea_add = this->GetEA(id_ea_add);
+		std::vector<int> res = ea_add.AddSegment( es_ary_add, lnods );
+		id_es_add = res[0];
+	}
+
+	delete[] elsuel;
+
+	std::vector<Fem::Field::CField::CElemInterpolation> aElemIntp;
+	{
+		Fem::Field::CField::CElemInterpolation ei(id_ea_add, id_es_add,id_es_add, 0,0, 0,0);
+		aElemIntp.push_back(ei);
+	}
+
+	const Fem::Field::CField::CNodeSegInNodeAry na_c = field_base.GetNodeSegInNodeAry(CORNER);
+	const Fem::Field::CField::CNodeSegInNodeAry na_b;
+
+	CField* pField = new CField( id_field_base, // 親フィールド
+		aElemIntp,	// 要素Index
+		na_c, na_b,	// 節点Index
+		*this );	// world
+
+	const unsigned int id_field = this->m_apField.AddObj( std::make_pair(0,pField) );
+	return id_field;
+}
+
 unsigned int CFieldWorld::GetPartialField(unsigned int id_field_val, unsigned int id_ea)
 {
     // いずれはid_eaが配列なバージョンを用いる．

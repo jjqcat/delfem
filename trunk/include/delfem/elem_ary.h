@@ -238,6 +238,9 @@ public:
 	//! 要素セグメントの追加
 	virtual std::vector<int> AddSegment(std::vector<CElemSeg>& es_ary, 
 		const std::vector<int>& lnods );
+
+	// 要素を囲む要素を作る．内部でelsuelのメモリ領域確保はしないので，最初から確保しておく
+	bool MakeElemSurElem( const unsigned int& id_es_corner, int* elsuel) const;
 private:
 
 	bool MakePointSurElem( 
@@ -249,7 +252,6 @@ private:
         Com::CIndexedArray& psup ) const;
 
     bool MakeElemSurElem( const unsigned int& id_es_corner, Com::CIndexedArray& elsup, int* elsuel) const;
-	bool MakeElemSurElem( const unsigned int& id_es_corner, int* elsuel) const;
 private:
 
 

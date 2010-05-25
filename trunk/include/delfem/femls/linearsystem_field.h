@@ -146,6 +146,7 @@ protected:
 		unsigned int id_field;	// parent_field‚Å‚È‚¯‚ê‚Î‚È‚ç‚È‚¢
 		unsigned int id_field2;	// combined field‚Ì‚Í‚OˆÈŠO‚Ì’l‚ğ‚Â
 		Field::ELSEG_TYPE node_config;
+		////////////////
 		unsigned int nnode;
 		unsigned int len;
 	};
