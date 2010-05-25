@@ -46,7 +46,6 @@ using namespace MatVec;
 using namespace Fem::Ls;
 using namespace Fem::Field;
 
-
 // 対角にパターンを追加
 bool CLinearSystem_Field::AddPattern_Field(const unsigned int id_field, const CFieldWorld& world)
 {
@@ -866,27 +865,32 @@ bool CLinearSystem_Field::UpdateValueOfField_Newmark(
 
 bool CLinearSystem_Field::UpdateValueOfField_NewmarkBeta(
 		double gamma, double beta, double dt, 
-		unsigned int id_field_val, Fem::Field::CFieldWorld& world, bool IsInitial )
+		unsigned int id_field, Fem::Field::CFieldWorld& world, bool IsInitial )
 {
 
-	if( !world.IsIdField(id_field_val) ) return false;
-	const CField& field_val = world.GetField(id_field_val);
+	if( !world.IsIdField(id_field) ) return false;
+	const CField& field = world.GetField(id_field);
+	unsigned int id_field_parent;
+	{
+		if( field.GetIDFieldParent() == 0 ){ id_field_parent = id_field; }
+		else{ id_field_parent = field.GetIDFieldParent(); }
+	}
 
-	if( field_val.GetNodeSegInNodeAry(CORNER).id_na_va != 0 ){	// 角節点を更新
+	if( field.GetNodeSegInNodeAry(CORNER).id_na_va != 0 ){	// 角節点を更新
 		unsigned int id_na_val=0, id_ns_a,id_ns_v,id_ns_u;
 		{
-			const CField::CNodeSegInNodeAry& nsna = field_val.GetNodeSegInNodeAry(CORNER);
+			const CField::CNodeSegInNodeAry& nsna = field.GetNodeSegInNodeAry(CORNER);
 			id_na_val = nsna.id_na_va;
 			id_ns_u = nsna.id_ns_va;
 			id_ns_v = nsna.id_ns_ve;
 			id_ns_a = nsna.id_ns_ac;
 		}
-		const int ilss = this->FindIndexArray_Seg(id_field_val,CORNER,world);
+		const int ilss = this->FindIndexArray_Seg(id_field,CORNER,world);
 		assert( ilss != -1 );
 		const CLinSysSeg_Field& lss = this->m_aSegField[ilss];
 		const CVector_Blk* m_Update = m_ls.m_Update[ilss]; assert( m_Update != 0 );
 		CNodeAry& na_val = world.GetNA(id_na_val);
-		if( lss.id_field == id_field_val ){
+		if( lss.id_field == id_field_parent ){
 			// 値を更新する
 			if( IsInitial ){
 				na_val.AddValueToNodeSegment(id_ns_u ,id_ns_v, dt);
@@ -902,7 +906,7 @@ bool CLinearSystem_Field::UpdateValueOfField_NewmarkBeta(
 			na_val.AddValueToNodeSegment(id_ns_a, *m_Update, 1.0);
 		}
 		else{   // CombinedFieldの場合
-			assert( lss.id_field2 == id_field_val );
+			assert( lss.id_field2 == id_field_parent );
 			unsigned int len0 = 0;
 			{
 				const CField& field = world.GetField(lss.id_field);
@@ -926,14 +930,14 @@ bool CLinearSystem_Field::UpdateValueOfField_NewmarkBeta(
 	{	// バブル節点を更新
 		unsigned int id_na_val=0, id_ns_a,id_ns_v,id_ns_u;
 		{
-			const CField::CNodeSegInNodeAry& nsna = field_val.GetNodeSegInNodeAry(BUBBLE);
+			const CField::CNodeSegInNodeAry& nsna = field.GetNodeSegInNodeAry(BUBBLE);
 			id_na_val = nsna.id_na_va;
 			id_ns_u = nsna.id_ns_va;
 			id_ns_v = nsna.id_ns_ve;
 			id_ns_a = nsna.id_ns_ac;
 		}
 		if( id_na_val != 0 ){
-            const unsigned int ilss0 = this->FindIndexArray_Seg(id_field_val,BUBBLE,world);
+            const unsigned int ilss0 = this->FindIndexArray_Seg(id_field,BUBBLE,world);
 			const CVector_Blk& upd = m_ls.GetVector(-2,ilss0);
 			CNodeAry& na_val = world.GetNA(id_na_val);
 			// 値を更新する
