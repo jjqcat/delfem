@@ -793,6 +793,105 @@ unsigned int CFieldWorld::MakeField_FieldElemDim(
 }
 
 
+unsigned int CFieldWorld::MakeField_Glue(unsigned int id_field_base, 
+										 unsigned int id_ea1, unsigned int id_ea2, 
+										 const int derivative_type )
+{
+	assert( this->IsIdField(id_field_base) );
+	const CField& field_base = this->GetField(id_field_base);
+
+	std::vector<Fem::Field::CField::CElemInterpolation> aElemIntp;
+
+	unsigned int nno_v = this->GetEA(id_ea1).Size();
+	unsigned int id_na_d = field_base.GetNodeSegInNodeAry(CORNER).id_na_va;
+	unsigned int id_na_v = this->AddNodeAry(nno_v);
+	unsigned int id_na_co = field_base.GetNodeSegInNodeAry(CORNER).id_na_co;
+	unsigned int id_ns_co = field_base.GetNodeSegInNodeAry(CORNER).id_ns_co;
+	Fem::Field::CField::CNodeSegInNodeAry na_c, na_b;
+	{
+		na_c.id_na_va = id_na_v;
+		na_c.id_na_co = 0;
+		na_c.id_ns_co = 0;
+		na_c.is_part_va = false;
+		na_c.is_part_co = true;	
+	}
+	{
+		na_b.id_na_co = id_na_co;
+		na_b.id_ns_co = id_ns_co;
+	}
+
+	unsigned int id_ea_add = this->AddElemAry(nno_v,POINT);
+	unsigned int id_es_c, id_es_v;
+	{
+		CElemAry& ea = this->GetEA(id_ea_add);
+		CElemAry::CElemSeg es_c(0,id_na_d,EDGE);
+		CElemAry::CElemSeg es_v(0,id_na_v,CORNER);
+		std::vector<CElemAry::CElemSeg> aEs;
+		aEs.push_back(es_c);
+		aEs.push_back(es_v);		
+		std::vector<int> lnods;
+		lnods.resize(nno_v*3);
+		{	
+			CElemAry& ea1 = this->GetEA(id_ea1);		
+			unsigned int id_es1 = 0;
+			{
+				std::vector<unsigned int> aIdES = ea1.GetAry_SegID();
+				for(unsigned int iies=0;iies<aIdES.size();iies++){
+					id_es1 = aIdES[iies];
+					const CElemAry::CElemSeg& es = ea1.GetSeg(id_es1);
+					if( es.GetIdNA() == id_na_co ) break;
+				}
+			}
+			CElemAry& ea2 = this->GetEA(id_ea2);
+			unsigned int id_es2 = 0;
+			{
+				std::vector<unsigned int> aIdES = ea2.GetAry_SegID();
+				for(unsigned int iies=0;iies<aIdES.size();iies++){
+					id_es2 = aIdES[iies];
+					const CElemAry::CElemSeg& es = ea2.GetSeg(id_es2);
+					if( es.GetIdNA() == id_na_co ) break;
+				}
+			}
+//			std::cout << id_es1 << " " << id_es2 << std::endl;
+			const CElemAry::CElemSeg& es1 = ea1.GetSeg(id_es1);
+			const CElemAry::CElemSeg& es2 = ea2.GetSeg(id_es2);
+			assert( es1.GetSizeElem() == es2.GetSizeElem() );
+			for(unsigned int ino=0;ino<nno_v;ino++){
+				unsigned int no1[2]; es1.GetNodes(ino,        no1);
+				unsigned int no2[2]; es2.GetNodes(nno_v-ino-1,no2);
+				unsigned int no[2]  = { no1[0], no2[1] };
+//				std::cout << no[0] << " " << no[1] << std::endl;
+				lnods[ino*3+0] = no[0];
+				lnods[ino*3+1] = no[1];
+				lnods[ino*3+2] = ino;
+			}
+		}
+		std::vector<int> res = ea.AddSegment(aEs,lnods);
+		id_es_c = res[0];
+		id_es_v = res[1];
+	}
+	aElemIntp.push_back( Fem::Field::CField::CElemInterpolation(id_ea_add, id_es_v,0, 0,0, 0,id_es_c) );
+
+	unsigned int id_field;
+	{
+		CField* pField = new CField( 0, // 親フィールド
+			aElemIntp,	// 要素Index
+			na_c, na_b,	// 節点Index
+			*this );	// world
+		id_field = this->m_apField.AddObj( std::make_pair(0,pField) );
+		assert( id_field != 0 );
+		pField->SetValueType(field_base.GetFieldType(),field_base.GetFieldDerivativeType(),*this);
+	}
+	{	// Assertion
+		assert( this->IsIdField(id_field) );
+		const CField& field = this->GetField(id_field);
+		assert( field.AssertValid(*this) );
+	}
+	return id_field;
+
+}
+
+
 unsigned int CFieldWorld::MakeEdgeField_Tri(unsigned int id_field_base)
 {
 	assert( this->IsIdField(id_field_base) );
@@ -941,9 +1040,10 @@ unsigned int CFieldWorld::MakeHingeField_Tri(unsigned int id_field_base)
 	return id_field;
 }
 
+
+
 unsigned int CFieldWorld::GetPartialField(unsigned int id_field_val, unsigned int id_ea)
 {
-    // いずれはid_eaが配列なバージョンを用いる．
 //	std::cout << "GetPartialField" << std::endl;
 	if( !this->IsIdEA(id_ea) ){ return 0; }
 

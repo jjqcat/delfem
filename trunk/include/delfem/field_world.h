@@ -213,6 +213,7 @@ public:
 //	unsigned int MakeField_AllRegion(Field::FIELD_TYPE field_type = NO_VALUE, const int derivative_type = 1, const int node_configuration_type = 1 );
 	unsigned int MakeField_FieldElemAry(unsigned int id_field, unsigned int id_ea, Field::FIELD_TYPE field_type = NO_VALUE, const int derivative_type = 1, const int node_configuration_type = 1 );
 	unsigned int MakeField_FieldElemDim(unsigned int id_field, int idim_elem,      Field::FIELD_TYPE field_type = NO_VALUE, const int derivative_type = 1, const int node_configuration_type = 1 );
+	unsigned int MakeField_Glue(unsigned int id_field, unsigned int id_ea1, unsigned int id_ea2, const int derivative_type );
 
 	////////////////
 	unsigned int MakeEdgeField_Tri(unsigned int id_field);

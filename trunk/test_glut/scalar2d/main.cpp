@@ -412,46 +412,6 @@ bool SetNewProblem()
 
 double cur_time = 0.0;
 bool is_animation = true;
-/*
-void SetProjectionTransform()
-{
-	::glMatrixMode(GL_PROJECTION);
-	::glLoadIdentity();
-	if( mvp_trans.IsPers() ){	// 透視投影変換
-		double fov_y,aspect,clip_near,clip_far;
-		mvp_trans.GetPerspective(fov_y,aspect,clip_near,clip_far);
-		::gluPerspective(fov_y,aspect,clip_near,clip_far);
-	}
-	else{	// 正規投影変換
-		const double inv_scale = 1.0/mvp_trans.GetScale();
-		const double asp = mvp_trans.GetWindowAspect();
-		const double h_h = mvp_trans.GetHalfViewHeight()*inv_scale;
-		const double h_w = mvp_trans.GetHalfViewHeight()*inv_scale*asp;
-		::glOrtho(-h_w,h_w, -h_h, h_h, -10.0, 10.0);
-	}
-}
-
-void SetModelViewTransform()
-{
-	::glMatrixMode(GL_MODELVIEW);
-	::glLoadIdentity();
-	{	// 物体を平衡移動させる
-		double x,y,z;
-		mvp_trans.GetCenterPosition(x,y,z);
-		::glTranslatef( x, y, z );
-	}
-	{	// 物体を回転させる
-		double rot[16];
-		mvp_trans.RotMatrix44Trans(rot);
-		::glMultMatrixd(rot);
-	}
-	{	// 物体の中心を原点にする
-		double x,y,z;
-		mvp_trans.GetObjectCenter(x,y,z);
-		::glTranslatef( -x, -y, -z );
-	}
-}
-*/
 
 // リサイズ時のコールバック関数
 void myGlutResize(int w, int h)

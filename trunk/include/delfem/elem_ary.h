@@ -107,8 +107,8 @@ public:
 		{	// スタティックな関数なので実体は持たなくて良い
 			if( elem_type == POINT ){
 				if( elseg_type == CORNER ){ return 1; }
-				if( elseg_type == EDGE   ){ return 0; }
-				if( elseg_type == BUBBLE ){ return 0; }
+				if( elseg_type == EDGE   ){ return 2; }
+				if( elseg_type == BUBBLE ){ return 2; }	// 点と点を結ぶLagrange未定乗数を定義するときに使うから０じゃダメ
 				assert(0);
 			}
 			else if( elem_type == LINE ){
