@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 /*! @file
-@brief Interfaces define the geometry of cad elements (２次元ＣＡＤの幾何要素のインターフェース)
+@brief Interfaces define the geometry of 2d cad elements
 @author Nobuyuki Umetani
 */
 
@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include <vector>
 #include <assert.h>
-#include <iostream> //!< デバッグ以外に基本いらない
+#include <iostream> // needed only in debug
 
 #include "delfem/vector2d.h"
 
@@ -44,7 +44,7 @@ namespace Cad{
 */
 //!@{
 
-//! ２次元ループ
+//! 2dim loop class
 class CLoop2D{
 public:
 	CLoop2D(const CLoop2D& rhs){
@@ -60,7 +60,7 @@ public:
 	unsigned int ilayer;
 };
 
-//! ２次元の辺
+//! 2dim edge
 class CEdge2D{
 public:
     CEdge2D(const CEdge2D& rhs) :
@@ -74,18 +74,20 @@ public:
 		const bool is_left_side, const double dist)
         :	itype(itype),
             is_left_side(is_left_side), dist(dist),
-            id_v_s(id_v_s), id_v_e(id_v_e){}
+            id_v_s(id_v_s), id_v_e(id_v_e)
+	{
+		po_s = Com::CVector2D(0,0);
+		po_e = Com::CVector2D(0,0);
+	}
 
     /*!
-    @brief 辺のバウンディングボックスを得る
-    @remarks po_s, po_eに値がセットされていないと正常に動かないので注意
+    @brief get bounding box of edge
+    @remarks make sure the value is set in po_s, po_e
     */
 	void GetBoundingBox( double& x_min, double& x_max, double& y_min, double& y_max ) const;
 	
-	//! 辺の自己交錯が無いかどうか調べる
-	bool IsCrossEdgeSelf() const;
-	//! 辺の交差判定
-	bool IsCrossEdge(const CEdge2D& e1) const;
+	bool IsCrossEdgeSelf() const;	// check self intersection
+	bool IsCrossEdge(const CEdge2D& e1) const;	// self intersection between me and e1
 	//! 一端が共有された辺同士の交差判定
 	bool IsCrossEdge_ShareOnePoint(const CEdge2D& e1, bool is_share_s0, bool is_share_s1) const;
 	//! 両端が共有された辺同士の交差判定

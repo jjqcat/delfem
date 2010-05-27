@@ -332,6 +332,45 @@ bool CLinearSystem_Field::AddPattern_Field(
 
 	const CField& field2 = world.GetField(id_field2);
 	const std::vector<unsigned int>& aIdEA1 = field1.GetAry_IdElemAry();
+
+	if( field1.GetNodeSegInNodeAry(CORNER).id_na_va != 0 &&
+		field1.GetNodeSegInNodeAry(CORNER).id_na_co == 0 &&
+		field1.GetNodeSegInNodeAry(BUBBLE).id_na_co != 0 &&
+		field1.GetNodeSegInNodeAry(BUBBLE).id_na_va == 0 )
+	{
+		// Lagrange未定乗数のための接続（これはどこかに移す可能性が大きい）
+		const unsigned int id_na_co1 = field1.GetNodeSegInNodeAry(BUBBLE).id_na_co;
+		const unsigned int id_na_va2 = field1.GetNodeSegInNodeAry(CORNER).id_na_va;
+			
+		const unsigned int id_ea1 = aIdEA1[0];
+		assert( field1.GetIdElemSeg(id_ea1,CORNER,true,world) != 0 );
+		assert( ESType2iLS[0] != -1 );
+
+		assert( world.IsIdEA(id_ea1) );
+		const CElemAry& ea1 = world.GetEA(id_ea1);
+		const unsigned int id_es_c1 = field1.GetIdElemSeg(id_ea1,CORNER,true,world);
+		assert( ea1.IsSegID(id_es_c1) );
+		const unsigned int ils0 = ESType2iLS[0];
+		// CORNER1-CORNER1
+		{
+			Com::CIndexedArray crs;
+			ea1.MakePattern_FEM(id_es_c1,crs);
+			this->AddMat_Dia(ils0, crs );			// cc行列を作る
+		}
+		const int ils2_c = this->FindIndexArray_Seg(id_field2,CORNER,world);
+		assert( ils2_c >= 0 && ils2_c < (int)this->GetNLynSysSeg() );
+		const unsigned int id_es_b1 = field1.GetIdElemSeg(id_ea1,BUBBLE,false,world);
+		Com::CIndexedArray crs;
+		ea1.MakePattern_FEM(id_es_c1,id_es_b1,crs);
+		assert( crs.CheckValid() );
+		this->AddMat_NonDia(ils0,ils2_c, crs);		// c1c2行列を足す
+		unsigned int nnode2 = m_aSegField[ils2_c].nnode;
+		Com::CIndexedArray crs_inv;
+		crs_inv.SetInverse( nnode2, crs );
+		this->AddMat_NonDia(ils2_c,ils0, crs_inv);	// c2c1行列を足す
+		return true;
+	}
+
 	const std::vector<unsigned int>& aIdEA2 = field2.GetAry_IdElemAry();
 
 	for(;;){	// ダミーのfor文を使ってbreakで抜けられるようにする
@@ -395,7 +434,7 @@ bool CLinearSystem_Field::AddPattern_Field(
 						this->AddMat_NonDia(ils2_b,ils0, crs_inv);	// b2c1行列を足す
 					}
 				}
-				else{
+				else{	// 含まれる場合
 					const CNodeAry& na1 = world.GetNA(id_na_co1);
 					const unsigned int id_es_c_co1 = field1.GetIdElemSeg(id_ea1,CORNER,false,world);
 					const unsigned int id_es_c_co2 = field2.GetIdElemSeg(id_ea2,CORNER,false,world);
@@ -466,6 +505,8 @@ bool CLinearSystem_Field::AddPattern_Field(
 			this->AddMat_NonDia(ils2,ils0, crs_inv);	// c2b1行列を作る
 		}
 	}
+
+
 
 	// いろいろと追加が必要
 	// まずは足りない部分を要求するようになったらエラーを出す関数を実装しよう。

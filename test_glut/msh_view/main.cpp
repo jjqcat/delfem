@@ -28,7 +28,7 @@
 #include "delfem/camera.h"
 #include "delfem/drawer_gl_utility.h"
 
-Com::View::CCamera mvp_trans;
+Com::View::CCamera camera;
 double mov_begin_x, mov_begin_y;
 int press_button;
 
@@ -40,10 +40,10 @@ void myGlutMotion( int x, int y ){
 	const double mov_end_x = (2.0*x-win_w)/win_w;
 	const double mov_end_y = (win_h-2.0*y)/win_h;
 	if( press_button == GLUT_MIDDLE_BUTTON ){
-		mvp_trans.MouseRotation(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
+		camera.MouseRotation(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
 	}
 	else if( press_button == GLUT_RIGHT_BUTTON ){
-		mvp_trans.MousePan(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
+		camera.MousePan(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
 	}
 	mov_begin_x = mov_end_x;
 	mov_begin_y = mov_end_y;
@@ -56,12 +56,12 @@ void myGlutIdle(){
 
 void myGlutResize(int w, int h)
 {
-	mvp_trans.SetWindowAspect((double)w/h);
+	camera.SetWindowAspect((double)w/h);
 
 	::glViewport(0, 0, w, h);
 	::glMatrixMode(GL_PROJECTION);
 	::glLoadIdentity();
-	Com::View::SetProjectionTransform(mvp_trans);
+	Com::View::SetProjectionTransform(camera);
 }
 
 Com::View::CDrawerArray drawer_ary;
@@ -72,35 +72,35 @@ void myGlutSpecial(int Key, int x, int y)
 	{
 	case GLUT_KEY_PAGE_UP:
 		if( ::glutGetModifiers() && GLUT_ACTIVE_SHIFT ){
-			if( mvp_trans.IsPers() ){
-				const double tmp_fov_y = mvp_trans.GetFovY() + 10.0;
-				mvp_trans.SetFovY( tmp_fov_y );
+			if( camera.IsPers() ){
+				const double tmp_fov_y = camera.GetFovY() + 10.0;
+				camera.SetFovY( tmp_fov_y );
 			}
 		}
 		else{
-			const double tmp_scale = mvp_trans.GetScale() * 0.9;
-			mvp_trans.SetScale( tmp_scale );
+			const double tmp_scale = camera.GetScale() * 0.9;
+			camera.SetScale( tmp_scale );
 		}
 		break;
 	case GLUT_KEY_PAGE_DOWN:
 		if( ::glutGetModifiers() && GLUT_ACTIVE_SHIFT ){
-			if( mvp_trans.IsPers() ){
-				const double tmp_fov_y = mvp_trans.GetFovY() - 10.0;
-				mvp_trans.SetFovY( tmp_fov_y );
+			if( camera.IsPers() ){
+				const double tmp_fov_y = camera.GetFovY() - 10.0;
+				camera.SetFovY( tmp_fov_y );
 			}
 		}
 		else{
-			const double tmp_scale = mvp_trans.GetScale() * 1.111;
-			mvp_trans.SetScale( tmp_scale );
+			const double tmp_scale = camera.GetScale() * 1.111;
+			camera.SetScale( tmp_scale );
 		}
 		break;
 	case GLUT_KEY_HOME :
-		drawer_ary.InitTrans(mvp_trans);
-		mvp_trans.Fit();
+		drawer_ary.InitTrans(camera);
+		camera.Fit();
 		break;
 	case GLUT_KEY_END :
-		if( mvp_trans.IsPers() ) mvp_trans.SetIsPers(false);
-		else{ mvp_trans.SetIsPers(true); }
+		if( camera.IsPers() ) camera.SetIsPers(false);
+		else{ camera.SetIsPers(true); }
 		break;
 	default:
 		break;
@@ -108,7 +108,7 @@ void myGlutSpecial(int Key, int x, int y)
 	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	Com::View::SetProjectionTransform(mvp_trans);
+	Com::View::SetProjectionTransform(camera);
 	::glutPostRedisplay();
 }
 
@@ -123,16 +123,11 @@ void myGlutDisplay(void)
    
 	::glMatrixMode(GL_MODELVIEW);
 	::glLoadIdentity();
-	Com::View::SetModelViewTransform(mvp_trans);
+	Com::View::SetModelViewTransform(camera);
 
 	drawer_ary.Draw();
 	::glutSwapBuffers();
 }
-
-
-
-
-
 
 void myGlutMouse(int button, int state, int x, int y){
 	GLint viewport[4];
@@ -145,10 +140,10 @@ void myGlutMouse(int button, int state, int x, int y){
 	if( button == GLUT_LEFT_BUTTON && state == GLUT_DOWN ){
 		const unsigned int size_buffer = 128;
 		unsigned int select_buffer[size_buffer];
-		Com::View::PickPre(size_buffer,select_buffer,   x,y,  5,5,   mvp_trans);
+		Com::View::PickPre(size_buffer,select_buffer,   x,y,  5,5,   camera);
 		drawer_ary.DrawSelection();
 		std::vector<Com::View::SSelectedObject> aSelecObj
-			= Com::View::PickPost(select_buffer,   x,y,   mvp_trans );
+			= Com::View::PickPost(select_buffer,   x,y,   camera );
 		if( aSelecObj.size() > 0 ){ drawer_ary.AddSelected( aSelecObj[0].name ); }
 		else{                       drawer_ary.ClearSelected(); }
 	}
@@ -186,7 +181,7 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh2D(mesh_2d) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
 	else if( iprob == 1 )
 	{
@@ -202,7 +197,7 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh2D(mesh_2d) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
 	else if( iprob == 2 )
 	{
@@ -218,7 +213,7 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh2D(mesh_2d) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
 	else if( iprob == 3 )
 	{
@@ -246,7 +241,7 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh3D(mesh_3d) );
-		drawer_ary.InitTrans(mvp_trans);
+		drawer_ary.InitTrans(camera);
 	}
 	else if( iprob == 4 )	// load mesh of GiD
 	{
@@ -264,7 +259,7 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh3D(mesh_3d) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
 	else if( iprob == 5 )
 	{
@@ -280,7 +275,7 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh3D(mesh_3d) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
 	else if( iprob == 6 )
 	{
@@ -296,7 +291,7 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh3D(mesh_3d) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
 	else if( iprob == 7 )
 	{
@@ -314,7 +309,7 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh3D(mesh_3d) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
 	else if( iprob == 8 )
 	{
@@ -347,7 +342,7 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh2D(mesh_2d) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
 	else if( iprob == 9 )
 	{
@@ -376,7 +371,7 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh2D(mesh_2d) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
 	else if( iprob == 10 )
 	{
@@ -399,9 +394,8 @@ bool SetNewProblem()
 		}
 		Msh::CMesher2D mesh_2d;
 		{
-		  mesh_2d.setIdLCad_CutMesh.insert(1);
-		  mesh_2d.m_imode_meshing = 1;
-		  mesh_2d.m_elen = 0.05;
+		  mesh_2d.AddIdLCad_CutMesh(1);	// cut mesh to loop whitch have id 1
+		  mesh_2d.SetMeshingMode_ElemLength(0.05);
 		  mesh_2d.Meshing(cad_2d);
 		}
 		{	// write file
@@ -414,7 +408,7 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh2D(mesh_2d) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
 	else if( iprob == 11 )	// mesh with cut
 	{
@@ -461,7 +455,7 @@ bool SetNewProblem()
 
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh2D(mesh_2d) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
 	else if( iprob == 12 )	// mesh with cut
 	{
@@ -506,7 +500,7 @@ bool SetNewProblem()
 
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh2D(mesh_2d) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
 	else if( iprob == 13 ){
 		Cad::CCadObj2D cad_2d;
@@ -532,7 +526,7 @@ bool SetNewProblem()
 		Msh::CMesher2D mesh_2d(cad_2d,0.05);
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh2D(mesh_2d) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
 
 	iprob++;
@@ -553,7 +547,7 @@ void myGlutKeyboard(unsigned char key, int x, int y)
 	  SetNewProblem();
 	  ::glMatrixMode(GL_PROJECTION);
 	  ::glLoadIdentity();
-	  Com::View::SetProjectionTransform(mvp_trans);
+	  Com::View::SetProjectionTransform(camera);
 	  break;
   default:
     break;

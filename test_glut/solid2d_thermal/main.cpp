@@ -206,8 +206,7 @@ void myGlutSpecial(int Key, int x, int y)
 	::glutPostRedisplay();
 }
 
-// アイドル時のコールバック関数
-void myGlutIdle(){
+void myGlutIdle(){	// idle call back function
 	::glutPostRedisplay();
 }
 
@@ -221,11 +220,10 @@ double dt = 0.05;
 Fem::Eqn::CEqnSystem_Solid2D solid;
 Fem::Eqn::CEqnSystem_Scalar2D scalar;
 
-
-// 描画時のコールバック関数
-void myGlutDisplay(void)
+void myGlutDisplay(void)	// display call back function
 {
-	::glClearColor(0.2f, 0.7f, 0.7f,1.0f);
+//	::glClearColor(0.2f, 0.7f, 0.7f,1.0f);
+	::glClearColor(1.0f, 1.0f, 1.0f,1.0f);
 	::glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	::glEnable(GL_DEPTH_TEST);
 
@@ -312,17 +310,14 @@ void SetNewProblem()
 
 int main(int argc,char* argv[])
 {
-	// 問題の設定
-	SetNewProblem();
-
-	// GLUTの初期化
+	// initialization of glut
 	glutInitWindowPosition(200,200);
 	glutInitWindowSize(400, 300);
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGBA|GLUT_DEPTH);
 	glutCreateWindow("FEM View");
 
-	// コールバック関数の設定
+	// setting call back function
 	glutDisplayFunc(myGlutDisplay);
 	glutReshapeFunc(myGlutResize);
 	glutMotionFunc(myGlutMotion);
@@ -330,8 +325,9 @@ int main(int argc,char* argv[])
 	glutKeyboardFunc(myGlutKeyboard);
 	glutSpecialFunc(myGlutSpecial);
 	glutIdleFunc(myGlutIdle);
-	
-	// メインループ
-	glutMainLoop();
+
+	SetNewProblem();	// setting problem
+
+	glutMainLoop();	// main loop
 	return 0;
 }

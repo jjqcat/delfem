@@ -73,7 +73,7 @@ enum INTERPOLATION_TYPE{
 class CField
 {
 public:
-	//! —v‘fSegment•ÛŠÇƒNƒ‰ƒX
+	//! store ID of element segment
 	class CElemInterpolation{
 	public:
 		CElemInterpolation(unsigned int id_ea, 

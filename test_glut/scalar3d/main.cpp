@@ -39,7 +39,7 @@ Fem::Eqn::CEqn_Scalar3D eqn_scalar;
 unsigned int id_base;
 double dt = 0.02;
 View::CDrawerArrayField drawer_ary;
-Com::View::CCamera mvp_trans;
+Com::View::CCamera camera;
 double mov_begin_x, mov_begin_y;
 
 void RenderBitmapString(float x, float y, void *font,char *string)
@@ -50,7 +50,6 @@ void RenderBitmapString(float x, float y, void *font,char *string)
 	  ::glutBitmapCharacter(font, *c);
   }
 }
-
 
 void ShowFPS()
 {
@@ -148,7 +147,7 @@ bool SetNewProblem()
 		const unsigned int id_field_val = eqn_scalar.GetIdField_Value();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_val,true,world, id_field_val,-1.0,1.0) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_val,true,world) );
-		drawer_ary.InitTrans(mvp_trans);
+		drawer_ary.InitTrans(camera);
 	}
 	else if( iprob == 1 )
 	{
@@ -183,7 +182,7 @@ bool SetNewProblem()
 		const unsigned int id_field_val = eqn_scalar.GetIdField_Value();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_val,true,world, id_field_val,-1.0,1.0) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_val,true,world) );
-		drawer_ary.InitTrans(mvp_trans);
+		drawer_ary.InitTrans(camera);
 	}
 	else if( iprob == 2 )
 	{
@@ -218,7 +217,7 @@ bool SetNewProblem()
 		const unsigned int id_field_val = eqn_scalar.GetIdField_Value();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_val,true,world, id_field_val,-1.0,1.0) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_val,true,world) );
-		drawer_ary.InitTrans(mvp_trans);
+		drawer_ary.InitTrans(camera);
 	}
 	else if( iprob == 3 )
 	{
@@ -245,7 +244,7 @@ bool SetNewProblem()
 		const unsigned int id_field_val = eqn_scalar.GetIdField_Value();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_val, true,world, id_field_val,-1.0,1.0) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_val,true,world) );
-		drawer_ary.InitTrans(mvp_trans);
+		drawer_ary.InitTrans(camera);
 	}
 
 	iprob++;
@@ -260,18 +259,16 @@ bool SetNewProblem()
 double cur_time = 0.0;
 bool is_animation = true;
 
-// リサイズ時のコールバック関数
 void myGlutResize(int w, int h)
 {
-	mvp_trans.SetWindowAspect((double)w/h);
+	camera.SetWindowAspect((double)w/h);
 	::glViewport(0, 0, w, h);
 	::glMatrixMode(GL_PROJECTION);
 	::glLoadIdentity();
-	Com::View::SetProjectionTransform(mvp_trans);
+	Com::View::SetProjectionTransform(camera);
 	::glutPostRedisplay();
 }
 
-// 描画時のコールバック関数
 void myGlutDisplay(void)
 {
 	::glClearColor(1.0, 1.0, 1.0, 1.0);
@@ -283,7 +280,7 @@ void myGlutDisplay(void)
 
 	::glMatrixMode(GL_MODELVIEW);
 	::glLoadIdentity();
-	Com::View::SetModelViewTransform(mvp_trans);
+	Com::View::SetModelViewTransform(camera);
 
 	if( is_animation ){
 		cur_time += dt;
@@ -308,7 +305,7 @@ void myGlutMotion( int x, int y ){
 	const int win_h = viewport[3];
 	const double mov_end_x = (2.0*x-win_w)/win_w;
 	const double mov_end_y = (win_h-2.0*y)/win_h;
-	mvp_trans.MouseRotation(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
+	camera.MouseRotation(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
 	mov_begin_x = mov_end_x;
 	mov_begin_y = mov_end_y;
 	::glutPostRedisplay();
@@ -339,7 +336,7 @@ void myGlutKeyboard(unsigned char Key, int x, int y)
 		SetNewProblem();
 		::glMatrixMode(GL_PROJECTION);
 		::glLoadIdentity();
-		Com::View::SetProjectionTransform(mvp_trans);
+		Com::View::SetProjectionTransform(camera);
 		break;
 	}
 	::glutPostRedisplay();
@@ -351,34 +348,34 @@ void myGlutSpecial(int Key, int x, int y)
 	{
 	case GLUT_KEY_PAGE_UP:
 		if( ::glutGetModifiers() && GLUT_ACTIVE_SHIFT ){
-			if( mvp_trans.IsPers() ){
-				const double tmp_fov_y = mvp_trans.GetFovY() + 10.0;
-				mvp_trans.SetFovY( tmp_fov_y );
+			if( camera.IsPers() ){
+				const double tmp_fov_y = camera.GetFovY() + 10.0;
+				camera.SetFovY( tmp_fov_y );
 			}
 		}
 		else{
-			const double tmp_scale = mvp_trans.GetScale() * 0.9;
-			mvp_trans.SetScale( tmp_scale );
+			const double tmp_scale = camera.GetScale() * 0.9;
+			camera.SetScale( tmp_scale );
 		}
 		break;
 	case GLUT_KEY_PAGE_DOWN:
 		if( ::glutGetModifiers() && GLUT_ACTIVE_SHIFT ){
-			if( mvp_trans.IsPers() ){
-				const double tmp_fov_y = mvp_trans.GetFovY() - 10.0;
-				mvp_trans.SetFovY( tmp_fov_y );
+			if( camera.IsPers() ){
+				const double tmp_fov_y = camera.GetFovY() - 10.0;
+				camera.SetFovY( tmp_fov_y );
 			}
 		}
 		else{
-			const double tmp_scale = mvp_trans.GetScale() * 1.111;
-			mvp_trans.SetScale( tmp_scale );
+			const double tmp_scale = camera.GetScale() * 1.111;
+			camera.SetScale( tmp_scale );
 		}
 		break;
 	case GLUT_KEY_HOME :
-		mvp_trans.Fit();
+		camera.Fit();
 		break;
 	case GLUT_KEY_END :
-		if( mvp_trans.IsPers() ) mvp_trans.SetIsPers(false);
-		else{ mvp_trans.SetIsPers(true); }
+		if( camera.IsPers() ) camera.SetIsPers(false);
+		else{ camera.SetIsPers(true); }
 		break;
 	default:
 		break;
@@ -386,7 +383,7 @@ void myGlutSpecial(int Key, int x, int y)
 	
 	::glMatrixMode(GL_MODELVIEW);
 	::glLoadIdentity();
-	Com::View::SetProjectionTransform(mvp_trans);
+	Com::View::SetProjectionTransform(camera);
 	::glutPostRedisplay();
 }
 
@@ -400,17 +397,14 @@ void myGlutIdle(){
 
 int main(int argc,char* argv[])
 {
-
-	SetNewProblem();
-
-	// glutの初期設定
+	// initialization of glut
 	glutInitWindowPosition(200,200);
 	glutInitWindowSize(400,300);
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGBA|GLUT_DEPTH);
 	glutCreateWindow("FEM View");
 
-	// コールバック関数の設定
+	// setting of call back function
 	glutDisplayFunc(myGlutDisplay);
 	glutReshapeFunc(myGlutResize);
 	glutMotionFunc(myGlutMotion);
@@ -419,7 +413,8 @@ int main(int argc,char* argv[])
 	glutSpecialFunc(myGlutSpecial);
 	glutIdleFunc(myGlutIdle);
 
-	// メインループ
+	SetNewProblem();
+
 	glutMainLoop();
 	return 0;
 }

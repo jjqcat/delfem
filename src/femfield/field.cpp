@@ -91,10 +91,17 @@ CField::CField(
 	m_na_c = nsna_c;
 	m_na_b = nsna_b;
 
-	{
+	m_ndim_coord = 0;
+	if( m_na_c.id_na_co ){
 		const CNodeAry& na = world.GetNA( m_na_c.id_na_co );
         assert( na.IsSegID( m_na_c.id_ns_co ) );
 		const CNodeAry::CNodeSeg& ns_co = na.GetSeg( m_na_c.id_ns_co );
+		m_ndim_coord = ns_co.GetLength();
+	}
+	else if( m_na_b.id_na_co ){
+		const CNodeAry& na = world.GetNA( m_na_b.id_na_co );
+        assert( na.IsSegID( m_na_b.id_ns_co ) );
+		const CNodeAry::CNodeSeg& ns_co = na.GetSeg( m_na_b.id_ns_co );
 		m_ndim_coord = ns_co.GetLength();
 	}
 
@@ -114,9 +121,11 @@ CField::CField(
 		this->m_field_derivative_type = field_parent.GetFieldDerivativeType();
 	}
 
-
 	// map_val2co
-	if( m_na_c.id_na_va != 0 && m_na_c.id_na_va != m_na_c.id_na_co ){
+	if(    m_na_c.id_na_va != 0 
+		&& m_na_c.id_na_va != m_na_c.id_na_co
+		&& m_na_c.id_na_co != 0 )
+	{
 		const CNodeAry& na_va = world.GetNA(m_na_c.id_na_va);
 		const unsigned int nnode_va = na_va.Size();
 		m_map_val2co.resize(nnode_va);
@@ -180,11 +189,13 @@ bool CField::AssertValid(CFieldWorld& world) const
 		}
 	}
 	{	// m_dim_coord‚ğ’²‚×‚é
-		assert( world.IsIdNA(m_na_c.id_na_co) );
-		const CNodeAry& na_c_coord = world.GetNA(m_na_c.id_na_co);
-		assert( na_c_coord.IsSegID(m_na_c.id_ns_co) );
-		const CNodeAry::CNodeSeg& ns_c_coord = na_c_coord.GetSeg(m_na_c.id_ns_co);
-		assert( this->m_ndim_coord == ns_c_coord.GetLength() );
+		if( world.IsIdNA(m_na_c.id_na_co) ){
+			assert( world.IsIdNA(m_na_c.id_na_co) );
+			const CNodeAry& na_c_coord = world.GetNA(m_na_c.id_na_co);
+			assert( na_c_coord.IsSegID(m_na_c.id_ns_co) );
+			const CNodeAry::CNodeSeg& ns_c_coord = na_c_coord.GetSeg(m_na_c.id_ns_co);
+			assert( this->m_ndim_coord == ns_c_coord.GetLength() );
+		}
 		// TODO : bubble‚âedge‚É‚Â‚¢‚Ä‚à’²‚×‚½‚¢
 	}
 	{	// corner‚Ìvalue‚ª•”•ªê‚©‚Ç‚¤‚©¦‚·ƒtƒ‰ƒO‚ª‡‚Á‚Ä‚é‚©‚Ç‚¤‚©’²‚×‚é

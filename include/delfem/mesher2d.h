@@ -49,15 +49,15 @@ namespace Msh{
 */
 // @{
 
-//! 頂点構造体
+//! structure of vertex
 struct SVertex{
 public:
 	SVertex() : id(0), id_v_cad(0), ilayer(0){}
 public:
 	unsigned int id;	//!< ID
-	unsigned int id_v_cad;	//!< CADの頂点ID（CADに関連されてなければ０）
+	unsigned int id_v_cad;	//!< vertex id in CAD（0 if not related to CAD）
 	int ilayer;
-	unsigned int v;	//!< 点のID
+	unsigned int v;	//!< index of node
 };
 
 //! 線要素配列
@@ -135,6 +135,15 @@ public:
 
 	////////////////////////////////
 	
+	virtual void AddIdLCad_CutMesh(unsigned int id_l_cad) {
+		this->setIdLCad_CutMesh.insert(id_l_cad);
+	}
+
+	virtual void SetMeshingMode_ElemLength(double len){
+		this->m_imode_meshing = 1;
+		this->m_elen = len;
+	}
+	
 	virtual bool Meshing(const Cad::ICad2D& cad_2d){
 		std::vector<unsigned int> aIdL_Cut;
 		{
@@ -185,7 +194,7 @@ public:
 		return id_ary;
 	}
 	virtual std::vector<unsigned int> GetIncludeElemIDAry(unsigned int id_msh) const{
-		{	// エラーの場合は空の配列を返す
+		{	// return empty array in case of error
 			std::vector<unsigned int> id_ary;
 			if( id_msh >= m_ElemLoc.size() ) return id_ary;
 			if( m_ElemLoc[id_msh] == -1 ) return id_ary;
@@ -193,8 +202,10 @@ public:
 		}
 		return m_include_relation[id_msh];
 	}
+
 	/*! メッシュの接続関係を取得する
-	コピーを無くしたデータの受け渡しを実装する予定
+	vectorコンテナでデータを受け渡しするのは，安全だけど低速
+	ポインターを渡してデータの受け渡しを実装する予定
 	*/
     virtual MSH_TYPE GetConnectivity(unsigned int id_msh,std::vector<int>& lnods) const;
 
@@ -310,7 +321,7 @@ protected:
 	// このループの面積と，現在切られているメッシュから最適な辺の長さを決定する
 	double GetAverageEdgeLength(const Cad::ICad2D& cad_2d, 
         const std::set<unsigned int>& aIdL);
-public:
+private:
 	std::set<unsigned int> setIdLCad_CutMesh;
 	unsigned int m_imode_meshing;	// 0: tesselation 1:mesh_size 2:mesh_length
 	double m_elen;
