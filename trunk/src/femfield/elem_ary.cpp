@@ -888,9 +888,21 @@ bool CElemAry::MakePointSurPoint(
 	return true;
 }
 
-std::vector<int> CElemAry::AddSegment(std::vector<CElemSeg>& es_ary, 
+
+int CElemAry::AddSegment(const CElemSeg& es, 
+						 const std::vector<int>& lnods ){
+	std::vector<CElemSeg> aEs;
+	aEs.push_back(es);
+	const std::vector<int>& res = this->AddSegment( aEs, lnods );
+	assert( res.size() == 1 );
+	return res[0];
+}
+
+std::vector<int> CElemAry::AddSegment(const std::vector<CElemSeg>& es_ary_in, 
 									  const std::vector<int>& lnods )
 {
+	std::vector<CElemSeg> es_ary = es_ary_in;
+
 	unsigned int npoel_add=0;
 	for(unsigned int ies=0;ies<es_ary.size();ies++){
 		es_ary[ies].m_nnoes = CElemSeg::GetLength(es_ary[ies].GetElSegType(),this->ElemType());
@@ -913,7 +925,6 @@ std::vector<int> CElemAry::AddSegment(std::vector<CElemSeg>& es_ary,
 	std::vector<int> add_es_id_ary;
 
 	{	// 要素セグメント情報の追加
-
 		// beginを作る
 		for(unsigned int ies=0;ies<es_ary.size();ies++){
 			es_ary[ies].begin = npoel;

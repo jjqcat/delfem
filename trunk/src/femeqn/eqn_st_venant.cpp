@@ -43,11 +43,9 @@ using namespace Fem::Ls;
 using namespace MatVec;
 
 ////////////////////////////////////////////////////////////////
-// ‚Q‚c‚Ì•û’ö®
+// 2dim equation
 
-////////////////
-// ’èí
-
+// stationary
 bool AddLinSys_StVenant2D_Static_P1(
         Fem::Eqn::ILinearSystem_Eqn& ls,
 		double lambda, double myu,
@@ -55,9 +53,7 @@ bool AddLinSys_StVenant2D_Static_P1(
 		const unsigned int id_field_disp, const CFieldWorld& world, 
 		const unsigned int id_ea );
 
-////////////////
-// ”ñ’èí
-
+// non-stationary
 bool AddLinSys_StVenant2D_NonStatic_NewmarkBeta_P1(
 		double dt, double gamma, double beta,
         Fem::Eqn::ILinearSystem_Eqn& ls,
@@ -71,8 +67,7 @@ bool AddLinSys_StVenant2D_NonStatic_NewmarkBeta_P1(
 // ‚R‚c‚Ì•û’ö®
 
 ////////////////
-// ’èí
-
+// stationary
 bool AddLinSys_StVenant3D_Static_P1(
         Fem::Eqn::ILinearSystem_Eqn& ls,
 		double lambda, double myu,
@@ -87,10 +82,7 @@ bool AddLinSys_StVenant3D_Static_Q1(
 		const unsigned int id_field_disp, const CFieldWorld& world, 
 		const unsigned int id_ea );
 
-
-////////////////
-// ”ñ’èí
-
+// non-statianary
 bool AddLinSys_StVenant3D_NonStatic_NewmarkBeta_P1(
 		double dt, double gamma, double beta,
         Fem::Eqn::ILinearSystem_Eqn& ls,

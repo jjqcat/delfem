@@ -214,14 +214,10 @@ public:
 		const unsigned int& id_es0, 
         Com::CIndexedArray& crs ) const;
 
-	/*!
-	２次節点のための関数
-	*/
+	// make edge ( for 2nd order interporation )
 	virtual bool MakeEdge(const unsigned int& id_es_co, unsigned int& nedge, std::vector<unsigned int>& edge_ary) const;
 	
-	/*!
-	２次節点のための関数
-	*/
+	// make map from elem to edge
 	virtual bool MakeElemToEdge(const unsigned int& id_es_corner, 
 		const unsigned int& nedge, const std::vector<unsigned int>& edge_ary,
 		std::vector<int>& el2ed ) const;
@@ -236,8 +232,8 @@ public:
 
 	// lnodsはunsigned int にすべきでは？
 	//! 要素セグメントの追加
-	virtual std::vector<int> AddSegment(std::vector<CElemSeg>& es_ary, 
-		const std::vector<int>& lnods );
+	std::vector<int> AddSegment(const std::vector<CElemSeg>& es_ary, const std::vector<int>& lnods );
+	int              AddSegment(const CElemSeg& es,					 const std::vector<int>& lnods );
 
 	// 要素を囲む要素を作る．内部でelsuelのメモリ領域確保はしないので，最初から確保しておく
 	bool MakeElemSurElem( const unsigned int& id_es_corner, int* elsuel) const;

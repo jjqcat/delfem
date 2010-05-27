@@ -38,7 +38,7 @@ using namespace Fem::Ls;
 Fem::Field::CFieldWorld world;
 double dt = 0.02;
 View::CDrawerArrayField drawer_ary;
-Com::View::CCamera mvp_trans;
+Com::View::CCamera camera;
 double mov_begin_x, mov_begin_y;
 
 void RenderBitmapString(float x, float y, void *font,char *string)
@@ -181,7 +181,7 @@ bool SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_val,true,world, id_field_val,-0.05,0.05) );
 //		drawer_ary.PushBack( new View::CDrawerFaceContour(id_field_val,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_val,true,world) );
-		drawer_ary.InitTrans(mvp_trans);	// 視線座標変換行列の初期化
+		drawer_ary.InitTrans(camera);	// 視線座標変換行列の初期化
 	}
 	iprob++;
 	if( iprob == nprob ) iprob=0;
@@ -199,16 +199,16 @@ void SetProjectionTransform()
 {
 	::glMatrixMode(GL_PROJECTION);
 	::glLoadIdentity();
-	if( mvp_trans.IsPers() ){	// 透視投影変換
+	if( camera.IsPers() ){	// 透視投影変換
 		double fov_y,aspect,clip_near,clip_far;
-		mvp_trans.GetPerspective(fov_y,aspect,clip_near,clip_far);
+		camera.GetPerspective(fov_y,aspect,clip_near,clip_far);
 		::gluPerspective(fov_y,aspect,clip_near,clip_far);
 	}
 	else{	// 正規投影変換
-		const double inv_scale = 1.0/mvp_trans.GetScale();
-		const double asp = mvp_trans.GetWindowAspect();
-		const double h_h = mvp_trans.GetHalfViewHeight()*inv_scale;
-		const double h_w = mvp_trans.GetHalfViewHeight()*inv_scale*asp;
+		const double inv_scale = 1.0/camera.GetScale();
+		const double asp = camera.GetWindowAspect();
+		const double h_h = camera.GetHalfViewHeight()*inv_scale;
+		const double h_w = camera.GetHalfViewHeight()*inv_scale*asp;
 		::glOrtho(-h_w,h_w, -h_h, h_h, -10.0, 10.0);
 	}
 }
@@ -219,17 +219,17 @@ void SetModelViewTransform()
 	::glLoadIdentity();
 	{	// 物体を平衡移動させる
 		double x,y,z;
-		mvp_trans.GetCenterPosition(x,y,z);
+		camera.GetCenterPosition(x,y,z);
 		::glTranslatef( x, y, z );
 	}
 	{	// 物体を回転させる
 		double rot[16];
-		mvp_trans.RotMatrix44Trans(rot);
+		camera.RotMatrix44Trans(rot);
 		::glMultMatrixd(rot);
 	}
 	{	// 物体の中心を原点にする
 		double x,y,z;
-		mvp_trans.GetObjectCenter(x,y,z);
+		camera.GetObjectCenter(x,y,z);
 		::glTranslatef( -x, -y, -z );
 	}
 }
@@ -237,7 +237,7 @@ void SetModelViewTransform()
 // リサイズ時のコールバック関数
 void myGlutResize(int w, int h)
 {
-	mvp_trans.SetWindowAspect((double)w/h);
+	camera.SetWindowAspect((double)w/h);
 	::glViewport(0, 0, w, h);
 	SetProjectionTransform();
 	::glutPostRedisplay();
@@ -268,7 +268,7 @@ void myGlutMotion( int x, int y ){
 	const int win_h = viewport[3];
 	const double mov_end_x = (2.0*x-win_w)/win_w;
 	const double mov_end_y = (win_h-2.0*y)/win_h;
-	mvp_trans.MouseRotation(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
+	camera.MouseRotation(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
 	mov_begin_x = mov_end_x;
 	mov_begin_y = mov_end_y;
 	::glutPostRedisplay();
@@ -311,34 +311,34 @@ void myGlutSpecial(int Key, int x, int y)
 	{
 	case GLUT_KEY_PAGE_UP:
 		if( ::glutGetModifiers() && GLUT_ACTIVE_SHIFT ){
-			if( mvp_trans.IsPers() ){
-				const double tmp_fov_y = mvp_trans.GetFovY() + 10.0;
-				mvp_trans.SetFovY( tmp_fov_y );
+			if( camera.IsPers() ){
+				const double tmp_fov_y = camera.GetFovY() + 10.0;
+				camera.SetFovY( tmp_fov_y );
 			}
 		}
 		else{
-			const double tmp_scale = mvp_trans.GetScale() * 0.9;
-			mvp_trans.SetScale( tmp_scale );
+			const double tmp_scale = camera.GetScale() * 0.9;
+			camera.SetScale( tmp_scale );
 		}
 		break;
 	case GLUT_KEY_PAGE_DOWN:
 		if( ::glutGetModifiers() && GLUT_ACTIVE_SHIFT ){
-			if( mvp_trans.IsPers() ){
-				const double tmp_fov_y = mvp_trans.GetFovY() - 10.0;
-				mvp_trans.SetFovY( tmp_fov_y );
+			if( camera.IsPers() ){
+				const double tmp_fov_y = camera.GetFovY() - 10.0;
+				camera.SetFovY( tmp_fov_y );
 			}
 		}
 		else{
-			const double tmp_scale = mvp_trans.GetScale() * 1.111;
-			mvp_trans.SetScale( tmp_scale );
+			const double tmp_scale = camera.GetScale() * 1.111;
+			camera.SetScale( tmp_scale );
 		}
 		break;
 	case GLUT_KEY_HOME :
-		mvp_trans.Fit();
+		camera.Fit();
 		break;
 	case GLUT_KEY_END :
-		if( mvp_trans.IsPers() ) mvp_trans.SetIsPers(false);
-		else{ mvp_trans.SetIsPers(true); }
+		if( camera.IsPers() ) camera.SetIsPers(false);
+		else{ camera.SetIsPers(true); }
 		break;
 	default:
 		break;

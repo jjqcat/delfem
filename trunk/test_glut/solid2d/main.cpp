@@ -48,7 +48,6 @@ Com::View::CCamera camera;
 double mov_begin_x, mov_begin_y;
 bool is_animation = true;
 
-
 void RenderBitmapString(float x, float y, void *font,char *string)
 {
   char *c;

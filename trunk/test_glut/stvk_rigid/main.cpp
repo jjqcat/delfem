@@ -42,7 +42,7 @@
 #include "delfem/drawer_field_vector.h"
 #include "delfem/drawer_field_face.h"
 
-Com::View::CCamera mvp_trans;
+Com::View::CCamera camera;
 double mov_begin_x, mov_begin_y;
 int press_button;
 
@@ -627,53 +627,14 @@ void DrawBackGround()
     ::glMatrixMode(GL_MODELVIEW);  // ModelViewçsóÒÇå≥Ç…ñﬂÇ∑
     ::glPopMatrix();
 }
-/*
-void SetProjectionTransform(const Com::View::CCamera& mvp_trans)
-{
-//	::glMatrixMode(GL_PROJECTION);
-	if( mvp_trans.IsPers() ){	// ìßéãìäâeïœä∑
-		double fov_y,aspect,clip_near,clip_far;
-		mvp_trans.GetPerspective(fov_y,aspect,clip_near,clip_far);
-		::gluPerspective(fov_y,aspect,clip_near,clip_far);
-	}
-	else{	// ê≥ãKìäâeïœä∑
-		const double inv_scale = 1.0/mvp_trans.GetScale();
-		const double asp = mvp_trans.GetWindowAspect();
-		const double h_h = mvp_trans.GetHalfViewHeight()*inv_scale;
-		const double h_w = mvp_trans.GetHalfViewHeight()*inv_scale*asp;
-		const double depth = 2.0*(h_h+h_w);
-		::glOrtho(-h_w,h_w, -h_h, h_h, -depth, depth);
-	}
-}
-
-void SetModelViewTransform(const Com::View::CCamera& mvp_trans)
-{
-//	::glMatrixMode(GL_MODELVIEW);
-	{	// ï®ëÃÇïΩçtà⁄ìÆÇ≥ÇπÇÈ
-		double x,y,z;
-		mvp_trans.GetCenterPosition(x,y,z);
-		::glTranslated( x, y, z );
-	}
-	{	// ï®ëÃÇâÒì]Ç≥ÇπÇÈ
-		double rot[16];
-		mvp_trans.RotMatrix44Trans(rot);
-		::glMultMatrixd(rot);
-	}
-	{	// ï®ëÃÇÃíÜêSÇå¥ì_Ç…Ç∑ÇÈ
-		double x,y,z;
-		mvp_trans.GetObjectCenter(x,y,z);
-		::glTranslated( -x, -y, -z );
-	}
-}
-*/
 
 void myGlutResize(int w, int h)
 {
-	mvp_trans.SetWindowAspect((double)w/h);
+	camera.SetWindowAspect((double)w/h);
 	glViewport(0, 0, w, h);
 	::glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	Com::View::SetProjectionTransform(mvp_trans);
+	Com::View::SetProjectionTransform(camera);
 	glutPostRedisplay();
 }
 
@@ -942,7 +903,7 @@ void myGlutDisplay(void)
 
 	::glMatrixMode(GL_MODELVIEW);
 	::glLoadIdentity();
-	Com::View::SetModelViewTransform(mvp_trans);
+	Com::View::SetModelViewTransform(camera);
 
     if( is_animation ){
         // çÑëÃÇÃâ^ìÆÇâÇ≠
@@ -1005,10 +966,10 @@ void myGlutMotion( int x, int y ){
 	const double mov_end_x = (2.0*x-win_w)/win_w;
 	const double mov_end_y = (win_h-2.0*y)/win_h;
 	if( press_button == GLUT_MIDDLE_BUTTON ){
-		mvp_trans.MouseRotation(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
+		camera.MouseRotation(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
 	}
 	else if( press_button == GLUT_RIGHT_BUTTON ){
-		mvp_trans.MousePan(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
+		camera.MousePan(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
 	}
 	mov_begin_x = mov_end_x;
 	mov_begin_y = mov_end_y;
@@ -1329,7 +1290,7 @@ void SetProblem()
 		iprob = 0;
 	}
 
-    mvp_trans.SetRotationMode(Com::View::ROT_3D);
+    camera.SetRotationMode(Com::View::ROT_3D);
 }
 
 
@@ -1365,15 +1326,15 @@ void myGlutKeyboard(unsigned char key, int x, int y)
 void myGlutSpecialFunc(int key, int x, int y){
     switch(key){
     case GLUT_KEY_PAGE_UP :     
-        mvp_trans.SetScale( mvp_trans.GetScale()*0.9    );
+        camera.SetScale( camera.GetScale()*0.9    );
         break;
     case GLUT_KEY_PAGE_DOWN :
-        mvp_trans.SetScale( mvp_trans.GetScale()*1.1111 );
+        camera.SetScale( camera.GetScale()*1.1111 );
         break;
     }
 	::glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	Com::View::SetProjectionTransform(mvp_trans);
+	Com::View::SetProjectionTransform(camera);
 }
 
 int main(int argc,char* argv[])
@@ -1394,12 +1355,12 @@ int main(int argc,char* argv[])
     ::glutSpecialFunc(myGlutSpecialFunc);
 	::glutIdleFunc(myGlutIdle);
 
-    mvp_trans.SetRotationMode(Com::View::ROT_3D);
-//    mvp_trans.SetIsPers(true);
+    camera.SetRotationMode(Com::View::ROT_3D);
+//    camera.SetIsPers(true);
     {
         Com::CBoundingBox bb(-2,2,-2,2,-2,2);
-        mvp_trans.SetObjectBoundingBox(bb);
-        mvp_trans.Fit(bb);
+        camera.SetObjectBoundingBox(bb);
+        camera.Fit(bb);
     }
     SetProblem();
 

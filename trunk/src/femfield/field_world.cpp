@@ -355,14 +355,9 @@ unsigned int CFieldWorld::SetCustomBaseField(unsigned int id_base,
 	for(unsigned int iidea=0;iidea<aIdEA_Inc.size();iidea++){
 		const unsigned int id_ea0 = aIdEA_Inc[iidea];
 		unsigned int id_es_c = field_base.GetIdElemSeg(id_ea0,CORNER,false,*this);
-		unsigned int id_es_v;
-		{
-			Fem::Field::CElemAry& ea = this->GetEA(id_ea0);
-			id_es_v = ea.GetFreeSegID();
-			std::vector<Fem::Field::CElemAry::CElemSeg> aEs;
-			aEs.push_back( Fem::Field::CElemAry::CElemSeg(id_es_v,id_na_v,CORNER) );
-			ea.AddSegment( aEs, aLnods[iidea] );
-		}
+		Fem::Field::CElemAry& ea = this->GetEA(id_ea0);
+		unsigned int id_es_v = ea.GetFreeSegID();
+		ea.AddSegment( CElemAry::CElemSeg(id_es_v,id_na_v,CORNER), aLnods[iidea] );
 		aElemIntp.push_back( Fem::Field::CField::CElemInterpolation(id_ea0, id_es_v,id_es_c, 0,0, 0,0) );
 	}
 	CField* pField = new CField( 0,	// 親フィールド
@@ -600,10 +595,8 @@ unsigned int CFieldWorld::MakeField_FieldElemAry(
 				}
 			}
 			id_es_val = ea.GetFreeSegID();
-			std::vector<CElemAry::CElemSeg> es_ary;
-			es_ary.push_back( CElemAry::CElemSeg(id_es_val,id_na_val,CORNER) );
-			const std::vector<int>& res = ea.AddSegment(es_ary,lnods);
-            assert( res.size() == 1 && res[0] == (int)id_es_val );
+			int res_id_es = ea.AddSegment(CElemAry::CElemSeg(id_es_val,id_na_val,CORNER),lnods);
+            assert( res_id_es == id_es_val );
 			{	// 包含関係を入れる
 				CNodeAry& na_val = this->GetNA(id_na_val);
 				na_val.AddEaEs( std::make_pair(id_ea,id_es_val) );
@@ -1012,12 +1005,8 @@ unsigned int CFieldWorld::MakeHingeField_Tri(unsigned int id_field_base)
 	unsigned int id_ea_add = this->m_apEA.AddObj( std::make_pair(0,new CElemAry(nedge,QUAD)) );
 	unsigned int id_es_add = 0;
 	{
-		
-		std::vector<CElemAry::CElemSeg> es_ary_add;
-		es_ary_add.push_back( CElemAry::CElemSeg(0,id_na,CORNER) );
 		CElemAry& ea_add = this->GetEA(id_ea_add);
-		std::vector<int> res = ea_add.AddSegment( es_ary_add, lnods );
-		id_es_add = res[0];
+		id_es_add = ea_add.AddSegment( CElemAry::CElemSeg(0,id_na,CORNER), lnods );
 	}
 
 	delete[] elsuel;
@@ -1041,7 +1030,7 @@ unsigned int CFieldWorld::MakeHingeField_Tri(unsigned int id_field_base)
 }
 
 
-
+/*
 unsigned int CFieldWorld::GetPartialField(unsigned int id_field_val, unsigned int id_ea)
 {
 //	std::cout << "GetPartialField" << std::endl;
@@ -1149,11 +1138,8 @@ unsigned int CFieldWorld::GetPartialField(unsigned int id_field_val, unsigned in
 			}
 		}
 		unsigned int id_es_va = ea.GetFreeSegID();
-		std::vector<CElemAry::CElemSeg> es_ary;
-		es_ary.push_back( CElemAry::CElemSeg(id_es_va,
-			field_val.GetNodeSegInNodeAry(CORNER).id_na_va,
-			CORNER) );
-		ea.AddSegment(es_ary,lnods);
+		const unsigned int id_na_va = field_val.GetNodeSegInNodeAry(CORNER).id_na_va;
+		ea.AddSegment(CElemAry::CElemSeg(id_es_va,id_na_va,CORNER),lnods);
 		ei.id_es_c_va = id_es_va;
 	}
 
@@ -1173,11 +1159,11 @@ unsigned int CFieldWorld::GetPartialField(unsigned int id_field_val, unsigned in
 	Field::CField::CNodeSegInNodeAry na_b;
 	// TODO:部分場のBUBBLE節点が含まれるかどうかを判断しなければならない．
 	// とりあえず今は境界条件のためのPartialFieldと思って保留
-/*	{
-		na_b = field_val.GetNodeSegInNodeAry(BUBBLE);
-		na_b.is_part_co = true;
-		na_b.is_part_va = true;
-	}*/
+//	{
+//		na_b = field_val.GetNodeSegInNodeAry(BUBBLE);
+//		na_b.is_part_co = true;
+//		na_b.is_part_va = true;
+//	}
 
 	// ここに辺節点の追加に関する物を書く
 	CField* pField = new CField(
@@ -1188,6 +1174,15 @@ unsigned int CFieldWorld::GetPartialField(unsigned int id_field_val, unsigned in
 
 	unsigned int id_field = this->m_apField.AddObj( std::make_pair(0,pField) );
 	return id_field;
+}
+*/
+
+
+unsigned int CFieldWorld::GetPartialField(unsigned int id_field_val, unsigned int id_ea)
+{
+	std::vector<unsigned int> aIdEA;
+	aIdEA.push_back(id_ea);
+	return this->GetPartialField(id_field_val,aIdEA);
 }
 
 unsigned int CFieldWorld::GetPartialField(unsigned int id_field_val, 
@@ -1254,10 +1249,9 @@ unsigned int CFieldWorld::GetPartialField(unsigned int id_field_val,
 					lnods[ielem*nnoes+inoes] = inode_va;
 				}
 			}
-			std::vector< CElemAry::CElemSeg > es_ary;
 			unsigned int id_es_val = ea.GetFreeSegID();
-			es_ary.push_back( CElemAry::CElemSeg( id_es_val, id_na_c_val, CORNER) );
-			ea.AddSegment( es_ary, lnods);
+			unsigned int res_id_es = ea.AddSegment( CElemAry::CElemSeg(id_es_val, id_na_c_val, CORNER), lnods);
+			assert( res_id_es == id_es_val );
 			ei.id_es_c_va = id_es_val;
 		}
 		aElemIntp.push_back( ei );
