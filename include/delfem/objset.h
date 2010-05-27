@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 namespace Com{
 
-//! ID管理テンプレート
+//! template to store objects with ID 
 template <class T>
 class CObjSet
 {		
@@ -54,7 +54,7 @@ public:
 		assert( ie >= 0 && ie < (int)m_aObj.size() );
 		return m_aObj[ie];
 	}
-	int AddObj(std::pair<unsigned int,T> id_obj){
+	unsigned int AddObj(std::pair<unsigned int,T> id_obj){
 		unsigned int id1 = AddID(id_obj.first);
 		assert( IsObjID(id1) );
 		this->m_aObj.push_back( id_obj.second );
@@ -62,6 +62,7 @@ public:
 		return id1;
 	}
 	bool IsObjID( unsigned int id_e ) const {
+		if( id_e == 0 ) return false;
 		const int ie1 = this->GetAryInd(id_e);
 		if( ie1 != -1 ) return true;
 		return false;
@@ -70,7 +71,7 @@ public:
 	unsigned int GetFreeObjID() const {
 		if( m_aID2Index.size() == 0 )	return 1;
 		unsigned int iid;
-		for(iid=1;iid<m_aID2Index.size();iid++){
+		for(iid=1;iid<m_aID2Index.size();iid++){	// find ID from 1
             if( m_aID2Index[iid] == -1 )	return iid;
 		}
 		return m_aID2Index.size();
@@ -103,6 +104,7 @@ public:
 		return res;
 	}	
 	bool DeleteObj(unsigned int id_e){
+		if( !this->IsObjID(id_e) ) return false;
 		const int ie = this->GetAryInd(id_e);
 		assert( ie >= 0 && ie < (int)m_aObj.size() );
 		m_aObj.erase( m_aObj.begin()+ie );
@@ -124,7 +126,7 @@ public:
 	unsigned int MaxID() const { return m_aID2Index.size(); }
 protected:
 	unsigned int AddID(const int& tmp_id){
-		unsigned int id1;
+		unsigned int id1 = 0;
 		if( !IsObjID( tmp_id ) && tmp_id>0 && tmp_id<255 ){
 			id1 = tmp_id;
 			if( m_aID2Index.size() <= id1 ){

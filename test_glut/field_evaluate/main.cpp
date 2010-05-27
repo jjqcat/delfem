@@ -34,7 +34,7 @@
 
 using namespace Fem::Field;
 
-Com::View::CCamera mvp_trans;
+Com::View::CCamera camera;
 double mov_begin_x, mov_begin_y;
 
 void RenderBitmapString(float x, float y, void *font,char *string)
@@ -103,8 +103,8 @@ void myGlutMotion( int x, int y ){
 	const int win_h = viewport[3];
 	const double mov_end_x = (2.0*x-win_w)/win_w;
 	const double mov_end_y = (win_h-2.0*y)/win_h;
-	mvp_trans.MouseRotation(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
-//	mvp_trans.MousePan(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
+	camera.MouseRotation(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
+//	camera.MousePan(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
 	mov_begin_x = mov_end_x;
 	mov_begin_y = mov_end_y;
 	::glutPostRedisplay();
@@ -121,11 +121,11 @@ void myGlutMouse(int button, int state, int x, int y){
 
 void myGlutResize(int w, int h)
 {
-	mvp_trans.SetWindowAspect((double)w/h);
+	camera.SetWindowAspect((double)w/h);
 	glViewport(0, 0, w, h);
 	::glMatrixMode(GL_PROJECTION);
 	::glLoadIdentity();
-	Com::View::SetProjectionTransform(mvp_trans);
+	Com::View::SetProjectionTransform(camera);
 	glutPostRedisplay();
 }
 
@@ -137,35 +137,35 @@ void myGlutSpecial(int Key, int x, int y)
 	{
 	case GLUT_KEY_PAGE_UP:
 		if( ::glutGetModifiers() && GLUT_ACTIVE_SHIFT ){
-			if( mvp_trans.IsPers() ){
-				const double tmp_fov_y = mvp_trans.GetFovY() + 10.0;
-				mvp_trans.SetFovY( tmp_fov_y );
+			if( camera.IsPers() ){
+				const double tmp_fov_y = camera.GetFovY() + 10.0;
+				camera.SetFovY( tmp_fov_y );
 			}
 		}
 		else{
-			const double tmp_scale = mvp_trans.GetScale() * 0.9;
-			mvp_trans.SetScale( tmp_scale );
+			const double tmp_scale = camera.GetScale() * 0.9;
+			camera.SetScale( tmp_scale );
 		}
 		break;
 	case GLUT_KEY_PAGE_DOWN:
 		if( ::glutGetModifiers() && GLUT_ACTIVE_SHIFT ){
-			if( mvp_trans.IsPers() ){
-				const double tmp_fov_y = mvp_trans.GetFovY() - 10.0;
-				mvp_trans.SetFovY( tmp_fov_y );
+			if( camera.IsPers() ){
+				const double tmp_fov_y = camera.GetFovY() - 10.0;
+				camera.SetFovY( tmp_fov_y );
 			}
 		}
 		else{
-			const double tmp_scale = mvp_trans.GetScale() * 1.111;
-			mvp_trans.SetScale( tmp_scale );
+			const double tmp_scale = camera.GetScale() * 1.111;
+			camera.SetScale( tmp_scale );
 		}
 		break;
 	case GLUT_KEY_HOME :
-		drawer_ary.InitTrans(mvp_trans);
-		mvp_trans.Fit();
+		drawer_ary.InitTrans(camera);
+		camera.Fit();
 		break;
 	case GLUT_KEY_END :
-		if( mvp_trans.IsPers() ) mvp_trans.SetIsPers(false);
-		else{ mvp_trans.SetIsPers(true); }
+		if( camera.IsPers() ) camera.SetIsPers(false);
+		else{ camera.SetIsPers(true); }
 		break;
 	default:
 		break;
@@ -173,7 +173,7 @@ void myGlutSpecial(int Key, int x, int y)
 	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	Com::View::SetProjectionTransform(mvp_trans);
+	Com::View::SetProjectionTransform(camera);
 	::glutPostRedisplay();
 }
 
@@ -195,7 +195,7 @@ void myGlutDisplay(void)
 
 	::glMatrixMode(GL_MODELVIEW);
 	::glLoadIdentity();
-	Com::View::SetModelViewTransform(mvp_trans);
+	Com::View::SetModelViewTransform(camera);
 
 	if( is_animation ){
 		cur_time += 0.1;
@@ -240,7 +240,7 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_val,true,world,id_field_val,-1.0,1.0) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
 	else if( iprob == 1 ){
 		CField& val_field = world.GetField(id_field_val);
@@ -260,7 +260,7 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_val,true,world, id_field_val,-1.0,1.0) );
-		drawer_ary.InitTrans( mvp_trans);
+		drawer_ary.InitTrans( camera);
 	}
 	else if( iprob == 3 )
 	{
@@ -285,7 +285,7 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_val,true,world,id_field_val,-1.0,1.0) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
 	else if( iprob == 4 )
 	{
@@ -302,7 +302,7 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_val,true,world,id_field_val,-1.0,1.0) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
 	else if( iprob == 5 )
 	{
@@ -334,7 +334,7 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_val,true,world,id_field_val,-1.0,1.0) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
 	else if( iprob == 6 )
 	{
@@ -361,7 +361,7 @@ bool SetNewProblem()
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_val,true,world,id_field_val,-1.0,1.0) );
 //		drawer_ary.PushBack( new View::CDrawerFace(id_field_val,true,world) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
 	else if( iprob == 7 ){
 		unsigned int id_field_grad = world.MakeField_FieldElemDim(id_field_val,2,VECTOR2,VALUE,BUBBLE);
@@ -372,7 +372,7 @@ bool SetNewProblem()
 			field_grad.SetValue("0.1*cos(t)", 1,Fem::Field::VALUE, world,true);
 		}
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerVector(id_field_grad,world) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
 	else if( iprob == 8 ){
 		Msh::CMesher3D mesh_3d;
@@ -395,7 +395,7 @@ bool SetNewProblem()
 //		drawer_ary.PushBack( new View::CDrawerFaceContour(id_field_val,world,-1.0,1.0) );
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerVector(id_field_grad,world) );
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerEdge(id_field_grad,true,world) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
 	else if( iprob == 9 ){
 		Msh::CMesher3D mesh_3d;
@@ -418,7 +418,7 @@ bool SetNewProblem()
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerVector(id_field_grad,world) );
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerEdge(id_field_grad,true,world) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
 	else if( iprob == 10 )
 	{
@@ -435,7 +435,7 @@ bool SetNewProblem()
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_val,true,world,id_field_val,-1.0,1.0) );
 //		drawer_ary.PushBack( new View::CDrawerFace(id_field_val,true,world) );
-		drawer_ary.InitTrans( mvp_trans);
+		drawer_ary.InitTrans( camera);
 	}
 	else if( iprob == 11 )
 	{
@@ -454,7 +454,7 @@ bool SetNewProblem()
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_val,true,world, id_field_val,-1.0,1.0) );
 //		drawer_ary.PushBack( new View::CDrawerFace(id_field_val,true,world) );
-		drawer_ary.InitTrans( mvp_trans);
+		drawer_ary.InitTrans( camera);
 	}
 	else if( iprob == 12 )
 	{	// ÉoÉuÉãêﬂì_Çä‹ÇÒÇæï‚ä‘
@@ -487,7 +487,7 @@ bool SetNewProblem()
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_val,true,world, id_field_val,-1.0,1.0) );
 		drawer_ary.PushBack( new View::CDrawerVector(id_field_vec,world) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
 
 	iprob++;
@@ -520,7 +520,7 @@ void myGlutKeyboard(unsigned char key, int x, int y)
 	  SetNewProblem();
 	  ::glMatrixMode(GL_PROJECTION);
 	  ::glLoadIdentity();
-	  Com::View::SetProjectionTransform(mvp_trans);
+	  Com::View::SetProjectionTransform(camera);
   default:
     break;
   }

@@ -152,6 +152,7 @@ protected:
 	};
 protected:
 	int AddLinSysSeg( const CLinSysSeg_Field& seg );
+	int AddLinSysSeg_Field(unsigned int id_field, Fem::Field::ELSEG_TYPE es_type, const Fem::Field::CFieldWorld& world);
     bool AddMat_NonDia(unsigned int ils_col, unsigned int ils_row, const Com::CIndexedArray& crs ){
         return m_ls.AddMat_NonDia(ils_col,ils_row,crs);
     }

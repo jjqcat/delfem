@@ -27,7 +27,7 @@
 #  include <GL/glut.h>
 #endif
 
-#include "delfem/camera.h"	// カメラパラメータクラス
+#include "delfem/camera.h"	// camera parameter class
 
 #include "delfem/cad_obj2d.h"	// ２次元モデルクラスCCadObj2D
 #include "delfem/mesher2d.h"	// ２次元メッシュクラスCMesher2D
@@ -102,19 +102,19 @@ void ShowFPS(){
 	::glMatrixMode(GL_MODELVIEW);
 }
 
-void myGlutIdle(){	// アイドル時のコールバック関数
+void myGlutIdle(){
 	glutPostRedisplay();
 }
 
-Com::View::CCamera mvp_trans;
+Com::View::CCamera camera;
 
 void myGlutResize(int w, int h)
-{	// ウィンドウサイズ変更時のコールバック関数
-	mvp_trans.SetWindowAspect((double)w/h);
+{
+	camera.SetWindowAspect((double)w/h);
 	glViewport(0, 0, w, h);
 	::glMatrixMode(GL_PROJECTION);
 	::glLoadIdentity();
-	Com::View::SetProjectionTransform(mvp_trans);
+	Com::View::SetProjectionTransform(camera);
 	glutPostRedisplay();
 }
 
@@ -134,8 +134,8 @@ void myGlutMotion( int x, int y ){
 	const int win_h = viewport[3];
 	const double mov_end_x = (2.0*x-win_w)/win_w;
 	const double mov_end_y = (win_h-2.0*y)/win_h;
-//	mvp_trans.MouseRotation(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
-	mvp_trans.MousePan(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
+//	camera.MouseRotation(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
+	camera.MousePan(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
 	mov_begin_x = mov_end_x;
 	mov_begin_y = mov_end_y;
 	::glutPostRedisplay();
@@ -156,34 +156,34 @@ void myGlutSpecial(int Key, int x, int y)
 	{
 	case GLUT_KEY_PAGE_UP:
 		if( ::glutGetModifiers() && GLUT_ACTIVE_SHIFT ){
-			if( mvp_trans.IsPers() ){
-				const double tmp_fov_y = mvp_trans.GetFovY() + 10.0;
-				mvp_trans.SetFovY( tmp_fov_y );
+			if( camera.IsPers() ){
+				const double tmp_fov_y = camera.GetFovY() + 10.0;
+				camera.SetFovY( tmp_fov_y );
 			}
 		}
 		else{
-			const double tmp_scale = mvp_trans.GetScale() * 0.9;
-			mvp_trans.SetScale( tmp_scale );
+			const double tmp_scale = camera.GetScale() * 0.9;
+			camera.SetScale( tmp_scale );
 		}
 		break;
 	case GLUT_KEY_PAGE_DOWN:
 		if( ::glutGetModifiers() && GLUT_ACTIVE_SHIFT ){
-			if( mvp_trans.IsPers() ){
-				const double tmp_fov_y = mvp_trans.GetFovY() - 10.0;
-				mvp_trans.SetFovY( tmp_fov_y );
+			if( camera.IsPers() ){
+				const double tmp_fov_y = camera.GetFovY() - 10.0;
+				camera.SetFovY( tmp_fov_y );
 			}
 		}
 		else{
-			const double tmp_scale = mvp_trans.GetScale() * 1.111;
-			mvp_trans.SetScale( tmp_scale );
+			const double tmp_scale = camera.GetScale() * 1.111;
+			camera.SetScale( tmp_scale );
 		}
 		break;
 	case GLUT_KEY_HOME :
-		mvp_trans.Fit();
+		camera.Fit();
 		break;
 	case GLUT_KEY_END :
-		if( mvp_trans.IsPers() ) mvp_trans.SetIsPers(false);
-		else{ mvp_trans.SetIsPers(true); }
+		if( camera.IsPers() ) camera.SetIsPers(false);
+		else{ camera.SetIsPers(true); }
 		break;
 	default:
 		break;
@@ -191,13 +191,12 @@ void myGlutSpecial(int Key, int x, int y)
 	
 	::glMatrixMode(GL_PROJECTION);
 	::glLoadIdentity();
-	Com::View::SetProjectionTransform(mvp_trans);
+	Com::View::SetProjectionTransform(camera);
 	::glutPostRedisplay();
 }
 
 void myGlutDisplay(void)
-{	// 描画時のコールバック関数
-
+{
 //	::glClearColor(0.2, .7, .7 ,1.0);
 	::glClearColor(1, 1, 1 ,1.0);
 	::glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
@@ -208,7 +207,7 @@ void myGlutDisplay(void)
 
 	::glMatrixMode(GL_MODELVIEW);
 	::glLoadIdentity();
-	Com::View::SetModelViewTransform(mvp_trans);
+	Com::View::SetModelViewTransform(camera);
 	
 	if( is_animation )
 	{
@@ -250,13 +249,13 @@ void myGlutKeyboard(unsigned char Key, int x, int y)
     
 void SetNewProblem()
 {
-	const unsigned int nprob = 15;	// 問題数
+	const unsigned int nprob = 15;	// number of problems
 	static unsigned int iprob = 0;
 
-	if( iprob == 0 )	// キャビティフロー問題，定常ストークス流れ
+	if( iprob == 0 )	// cavity flow (stationaly stokes)
 	{
 		Cad::CCadObj2D cad_2d;
- 		{	// 形を作る
+ 		{	// define shape
 			std::vector<Com::CVector2D> vec_ary;
 			vec_ary.push_back( Com::CVector2D(-0.5,-0.5) );
 			vec_ary.push_back( Com::CVector2D( 0.5,-0.5) );
@@ -299,20 +298,20 @@ void SetNewProblem()
 		dt = 0.5;
 		fluid.SetTimeIntegrationParameter(dt);
 
-		// 描画オブジェクトの登録
+		// registration of visualization objects
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerVector(id_field_velo,world) );
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_press,true,world, id_field_press) );
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerEdge(id_field_velo,true,world) );
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerImageBasedFlowVis(id_field_velo,world,1) );
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerStreamline(id_field_velo,world) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
-	else if( iprob == 1 )	// キャビティーフロー問題，非定常ストークス流れ
+	else if( iprob == 1 )	// cavity flow (non-stationary storks)
 	{
 		fluid.SetIsStationary(false);
 	}
-	else if( iprob == 2 )	// キャビティーフロー問題，非定常ストークス流れ(Rhoを大きく)
+	else if( iprob == 2 )	// cavity flow (non-stationary storks with larger rho )
 	{
 		fluid.SetRho(0.5);
 	}
@@ -356,7 +355,7 @@ void SetNewProblem()
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerVector(id_field_velo,world) );
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_press,true,world, id_field_press) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
 	else if( iprob == 5 )	// L字形
 	{
@@ -413,7 +412,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_press,true,world, id_field_press) );
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerEdge(id_field_velo,true,world) );
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerStreamline(id_field_velo,world) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
 	else if( iprob == 6 )
 	{
@@ -425,7 +424,7 @@ void SetNewProblem()
 	else if( iprob == 7 )
 	{
 		Cad::CCadObj2D cad_2d;
-		{	// 正方形にが２つに分割
+		{	// define shape ( square devided vertically in half )
 			std::vector<Com::CVector2D> vec_ary;
 			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
@@ -465,7 +464,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_press,true,world,id_field_press) );
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerEdge(id_base,true,world) );
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerVector(id_field_velo,world) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
 	else if( iprob == 8 ){
 		fluid.SetIsStationary(false);
@@ -475,7 +474,7 @@ void SetNewProblem()
 	}
 	else if( iprob == 10 ){	// カルマン渦列
 		Cad::CCadObj2D cad_2d;
-		{	// 正方形に矩形の穴
+		{	// define shape (hole in rectangle)
 			std::vector<Com::CVector2D> vec_ary;
 			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(2.0,0.0) );
@@ -534,7 +533,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerEdge(id_field_velo,true,world) );
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerImageBasedFlowVis(id_field_velo,world,1) );
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerStreamline(id_field_velo,world) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
 	else if( iprob == 11 )	// 上下で分離している問題
 	{
@@ -588,7 +587,7 @@ void SetNewProblem()
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerFaceContour(id_field_press,world) );
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_press,true,world,id_field_press) );
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerStreamline(id_field_velo,world) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
     else if( iprob == 12 ){ // バックステップ流れ
 		Cad::CCadObj2D cad_2d;
@@ -651,7 +650,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerVector(id_field_velo,world) );
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerFaceContour(id_field_press,world) );
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_press,true,world,id_field_press) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
 	if( iprob == 13 ){ // 流体の中に力が働いている領域
 		Cad::CCadObj2D cad_2d;
@@ -700,13 +699,13 @@ void SetNewProblem()
 			fluid.SetEquation(eqn_fluid);
 		}
 
-		// 描画オブジェクトの登録
+		// registration of visualization objects
 		drawer_ary.Clear();
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerStreamline(id_field_velo,world) );
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerVector(id_field_velo,world) );
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerFaceContour(id_field_press,world);
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_press,true,world,id_field_press) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
 	else if( iprob == 14 )
 	{
@@ -796,19 +795,19 @@ void SetNewProblem()
 		fluid.SetNavierStokes();
 		fluid.SetTimeIntegrationParameter(dt);
 
-		// 描画オブジェクトの登録
+		// registration of visualization objects
 		drawer_ary.Clear();
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerImageBasedFlowVis(id_field_velo,world,1) );
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerStreamline(id_field_velo,world) );
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerVector(     id_field_velo, world) );
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerFaceContour(id_field_press,world) );
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_press,true,world,id_field_press) );
-		drawer_ary.InitTrans( mvp_trans );
+		drawer_ary.InitTrans( camera );
 	}
 	
 	::glMatrixMode(GL_PROJECTION);
 	::glLoadIdentity();
-	Com::View::SetProjectionTransform(mvp_trans);
+	Com::View::SetProjectionTransform(camera);
 //	::glutPostRedisplay();
 
 	iprob++;
