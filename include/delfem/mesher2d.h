@@ -135,13 +135,29 @@ public:
 
 	////////////////////////////////
 	
-	virtual void AddIdLCad_CutMesh(unsigned int id_l_cad) {
+	virtual void AddIdLCad_CutMesh(unsigned int id_l_cad){
 		this->setIdLCad_CutMesh.insert(id_l_cad);
 	}
-
+	virtual bool IsIdLCad_CutMesh(unsigned int id_l_cad) const{
+		return setIdLCad_CutMesh.find(id_l_cad) != setIdLCad_CutMesh.end();
+	}
+	virtual void RemoveIdLCad_CutMesh(unsigned int id_l_cad){
+		this->setIdLCad_CutMesh.erase(id_l_cad);
+	}
+	virtual std::vector<unsigned int> GetIdLCad_CutMesh(){
+		std::vector<unsigned int> aIdL;
+		for(std::set<unsigned int>::iterator itr=setIdLCad_CutMesh.begin();itr!=setIdLCad_CutMesh.end();itr++){		
+			aIdL.push_back(*itr);
+		}
+		return aIdL;
+	}
 	virtual void SetMeshingMode_ElemLength(double len){
-		this->m_imode_meshing = 1;
+		this->m_imode_meshing = 2;
 		this->m_elen = len;
+	}
+	virtual void SetMeshingMode_ElemSize(unsigned int esize){
+		this->m_imode_meshing = 1;
+		this->m_esize = esize;
 	}
 	
 	virtual bool Meshing(const Cad::ICad2D& cad_2d){
