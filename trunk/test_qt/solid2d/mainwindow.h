@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 
-class GLWidget;
+class GLWidget_Solid2d;
 namespace Ui {
     class MainWindow;
 }
@@ -18,10 +18,11 @@ protected:
     void changeEvent(QEvent *e);
 public slots:
     void setNewProblem();
+    void showDialogMatProp();
 
 private:
     Ui::MainWindow *ui;
-    GLWidget* glWidget;
+    GLWidget_Solid2d* glWidget;
 };
 
 #endif // MAINWINDOW_H

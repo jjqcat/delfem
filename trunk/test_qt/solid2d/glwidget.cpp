@@ -19,7 +19,7 @@
 
 using namespace Fem::Field;
 
-GLWidget::GLWidget(QWidget *parent)
+GLWidget_Solid2d::GLWidget_Solid2d(QWidget *parent)
     : QGLWidget(parent)
 {
     cur_time = 0;
@@ -31,17 +31,17 @@ GLWidget::GLWidget(QWidget *parent)
     timer->start(20);
 }
 
-GLWidget::~GLWidget()
+GLWidget_Solid2d::~GLWidget_Solid2d()
 {
     makeCurrent();
 }
 
-void GLWidget::initializeGL()
+void GLWidget_Solid2d::initializeGL()
 {
 
 }
 
-void GLWidget::paintGL()
+void GLWidget_Solid2d::paintGL()
 {
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -57,7 +57,7 @@ void GLWidget::paintGL()
     drawer_ary.Draw();
 }
 
-void GLWidget::resizeGL(int w, int h)
+void GLWidget_Solid2d::resizeGL(int w, int h)
 {
     camera.SetWindowAspect((double)w/h);
     ::glViewport(0, 0, w, h);
@@ -67,15 +67,15 @@ void GLWidget::resizeGL(int w, int h)
     updateGL();
 }
 
-void GLWidget::mousePressEvent(QMouseEvent *event)
+void GLWidget_Solid2d::mousePressEvent(QMouseEvent *event)
 {
 }
 
-void GLWidget::mouseMoveEvent(QMouseEvent *event)
+void GLWidget_Solid2d::mouseMoveEvent(QMouseEvent *event)
 {
 }
 
-void GLWidget::StepTime()
+void GLWidget_Solid2d::StepTime()
 {
     cur_time += dt;
     world.FieldValueExec(cur_time);
@@ -87,7 +87,7 @@ void GLWidget::StepTime()
     updateGL();
 }
 
-void GLWidget::SetNewProblem()
+void GLWidget_Solid2d::SetNewProblem()
 {
     const unsigned int nprob = 27;	// number of problem settings
     static unsigned int iprob = 0;
