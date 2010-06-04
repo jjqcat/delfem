@@ -19,14 +19,14 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = A9C5F9EF1188D39B0064BFDD /* dfm_core.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = D2AAC046055464E500DB518D /* libdfm_core.a */;
+			remoteGlobalIDString = D2AAC046055464E500DB518D;
 			remoteInfo = dfm_core;
 		};
 		A9EDB5CD11A8B0710003AC93 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A9C5F9EF1188D39B0064BFDD /* dfm_core.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D /* dfm_core */;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = dfm_core;
 		};
 /* End PBXContainerItemProxy section */

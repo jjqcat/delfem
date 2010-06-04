@@ -9,13 +9,13 @@
 #include "delfem/drawer_field.h"
 #include "delfem/eqnsys_solid.h"
 
-class GLWidget : public QGLWidget
+class GLWidget_Solid2d : public QGLWidget
 {
     Q_OBJECT
 
 public:
-    GLWidget(QWidget *parent = 0);
-    ~GLWidget();
+    GLWidget_Solid2d(QWidget *parent = 0);
+    ~GLWidget_Solid2d();
 
 protected:
     void initializeGL();
@@ -29,7 +29,7 @@ private slots:
 
 public:
     void SetNewProblem();
-private:
+public:
     Com::View::CCamera camera;
 
     Fem::Field::CFieldWorld world;
