@@ -49,6 +49,10 @@ using namespace Fem::Field;
 int CLinearSystem_Field::AddLinSysSeg_Field(
 		const unsigned int id_field, ELSEG_TYPE es_type, const CFieldWorld& world)
 {
+	{
+		int iseg = this->FindIndexArray_Seg(id_field,es_type,world);
+		if( iseg != -1 ) return iseg;
+	}
 	if( !world.IsIdField(id_field) ) return false;
 	const CField& field = world.GetField(id_field);
 	unsigned int id_field_parent;
@@ -82,6 +86,7 @@ bool CLinearSystem_Field::AddPattern_Field(const unsigned int id_field, const CF
 	const int ils_b = AddLinSysSeg_Field(id_field,BUBBLE,world);
 	const int ils_e = AddLinSysSeg_Field(id_field,EDGE,  world);
 	const int ils_c = AddLinSysSeg_Field(id_field,CORNER,world);
+	std::cout << "AddPattern_Field : " << ils_c << std::endl;
 	////////////////////////////////
 	const std::vector<unsigned int> aIdEA = field.GetAry_IdElemAry();
     assert( aIdEA.size() > 0 );
