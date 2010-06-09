@@ -77,7 +77,7 @@ public:
 class CMeshProjector2Dto3D : public IMesh
 {
 public:
-    CMeshProjector2Dto3D(IMesh& msh_input) : msh_2d(msh_input){
+    CMeshProjector2Dto3D(const IMesh& msh_input) : msh_2d(msh_input){
         if( msh_input.GetDimention() != 2 ){ is_valid = false; }
         else{ is_valid = true; }
     }

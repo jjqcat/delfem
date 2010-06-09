@@ -159,6 +159,8 @@ public:
 		const std::vector<unsigned int>& aIdEA_Inc, 
 		const std::vector< std::vector<int> >& aLnods,
 		const std::vector<unsigned int>& mapVal2Co);
+	bool UpdateConnectivity_HingeField_Tri(unsigned int id_field, unsigned int id_field_base);
+	bool UpdateConnectivity_EdgeField_Tri( unsigned int id_field, unsigned int id_field_base);
 
 	////////////////////////////////////////////////////////////////
 	// —v‘f”z—ñ‚ÉŠÖŒW‚·‚éŠÖ”ŒQ
@@ -213,7 +215,7 @@ public:
 //	unsigned int MakeField_AllRegion(Field::FIELD_TYPE field_type = NO_VALUE, const int derivative_type = 1, const int node_configuration_type = 1 );
 	unsigned int MakeField_FieldElemAry(unsigned int id_field, unsigned int id_ea, Field::FIELD_TYPE field_type = NO_VALUE, const int derivative_type = 1, const int node_configuration_type = 1 );
 	unsigned int MakeField_FieldElemDim(unsigned int id_field, int idim_elem,      Field::FIELD_TYPE field_type = NO_VALUE, const int derivative_type = 1, const int node_configuration_type = 1 );
-	unsigned int MakeField_Glue(unsigned int id_field, unsigned int id_ea1, unsigned int id_ea2, const int derivative_type );
+	unsigned int MakeField_GlueEdge_Lambda( unsigned int id_field, unsigned int id_ea1, unsigned int id_ea2, const int derivative_type );
 
 	////////////////
 	unsigned int MakeEdgeField_Tri(unsigned int id_field);
@@ -223,6 +225,7 @@ public:
 	unsigned int GetPartialField(unsigned int id_field, unsigned int IdEA );
 	//! —v‘fID”z—ñ(id_ea)‚©‚ç¬‚é•”•ªê‚Ìæ“¾
 	unsigned int GetPartialField(unsigned int id_field, std::vector<unsigned int> aIdEA);
+	unsigned int GetPartialField_GlueEdge_Penalty(unsigned int id_field, unsigned int id_ea1, unsigned int id_ea2);
 
 	void FieldValueExec(double time);
 	void FieldValueDependExec();

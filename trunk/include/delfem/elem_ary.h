@@ -200,6 +200,15 @@ public:
 		es.nelem = this->m_nElem;
 		return es;
 	}
+	CElemSeg& GetSeg(unsigned int id_es){
+		assert( this->m_aSeg.IsObjID(id_es) );
+		if( !m_aSeg.IsObjID(id_es) ) throw;
+		CElemSeg& es = m_aSeg.GetObj(id_es);
+		es.pLnods = this->m_pLnods;
+		es.npoel = this->npoel;
+		es.nelem = this->m_nElem;
+		return es;
+	}
 
 	virtual ELEM_TYPE ElemType() const { return m_ElemType; }	//!< —v‘f‚ÌŽí—Þ‚ðŽæ“¾
 	virtual unsigned int Size() const { return m_nElem; }	//!< —v‘f”‚ðŽæ“¾
