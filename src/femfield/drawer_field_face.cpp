@@ -157,10 +157,9 @@ void CDrawerFace::Draw() const
 		for(unsigned int idp=0;idp<this->m_apIndexArrayElem.size();idp++){ 
 			const unsigned int ilayer = m_apIndexArrayElem[idp]->ilayer;
 			const double height = (ilayer-ilayer_min)*layer_height;
-			std::cout << "height face : " << height << std::endl;
-			::glTranslated(0,0,+height);
+         ::glTranslated(0,0,+height);
 			this->m_apIndexArrayElem[idp]->DrawElements(); 
-			::glTranslated(0,0,-height);
+         ::glTranslated(0,0,-height);
 		}
 		::glDisableClientState(GL_COLOR_ARRAY);
 		::glDisableClientState(GL_VERTEX_ARRAY);

@@ -173,8 +173,8 @@ bool CDrawerVector::Update_VECTOR(const Fem::Field::CFieldWorld& world)	// ÉxÉNÉ
 			if( ilayer_min != ilayer_max ){
 				assert( ndim_co == 2 );
 				assert( ndim_va == 3 );
-				m_paVer->pVertexArray[ipoin*2*ndim_va        +2] = 0.02;
-				m_paVer->pVertexArray[ipoin*2*ndim_va+ndim_va+2] = 0.02;
+            m_paVer->pVertexArray[ipoin*2*ndim_va        +2] = 0.01;
+            m_paVer->pVertexArray[ipoin*2*ndim_va+ndim_va+2] = 0.01;
 			}
 		}
 		if( ilayer_min != ilayer_max ){ // çÇÇ≥ÇçÏÇÈ
@@ -215,7 +215,7 @@ bool CDrawerVector::Update_VECTOR(const Fem::Field::CFieldWorld& world)	// ÉxÉNÉ
 		const Fem::Field::CNodeAry::CNodeSeg& ns_val = na_val.GetSeg(id_ns_v);
 		assert( ndim_co == ns_val.GetLength() );
 		if( world.IsIdNA(nsna_b.id_na_co) ){
-//			std::cout << "ÉoÉuÉãÇ≈ëŒâûÇ∑ÇÈç¿ïWêﬂì_Ç™Ç†ÇÈèÍçá" << std::endl;
+//			std::cout << "ÉoÉuÉãÇ≈ëŒâûÇ∑ÇÈç¿ïWêﬂì_Ç™Ç ÇÈèÍçá" << std::endl;
 			const Fem::Field::CNodeAry& na_co = world.GetNA(nsna_b.id_na_co);
 			const CNodeAry::CNodeSeg& ns_co = na_co.GetSeg(nsna_b.id_ns_co);
 			double coord[3],value[3];
@@ -230,7 +230,7 @@ bool CDrawerVector::Update_VECTOR(const Fem::Field::CFieldWorld& world)	// ÉxÉNÉ
 			}
 		}
 		else{
-//			std::cout << "ÉoÉuÉãÇ≈ç¿ïWÇ™óvëfÇÃíÜêSÇ…Ç†ÇÈèÍçá" << std::endl;
+//			std::cout << "ÉoÉuÉãÇ≈ç¿ïWÇ™óvëfÇÃíÜêSÇ…Ç ÇÈèÍçá" << std::endl;
 			unsigned int id_na_c_co = field.GetNodeSegInNodeAry(CORNER).id_na_co;
 			unsigned int id_ns_c_co = field.GetNodeSegInNodeAry(CORNER).id_ns_co;
 			assert( world.IsIdNA(id_na_c_co) );
@@ -350,7 +350,7 @@ bool CDrawerVector::Update_SSTR2(const Fem::Field::CFieldWorld& world)	// éÂâûóÕ
 		const Fem::Field::CNodeAry::CNodeSeg& ns_val = na_val.GetSeg(id_ns_v);
 		assert( ns_val.GetLength() == ndim*(ndim+1)/2 );
 		{
-//			std::cout << "ÉoÉuÉãÇ≈ç¿ïWÇ™óvëfÇÃíÜêSÇ…Ç†ÇÈèÍçá" << std::endl;
+//			std::cout << "ÉoÉuÉãÇ≈ç¿ïWÇ™óvëfÇÃíÜêSÇ…Ç ÇÈèÍçá" << std::endl;
 			unsigned int id_na_c_co = field.GetNodeSegInNodeAry(CORNER).id_na_co;
 			unsigned int id_ns_c_co = field.GetNodeSegInNodeAry(CORNER).id_ns_co;
 			assert( world.IsIdNA(id_na_c_co) );
@@ -436,11 +436,15 @@ bool CDrawerVector::Set(unsigned int id_field, const Fem::Field::CFieldWorld& wo
 void CDrawerVector::Draw() const{
 	if( nline == 0 ) return;
 	assert( m_paVer != 0 );
+   ::glEnable(GL_DEPTH_TEST);
 	::glDisable(GL_TEXTURE_2D);
 	::glColor3d(0.0,0.0,0.0);
 	::glLineWidth(2);
-	::glEnableClientState(GL_VERTEX_ARRAY);
-	::glVertexPointer(m_paVer->NDim(),GL_DOUBLE,0,m_paVer->pVertexArray);
-	::glDrawArrays(GL_LINES,0,nline*2);
-	::glDisableClientState(GL_VERTEX_ARRAY);
+
+   ::glEnableClientState(GL_VERTEX_ARRAY);
+   ::glVertexPointer(m_paVer->NDim(),GL_DOUBLE,0,m_paVer->pVertexArray);
+   if( m_paVer->NDim() == 2 ){ ::glTranslated(0,0,+0.01); }
+   ::glDrawArrays(GL_LINES,0,nline*2);
+   if( m_paVer->NDim() == 2 ){ ::glTranslated(0,0,-0.01); }
+   ::glDisableClientState(GL_VERTEX_ARRAY);
 }
