@@ -29,14 +29,15 @@ private slots:
 
 public:
     void SetNewProblem();
+public:
+    Fem::Field::CFieldWorld world;
+    Fem::Eqn::CEqnSystem_Scalar2D eqn_scalar;
 private:
     Com::View::CCamera camera;
 
-    Fem::Field::CFieldWorld world;
     Fem::Field::View::CDrawerArrayField drawer_ary;
     double cur_time;
     double dt;
-    Fem::Eqn::CEqnSystem_Scalar2D eqn_scalar;
     unsigned int id_base;
 };
 

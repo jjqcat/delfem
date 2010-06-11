@@ -29,14 +29,15 @@ private slots:
 
 public:
     void SetNewProblem();
+public:
+    Fem::Eqn::CEqnSystem_Fluid2D fluid;
+    Fem::Field::CFieldWorld world;
 private:
     Com::View::CCamera camera;
 
-    Fem::Field::CFieldWorld world;
     Fem::Field::View::CDrawerArrayField drawer_ary;
     double cur_time;
     double dt;
-    Fem::Eqn::CEqnSystem_Fluid2D fluid;
     unsigned int id_base;
 };
 

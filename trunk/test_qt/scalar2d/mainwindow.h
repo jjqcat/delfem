@@ -18,6 +18,7 @@ protected:
     void changeEvent(QEvent *e);
 public slots:
     void setNewProblem();
+    void showDialogMatProp();
 
 private:
     Ui::MainWindow *ui;

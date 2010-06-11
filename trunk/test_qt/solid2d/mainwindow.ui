@@ -84,7 +84,7 @@
         <item>
          <widget class="QPushButton" name="pushButton_matprop">
           <property name="text">
-           <string>Material Property</string>
+           <string>Material Property Dialog</string>
           </property>
          </widget>
         </item>

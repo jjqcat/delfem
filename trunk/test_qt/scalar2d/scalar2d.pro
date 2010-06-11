@@ -9,7 +9,10 @@ QMAKE_LIBDIR += ../../lib
 QMAKE_LIBS += -ldfm_core
 SOURCES += main.cpp \
     mainwindow.cpp \
-    glwidget.cpp
+    glwidget.cpp \
+    dialog_scalar2d.cpp
 HEADERS += mainwindow.h \
-    glwidget.h
-FORMS += mainwindow.ui
+    glwidget.h \
+    dialog_scalar2d.h
+FORMS += mainwindow.ui \
+    dialog_scalar2d.ui
