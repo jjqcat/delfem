@@ -173,8 +173,8 @@ bool CDrawerVector::Update_VECTOR(const Fem::Field::CFieldWorld& world)	// ƒxƒNƒ
 			if( ilayer_min != ilayer_max ){
 				assert( ndim_co == 2 );
 				assert( ndim_va == 3 );
-				m_paVer->pVertexArray[ipoin*2*ndim_va        +2] = 0;
-				m_paVer->pVertexArray[ipoin*2*ndim_va+ndim_va+2] = 0;
+				m_paVer->pVertexArray[ipoin*2*ndim_va        +2] = 0.02;
+				m_paVer->pVertexArray[ipoin*2*ndim_va+ndim_va+2] = 0.02;
 			}
 		}
 		if( ilayer_min != ilayer_max ){ // ‚‚³‚ğì‚é
