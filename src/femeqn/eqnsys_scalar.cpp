@@ -370,7 +370,7 @@ bool CEqnSystem_Scalar2D::SetEquation( const CEqn_Scalar2D& eqn )
 	return false;
 }
 
-CEqn_Scalar2D CEqnSystem_Scalar2D::GetEqnation(unsigned int id_ea) const
+CEqn_Scalar2D CEqnSystem_Scalar2D::GetEquation(unsigned int id_ea) const
 {
 	for(unsigned int ieqn=0;ieqn<m_aEqn.size();ieqn++){
 		if( m_aEqn[ieqn].GetIdEA() == id_ea ){ return m_aEqn[ieqn]; }

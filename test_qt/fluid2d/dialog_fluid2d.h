@@ -11,6 +11,7 @@ namespace Ui {
     class Dialog_Fluid2D;
 }
 
+class QAbstractButton;
 class Dialog_Fluid2D : public QDialog {
     Q_OBJECT
 public:
@@ -21,6 +22,7 @@ public:
 private slots:
     void comboBox_currentIndexChenged(int);
     void matPorpChanged();
+    void buttonBox_clicked(QAbstractButton* pbtn);
 
 protected:
     void changeEvent(QEvent *e);
@@ -30,6 +32,7 @@ private:
 
     const Fem::Field::CFieldWorld& world;
     Fem::Eqn::CEqnSystem_Fluid2D& fluid;
+    std::vector<Fem::Eqn::CEqn_Fluid2D> aEqn;
 };
 
 #endif // DIALOG_FLUID2D_H

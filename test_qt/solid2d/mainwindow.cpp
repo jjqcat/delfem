@@ -46,6 +46,5 @@ void MainWindow::showDialogMatProp(){
     Dialog_Solid2D* dialog = new Dialog_Solid2D(glWidget->world,glWidget->solid,this);
     ((QDialog*)dialog)->setModal(true);
     ((QDialog*)dialog)->exec();
-    std::cout << "hoge" << std::endl;
     delete dialog;
 }

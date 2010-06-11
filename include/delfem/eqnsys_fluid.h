@@ -184,7 +184,7 @@ public:
 		return aId;
 	}
 	// 要素IDがid_eaの方程式を得る
-	CEqn_Fluid2D GetEqnation(unsigned int id_ea) const;
+   CEqn_Fluid2D GetEquation(unsigned int id_ea) const;
 	// 要素単位で方程式を定める．要素が存在しなければ方程式を追加する
 	bool SetEquation( const CEqn_Fluid2D& eqn );
 	// 要素IDを更新する

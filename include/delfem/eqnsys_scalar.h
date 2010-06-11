@@ -137,7 +137,7 @@ public:
 	//! •û’ö®‚ğİ’è‚·‚é
 	bool SetEquation( const CEqn_Scalar2D& eqn );
 	//! •û’ö®‚ğæ“¾‚·‚é
-	CEqn_Scalar2D GetEqnation(unsigned int id_ea) const;
+   CEqn_Scalar2D GetEquation(unsigned int id_ea) const;
 
 	//! ŠgUŒW”‚Ìİ’è
 	void SetAlpha(double alpha);

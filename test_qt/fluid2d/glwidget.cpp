@@ -347,7 +347,7 @@ void GLWidget::SetNewProblem()
 		{
 			Fem::Field::CField& field = world.GetField(id_field_bc1);
 			field.SetValue(0.1,0,Fem::Field::VELOCITY,world,true);
-		}
+		}      
 		{
 			std::vector<unsigned int> aIdEAFixVelo;
 			aIdEAFixVelo.push_back( conv.GetIdEA_fromCad(1,Cad::EDGE) );
@@ -480,7 +480,7 @@ void GLWidget::SetNewProblem()
 		fluid.SetNavierStokes();
 		fluid.SetTimeIntegrationParameter(dt);
 		{
-			Fem::Eqn::CEqn_Fluid2D eqn_fluid = fluid.GetEqnation( conv.GetIdEA_fromCad(2,Cad::LOOP) );
+         Fem::Eqn::CEqn_Fluid2D eqn_fluid = fluid.GetEquation( conv.GetIdEA_fromCad(2,Cad::LOOP) );
 			eqn_fluid.SetMyu(0.01);
 			fluid.SetEquation(eqn_fluid);
 		}
@@ -536,7 +536,7 @@ void GLWidget::SetNewProblem()
 		fluid.SetNavierStokes();
 		fluid.SetTimeIntegrationParameter(dt);
 		{
-			Fem::Eqn::CEqn_Fluid2D eqn_fluid = fluid.GetEqnation( conv.GetIdEA_fromCad(2,Cad::LOOP) );
+         Fem::Eqn::CEqn_Fluid2D eqn_fluid = fluid.GetEquation( conv.GetIdEA_fromCad(2,Cad::LOOP) );
 			eqn_fluid.SetBodyForce(0.0,0.5);
 			fluid.SetEquation(eqn_fluid);
 		}

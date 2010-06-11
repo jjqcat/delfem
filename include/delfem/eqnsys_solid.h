@@ -167,8 +167,15 @@ public:
 	{
 		m_lambda = 0.0; m_myu = 1.0; m_rho = 1.0; m_g_x = 0.0; m_g_y = 0.0;
 		m_IsGeomNonlin = false;
-		m_IdFieldTemperature = 0;
-	}
+      m_IdFieldTemperature = 0;
+  }
+   CEqn_Solid2D( const CEqn_Solid2D& eqn ){
+       this->m_id_ea = eqn.m_id_ea;
+       this->m_IdFieldDisp = eqn.m_IdFieldDisp;
+       this->m_IdFieldTemperature = eqn.m_IdFieldTemperature;
+       this->CopyParameters(eqn);
+   }
+
 	unsigned int GetIdField_Disp() const { return m_IdFieldDisp; }
 	void CopyParameters( const CEqn_Solid2D& eqn ){
 		m_lambda = eqn.m_lambda; 
@@ -293,7 +300,7 @@ public:
 	//! •û’ö®‚Ìæ“¾Cİ’è
 	//! @{
 	bool SetEquation( const CEqn_Solid2D& eqn );
-	CEqn_Solid2D GetEqnation(unsigned int id_ea) const;
+   CEqn_Solid2D GetEquation(unsigned int id_ea) const;
 	//! @}
 
 	////////////////

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog_Solid2D</class>
- <widget class="QDialog" name="Dialog_Solid2D">
+ <class>Dialog_Scalar2D</class>
+ <widget class="QDialog" name="Dialog_Scalar2D">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -188,7 +188,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>Dialog_Solid2D</receiver>
+   <receiver>Dialog_Scalar2D</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -204,7 +204,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>Dialog_Solid2D</receiver>
+   <receiver>Dialog_Scalar2D</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

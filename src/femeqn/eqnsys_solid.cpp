@@ -640,11 +640,11 @@ bool CEqnSystem_Solid2D::SetEquation( const CEqn_Solid2D& eqn )
 	return false;
 }
 
-CEqn_Solid2D CEqnSystem_Solid2D::GetEqnation(unsigned int id_ea) const
+CEqn_Solid2D CEqnSystem_Solid2D::GetEquation(unsigned int id_ea) const
 {
 	for(unsigned int ieqn=0;ieqn<m_aEqn.size();ieqn++){
 		if( m_aEqn[ieqn].GetIdEA() == id_ea ){
-			return m_aEqn[ieqn];
+          return m_aEqn[ieqn];
 		}
 	}
 	return CEqn_Solid2D(0,0);
@@ -748,7 +748,7 @@ bool CEqnSystem_Solid2D::UpdateDomain_Field(unsigned int id_base, Fem::Field::CF
 		Fem::Field::VECTOR2,VALUE|VELOCITY|ACCELERATION,CORNER);
     assert( world.IsIdField(m_IdFieldDisp) );
 
-	{	// “¯‚¶—v‘f”z—ñID‚ğ‚Â•û’ö®‚ª‚ ‚Á‚½‚çC‚»‚ê‚ğg‚¤D‚È‚¯‚ê‚ÎV‹K‚É’Ç‰Á
+	{	// “¯‚¶—v‘f”z—ñID‚ğ‚Â•û’ö®‚ª‚ ‚Á‚½‚çC‚»‚ê‚ğg‚¤D‚È‚¯‚ê‚ÎV‹K‚É’Ç‰Á
 		std::vector<CEqn_Solid2D> aEqn_old = m_aEqn;
 		m_aEqn.clear();
 		const CField& field = world.GetField(m_IdFieldDisp);
@@ -1044,7 +1044,7 @@ bool CEqnSystem_Solid2D::SetEquivStressValue(unsigned int id_field_str, Fem::Fie
         const unsigned int nnoes_c = es_c_co.GetSizeNoes();
         assert( nnoes_c < 64 );
 		unsigned int noes[64];
-		const CEqn_Solid2D& eqn = this->GetEqnation(id_ea);
+      const CEqn_Solid2D& eqn = this->GetEquation(id_ea);
 		for(unsigned int ielem=0;ielem<ea.Size();ielem++){
 			////////////////
 			double coord[16][3];
@@ -1080,7 +1080,7 @@ bool CEqnSystem_Solid2D::SetEquivStressValue(unsigned int id_field_str, Fem::Fie
 				}
 			}
 			double strain[2][2];	// ˜c
-			if( eqn.IsGeometricalNonlinear() ){ // Šô‰½Šw“I”ñüŒ`‚ ‚è
+			if( eqn.IsGeometricalNonlinear() ){ // Šô‰½Šw“I”ñüŒ`‚ ‚è
 				strain[0][0] = 0.5*(dudx[0][0]+dudx[0][0]+dudx[0][0]*dudx[0][0]+dudx[1][0]*dudx[1][0]);
 				strain[0][1] = 0.5*(dudx[0][1]+dudx[1][0]+dudx[0][0]*dudx[0][1]+dudx[1][1]*dudx[1][0]);
 				strain[1][0] = 0.5*(dudx[1][0]+dudx[0][1]+dudx[0][1]*dudx[0][0]+dudx[1][0]*dudx[1][1]);
@@ -1232,9 +1232,9 @@ bool CEqnSystem_Solid2D::SetStressValue(unsigned int id_field_str, Fem::Field::C
 					dudx[1][1] += disp[knoes][1]*dldx[knoes][1];
 				}
 			}
-			const CEqn_Solid2D& eqn = this->GetEqnation(id_ea);
+         const CEqn_Solid2D& eqn = this->GetEquation(id_ea);
 			double strain[2][2];	// ˜c
-			if( eqn.IsGeometricalNonlinear() ){ // Šô‰½Šw“I”ñüŒ`‚ ‚è(GL˜c‚İ)
+			if( eqn.IsGeometricalNonlinear() ){ // Šô‰½Šw“I”ñüŒ`‚ ‚è(GL˜c‚İ)
 				strain[0][0] = 0.5*(dudx[0][0]+dudx[0][0]+dudx[0][0]*dudx[0][0]+dudx[1][0]*dudx[1][0]);
 				strain[0][1] = 0.5*(dudx[0][1]+dudx[1][0]+dudx[0][0]*dudx[0][1]+dudx[1][1]*dudx[1][0]);
 				strain[1][0] = 0.5*(dudx[1][0]+dudx[0][1]+dudx[0][1]*dudx[0][0]+dudx[1][0]*dudx[1][1]);

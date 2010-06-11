@@ -20,18 +20,18 @@ Dialog_Solid2D::Dialog_Solid2D(const Fem::Field::CFieldWorld& world_input,
         char str_id[16];
         sprintf(str_id,"%d",id_ea);
         ui->comboBox_IdEA->addItem(str_id);
+        aEqn.push_back(solid.GetEquation(id_ea));
     }
 
-   connect(ui->comboBox_IdEA,SIGNAL(currentIndexChanged(int)),
-           this,SLOT(comboBox_currentIndexChenged(int)));
-   connect(ui->doubleSpinBox_Young,SIGNAL(valueChanged(double)),
-           this,SLOT(matPorpChanged()));
-   connect(ui->doubleSpinBox_Poisson,SIGNAL(valueChanged(double)),
-           this,SLOT(matPorpChanged()));
-   connect(ui->doubleSpinBox_rho,SIGNAL(valueChanged(double)),
-           this,SLOT(matPorpChanged()));
+    connect(ui->comboBox_IdEA,          SIGNAL(currentIndexChanged(int)),   this,SLOT(comboBox_currentIndexChenged(int)));
+    connect(ui->doubleSpinBox_Young,    SIGNAL(valueChanged(double)),       this,SLOT(matPorpChanged()));
+    connect(ui->doubleSpinBox_Poisson,  SIGNAL(valueChanged(double)),       this,SLOT(matPorpChanged()));
+    connect(ui->doubleSpinBox_rho,      SIGNAL(valueChanged(double)),       this,SLOT(matPorpChanged()));
 
-   this->comboBox_currentIndexChenged(0);
+    connect(ui->buttonBox,SIGNAL(clicked(QAbstractButton*)),    this,SLOT(buttonBox_clicked(QAbstractButton*)));
+
+    this->comboBox_currentIndexChenged(0);
+
 }
 
 Dialog_Solid2D::~Dialog_Solid2D()
@@ -51,22 +51,25 @@ void Dialog_Solid2D::changeEvent(QEvent *e)
     }
 }
 
-
-void Dialog_Solid2D::comboBox_currentIndexChenged(int)
+void Dialog_Solid2D::comboBox_currentIndexChenged(int ind)
 {
+    if( ind < 0 || ind >= this->ui->comboBox_IdEA->count() ) return;
 
-    unsigned int id_ea0;
-    {
-        unsigned int ind = ui->comboBox_IdEA->currentIndex();
-        QString itemData = ui->comboBox_IdEA->itemText(ind);
-        id_ea0 = itemData.toInt();
-    }
-    const Fem::Eqn::CEqn_Solid2D& eqn = solid.GetEqnation(id_ea0);
+
+    disconnect(ui->doubleSpinBox_Young,     SIGNAL(valueChanged(double)),   this,SLOT(matPorpChanged()));
+    disconnect(ui->doubleSpinBox_Poisson,   SIGNAL(valueChanged(double)),   this,SLOT(matPorpChanged()));
+    disconnect(ui->doubleSpinBox_rho,       SIGNAL(valueChanged(double)),   this,SLOT(matPorpChanged()));
+
+    const Fem::Eqn::CEqn_Solid2D& eqn = aEqn[ind];
     double young, poisson;
     eqn.GetYoungPoisson(young,poisson);
     ui->doubleSpinBox_Young->setValue(young);
     ui->doubleSpinBox_Poisson->setValue(poisson);
     ui->doubleSpinBox_rho->setValue(eqn.GetRho());
+
+    connect(ui->doubleSpinBox_Young,    SIGNAL(valueChanged(double)),   this,SLOT(matPorpChanged()));
+    connect(ui->doubleSpinBox_Poisson,  SIGNAL(valueChanged(double)),   this,SLOT(matPorpChanged()));
+    connect(ui->doubleSpinBox_rho,      SIGNAL(valueChanged(double)),   this,SLOT(matPorpChanged()));
 }
 
 void Dialog_Solid2D::matPorpChanged()
@@ -77,10 +80,24 @@ void Dialog_Solid2D::matPorpChanged()
         QString itemData = ui->comboBox_IdEA->itemText(ind);
         id_ea0 = itemData.toInt();
     }
-    Fem::Eqn::CEqn_Solid2D eqn = solid.GetEqnation(id_ea0);
+    unsigned int ieqn=0;
+    for(ieqn=0;ieqn<aEqn.size();ieqn++){
+        if( aEqn[ieqn].GetIdEA() == id_ea0 ) break;
+    }
+    if( ieqn == aEqn.size() ) return;
+    Fem::Eqn::CEqn_Solid2D& eqn = aEqn[ieqn];
     double young = ui->doubleSpinBox_Young->value();
     double poisson = ui->doubleSpinBox_Poisson->value();
     eqn.SetYoungPoisson(young,poisson,true);
     eqn.SetRho(ui->doubleSpinBox_rho->value());
-    solid.SetEquation(eqn);
+}
+
+void Dialog_Solid2D::buttonBox_clicked(QAbstractButton* pbtn)
+{
+    if( this->ui->buttonBox->buttonRole(pbtn) != this->ui->buttonBox->ApplyRole ||
+        this->ui->buttonBox->buttonRole(pbtn) != this->ui->buttonBox->AcceptRole ){
+        for(unsigned int ieqn=0;ieqn<aEqn.size();ieqn++){
+            solid.SetEquation(aEqn[ieqn]);
+        }
+    }
 }
