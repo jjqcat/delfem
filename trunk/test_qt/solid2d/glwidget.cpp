@@ -423,12 +423,12 @@ void GLWidget_Solid2d::SetNewProblem()
         solid.SetGravitation(0.0,-0.0);
 
         {	// St.Venant-KirchhoffÅeI
-            Fem::Eqn::CEqn_Solid2D eqn = solid.GetEqnation(conv.GetIdEA_fromCad(1,Cad::LOOP));
+            Fem::Eqn::CEqn_Solid2D eqn = solid.GetEquation(conv.GetIdEA_fromCad(1,Cad::LOOP));
             eqn.SetGeometricalNonlinear(true);
             solid.SetEquation(eqn);
         }
         {	// ?_?c?c?ÅëÅfe?Å·ÅeI
-            Fem::Eqn::CEqn_Solid2D eqn = solid.GetEqnation(conv.GetIdEA_fromCad(2,Cad::LOOP));
+            Fem::Eqn::CEqn_Solid2D eqn = solid.GetEquation(conv.GetIdEA_fromCad(2,Cad::LOOP));
             eqn.SetYoungPoisson(0.1,0.3,true);
             solid.SetEquation(eqn);
         }
@@ -439,12 +439,12 @@ void GLWidget_Solid2d::SetNewProblem()
             field.SetValue("0.1*sin(3.14*4*y)*sin(2*t)", 0,Fem::Field::VALUE, world,true);
         }
         {	// ÅhMÅÒ??I?d?l?Å˜?É ???u?`Åfe?Å·ÅeI
-            Fem::Eqn::CEqn_Solid2D eqn = solid.GetEqnation(conv.GetIdEA_fromCad(3,Cad::LOOP));
+            Fem::Eqn::CEqn_Solid2D eqn = solid.GetEquation(conv.GetIdEA_fromCad(3,Cad::LOOP));
             eqn.SetThermalStress(id_field_temp);
             solid.SetEquation(eqn);
         }
         {	// ?d?Åë?u?`Åfe?Å·ÅeI
-            Fem::Eqn::CEqn_Solid2D eqn = solid.GetEqnation(conv.GetIdEA_fromCad(4,Cad::LOOP));
+            Fem::Eqn::CEqn_Solid2D eqn = solid.GetEquation(conv.GetIdEA_fromCad(4,Cad::LOOP));
             eqn.SetYoungPoisson(10,0.3,true);
             solid.SetEquation(eqn);
         }
@@ -498,12 +498,12 @@ void GLWidget_Solid2d::SetNewProblem()
         solid.SetRho(0.001);
 
         {	// ?_?c?c?ÅëÅfe?Å·ÅeI
-            Fem::Eqn::CEqn_Solid2D eqn = solid.GetEqnation(conv.GetIdEA_fromCad(1,Cad::LOOP));
+            Fem::Eqn::CEqn_Solid2D eqn = solid.GetEquation(conv.GetIdEA_fromCad(1,Cad::LOOP));
             eqn.SetYoungPoisson(0.1,0.3,true);
             solid.SetEquation(eqn);
         }
         {	// ?d?Åë?u?`Åfe?Å·ÅeI
-            Fem::Eqn::CEqn_Solid2D eqn = solid.GetEqnation(conv.GetIdEA_fromCad(2,Cad::LOOP));
+            Fem::Eqn::CEqn_Solid2D eqn = solid.GetEquation(conv.GetIdEA_fromCad(2,Cad::LOOP));
             eqn.SetYoungPoisson(100000000,0.3,true);
             solid.SetEquation(eqn);
         }

@@ -137,7 +137,7 @@ bool CEqnSystem_Fluid2D::SetEquation( const CEqn_Fluid2D& eqn )
 	return true;
 }
 
-CEqn_Fluid2D CEqnSystem_Fluid2D::GetEqnation(unsigned int id_ea) const
+CEqn_Fluid2D CEqnSystem_Fluid2D::GetEquation(unsigned int id_ea) const
 {
 	for(unsigned int ieqn=0;ieqn<m_aEqn.size();ieqn++){
 		if( m_aEqn[ieqn].GetIdEA() == id_ea ){

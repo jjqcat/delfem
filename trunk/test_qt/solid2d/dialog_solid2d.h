@@ -11,6 +11,7 @@ namespace Ui {
     class Dialog_Solid2D;
 }
 
+class QAbstractButton;
 class Dialog_Solid2D : public QDialog {
     Q_OBJECT
 public:
@@ -21,6 +22,7 @@ public:
 private slots:
     void comboBox_currentIndexChenged(int);
     void matPorpChanged();
+    void buttonBox_clicked(QAbstractButton* pbtn);
 protected:
     void changeEvent(QEvent *e);
 
@@ -29,6 +31,7 @@ private:
 
     Fem::Eqn::CEqnSystem_Solid2D& solid;
     const Fem::Field::CFieldWorld& world;
+    std::vector<Fem::Eqn::CEqn_Solid2D> aEqn;
 };
 
 #endif // DIALOG_SOLID2D_H

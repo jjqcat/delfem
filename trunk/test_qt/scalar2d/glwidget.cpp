@@ -305,7 +305,7 @@ void GLWidget::SetNewProblem()
 		eqn_scalar.SetAdvection(false);
 		eqn_scalar.SetSaveStiffMat(false);
 		{
-			Fem::Eqn::CEqn_Scalar2D eqn1 = eqn_scalar.GetEqnation(conv.GetIdEA_fromCad(2,Cad::LOOP));
+         Fem::Eqn::CEqn_Scalar2D eqn1 = eqn_scalar.GetEquation(conv.GetIdEA_fromCad(2,Cad::LOOP));
 			eqn1.SetAlpha(10.0);
 			eqn_scalar.SetEquation(eqn1);
 		}
