@@ -9,7 +9,10 @@ QMAKE_LIBDIR += ../../lib
 QMAKE_LIBS += -ldfm_core
 SOURCES += main.cpp \
     mainwindow.cpp \
-    glwidget.cpp
+    glwidget.cpp \
+    dialog_fluid2d.cpp
 HEADERS += mainwindow.h \
-    glwidget.h
-FORMS += mainwindow.ui
+    glwidget.h \
+    dialog_fluid2d.h
+FORMS += mainwindow.ui \
+    dialog_fluid2d.ui

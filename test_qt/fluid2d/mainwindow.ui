@@ -70,24 +70,38 @@
            <x>0</x>
            <y>0</y>
            <width>373</width>
-           <height>255</height>
+           <height>235</height>
           </rect>
          </property>
         </widget>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <property name="margin">
+         <number>10</number>
         </property>
-        <property name="text">
-         <string>Change Problem Setting</string>
-        </property>
-       </widget>
+        <item>
+         <widget class="QPushButton" name="pushButton_matprop">
+          <property name="text">
+           <string>Material Property Dialog</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Change Problem Setting</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </item>

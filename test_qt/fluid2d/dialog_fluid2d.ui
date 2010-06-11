@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog_Solid2D</class>
- <widget class="QDialog" name="Dialog_Solid2D">
+ <class>Dialog_Fluid2D</class>
+ <widget class="QDialog" name="Dialog_Fluid2D">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -32,7 +32,10 @@
     <enum>Qt::Horizontal</enum>
    </property>
    <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+    <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+   </property>
+   <property name="centerButtons">
+    <bool>false</bool>
    </property>
   </widget>
   <widget class="QComboBox" name="comboBox_IdEA">
@@ -73,7 +76,7 @@
    <widget class="QWidget" name="gridLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>30</x>
+      <x>20</x>
       <y>30</y>
       <width>251</width>
       <height>121</height>
@@ -83,65 +86,20 @@
      <property name="margin">
       <number>10</number>
      </property>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Poisson's ratio</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_3">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Mass Density</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="2">
-      <widget class="QDoubleSpinBox" name="doubleSpinBox_rho">
+     <item row="0" column="2">
+      <widget class="QDoubleSpinBox" name="doubleSpinBox_myu">
        <property name="decimals">
-        <number>3</number>
+        <number>5</number>
        </property>
        <property name="maximum">
-        <double>100000.000000000000000</double>
+        <double>1000000.000000000000000</double>
+       </property>
+       <property name="value">
+        <double>0.000000000000000</double>
        </property>
       </widget>
      </item>
-     <item row="2" column="2">
-      <widget class="QDoubleSpinBox" name="doubleSpinBox_Poisson">
-       <property name="decimals">
-        <number>3</number>
-       </property>
-       <property name="minimum">
-        <double>-1.000000000000000</double>
-       </property>
-       <property name="maximum">
-        <double>0.500000000000000</double>
-       </property>
-       <property name="singleStep">
-        <double>0.100000000000000</double>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
+     <item row="0" column="0">
       <widget class="QLabel" name="label">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -150,7 +108,23 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>young's modulus</string>
+        <string>Myu</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Mass Deinsity</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -158,15 +132,21 @@
       </widget>
      </item>
      <item row="1" column="2">
-      <widget class="QDoubleSpinBox" name="doubleSpinBox_Young">
+      <widget class="QDoubleSpinBox" name="doubleSpinBox_rho">
        <property name="decimals">
-        <number>3</number>
+        <number>5</number>
+       </property>
+       <property name="minimum">
+        <double>0.000000000000000</double>
        </property>
        <property name="maximum">
         <double>1000000.000000000000000</double>
        </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
        <property name="value">
-        <double>0.000000000000000</double>
+        <double>1.000000000000000</double>
        </property>
       </widget>
      </item>
@@ -179,7 +159,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>Dialog_Solid2D</receiver>
+   <receiver>Dialog_Fluid2D</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -195,7 +175,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>Dialog_Solid2D</receiver>
+   <receiver>Dialog_Fluid2D</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

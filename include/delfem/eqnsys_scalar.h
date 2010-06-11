@@ -75,6 +75,9 @@ public:
 	void SetSource(  double source){ m_source = source; }
 	void SetAdvection(unsigned int id_field_advec){ m_IdFieldAdvec = id_field_advec; }
 	//! @}
+        double GetAlpha() const { return m_alpha; }
+        double GetCapacity() const { return m_capa; }
+        double GetSource() const { return m_source; }
 	// Getƒƒ\ƒbƒh
 	unsigned int GetIdEA() const { return m_id_ea; }
 	bool IsAdvection()  const { return m_IdFieldAdvec != 0; }

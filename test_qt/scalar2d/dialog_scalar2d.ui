@@ -32,7 +32,10 @@
     <enum>Qt::Horizontal</enum>
    </property>
    <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+    <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+   </property>
+   <property name="centerButtons">
+    <bool>false</bool>
    </property>
   </widget>
   <widget class="QComboBox" name="comboBox_IdEA">
@@ -92,7 +95,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Poisson's ratio</string>
+        <string>Calpacity</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -108,7 +111,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Mass Density</string>
+        <string>Source</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -116,28 +119,34 @@
       </widget>
      </item>
      <item row="3" column="2">
-      <widget class="QDoubleSpinBox" name="doubleSpinBox_rho">
-       <property name="decimals">
-        <number>3</number>
-       </property>
-       <property name="maximum">
-        <double>100000.000000000000000</double>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="2">
-      <widget class="QDoubleSpinBox" name="doubleSpinBox_Poisson">
+      <widget class="QDoubleSpinBox" name="doubleSpinBox_source">
        <property name="decimals">
         <number>3</number>
        </property>
        <property name="minimum">
-        <double>-1.000000000000000</double>
+        <double>-1000000.000000000000000</double>
        </property>
        <property name="maximum">
-        <double>0.500000000000000</double>
+        <double>1000000.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QDoubleSpinBox" name="doubleSpinBox_capacity">
+       <property name="decimals">
+        <number>3</number>
+       </property>
+       <property name="minimum">
+        <double>0.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>1000000.000000000000000</double>
        </property>
        <property name="singleStep">
         <double>0.100000000000000</double>
+       </property>
+       <property name="value">
+        <double>1.000000000000000</double>
        </property>
       </widget>
      </item>
@@ -150,7 +159,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>young's modulus</string>
+        <string>Alpha</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -158,7 +167,7 @@
       </widget>
      </item>
      <item row="1" column="2">
-      <widget class="QDoubleSpinBox" name="doubleSpinBox_Young">
+      <widget class="QDoubleSpinBox" name="doubleSpinBox_alpha">
        <property name="decimals">
         <number>3</number>
        </property>
