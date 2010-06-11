@@ -243,6 +243,8 @@ void CDrawerEdge::Draw() const{
 	::glLineWidth(1);
 	::glEnableClientState(GL_VERTEX_ARRAY);
 	::glVertexPointer(m_paVer->NDim(),GL_DOUBLE,0,m_paVer->pVertexArray);
+   if( m_paVer->NDim() == 2 ){ ::glTranslated(0,0,+0.01); }
 	::glDrawArrays(GL_LINES,0,m_nline*2);
+   if( m_paVer->NDim() == 2 ){ ::glTranslated(0,0,-0.01); }
 	::glDisableClientState(GL_VERTEX_ARRAY);
 }
