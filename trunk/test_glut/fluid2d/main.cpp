@@ -638,7 +638,7 @@ void SetNewProblem()
 		fluid.SetNavierStokes();
 		fluid.SetTimeIntegrationParameter(dt);
 		{
-			Fem::Eqn::CEqn_Fluid2D eqn_fluid = fluid.GetEqnation( conv.GetIdEA_fromCad(2,Cad::LOOP) );
+			Fem::Eqn::CEqn_Fluid2D eqn_fluid = fluid.GetEquation( conv.GetIdEA_fromCad(2,Cad::LOOP) );
 			eqn_fluid.SetMyu(0.01);
 			fluid.SetEquation(eqn_fluid);
 		}
@@ -694,7 +694,7 @@ void SetNewProblem()
 		fluid.SetNavierStokes();
 		fluid.SetTimeIntegrationParameter(dt);
 		{
-			Fem::Eqn::CEqn_Fluid2D eqn_fluid = fluid.GetEqnation( conv.GetIdEA_fromCad(2,Cad::LOOP) );
+			Fem::Eqn::CEqn_Fluid2D eqn_fluid = fluid.GetEquation( conv.GetIdEA_fromCad(2,Cad::LOOP) );
 			eqn_fluid.SetBodyForce(0.0,0.5);
 			fluid.SetEquation(eqn_fluid);
 		}
