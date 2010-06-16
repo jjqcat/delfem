@@ -107,8 +107,6 @@ void ShowFPS()
 	::glMatrixMode(GL_MODELVIEW);
 }
 
-
-// リサイズ時のコールバック関数
 void myGlutResize(int w, int h)
 {
 	camera.SetWindowAspect((double)w/h);
@@ -150,7 +148,7 @@ void myGlutKeyboard(unsigned char Key, int x, int y)
 	case 'q':
 	case 'Q':
 	case '\033':
-		exit(0);  /* '\033' ? ESC ? ASCII ??? */
+		exit(0);  // '\033' is ESC key in ASCII
 	case 'a':
 		if( is_animation ){ is_animation = false; }
 		else{ is_animation = true; }
@@ -210,7 +208,6 @@ void myGlutSpecial(int Key, int x, int y)
 	::glutPostRedisplay();
 }
 
-// アイドル時のコールバック関数
 void myGlutIdle(){
 	::glutPostRedisplay();
 }
@@ -223,11 +220,9 @@ double cur_time = 0.0;
 double dt = 0.05;
 Fem::Eqn::CEqnSystem_Solid2D solid;
 unsigned int id_field_disp;
-unsigned int id_field_equiv_stress;	// 相当応力の場
-unsigned int id_field_stress;	// 相当応力の場
+unsigned int id_field_equiv_stress;	// handle of equiv stress (scalar value)
+unsigned int id_field_stress;	// handle of stress field (sym-tensor field)
 
-
-// 描画時のコールバック関数
 void myGlutDisplay(void)
 {
 	::glClearColor(1.0, 1.0, 1.0, 1.0);
@@ -268,7 +263,7 @@ void SetNewProblem()
 	static unsigned int id_field_disp_fix0 = 0;
 	static unsigned int id_field_temp = 0;
 
-	if( iprob == 0 )
+	if( iprob == 0 )	// linear solid stationary analysis
 	{
 		id_field_disp_fix0 = 0;
 		id_field_temp = 0;
@@ -293,7 +288,7 @@ void SetNewProblem()
 		solid.SetSaveStiffMat(false);	
 		solid.SetStationary(true);
 		// Setting Material Parameter
-		solid.SetYoungPoisson(10.0,0.3,true);	// ヤング率とポアソン比の設定(平面応力)
+		solid.SetYoungPoisson(10.0,0.3,true);	// planter stress
 		solid.SetGeometricalNonlinear(false);
 		solid.SetGravitation(0.0,0.0);
 		solid.SetTimeIntegrationParameter(dt,0.7);
@@ -313,66 +308,65 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
 		drawer_ary.InitTrans(camera);	// View座標変換の設定
 	}
-	else if( iprob == 1 )	// 剛性行列を保存して，準静的問題
+	else if( iprob == 1 )	// save stiffness matrix for the efficency of computation
 	{
 		solid.SetSaveStiffMat(true);
 	}
-	else if( iprob == 2 )	// 剛性行列を保存して，動的問題を解く
+	else if( iprob == 2 )	// non-stationary analysis
 	{
 		solid.SetSaveStiffMat(true);
 		solid.SetStationary(false);
 	}
-	else if( iprob == 3 )	// 少し固くする
+	else if( iprob == 3 )	// set stiffer material
 	{
 		solid.SetYoungPoisson(50,0.3,true);
 	}
-	else if( iprob == 4 )	// もう少し固くする
+	else if( iprob == 4 )	// set more stiffer material
 	{
 		solid.SetYoungPoisson(100,0.3,true);
 	}
-	else if( iprob == 5 )	// 幾何学的非線形を考えた，準静的解析
+	else if( iprob == 5 )	// geometrical non-linear stationaly
 	{
 		solid.SetStationary(true);
 		solid.SetGeometricalNonlinear(true);
 	}
-	else if( iprob == 6 )	// 幾何学的非線形を考えた，動的解析
+	else if( iprob == 6 )	// geometrical non-linear non-stationary
 	{
 		solid.SetYoungPoisson(10,0.0,true);
 		solid.SetStationary(false);
 		solid.SetGeometricalNonlinear(true);
 	}
-	else if( iprob == 7 )	// 線形ミーゼス応力の初期位置での表示
+	else if( iprob == 7 )	// display equivalent stress field in deformedconfigulation
 	{
 		id_field_equiv_stress = world.MakeField_FieldElemDim(id_field_disp,2,SCALAR,VALUE,BUBBLE);
 		solid.SetGeometricalNonlinear(false);
 		solid.SetStationary(true);
-		// 描画オブジェクトの登録
+		// set up visualization
 		drawer_ary.Clear();
 		id_field_disp = solid.GetIdField_Disp();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_equiv_stress,false,world,id_field_equiv_stress, 0,0.5) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
-		// View座標変換の設定
-		drawer_ary.InitTrans(camera);
+		drawer_ary.InitTrans(camera);	// init view transformation
+
 	}
-	else if( iprob == 8 )	// 線形ミーゼス応力の初期位置での表示
+	else if( iprob == 8 )	// display equivalent stress field in initial configulation
 	{
-		// 描画オブジェクトの登録
+		// set up visualization
 		drawer_ary.Clear();
 		id_field_disp = solid.GetIdField_Disp();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world,id_field_equiv_stress, 0,0.5) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
-		// View座標変換の設定
-		drawer_ary.InitTrans(camera);
+		drawer_ary.InitTrans(camera);	// init view transformation
 	}
-	else if( iprob == 9 )	// 熱応力問題
+	else if( iprob == 9 )	// thermal-solid analysis
 	{
 		id_field_equiv_stress = 0;
 		id_field_stress = 0;
 		////////////////
 		Cad::CCadObj2D cad_2d;
- 		{	// 形を作る
+ 		{	// define shape
 			std::vector<Com::CVector2D> vec_ary;
 			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(3.0,0.0) );
@@ -387,19 +381,18 @@ void SetNewProblem()
 		CIDConvEAMshCad conv = world.GetIDConverter(id_base);
 
 		solid.UpdateDomain_Field(id_base,world);
-		solid.SetSaveStiffMat(false);	// 剛性行列保存しない
-		solid.SetStationary(true);	// 静的問題にセット
-		// 全体の物性値をセット
-		solid.SetYoungPoisson(10.0,0.3,true);	// ヤング率とポアソン比の設定(平面応力)
-		solid.SetGeometricalNonlinear(false);	// 幾何学的非線形性無視
-		solid.SetGravitation(0.0,-0.1);	// 重力の設定
-		solid.SetTimeIntegrationParameter(dt);	// 時間ステップ設定
+		solid.SetSaveStiffMat(false);
+		solid.SetStationary(true);
+		// set material property
+		solid.SetYoungPoisson(10.0,0.3,true);	// set planer stress
+		solid.SetGeometricalNonlinear(false);	// geometricaly linear model
+		solid.SetGravitation(0.0,-0.1);
+		solid.SetTimeIntegrationParameter(dt);	// set time setp
 		
 		unsigned int id_field_bc0 = solid.AddFixElemAry(conv.GetIdEA_fromCad(2,Cad::EDGE),world);
 		unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(6,Cad::EDGE),world);
 
-		////////////////////////////////
-		// 温度場の設定
+		// set temparature field
 		id_field_temp = world.MakeField_FieldElemDim(id_field_disp,2,SCALAR,VALUE,CORNER);
 		{
 			CField& field = world.GetField(id_field_temp);
@@ -412,7 +405,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false, world, id_field_temp, -1,1) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
-		drawer_ary.InitTrans(camera);	// View座標変換の設定
+		drawer_ary.InitTrans(camera);	// set view transformation
 	}
 	else if( iprob == 10 )	// 熱応力を考慮することをやめる
 	{
@@ -420,7 +413,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_temp,true, world, id_field_temp, -1,1) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
-		drawer_ary.InitTrans(camera);	// View座標変換の設定
+		drawer_ary.InitTrans(camera);	// set view transformation
 	}
 	else if( iprob == 11 )	// 熱応力を考慮することをやめる
 	{
@@ -429,7 +422,7 @@ void SetNewProblem()
 	else if( iprob == 12 )
 	{
 		Cad::CCadObj2D cad_2d;
-		{	// 正方形に矩形の穴
+		{	// define shape
 			std::vector<Com::CVector2D> vec_ary;
 			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
@@ -447,15 +440,15 @@ void SetNewProblem()
 		}
 		world.Clear();
 		const unsigned int id_base = world.AddMesh( Msh::CMesher2D(cad_2d,0.05) );
-		CIDConvEAMshCad conv = world.GetIDConverter(id_base);		// ID変換クラス
+		CIDConvEAMshCad conv = world.GetIDConverter(id_base);		// get ID converter
 
 		solid.SetDomain_FieldEA(id_base,conv.GetIdEA_fromCad(1,Cad::LOOP),world);
 		solid.SetSaveStiffMat(true);
 		solid.SetStationary(true);
-		solid.SetTimeIntegrationParameter(dt);	// タイムステップを設定
-		solid.SetYoungPoisson(2.5,0.3,true);	// ヤング率とポアソン比の設定(平面応力)
-		solid.SetGeometricalNonlinear(false);	// 幾何学的非線形性を考慮しない
-		solid.SetGravitation(0.0,0.0);	// 重力０
+		solid.SetTimeIntegrationParameter(dt);	// set time step
+		solid.SetYoungPoisson(2.5,0.3,true);	// planer stress
+		solid.SetGeometricalNonlinear(false);	// set geometrical liner
+		solid.SetGravitation(0.0,0.0);	// set gravitation
 
 		unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(3,Cad::EDGE),world);
 		{
@@ -465,13 +458,13 @@ void SetNewProblem()
 		}
 		unsigned int id_field_bc2 = solid.AddFixElemAry(conv.GetIdEA_fromCad(1,Cad::EDGE),world);
 
-		// 描画オブジェクトの登録
+		// set visualization
 		drawer_ary.Clear();
 		id_field_disp = solid.GetIdField_Disp();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
-		drawer_ary.InitTrans(camera);	// View座標変換の設定
+		drawer_ary.InitTrans(camera);	// set view transformation
 	}
 	else if( iprob == 13 )
 	{
@@ -492,7 +485,7 @@ void SetNewProblem()
 	}
 	else if( iprob == 17 ){
 		Cad::CCadObj2D cad_2d;
-		{	// 正方形にが２つに分割
+		{	// define shape
 			std::vector<Com::CVector2D> vec_ary;
 			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
@@ -525,7 +518,7 @@ void SetNewProblem()
 		}
 		unsigned int id_field_bc2 = solid.AddFixElemAry(conv.GetIdEA_fromCad(5,Cad::EDGE),world);
 
-		// 描画オブジェクトの登録
+		// set up visualization
 		drawer_ary.Clear();
 		id_field_disp = solid.GetIdField_Disp();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world) );
@@ -553,7 +546,7 @@ void SetNewProblem()
 	}
 	else if( iprob == 22 ){
 		Cad::CCadObj2D cad_2d;
-		{	// 長方形が４つに分割
+		{	// define shape
 			std::vector<Com::CVector2D> vec_ary;
 			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(2.0,0.0) );
@@ -585,12 +578,12 @@ void SetNewProblem()
 		solid.SetGravitation(0.0,-0.0);
 
 		{	// St.Venant-Kirchhoff体
-			Fem::Eqn::CEqn_Solid2D eqn = solid.GetEqnation(conv.GetIdEA_fromCad(1,Cad::LOOP));
+			Fem::Eqn::CEqn_Solid2D eqn = solid.GetEquation(conv.GetIdEA_fromCad(1,Cad::LOOP));
 			eqn.SetGeometricalNonlinear(true);
 			solid.SetEquation(eqn);
 		}
 		{	// 柔らかい弾性体
-			Fem::Eqn::CEqn_Solid2D eqn = solid.GetEqnation(conv.GetIdEA_fromCad(2,Cad::LOOP));
+			Fem::Eqn::CEqn_Solid2D eqn = solid.GetEquation(conv.GetIdEA_fromCad(2,Cad::LOOP));
 			eqn.SetYoungPoisson(0.1,0.3,true);
 			solid.SetEquation(eqn);
 		}
@@ -601,25 +594,25 @@ void SetNewProblem()
 			field.SetValue("0.1*sin(3.14*4*y)*sin(2*t)", 0,Fem::Field::VALUE, world,true);
 		}
 		{	// 熱応力を考慮した線形弾性体
-			Fem::Eqn::CEqn_Solid2D eqn = solid.GetEqnation(conv.GetIdEA_fromCad(3,Cad::LOOP));
+			Fem::Eqn::CEqn_Solid2D eqn = solid.GetEquation(conv.GetIdEA_fromCad(3,Cad::LOOP));
 			eqn.SetThermalStress(id_field_temp);
 			solid.SetEquation(eqn);
 		}
 		{	// 硬い線形弾性体
-			Fem::Eqn::CEqn_Solid2D eqn = solid.GetEqnation(conv.GetIdEA_fromCad(4,Cad::LOOP));
+			Fem::Eqn::CEqn_Solid2D eqn = solid.GetEquation(conv.GetIdEA_fromCad(4,Cad::LOOP));
 			eqn.SetYoungPoisson(10,0.3,true);
 			solid.SetEquation(eqn);
 		}
 
 		id_field_disp_fix0 = solid.AddFixElemAry(conv.GetIdEA_fromCad(2,Cad::EDGE),world);
 
-		// 描画オブジェクトの登録
+		// set up visualization
 		drawer_ary.Clear();
 		id_field_disp = solid.GetIdField_Disp();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 //		drawer_ary.PushBack( new View::CDrawerEdge(id_base,false,world) );
-		drawer_ary.InitTrans(camera);	// View座標変換の設定
+		drawer_ary.InitTrans(camera);	// set view transformation
 	}
 	else if( iprob == 23 ){
 		solid.SetRho(0.0001);
@@ -658,12 +651,12 @@ void SetNewProblem()
         solid.SetRho(0.001);
 
 		{	// 柔らかい弾性体
-			Fem::Eqn::CEqn_Solid2D eqn = solid.GetEqnation(conv.GetIdEA_fromCad(1,Cad::LOOP));
+			Fem::Eqn::CEqn_Solid2D eqn = solid.GetEquation(conv.GetIdEA_fromCad(1,Cad::LOOP));
 			eqn.SetYoungPoisson(0.1,0.3,true);
 			solid.SetEquation(eqn);
 		}
 		{	// 硬い線形弾性体
-			Fem::Eqn::CEqn_Solid2D eqn = solid.GetEqnation(conv.GetIdEA_fromCad(2,Cad::LOOP));
+			Fem::Eqn::CEqn_Solid2D eqn = solid.GetEquation(conv.GetIdEA_fromCad(2,Cad::LOOP));
 			eqn.SetYoungPoisson(100000000,0.3,true);
 			solid.SetEquation(eqn);
 		}
@@ -676,12 +669,12 @@ void SetNewProblem()
 			field.SetValue("0.1*(cos(t)+1)+0.1", 1,Fem::Field::VALUE, world,true);
 		}
 
-		// 描画オブジェクトの登録
+		// set up visualization
 		drawer_ary.Clear();
 		id_field_disp = solid.GetIdField_Disp();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
-		drawer_ary.InitTrans(camera);	// View座標変換の設定
+		drawer_ary.InitTrans(camera);	// initialize view transmation
 	}
 	else if( iprob == 25 )
 	{
@@ -736,7 +729,7 @@ void SetNewProblem()
 	    solid.UpdateDomain_Field(id_base2, world);
 		solid.SetSaveStiffMat(false);	
 		solid.SetStationary(true);
-		// 全体の物性値を設定
+		// set material parameter
 		solid.SetYoungPoisson(10.0,0.3,true);	// ヤング率とポアソン比の設定(平面応力)
 //		solid.SetRho(10);
 		solid.SetGeometricalNonlinear(false);
@@ -801,7 +794,7 @@ void SetNewProblem()
 		solid.SetSaveStiffMat(false);	
 		solid.SetStationary(true);
 		// set material parameter
-		solid.SetYoungPoisson(10.0,0.3,true);	// ヤング率とポアソン比の設定(平面応力)
+		solid.SetYoungPoisson(10.0,0.3,true);	// set planer stress
 		solid.SetGeometricalNonlinear(false);
 		solid.SetGravitation(0.0,0.0);
 		solid.SetTimeIntegrationParameter(dt,0.7);
@@ -872,7 +865,7 @@ void SetNewProblem()
 		solid.SetSaveStiffMat(false);	
 		solid.SetStationary(true);
 		// set material parameter
-		solid.SetYoungPoisson(10.0,0.3,true);	// ヤング率とポアソン比の設定(平面応力)
+		solid.SetYoungPoisson(10.0,0.3,true);	// set planer stress
 		solid.SetGeometricalNonlinear(false);
 		solid.SetGravitation(0.0,0.0);
 		solid.SetTimeIntegrationParameter(dt,0.7);
