@@ -69,12 +69,7 @@ public:
         this->m_is_anti_aliasing = is_aa;
     }
 
-	/*!
-	@brief 好ましい座標変換モードを返す
-	@retval 0 2D
-	@retval 1 2DH
-	@retval 2 3D
-	*/
+	// return suitable rotation mode ( 0:2D, 1:2DH, 2:3D )
 	virtual unsigned int GetSutableRotMode(){ return sutable_rot_mode; }
 protected:
 	bool is_show;

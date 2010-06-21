@@ -28,6 +28,12 @@
   <property name="windowTitle">
    <string>DelFEM : solid2d_demos</string>
   </property>
+  <property name="documentMode">
+   <bool>true</bool>
+  </property>
+  <property name="unifiedTitleAndToolBarOnMac">
+   <bool>true</bool>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <property name="sizePolicy">
     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -82,9 +88,16 @@
          <number>10</number>
         </property>
         <item>
+         <widget class="QPushButton" name="pushButton_viewset">
+          <property name="text">
+           <string>View Setting</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="pushButton_matprop">
           <property name="text">
-           <string>Material Property Dialog</string>
+           <string>Material Property</string>
           </property>
          </widget>
         </item>
@@ -97,7 +110,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>Change Problem Setting</string>
+           <string>Change Problem</string>
           </property>
          </widget>
         </item>

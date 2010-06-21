@@ -1,3 +1,4 @@
+#include <QPushButton>
 #include "dialog_solid2d.h"
 #include "ui_dialog_solid2d.h"
 
@@ -27,11 +28,13 @@ Dialog_Solid2D::Dialog_Solid2D(const Fem::Field::CFieldWorld& world_input,
     connect(ui->doubleSpinBox_Young,    SIGNAL(valueChanged(double)),       this,SLOT(matPorpChanged()));
     connect(ui->doubleSpinBox_Poisson,  SIGNAL(valueChanged(double)),       this,SLOT(matPorpChanged()));
     connect(ui->doubleSpinBox_rho,      SIGNAL(valueChanged(double)),       this,SLOT(matPorpChanged()));
+    connect(ui->checkBox_nonlin,        SIGNAL(clicked(bool)),              this,SLOT(matPorpChanged()));
 
     connect(ui->buttonBox,SIGNAL(clicked(QAbstractButton*)),    this,SLOT(buttonBox_clicked(QAbstractButton*)));
 
-    this->comboBox_currentIndexChenged(0);
+    this->ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
 
+    this->comboBox_currentIndexChenged(0);
 }
 
 Dialog_Solid2D::~Dialog_Solid2D()
@@ -55,10 +58,10 @@ void Dialog_Solid2D::comboBox_currentIndexChenged(int ind)
 {
     if( ind < 0 || ind >= this->ui->comboBox_IdEA->count() ) return;
 
-
     disconnect(ui->doubleSpinBox_Young,     SIGNAL(valueChanged(double)),   this,SLOT(matPorpChanged()));
     disconnect(ui->doubleSpinBox_Poisson,   SIGNAL(valueChanged(double)),   this,SLOT(matPorpChanged()));
     disconnect(ui->doubleSpinBox_rho,       SIGNAL(valueChanged(double)),   this,SLOT(matPorpChanged()));
+    disconnect(ui->checkBox_nonlin,         SIGNAL(clicked(bool)),          this,SLOT(matPorpChanged()));
 
     const Fem::Eqn::CEqn_Solid2D& eqn = aEqn[ind];
     double young, poisson;
@@ -66,10 +69,12 @@ void Dialog_Solid2D::comboBox_currentIndexChenged(int ind)
     ui->doubleSpinBox_Young->setValue(young);
     ui->doubleSpinBox_Poisson->setValue(poisson);
     ui->doubleSpinBox_rho->setValue(eqn.GetRho());
+    ui->checkBox_nonlin->setChecked(eqn.IsGeometricalNonlinear());
 
     connect(ui->doubleSpinBox_Young,    SIGNAL(valueChanged(double)),   this,SLOT(matPorpChanged()));
     connect(ui->doubleSpinBox_Poisson,  SIGNAL(valueChanged(double)),   this,SLOT(matPorpChanged()));
     connect(ui->doubleSpinBox_rho,      SIGNAL(valueChanged(double)),   this,SLOT(matPorpChanged()));
+    connect(ui->checkBox_nonlin,        SIGNAL(clicked(bool)),          this,SLOT(matPorpChanged()));
 }
 
 void Dialog_Solid2D::matPorpChanged()
@@ -90,6 +95,9 @@ void Dialog_Solid2D::matPorpChanged()
     double poisson = ui->doubleSpinBox_Poisson->value();
     eqn.SetYoungPoisson(young,poisson,true);
     eqn.SetRho(ui->doubleSpinBox_rho->value());
+    eqn.SetGeometricalNonlinear(ui->checkBox_nonlin->isChecked());
+
+    this->ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
 }
 
 void Dialog_Solid2D::buttonBox_clicked(QAbstractButton* pbtn)
@@ -99,5 +107,6 @@ void Dialog_Solid2D::buttonBox_clicked(QAbstractButton* pbtn)
         for(unsigned int ieqn=0;ieqn<aEqn.size();ieqn++){
             solid.SetEquation(aEqn[ieqn]);
         }
-    }
+    }    
+    this->ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
 }
