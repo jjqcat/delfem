@@ -19,10 +19,25 @@ protected:
 public slots:
     void setNewProblem();
     void showDialogMatProp();
+    void showDialogViewSetting();
+
+    void about();
+
+private:
+    void createActions();
+    void createMenus();
 
 private:
     Ui::MainWindow *ui;
     GLWidget_Solid2d* glWidget;
+
+    QMenu *menuEdit;
+    QMenu *menuView;
+    QMenu *menuHelp;
+
+    QAction *actMatPropDlg;
+    QAction *actAbout;
+    QAction *actAboutQt;
 };
 
 #endif // MAINWINDOW_H

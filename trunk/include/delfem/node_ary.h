@@ -66,18 +66,16 @@ public:
 	public:
 		CNodeSeg(const unsigned int& len, const std::string& name)
 			: len(len), name(name){}
-		//! 値の長さ
-		unsigned int GetLength() const { return len; }	
-		//! 節点数
-		unsigned int GetNnode() const { return nnode; }	
-		//! 値の取得
-		void GetValue(unsigned int inode, double* aVal ) const{
+		unsigned int GetLength() const { return len; }	//!< The length of value
+		unsigned int GetNnode() const { return nnode; }	//!< The number of nodes
+		void GetValue(unsigned int inode, double* aVal ) const	//!< get value from node
+		{
 			for(unsigned int i=0;i<len;i++){
 				aVal[i] = paValue[inode*DofSize+idofval_begin+i];
 			}
 		}
-		//! 値の取得（複素数）
-		void GetValue(unsigned int inode, Com::Complex* aVal ) const{
+		void GetValue(unsigned int inode, Com::Complex* aVal ) const	//!< get complex value from node
+		{
 			const unsigned int n = len/2;
 			for(unsigned int i=0;i<n;i++){
 				double dr = paValue[inode*DofSize+idofval_begin+i*2];
@@ -85,15 +83,16 @@ public:
 				aVal[i] = Com::Complex(dr,di);
 			}
 		}
-		//! 値の設定
-		void SetValue(unsigned int inode, unsigned int idofns, double val ){
+		void SetValue(unsigned int inode, unsigned int idofns, double val )	//!< set value to node 
+		{
 			paValue[inode*DofSize+idofval_begin+idofns] = val;
 		}
-		//! 値を加える
-		void AddValue(unsigned int inode, unsigned int idofns, double val ){
+		void AddValue(unsigned int inode, unsigned int idofns, double val )	//!< add value to node
+		{
 			paValue[inode*DofSize+idofval_begin+idofns] += val;
 		}
-		void SetZero(){
+		void SetZero()	//!< set zero to all value
+		{
 			for(unsigned int ino=0;ino<nnode;ino++){
 			for(unsigned int ilen=0;ilen<len;ilen++){
 				paValue[ino*DofSize+idofval_begin+ilen] = 0;
@@ -101,14 +100,14 @@ public:
 			}
 		}
 	private:
-        unsigned int len;	//!< 値のサイズ
-        std::string name;	//!< 名前
+        unsigned int len;	//!< the size of value
+        std::string name;	//!< name
 	private: // not need when initialize 
-		unsigned int idofval_begin;	//!< 値リストのオフセット
-	private: // CNodeAryによって随時与えられる変数
-		mutable double* paValue;	//!< 値リスト
-		mutable unsigned int DofSize;	//!< 値リストの幅
-		mutable unsigned int nnode;	//!< 節点の数
+		unsigned int idofval_begin;	//!< offset of value
+	private: // the variables given by CNodeAry
+		mutable double* paValue;	//!< value list
+		mutable unsigned int DofSize;	//!< the width of node array
+		mutable unsigned int nnode;	//!< number of nodes
 	};
 
 private:
@@ -300,9 +299,9 @@ public:
 	bool AddValueToNodeSegment(unsigned int id_ns_to, unsigned int id_ns_from, double alpha );	//!< ns_toへalpha倍されたns_fromを加える
 
 
-	//! ファイルの読み込み
+	//! load from file
 	int InitializeFromFile(const std::string& file_name, long& offset);
-	//! ファイルへの書き出し
+	//! write to file
 	int WriteToFile(const std::string& file_name, long& offset, unsigned int id ) const;
 	int DumpToFile_UpdatedValue(const std::string& file_name, long& offset, unsigned int id ) const;
 
@@ -316,15 +315,15 @@ private:
 		return ieaes;
 	}
 private:
-	std::string m_str_name;	//!< 名前
-	unsigned int m_Size;	//!< ノードのサイズ
+	std::string m_str_name;	//!< name
+	unsigned int m_Size;	//!< number of nodes
+	
+	Com::CObjSet<CNodeSeg> m_aSeg;	//!< the array of node segment
 
-	Com::CObjSet<CNodeSeg> m_aSeg;	//!< 節点セグメント
+	double* m_paValue;		//!< the values in nodes
+	unsigned int m_DofSize;		//!< the size of DOF in node
 
-	double* m_paValue;		//!< 節点の値格納配列
-	unsigned int m_DofSize;		//!< 節点あたりの全自由度
-
-	std::vector< CEaEsInc > m_aEaEs;	//!< どの要素セグメントに含まれているか？
+	std::vector< CEaEsInc > m_aEaEs;	//!< whitch element segments this node is included
 };
 
 }	// end namespace field

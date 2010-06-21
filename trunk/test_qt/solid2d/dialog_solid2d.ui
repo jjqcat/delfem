@@ -62,9 +62,9 @@
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>60</y>
+     <y>50</y>
      <width>291</width>
-     <height>171</height>
+     <height>181</height>
     </rect>
    </property>
    <property name="title">
@@ -73,10 +73,10 @@
    <widget class="QWidget" name="gridLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>30</y>
-      <width>251</width>
-      <height>121</height>
+      <x>0</x>
+      <y>22</y>
+      <width>291</width>
+      <height>161</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout">
@@ -170,6 +170,23 @@
        </property>
        <property name="value">
         <double>0.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="2">
+      <widget class="QCheckBox" name="checkBox_nonlin">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>Nonlinear</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
      </item>

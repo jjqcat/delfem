@@ -816,14 +816,14 @@ void SetNewProblem()
 
 int main(int argc,char* argv[])
 {
-	// GLUTの初期設定
+	// initialize GLUT
 	glutInitWindowPosition(200,200);
 	glutInitWindowSize(400, 300);
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGBA|GLUT_DEPTH);
 	glutCreateWindow("DelFEM Demo");
 
-	// コールバック関数の設定
+	// set call-back functions
 	glutIdleFunc(myGlutIdle);
 	glutKeyboardFunc(myGlutKeyboard);
 	glutDisplayFunc(myGlutDisplay);
@@ -832,10 +832,7 @@ int main(int argc,char* argv[])
 	glutMotionFunc(myGlutMotion);
 	glutMouseFunc(myGlutMouse);
 	
-    // 問題設定
 	SetNewProblem();
-
-	// メインループ
 	glutMainLoop();
 	return 0;
 }

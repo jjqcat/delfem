@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 ////////////////////////////////////////////////////////////////
-// DrawerField.cpp : èÍâ¬éãâªÉNÉâÉX(DrawerField)ÇÃé¿ëï
+// drawer_field_vector.cpp : implementation of class (CDrawer_Vector)
 ////////////////////////////////////////////////////////////////
 
 #if defined(__VISUALC__)
@@ -58,52 +58,54 @@ using namespace Fem::Field::View;
 using namespace Fem::Field;
 
 CDrawerVector::CDrawerVector(){
-	m_paVer = 0;
-	nline = 0;
+	this->pData = 0;
+	this->npo = 0;
 }
 
 CDrawerVector::CDrawerVector(unsigned int id_field, const Fem::Field::CFieldWorld& world){
-	m_paVer = 0;
-	nline = 0;
+	this->pData = 0;
+	this->npo = 0;
 	this->Set(id_field, world);
 }
 
 CDrawerVector::~CDrawerVector(){
-	if( m_paVer != 0 ){ delete m_paVer; }
+	if( pData != 0 ){ delete pData; }
 }
 
 Com::CBoundingBox CDrawerVector::GetBoundingBox( double rot[] ) const{
-	if( this->m_paVer == 0 ) return Com::CBoundingBox();
-	return m_paVer->GetBoundingBox(rot);
+//	if( this->pData == 0 ) return Com::CBoundingBox();
+//	return m_paVer->GetBoundingBox(rot);
+	return Com::CBoundingBox();
 }
 
-bool CDrawerVector::Update_VECTOR(const Fem::Field::CFieldWorld& world)	// ÉxÉNÉgÉãï`âÊ
+// update value of vector
+bool CDrawerVector::Update_VECTOR(const Fem::Field::CFieldWorld& world)
 {
 	assert( world.IsIdField(id_field) );
 	if( !world.IsIdField(id_field) ) return false;
 	const Fem::Field::CField& field = world.GetField(id_field);
 	if( field.IsPartial() ){
-		std::cout  << "ñ¢é¿ëï" << std::endl;
+		std::cout  << "Error!->Not Implemented" << std::endl;
 		getchar();
 		assert(0);
 	}
 	////////////////
 	assert( field.GetFieldType() == VECTOR2 || field.GetFieldType() == VECTOR3 );
-	nline = 0;
+	npo = 0;
 	{
-		// í∏ì_îzóÒÇÉZÉbÉg(CORNER)
+		// add number of node in corner
 		unsigned int id_na_val_c = field.GetNodeSegInNodeAry(CORNER).id_na_va;
 		if( id_na_val_c !=  0 ){
 			assert( world.IsIdNA(id_na_val_c) );
 			const Fem::Field::CNodeAry& na_val = world.GetNA(id_na_val_c);
-			nline += na_val.Size();
+			npo += na_val.Size();
 		}
-		// í∏ì_îzóÒÇÉZÉbÉg(BUBBLE)
+		// add number of node in bubble
 		unsigned int id_na_val_b = field.GetNodeSegInNodeAry(BUBBLE).id_na_va;
 		if( id_na_val_b != 0 ){
 			assert( world.IsIdNA(id_na_val_b) );
 			const Fem::Field::CNodeAry& na_val = world.GetNA(id_na_val_b);
-			nline += na_val.Size();
+			npo += na_val.Size();
 		}
 	}
 
@@ -124,26 +126,31 @@ bool CDrawerVector::Update_VECTOR(const Fem::Field::CFieldWorld& world)	// ÉxÉNÉ
 
 //	std::cout << ilayer_min << " " << ilayer_max << std::endl;
 
-	const unsigned int ndim_co = field.GetNDimCoord();
-	if( m_paVer == 0 ){
+	unsigned int ndim_co0 = field.GetNDimCoord();
+	if( pData == 0 ){
 		if( ilayer_min == ilayer_max ){
-			m_paVer = new Com::View::CVertexArray(2*nline,ndim_co); 
+			ndim_co = ndim_co0;
+			ndim_va = ndim_co;
 		}
 		else{
-			assert( ndim_co == 2 );
-			m_paVer = new Com::View::CVertexArray(2*nline,3); 
+			assert( ndim_co0 == 2 );
+			ndim_co = 3;
+			ndim_va = 2;
 		}
+		pData = new double [(ndim_co*ndim_va)*npo];
 	}
 	else{
-		assert( m_paVer->NPoin() == 2*nline );
-		if( ilayer_min == ilayer_max ){ assert( m_paVer->NDim() == ndim_co ); }
-		else{ assert( ndim_co == 2 && m_paVer->NDim() == 3 ); }
+		if( ilayer_min == ilayer_max ){ 
+			assert( ndim_co == ndim_co0 ); 
+			assert( ndim_va == ndim_co );
+		}
+		else{ 
+			assert( ndim_co == 2 && ndim_va == 3 ); 
+		}
 	}
 
-	const unsigned int ndim_va = m_paVer->NDim();
-
 	unsigned int icoun = 0;
-	// ÉRÅ[ÉiÅ[êﬂì_Ç…Ç¬Ç¢ÇƒÉxÉNÉgÉãÇçÏÇÈ
+	// Make Data of Coord
 	if( field.GetNodeSegInNodeAry(CORNER).id_na_va != 0 ){
 		const CField::CNodeSegInNodeAry& nsna_c = field.GetNodeSegInNodeAry(CORNER);
 		assert( world.IsIdNA(nsna_c.id_na_va) );
@@ -166,18 +173,20 @@ bool CDrawerVector::Update_VECTOR(const Fem::Field::CFieldWorld& world)	// ÉxÉNÉ
 			unsigned int ipoin_co = field.GetMapVal2Co(ipoin);
 			ns_c_co.GetValue(ipoin_co,coord);
 			ns_c_val.GetValue(ipoin,value);
-			for(unsigned int idim=0;idim<ndim_co;idim++){	// ì_ÇOÇÃç¿ïWÇÉZÉbÉg
-				m_paVer->pVertexArray[ipoin*2*ndim_va        +idim] = coord[idim];
-				m_paVer->pVertexArray[ipoin*2*ndim_va+ndim_va+idim] = coord[idim]+value[idim];
+			for(unsigned int idim=0;idim<ndim_co0;idim++){	// 
+				pData[ipoin*(ndim_co+ndim_va)+idim] = coord[idim];
+			}
+			for(unsigned int idim=0;idim<ndim_va;idim++){
+				pData[ipoin*(ndim_co+ndim_va)+ndim_co+idim] = value[idim];
 			}
 			if( ilayer_min != ilayer_max ){
-				assert( ndim_co == 2 );
-				assert( ndim_va == 3 );
-            m_paVer->pVertexArray[ipoin*2*ndim_va        +2] = 0.01;
-            m_paVer->pVertexArray[ipoin*2*ndim_va+ndim_va+2] = 0.01;
+				assert( ndim_co0 == 2 );
+				assert( ndim_va  == 2 );
+				assert( ndim_co  == 3 );
+				pData[ipoin*5+2] = 0.01;
 			}
 		}
-		if( ilayer_min != ilayer_max ){ // çÇÇ≥ÇçÏÇÈ
+		if( ilayer_min != ilayer_max ){ // consider layer
 			const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
 			for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 				const unsigned int id_ea = aIdEA[iiea];
@@ -190,9 +199,8 @@ bool CDrawerVector::Update_VECTOR(const Fem::Field::CFieldWorld& world)	// ÉxÉNÉ
 				for(unsigned int ielem=0;ielem<es.GetSizeElem();ielem++){
 					es.GetNodes(ielem,noes);
 					for(unsigned int inoes=0;inoes<nnoes;inoes++){
-						unsigned int ipo0 = noes[inoes];
-						m_paVer->pVertexArray[ipo0*2*ndim_va        +2] = height;
-						m_paVer->pVertexArray[ipo0*2*ndim_va+ndim_va+2] = height;
+						const unsigned int ipo0 = noes[inoes];
+						pData[ipo0*5+2] = height;
 					}
 				}
 			}
@@ -215,7 +223,7 @@ bool CDrawerVector::Update_VECTOR(const Fem::Field::CFieldWorld& world)	// ÉxÉNÉ
 		const Fem::Field::CNodeAry::CNodeSeg& ns_val = na_val.GetSeg(id_ns_v);
 		assert( ndim_co == ns_val.GetLength() );
 		if( world.IsIdNA(nsna_b.id_na_co) ){
-//			std::cout << "ÉoÉuÉãÇ≈ëŒâûÇ∑ÇÈç¿ïWêﬂì_Ç™Ç ÇÈèÍçá" << std::endl;
+//			std::cout << "bubble with coord" << std::endl;
 			const Fem::Field::CNodeAry& na_co = world.GetNA(nsna_b.id_na_co);
 			const CNodeAry::CNodeSeg& ns_co = na_co.GetSeg(nsna_b.id_ns_co);
 			double coord[3],value[3];
@@ -223,14 +231,16 @@ bool CDrawerVector::Update_VECTOR(const Fem::Field::CFieldWorld& world)	// ÉxÉNÉ
 				unsigned int ipoin_co = field.GetMapVal2Co(ipoin);
 				ns_co.GetValue(ipoin_co,coord);
 				ns_val.GetValue(ipoin,value);
-				for(unsigned int idim=0;idim<ndim_co;idim++){	// ì_ÇOÇÃç¿ïWÇÉZÉbÉg
-					m_paVer->pVertexArray[(icoun+ipoin)*2*ndim_va       +idim] = coord[idim];
-					m_paVer->pVertexArray[(icoun+ipoin)*2*ndim_va+ndim_va+idim] = coord[idim]+value[idim];
+				for(unsigned int idim=0;idim<ndim_co0;idim++){	// coord
+					pData[(icoun+ipoin)*(ndim_co+ndim_va)+idim] = coord[idim];
+				}
+				for(unsigned int idim=0;idim<ndim_va;idim++){	// value
+					pData[(icoun+ipoin)*(ndim_co+ndim_va)+ndim_va+idim] = value[idim];
 				}
 			}
 		}
 		else{
-//			std::cout << "ÉoÉuÉãÇ≈ç¿ïWÇ™óvëfÇÃíÜêSÇ…Ç ÇÈèÍçá" << std::endl;
+//			std::cout << "bubble with gravity center" << std::endl;
 			unsigned int id_na_c_co = field.GetNodeSegInNodeAry(CORNER).id_na_co;
 			unsigned int id_ns_c_co = field.GetNodeSegInNodeAry(CORNER).id_ns_co;
 			assert( world.IsIdNA(id_na_c_co) );
@@ -251,8 +261,8 @@ bool CDrawerVector::Update_VECTOR(const Fem::Field::CFieldWorld& world)	// ÉxÉNÉ
 				assert( es_b_va.GetIdNA() == nsna_b.id_na_va );
 				for(unsigned int ielem=0;ielem<ea.Size();ielem++){
 					double coord_cnt[3];
-					{	// óvëfÇÃíÜêSÇÃç¿ïWÇéÊìæ
-						for(unsigned int idim=0;idim<ndim_co;idim++){ coord_cnt[idim] = 0.0; }
+					{	// gravity center
+						for(unsigned int idim=0;idim<ndim_co0;idim++){ coord_cnt[idim] = 0.0; }
 						const unsigned int nnoes = es_c_co.GetSizeNoes();
 						es_c_co.GetNodes(ielem,noes);
 						double coord[3];
@@ -260,22 +270,24 @@ bool CDrawerVector::Update_VECTOR(const Fem::Field::CFieldWorld& world)	// ÉxÉNÉ
 							unsigned int ipoi0 = noes[inoes];
 							assert( ipoi0 < na_c_co.Size() );
 							ns_c_co.GetValue(ipoi0,coord);
-							for(unsigned int idim=0;idim<ndim_co;idim++){
+							for(unsigned int idim=0;idim<ndim_co0;idim++){
 								coord_cnt[idim] += coord[idim];
 							}
 						}
-						for(unsigned int idim=0;idim<ndim_co;idim++){ coord_cnt[idim] /= nnoes; }
+						for(unsigned int idim=0;idim<ndim_co0;idim++){ coord_cnt[idim] /= nnoes; }
 					}
 					double value[3];
-					{	// ÉoÉuÉãêﬂì_ÇÃílÇéÊìæ
+					{	// get value
 						es_b_va.GetNodes(ielem,noes);
 						unsigned int ipoi0 = noes[0];
 						assert( ipoi0 < na_va.Size() );
 						ns_val.GetValue(ipoi0,value);
 					}
-					for(unsigned int idim=0;idim<ndim_co;idim++){	// ì_ÇOÇÃç¿ïWÇÉZÉbÉg
-						m_paVer->pVertexArray[icoun*2*ndim_va        +idim] = coord_cnt[idim];
-						m_paVer->pVertexArray[icoun*2*ndim_va+ndim_va+idim] = coord_cnt[idim]+value[idim];
+					for(unsigned int idim=0;idim<ndim_co0;idim++){	// coord
+						pData[icoun*(ndim_co+ndim_va)+idim] = coord_cnt[idim];
+					}
+					for(unsigned int idim=0;idim<ndim_va;idim++){	// value
+						pData[icoun*(ndim_co+ndim_va)+ndim_co+idim] = value[idim];
 					}
 					icoun++;
 				} // end ielem
@@ -285,26 +297,75 @@ bool CDrawerVector::Update_VECTOR(const Fem::Field::CFieldWorld& world)	// ÉxÉNÉ
 	return true;
 }
 
-bool CDrawerVector::Update_SSTR2(const Fem::Field::CFieldWorld& world)	// éÂâûóÕï\é¶
+void GetPrincipleVector_STSR2(const double sstr[3], 
+							  double pvecs[2],double& ls, 
+							  double pvecl[2],double& ll )
 {
+	{
+		const double tmp1 = sqrt( (sstr[0]-sstr[1])*(sstr[0]-sstr[1])+4*sstr[2]*sstr[2] );
+		const double tmp2 = sstr[0]+sstr[1];
+		const double l1 = 0.5*(tmp2-tmp1);
+		const double l2 = 0.5*(tmp2+tmp1);
+		if( fabs(l1) > fabs(l2) ){ ll=l1; ls=l2; }
+		else{                      ll=l2; ls=l1; }
+	}
+	{
+		const double candl1[2] = { -sstr[2], sstr[0]-ls };
+		const double candl2[2] = { sstr[1]-ls, -sstr[2] };
+		const double sqlen1 = candl1[0]*candl1[0]+candl1[1]*candl1[1];
+		const double sqlen2 = candl2[0]*candl2[0]+candl2[1]*candl2[1];
+		if( sqlen1 > sqlen2 ){	pvecs[0] = candl1[0];	pvecs[1] = candl1[1];	}
+		else{					pvecs[0] = candl2[0];	pvecs[1] = candl2[1];	}
+		const double sqlen = sqrt(pvecs[0]*pvecs[0]+pvecs[1]*pvecs[1]);
+		if( sqlen < 1.0e-10 ){
+			pvecs[0] = 0;	pvecs[1] = 0;
+		}
+		else{
+			const double normalizer = ls/sqlen;
+			pvecs[0] *= normalizer;
+			pvecs[1] *= normalizer;
+		}
+	}
+	{
+		const double candl1[2] = { -sstr[2], sstr[0]-ll };
+		const double candl2[2] = { sstr[1]-ll, -sstr[2] };
+		const double sqlen1 = candl1[0]*candl1[0]+candl1[1]*candl1[1];
+		const double sqlen2 = candl2[0]*candl2[0]+candl2[1]*candl2[1];
+		if( sqlen1 > sqlen2 ){	pvecl[0] = candl1[0];	pvecl[1] = candl1[1];	}
+		else{					pvecl[0] = candl2[0];	pvecl[1] = candl2[1];	}
+		const double sqlen = sqrt(pvecl[0]*pvecl[0]+pvecl[1]*pvecl[1]);
+		if( sqlen < 1.0e-10 ){
+			pvecl[0] = 0;	pvecl[1] = 0;
+		}
+		else{
+			const double normalizer = ll/sqlen;
+			pvecl[0] *= normalizer;
+			pvecl[1] *= normalizer;
+		}
+	}
+}
+
+// visualize symetric tensor with principle vector
+bool CDrawerVector::Update_SSTR2(const Fem::Field::CFieldWorld& world)
+{
+//	std::cout << "Update_SSTR2" << std::endl;
 	assert( world.IsIdField(id_field) );
 	if( !world.IsIdField(id_field) ) return false;
 	const Fem::Field::CField& field = world.GetField(id_field);
 	if( field.IsPartial() ){
-		std::cout  << "ñ¢é¿ëï" << std::endl;
+		std::cout  << "Error!-->Not Implemented" << std::endl;
 		getchar();
 		assert(0);
 	}
 	////////////////
 	assert( field.GetFieldType() == STSR2 );
 	if( field.GetNodeSegInNodeAry(BUBBLE).id_na_va == 0 ) return false;
-	nline = 0;
-	{
-		// í∏ì_îzóÒÇÉZÉbÉg(BUBBLE)
+	npo= 0;
+	{	// get number of line (BUBBLE)
 		unsigned int id_na_val_b = field.GetNodeSegInNodeAry(BUBBLE).id_na_va;
 		assert( world.IsIdNA(id_na_val_b) );
 		const Fem::Field::CNodeAry& na_val = world.GetNA(id_na_val_b);
-		nline = na_val.Size();
+		npo = na_val.Size();
 	}
 	int ilayer_min, ilayer_max;
 	{
@@ -322,13 +383,10 @@ bool CDrawerVector::Update_SSTR2(const Fem::Field::CFieldWorld& world)	// éÂâûóÕ
 	}
 	assert( ilayer_min == ilayer_max );
 
-	const unsigned int ndim = field.GetNDimCoord();
-	if( m_paVer == 0 ){
-		m_paVer = new Com::View::CVertexArray(2*nline,ndim); 
-	}
-	else{
-		assert( m_paVer->NPoin() == 2*nline );
-		assert( m_paVer->NDim()  == ndim );
+	ndim_co = field.GetNDimCoord();
+	ndim_va = 6;
+	if( pData == 0 ){
+		pData = new double [npo*(ndim_co+ndim_va)]; 
 	}
 
 	unsigned int icoun = 0;
@@ -338,7 +396,6 @@ bool CDrawerVector::Update_SSTR2(const Fem::Field::CFieldWorld& world)	// éÂâûóÕ
 		const CField::CNodeSegInNodeAry& nsna_b = field.GetNodeSegInNodeAry(BUBBLE);
 		assert( world.IsIdNA(nsna_b.id_na_va) );
 		const Fem::Field::CNodeAry& na_val = world.GetNA(nsna_b.id_na_va);
-		const unsigned int npoin_va = na_val.Size();
 		unsigned int id_ns_v;
 		{
 			if(      nsna_b.id_ns_va != 0 ) id_ns_v = nsna_b.id_ns_va;
@@ -348,9 +405,8 @@ bool CDrawerVector::Update_SSTR2(const Fem::Field::CFieldWorld& world)	// éÂâûóÕ
 		}
 		assert( na_val.IsSegID(id_ns_v) );
 		const Fem::Field::CNodeAry::CNodeSeg& ns_val = na_val.GetSeg(id_ns_v);
-		assert( ns_val.GetLength() == ndim*(ndim+1)/2 );
+		assert( ns_val.GetLength() == ndim_co*(ndim_co+1)/2 );
 		{
-//			std::cout << "ÉoÉuÉãÇ≈ç¿ïWÇ™óvëfÇÃíÜêSÇ…Ç ÇÈèÍçá" << std::endl;
 			unsigned int id_na_c_co = field.GetNodeSegInNodeAry(CORNER).id_na_co;
 			unsigned int id_ns_c_co = field.GetNodeSegInNodeAry(CORNER).id_ns_co;
 			assert( world.IsIdNA(id_na_c_co) );
@@ -371,8 +427,8 @@ bool CDrawerVector::Update_SSTR2(const Fem::Field::CFieldWorld& world)	// éÂâûóÕ
 				assert( es_b_va.GetIdNA() == nsna_b.id_na_va );
 				for(unsigned int ielem=0;ielem<ea.Size();ielem++){
 					double coord_cnt[3];
-					{	// óvëfÇÃíÜêSÇÃç¿ïWÇéÊìæ
-						for(unsigned int idim=0;idim<ndim;idim++){ coord_cnt[idim] = 0.0; }
+					{	// get gravity center
+						for(unsigned int idim=0;idim<ndim_co;idim++){ coord_cnt[idim] = 0.0; }
 						const unsigned int nnoes = es_c_co.GetSizeNoes();
 						es_c_co.GetNodes(ielem,noes);
 						double coord[3];
@@ -380,26 +436,40 @@ bool CDrawerVector::Update_SSTR2(const Fem::Field::CFieldWorld& world)	// éÂâûóÕ
 							unsigned int ipoi0 = noes[inoes];
 							assert( ipoi0 < na_c_co.Size() );
 							ns_c_co.GetValue(ipoi0,coord);
-							for(unsigned int idim=0;idim<ndim;idim++){ coord_cnt[idim] += coord[idim]; }
+							for(unsigned int idim=0;idim<ndim_co;idim++){ coord_cnt[idim] += coord[idim]; }
 						}
-						for(unsigned int idim=0;idim<ndim;idim++){ coord_cnt[idim] /= nnoes; }
+						for(unsigned int idim=0;idim<ndim_co;idim++){ coord_cnt[idim] /= nnoes; }
 					}
 					double value[6];	assert( ns_val.GetLength() <= 6 );
-					{	// ÉoÉuÉãêﬂì_ÇÃílÇéÊìæ
+					{	// get tensor value
 						es_b_va.GetNodes(ielem,noes);
 						unsigned int ipoi0 = noes[0];
 						assert( ipoi0 < na_va.Size() );
 						ns_val.GetValue(ipoi0,value);
 					}
-					for(unsigned int idim=0;idim<ndim;idim++){	// ì_ÇOÇÃç¿ïWÇÉZÉbÉg
-						m_paVer->pVertexArray[icoun*2*ndim     +idim] = coord_cnt[idim];
-						m_paVer->pVertexArray[icoun*2*ndim+ndim+idim] = coord_cnt[idim]+value[idim];
+					if(      ndim_co == 2 ){
+						double pvs[2],ls, pvl[2],ll;
+						GetPrincipleVector_STSR2(value,pvs,ls, pvl,ll);
+						double* ptr = pData + icoun*(ndim_co+ndim_va);
+						ptr[0] = coord_cnt[0];
+						ptr[1] = coord_cnt[1];
+						ptr[2] = pvs[0];
+						ptr[3] = pvs[1];
+						ptr[4] = ls;
+						ptr[5] = pvl[0];
+						ptr[6] = pvl[1];
+						ptr[7] = ll;
+					}
+					else if( ndim_co == 3 ){
 					}
 					icoun++;
 				} // end ielem
 			} // end iei
 		} // end if
 	}
+	
+	assert( icoun == npo );
+	
 	return true;
 }
 
@@ -407,14 +477,19 @@ bool CDrawerVector::Update(const Fem::Field::CFieldWorld& world)
 {
 	const Fem::Field::CField& field = world.GetField(id_field);
 	if( field.IsPartial() ){
-		std::cout  << "ñ¢é¿ëï" << std::endl;
+		std::cout  << "Error!-->Not Implemented" << std::endl;
 		getchar();
 		assert(0);
 	}
 	////////////////
-	if( field.GetFieldType() == VECTOR2 || 
-	    field.GetFieldType() == VECTOR3    ){ return this->Update_VECTOR(world); }
-	else if( field.GetFieldType() == STSR2 ){ return this->Update_SSTR2(world);  }
+	if( field.GetFieldType() == VECTOR2 || field.GetFieldType() == VECTOR3 ){ 
+		itype = 0;
+		return this->Update_VECTOR(world); 
+	}
+	else if( field.GetFieldType() == STSR2 ){ 
+		itype = 1;
+		return this->Update_SSTR2(world);  
+	}
 	return true;
 }
 
@@ -422,7 +497,7 @@ bool CDrawerVector::Set(unsigned int id_field, const Fem::Field::CFieldWorld& wo
 {
 	if( !world.IsIdField(id_field) ) return false;
 	this->id_field = id_field;
-	if( m_paVer != 0 ){ delete m_paVer; m_paVer=0; }
+	if( pData != 0 ){ delete pData; pData=0; }
 	this->Update(world);
 	{
 		const CField& field = world.GetField(id_field);
@@ -434,17 +509,44 @@ bool CDrawerVector::Set(unsigned int id_field, const Fem::Field::CFieldWorld& wo
 }
 
 void CDrawerVector::Draw() const{
-	if( nline == 0 ) return;
-	assert( m_paVer != 0 );
+	if( npo == 0 ) return;
+	assert( pData != 0 );
    ::glEnable(GL_DEPTH_TEST);
 	::glDisable(GL_TEXTURE_2D);
 	::glColor3d(0.0,0.0,0.0);
 	::glLineWidth(2);
-
-   ::glEnableClientState(GL_VERTEX_ARRAY);
-   ::glVertexPointer(m_paVer->NDim(),GL_DOUBLE,0,m_paVer->pVertexArray);
-   if( m_paVer->NDim() == 2 ){ ::glTranslated(0,0,+0.01); }
-   ::glDrawArrays(GL_LINES,0,nline*2);
-   if( m_paVer->NDim() == 2 ){ ::glTranslated(0,0,-0.01); }
-   ::glDisableClientState(GL_VERTEX_ARRAY);
+	::glBegin(GL_LINES);
+	if (ndim_co == 2) {
+		if( itype == 0 ){
+			assert( ndim_va == 2 );
+			for(unsigned int ipo=0;ipo<npo;ipo++){
+				double* pCo = pData + ipo*(ndim_co+ndim_va);
+				double* pVa = pData + ipo*(ndim_co+ndim_va) + ndim_co;
+				::glVertex2dv(pCo);
+				assert( ndim_va == 2 );
+				::glVertex2d(pCo[0]+pVa[0],pCo[1]+pVa[1]);
+			}
+		}
+		else if( itype == 1 ){
+			assert( ndim_va == 6 );
+			for(unsigned int ipo=0;ipo<npo;ipo++){
+				double* pCo = pData + ipo*(ndim_co+ndim_va);
+				double* pVa = pData + ipo*(ndim_co+ndim_va) + ndim_co;
+				if(pVa[2]>0){	::glColor3d(0,0,1); }
+				else{			::glColor3d(1,0,0); }
+				::glVertex2dv(pCo);
+				::glVertex2d(pCo[0]+pVa[0],pCo[1]+pVa[1]);
+				::glVertex2dv(pCo);
+				::glVertex2d(pCo[0]-pVa[0],pCo[1]-pVa[1]);
+				////
+				if(pVa[5]>0){	::glColor3d(0,0,1); }
+				else{			::glColor3d(1,0,0); }				
+				::glVertex2dv(pCo);
+				::glVertex2d(pCo[0]+pVa[3],pCo[1]+pVa[4]);
+				::glVertex2dv(pCo);
+				::glVertex2d(pCo[0]-pVa[3],pCo[1]-pVa[4]);
+			}		
+		}
+	}
+	::glEnd();
 }
