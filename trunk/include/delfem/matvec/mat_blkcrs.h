@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
 /*! @file
-@brief 行列クラス(MatVec::CMat_BlkCrs)のインターフェイス
+@brief Interface of class (MatVec::CMat_BlkCrs)
 @author Nobuyuki Umetani
 */
 
@@ -66,9 +66,7 @@ public:
 	*/
 	CMat_BlkCrs(const CMat_BlkCrs& rhs, bool is_value, bool isnt_trans);
 
-	//! デフォルトコンストラクタ
 	CMat_BlkCrs(); 
-	//! デストラクタ
 	virtual ~CMat_BlkCrs();
 
 	virtual bool Initialize(unsigned int nblk_col, unsigned int len_col, 
