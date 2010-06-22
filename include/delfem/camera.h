@@ -17,11 +17,14 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/*! @file
-@brief カメラクラス(Com::View::CCamera)のインターフェイス
-@remark このファイルはカメラパラメータを持つだけで，OpenGLには非依存である．OpenGLに命令を送るためにはDrawerGLUtility.hで定義されている関数群を用いるとよい
-@author Nobuyuki Umetani
-*/
+// AUTHOR
+// Nobuyuki Umetani
+
+// DESCRIPTION
+// This file implements the class CCamera. 
+// This class have a data represents model-view transformation.
+// This class doesn't transform actually so as to keep indipendency with OpenGL
+// If you want to apply transformation use functions in drawer_gl_utility.h
 
 #if !defined(CAMERA_H)
 #define CAMERA_H
@@ -36,16 +39,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 namespace Com{
 namespace View{
 
-//! 回転モード
+//! modes of rotation transformation
 enum ROTATION_MODE{	
 	ROT_2D,		//!< ２次元的な回転(回転軸が画面に垂直)
 	ROT_2DH,	//!< 物体のｚ方向に回転させた後と画面x軸に回転させる
-	ROT_3D		//!< トラックボール回転
+	ROT_3D		//!< track ball rotation
 };
 
-/*! 
-@brief カメラクラス(回転並進，透視投影変換のためのクラス)
-*/
 class CCamera
 {
 public:
@@ -84,13 +84,14 @@ public:
 		fov_y = 30.0 * 3.1415926 / 180.0; 
 		dist = half_view_height / tan( fov_y*0.5 ) + obj_d * 0.5;
 	}
+
 	void GetObjectCenter(double& x, double& y, double& z) const 
 	{ x=obj_center.x; y=obj_center.y; z=obj_center.z; }
-
-	// オブジェクトの中心を設定
+	// Set the center of object witch is used for Fit
 	void SetObjectCenter(const double& x, const double& y, const double& z)
 	{ obj_center.x=x; obj_center.y=y; obj_center.z=z; }
-	// オブジェクトのｘｙｚ方向のサイズを設定
+
+	// Set the size of object in xyz direction
 	void SetObjectSize(double w, double h, double d){ obj_w = w;  obj_h = h;  obj_d = d; }
 
 	void SetObjectBoundingBox(const CBoundingBox& bb){
@@ -124,10 +125,10 @@ public:
 		this->Fit();
 	}
 	
-	//! 画角の取得
-	double GetFovY() const { return fov_y*180.0/3.1415926; };
-	//! 画角の設定
-	void SetFovY(const double& fov_y){ 
+	double GetFovY() const { return fov_y*180.0/3.1415926; };	//!< Get the view angle
+	//! set the view angle
+	void SetFovY(const double& fov_y)
+	{
 		if( !is_pers ) return;
 		if( fov_y < 15.0 ){ this->fov_y = 15.0; }
 		else if( fov_y > 90.0 ){ this->fov_y = 90.0; }
@@ -169,8 +170,10 @@ public:
 	}
 
 	////////////////
-	// 物体の中心を何処におくかの設定
+	// 
 	double GetHalfViewHeight() const { return half_view_height; }
+
+	// get the 3D location where the center is located
 	void GetCenterPosition(double& x, double& y, double& z) const {
 		if( is_pers ){ x = 0.0;  y = 0.0;  z = -dist; }
 		else{
@@ -185,10 +188,8 @@ public:
 			win_center_y += (mov_end_y - mov_begin_y)*inv_scale;
 	}
 
-	////////////////
-	// アスペクトの設定
-	void SetWindowAspect(double asp){ win_aspect = asp; }
-	double GetWindowAspect() const { return win_aspect; }
+	void SetWindowAspect(double asp){ win_aspect = asp; }	// set window aspect ratio
+	double GetWindowAspect() const { return win_aspect; }	// get window aspect ratio
 
 	////////////////
 	// 回転
