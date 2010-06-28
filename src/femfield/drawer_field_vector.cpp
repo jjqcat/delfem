@@ -145,7 +145,7 @@ bool CDrawerVector::Update_VECTOR(const Fem::Field::CFieldWorld& world)
 			assert( ndim_va == ndim_co );
 		}
 		else{ 
-			assert( ndim_co == 2 && ndim_va == 3 ); 
+			assert( ndim_co == 3 && ndim_va == 2 ); 			
 		}
 	}
 
@@ -517,7 +517,7 @@ void CDrawerVector::Draw() const{
 	::glLineWidth(2);
 	::glBegin(GL_LINES);
 	if (ndim_co == 2) {
-		if( itype == 0 ){
+		if(      itype == 0 ){	// 2d vector
 			assert( ndim_va == 2 );
 			for(unsigned int ipo=0;ipo<npo;ipo++){
 				double* pCo = pData + ipo*(ndim_co+ndim_va);
@@ -527,7 +527,7 @@ void CDrawerVector::Draw() const{
 				::glVertex2d(pCo[0]+pVa[0],pCo[1]+pVa[1]);
 			}
 		}
-		else if( itype == 1 ){
+		else if( itype == 1 ){	// 2d symmetric tensor
 			assert( ndim_va == 6 );
 			for(unsigned int ipo=0;ipo<npo;ipo++){
 				double* pCo = pData + ipo*(ndim_co+ndim_va);
@@ -545,6 +545,26 @@ void CDrawerVector::Draw() const{
 				::glVertex2d(pCo[0]+pVa[3],pCo[1]+pVa[4]);
 				::glVertex2dv(pCo);
 				::glVertex2d(pCo[0]-pVa[3],pCo[1]-pVa[4]);
+			}		
+		}
+	}
+	else if ( ndim_co == 3 ){
+		if( itype == 0 ){
+			if(      ndim_va == 2 ){	// 2d vector with 3d coord
+				for(unsigned int ipo=0;ipo<npo;ipo++){
+					double* pCo = pData + ipo*(ndim_co+ndim_va);
+					double* pVa = pData + ipo*(ndim_co+ndim_va) + ndim_co;
+					::glVertex3dv(pCo);
+					::glVertex3d(pCo[0]+pVa[0],pCo[1]+pVa[1],pCo[2]);
+				}
+			}
+			else if( ndim_va == 3 ){	// 3d vector
+				for(unsigned int ipo=0;ipo<npo;ipo++){
+					double* pCo = pData + ipo*(ndim_co+ndim_va);
+					double* pVa = pData + ipo*(ndim_co+ndim_va) + ndim_co;
+					::glVertex2dv(pCo);
+					::glVertex3d(pCo[0]+pVa[0],pCo[1]+pVa[1],pCo[2]+pVa[2]);
+				}
 			}		
 		}
 	}

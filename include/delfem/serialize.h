@@ -62,6 +62,7 @@ public:
 		this->Close();
 	}
 	bool IsLoading(){ return m_is_loading; }
+	bool IsOpen(){ return m_is_open; }
 	void Get(const char* format,...){
 		assert( m_is_loading );
 		if( !m_is_open ){
@@ -131,8 +132,8 @@ public:
 		if( !m_is_open ){
 			if( m_isnt_binary ){ fp = fopen(m_file_name.c_str(),"r");  }
 			else{                fp = fopen(m_file_name.c_str(),"rb"); }
+			if( fp != NULL ){ m_is_open = true; return; }
 			::fseek(fp,m_pos,SEEK_SET);
-			m_is_open = true;
 		}
 		fgets(m_buffer,m_buff_size,fp);
 		assert( m_buffer[0] == '#' );
@@ -145,7 +146,7 @@ public:
 		if( !m_is_open ){
 			if( m_isnt_binary ){ fp = fopen(m_file_name.c_str(),"a");  }
 			else{                fp = fopen(m_file_name.c_str(),"ab"); }
-			m_is_open = true;
+			if( fp != NULL ){ m_is_open = true; return; }
 		}
 		fprintf(fp,"#%d\n",m_idepth);
 		fprintf(fp,"%s\n",class_name);
@@ -155,6 +156,7 @@ public:
 		assert( m_idepth > 1 );
 		m_idepth -= 1;
 	}
+	unsigned int GetDepth(){ return m_idepth; }
 	void Close(){
 		if( m_is_open ){ fclose(fp); }
 		m_is_open = false;
