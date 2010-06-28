@@ -1201,7 +1201,7 @@ bool CCadObj2D::WriteToFile_dxf(const std::string& file_name) const
 
 bool CCadObj2D::Serialize( Com::CSerializer& arch )
 {
-	if( arch.IsLoading() ){	// “Ç‚Ýž‚ÝŽž‚Ìˆ—
+	if( arch.IsLoading() ){	// “Ç‚Ýž‚ÝŽž‚Ìˆ—		
 		this->Clear();
 		////////////////
 		const unsigned int buff_size = 256; 
