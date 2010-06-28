@@ -29,6 +29,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #pragma warning( disable : 4786 )
 #endif
 
+//#include <iostream>
 #include <string>
 #include <vector>
 #include <assert.h>
@@ -62,7 +63,7 @@ public:
 		this->Close();
 	}
 	bool IsLoading(){ return m_is_loading; }
-	bool IsOpen(){ return m_is_open; }
+//	bool IsOpen(){ return m_is_open; }
 	void Get(const char* format,...){
 		assert( m_is_loading );
 		if( !m_is_open ){
@@ -132,21 +133,21 @@ public:
 		if( !m_is_open ){
 			if( m_isnt_binary ){ fp = fopen(m_file_name.c_str(),"r");  }
 			else{                fp = fopen(m_file_name.c_str(),"rb"); }
-			if( fp != NULL ){ m_is_open = true; return; }
 			::fseek(fp,m_pos,SEEK_SET);
+			m_is_open = true;
 		}
 		fgets(m_buffer,m_buff_size,fp);
 		assert( m_buffer[0] == '#' );
 		const unsigned int idepth0 = atoi(m_buffer+1);
-		assert( m_idepth == idepth0 );
 		fgets(class_name,buff_size,fp);
+		assert( m_idepth == idepth0 );
 	}
 	void WriteDepthClassName(const char* class_name){
 		assert( !m_is_loading );
 		if( !m_is_open ){
 			if( m_isnt_binary ){ fp = fopen(m_file_name.c_str(),"a");  }
 			else{                fp = fopen(m_file_name.c_str(),"ab"); }
-			if( fp != NULL ){ m_is_open = true; return; }
+			m_is_open = true;
 		}
 		fprintf(fp,"#%d\n",m_idepth);
 		fprintf(fp,"%s\n",class_name);
