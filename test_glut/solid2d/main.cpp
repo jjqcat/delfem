@@ -825,9 +825,9 @@ void SetNewProblem()
 		{	// define shape
 			std::vector<Com::CVector2D> vec_ary;
 			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
-			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
-			vec_ary.push_back( Com::CVector2D(1.0,2.0) );
-			vec_ary.push_back( Com::CVector2D(0.0,2.0) );
+			vec_ary.push_back( Com::CVector2D(3.0,0.0) );
+			vec_ary.push_back( Com::CVector2D(3.0,1.0) );
+			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
 			cad_2d.AddPolygon( vec_ary );
 		}
 		world.Clear();
@@ -844,19 +844,22 @@ void SetNewProblem()
 		solid.SetGravitation(0.0,0.0);
 		solid.SetTimeIntegrationParameter(dt,0.7);
 		
-		unsigned int id_field_bc0 = solid.AddFixElemAry(conv.GetIdEA_fromCad(1,Cad::EDGE),world);
-		unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(3,Cad::EDGE),world);
+		unsigned int id_field_bc0 = solid.AddFixElemAry(conv.GetIdEA_fromCad(2,Cad::EDGE),world);
+		unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(4,Cad::EDGE),world);
 		{
 			CField& bc1_field = world.GetField(id_field_bc0);
-			bc1_field.SetValue("0.1*sin(t*PI*2*0.1)"    , 1,Fem::Field::VALUE, world,true);	// harmonic oscilation to bc1_field y axis
+			bc1_field.SetValue("0.5*sin(t*PI*2*0.1)"    , 1,Fem::Field::VALUE, world,true);	// harmonic oscilation to bc1_field y axis
 			bc1_field.SetValue("0.3*(1-cos(t*PI*2*0.1))", 0,Fem::Field::VALUE, world,true);	// harmonic oscilation to bc1_field x axis
 		}
 		
 		id_field_disp = solid.GetIdField_Disp();
 		id_field_stress = world.MakeField_FieldElemDim(id_field_disp,2,STSR2,VALUE,BUBBLE);
+//		id_field_equiv_stress = world.MakeField_FieldElemDim(id_field_disp,2,SCALAR,VALUE,BUBBLE);
 		
 		// set up visualization
 		drawer_ary.Clear();
+//		drawer_ary.PushBack( new View::CDrawerFace(id_field_equiv_stress,false,world,id_field_equiv_stress, 0,0.5) );
+		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerVector(id_field_stress,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
@@ -909,9 +912,12 @@ void SetNewProblem()
 		
 		id_field_disp = solid.GetIdField_Disp();
 		id_field_stress = world.MakeField_FieldElemDim(id_field_disp,2,STSR2,VALUE,BUBBLE);
-		
+//		id_field_equiv_stress = world.MakeField_FieldElemDim(id_field_disp,2,SCALAR,VALUE,BUBBLE);
+
 		// set up visualization
-		drawer_ary.Clear();
+		drawer_ary.Clear();		
+//		drawer_ary.PushBack( new View::CDrawerFace(id_field_equiv_stress,false,world,id_field_equiv_stress, 0,0.5) );
+		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerVector(id_field_stress,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
@@ -963,10 +969,13 @@ void SetNewProblem()
 		}
 		
 		id_field_disp = solid.GetIdField_Disp();
-		id_field_stress = world.MakeField_FieldElemDim(id_field_disp,2,STSR2,VALUE,BUBBLE);
+		id_field_stress = world.MakeField_FieldElemDim(id_field_disp,2,STSR2,VALUE,BUBBLE);		
+//		id_field_equiv_stress = world.MakeField_FieldElemDim(id_field_disp,2,SCALAR,VALUE,BUBBLE);
 		
 		// set up visualization
-		drawer_ary.Clear();
+		drawer_ary.Clear();		
+//		drawer_ary.PushBack( new View::CDrawerFace(id_field_equiv_stress,false,world,id_field_equiv_stress, 0,0.5) );
+		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerVector(id_field_stress,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
