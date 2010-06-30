@@ -207,21 +207,20 @@ void Com::View::SetProjectionTransform(const Com::View::CCamera& mvp_trans)
 
 void Com::View::SetModelViewTransform(const View::CCamera& mvp_trans)
 {
-//	::glMatrixMode(GL_MODELVIEW);
 	{	// •¨‘Ì‚ğ•½tˆÚ“®‚³‚¹‚é
 		double x,y,z;
 		mvp_trans.GetCenterPosition(x,y,z);
 		::glTranslated( x, y, z );
 	}
-	{	// •¨‘Ì‚ğ‰ñ“]‚³‚¹‚é
-		double rot[16];
-		mvp_trans.RotMatrix44Trans(rot);
-		::glMultMatrixd(rot);
-	}
 	{	// •¨‘Ì‚Ì’†S‚ğŒ´“_‚É‚·‚é
 		double x,y,z;
 		mvp_trans.GetObjectCenter(x,y,z);
 		::glTranslated( -x, -y, -z );
+	}	
+	{	// •¨‘Ì‚ğ‰ñ“]‚³‚¹‚é
+		double rot[16];
+		mvp_trans.RotMatrix44Trans(rot);
+		::glMultMatrixd(rot);
 	}
 }
  

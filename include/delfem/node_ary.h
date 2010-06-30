@@ -60,7 +60,7 @@ namespace Field
 class CNodeAry
 {
 public:
-	//! 節点セグメントクラス
+	//! Class for Node Segment (Holding Data of Node)
 	class CNodeSeg{
 		friend class CNodeAry;
 	public:
@@ -132,11 +132,11 @@ public:
 	const std::string& Name() const { return m_str_name; }  //!< 名前の取得
 	unsigned int Size()	const { return m_Size; }  //!< 節点の数の取得
 
-	//! 使っていない節点セグメントのIDを１つ取得する関数
+	//! Get a not-used ID of Node Segment
 	unsigned int GetFreeSegID() const { return m_aSeg.GetFreeObjID(); }
-	//! 使っていない節点セグメントのIDをnum個だけ取得する関数
+	//! Get not-used num IDs of Node Segment
 	std::vector<unsigned int> GetFreeSegID(unsigned int num) const { return m_aSeg.GetFreeObjID(num); }
-	//! 節点セグメントのIDかどうかを調べる関数
+	//! Check if id_ns is whether ID of Node Segment or not
 	bool IsSegID( unsigned int id_ns ) const{ return m_aSeg.IsObjID(id_ns); }
 	const std::vector<unsigned int>& GetAry_SegID() const { return this->m_aSeg.GetAry_ObjID(); }
 	//! 節点セグメントを取得する関数

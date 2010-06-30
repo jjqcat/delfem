@@ -1099,11 +1099,10 @@ unsigned int CFieldWorld::MakeHingeField_Tri(unsigned int id_field_base)
 	const Fem::Field::CField::CNodeSegInNodeAry na_c = field_base.GetNodeSegInNodeAry(CORNER);
 	const Fem::Field::CField::CNodeSegInNodeAry na_b;
 
-	CField* pField = new CField( id_field_base, // 親フィールド
-		aElemIntp,	// 要素Index
-		na_c, na_b,	// 節点Index
+	CField* pField = new CField( id_field_base, // base field
+		aElemIntp,	// element index
+		na_c, na_b,	// node index
 		*this );	// world
-
 	const unsigned int id_field = this->m_apField.AddObj( std::make_pair(0,pField) );
 	return id_field;
 }

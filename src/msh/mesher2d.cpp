@@ -2185,7 +2185,7 @@ bool CMesher2D::Serialize( Com::CSerializer& arch, bool is_only_cadmshlink )
 		const unsigned int buff_size = 256;
 		char class_name[buff_size];
 		arch.ReadDepthClassName(class_name,buff_size);
-		assert( strcmp(class_name,"CMesher2D\n") == 0 );
+		assert( strncmp(class_name,"CMesher2D",9) == 0 );
 		arch.ShiftDepth(true);
 
 		////////////////////////////////
@@ -2193,7 +2193,7 @@ bool CMesher2D::Serialize( Com::CSerializer& arch, bool is_only_cadmshlink )
 
         {
             arch.ReadDepthClassName(class_name,buff_size); 
-			assert( strcmp(class_name,"setIdLCad_CutMesh\n")==0);
+			assert( strncmp(class_name,"setIdLCad_CutMesh",17)==0);
             int nl;
             arch.Get("%d",&nl);   assert( nl >= 0 );
             unsigned int ind, id_l;
