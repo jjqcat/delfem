@@ -36,9 +36,49 @@ Com::CBoundingBox CDrawerArray::GetBoundingBox( double rm[] ) const
 	return bb;
 }
 
+// rot is 3 by 3 matrix for rotation
+// if rot is 0 this function don't perform rotation in measuring size
 Com::CBoundingBox CVertexArray::GetBoundingBox( double rot[] ) const
 {
 	if( pVertexArray == 0 ){ return Com::CBoundingBox(); }
+	if( rot == 0 ){
+		if( ndim == 2 ){		
+			Com::CBoundingBox bb;
+			{
+				const double x1 = pVertexArray[0];
+				const double y1 = pVertexArray[1];
+				const double z1 = 0.0;
+				bb = Com::CBoundingBox(x1,x1, y1,y1, z1,z1);
+			}
+			for(unsigned int ipoin=1;ipoin<npoin;ipoin++){
+				const double x1 = pVertexArray[ipoin*2  ];
+				const double y1 = pVertexArray[ipoin*2+1];
+				const double z1 = 0.0;
+				bb.x_max = ( x1 > bb.x_max ) ? x1 : bb.x_max;  bb.x_min = ( x1 < bb.x_min ) ? x1 : bb.x_min;			
+				bb.y_max = ( y1 > bb.y_max ) ? y1 : bb.y_max;  bb.y_min = ( y1 < bb.y_min ) ? y1 : bb.y_min;			
+				bb.z_max = ( z1 > bb.z_max ) ? z1 : bb.z_max;  bb.z_min = ( z1 < bb.z_min ) ? z1 : bb.z_min;
+			}
+			return bb;
+		}
+		if( ndim == 3 ){
+			Com::CBoundingBox bb;
+			{
+				const double x1 = pVertexArray[0];
+				const double y1 = pVertexArray[1];
+				const double z1 = 0.0;
+				bb = Com::CBoundingBox(x1,x1, y1,y1, z1,z1);
+			}
+			for(unsigned int ipoin=1;ipoin<npoin;ipoin++){
+				const double x1 = pVertexArray[ipoin*3  ];
+				const double y1 = pVertexArray[ipoin*3+1];
+				const double z1 = pVertexArray[ipoin*3+2];
+				bb.x_max = ( x1 > bb.x_max ) ? x1 : bb.x_max;  bb.x_min = ( x1 < bb.x_min ) ? x1 : bb.x_min;
+				bb.y_max = ( y1 > bb.y_max ) ? y1 : bb.y_max;  bb.y_min = ( y1 < bb.y_min ) ? y1 : bb.y_min;
+				bb.z_max = ( z1 > bb.z_max ) ? z1 : bb.z_max;  bb.z_min = ( z1 < bb.z_min ) ? z1 : bb.z_min;
+			}
+			return bb;
+		}		
+	}
 	if( ndim == 2 ){		
 		Com::CBoundingBox bb;
 		{
@@ -90,29 +130,19 @@ Com::CBoundingBox CVertexArray::GetBoundingBox( double rot[] ) const
 	return Com::CBoundingBox();
 }
 
-void CDrawerArray::InitTrans(Com::View::CCamera& mvp_trans){
-	{	// ñ?g]???[?h????f?
+void CDrawerArray::InitTrans(Com::View::CCamera& camera ){
+	{	// get suitable rot mode
 		unsigned int irot_mode = 0;
 		for(unsigned int idraw=0;idraw<m_drawer_ary.size();idraw++){
 			unsigned int irot_mode0 = m_drawer_ary[idraw]->GetSutableRotMode();
 			irot_mode = (irot_mode0>irot_mode) ? irot_mode0 : irot_mode;
 		}
-		if(      irot_mode == 1 ){ mvp_trans.SetRotationMode(ROT_2D);  }
-		else if( irot_mode == 2 ){ mvp_trans.SetRotationMode(ROT_2DH); }
-		else if( irot_mode == 3 ){ mvp_trans.SetRotationMode(ROT_3D);  }
+		if(      irot_mode == 1 ){ camera.SetRotationMode(ROT_2D);  }
+		else if( irot_mode == 2 ){ camera.SetRotationMode(ROT_2DH); }
+		else if( irot_mode == 3 ){ camera.SetRotationMode(ROT_3D);  }
 	}
-	{	// ?o?E?g?f?B?g?O?{?b?N?X????f?
-		double rot[9];
-		mvp_trans.RotMatrix33(rot);
-		Com::CBoundingBox bb = this->GetBoundingBox( rot );
-		double x_cent = ( bb.x_max + bb.x_min )*0.5;
-		double y_cent = ( bb.y_max + bb.y_min )*0.5;
-		double z_cent = ( bb.z_max + bb.z_min )*0.5;
-		double x_size = bb.x_max - bb.x_min;
-		double y_size = bb.y_max - bb.y_min;
-		double z_size = bb.z_max - bb.z_min;
-		mvp_trans.SetObjectCenter(x_cent,y_cent,z_cent);
-		mvp_trans.SetObjectSize(x_size,y_size,z_size);
-	}
-	mvp_trans.Fit();
+	// set object size to the transformation
+	double rot[9];	camera.RotMatrix33(rot);
+	Com::CBoundingBox bb = this->GetBoundingBox( rot );
+	camera.Fit(bb);
 }

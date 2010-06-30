@@ -41,8 +41,8 @@ namespace View{
 
 //! modes of rotation transformation
 enum ROTATION_MODE{	
-	ROT_2D,		//!< ‚QŽŸŒ³“I‚È‰ñ“](‰ñ“]Ž²‚ª‰æ–Ê‚É‚’¼)
-	ROT_2DH,	//!< •¨‘Ì‚Ì‚š•ûŒü‚É‰ñ“]‚³‚¹‚½Œã‚Æ‰æ–ÊxŽ²‚É‰ñ“]‚³‚¹‚é
+	ROT_2D,		//!< 2dim rotation
+	ROT_2DH,	//!< z axis is allways pararell to the upright direction of screan
 	ROT_3D		//!< track ball rotation
 };
 
@@ -125,18 +125,6 @@ public:
 		this->Fit();
 	}
 	
-	double GetFovY() const { return fov_y*180.0/3.1415926; };	//!< Get the view angle
-	//! set the view angle
-	void SetFovY(const double& fov_y)
-	{
-		if( !is_pers ) return;
-		if( fov_y < 15.0 ){ this->fov_y = 15.0; }
-		else if( fov_y > 90.0 ){ this->fov_y = 90.0; }
-		else{ this->fov_y = fov_y; }
-		this->fov_y = this->fov_y*3.1415926/180.0;
-		dist = half_view_height * inv_scale / tan( this->fov_y*0.5 ) + obj_d * 0.5;
-	}
-
 	//! ƒXƒP[ƒ‹‚ÌŽæ“¾
 	double GetScale() const { return 1.0 / inv_scale; }
 	//! ƒXƒP[ƒ‹‚ÌÝ’è
@@ -147,13 +135,25 @@ public:
 		dist = half_view_height * inv_scale / tan( fov_y*0.5 ) + obj_d * 0.5;
 	}
 
-	////////////////
-	// ƒp[ƒX‚ÌÝ’è
+	////////////////////////
+	// Perspective
+	
 	bool IsPers() const { return is_pers; }
 	void SetIsPers(bool is_pers){
 		if( this->rot_mode == ROT_2D ) return;
 		this->is_pers = is_pers;
 		if( is_pers ){ dist = half_view_height * inv_scale / tan( fov_y*0.5 ) + obj_d * 0.5; }
+	}	
+	double GetFovY() const { return fov_y*180.0/3.1415926; };	//!< Get the view angle
+	//! set the view angle
+	void SetFovY(const double& fov_y)
+	{
+		if( !is_pers ) return;
+		if( fov_y < 15.0 ){ this->fov_y = 15.0; }
+		else if( fov_y > 90.0 ){ this->fov_y = 90.0; }
+		else{ this->fov_y = fov_y; }
+		this->fov_y = this->fov_y*3.1415926/180.0;
+		dist = half_view_height * inv_scale / tan( this->fov_y*0.5 ) + obj_d * 0.5;
 	}
 	void GetPerspective(double& fov_y, double& aspect, double& clip_near, double& clip_far) const {
 		fov_y = this->fov_y*180.0/3.1415926;	

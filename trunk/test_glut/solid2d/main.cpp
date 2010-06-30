@@ -257,13 +257,8 @@ void myGlutDisplay(void)
 
 void SetNewProblem()
 {
-<<<<<<< .mine
-	const unsigned int nprob = 28;	// number of problem settings
-	static unsigned int iprob = 0;
-=======
 	const unsigned int nprob = 30;	// number of problem settings
 	static unsigned int iprob = 27;
->>>>>>> .r131
 
 	static unsigned int id_field_disp_fix0 = 0;
 	static unsigned int id_field_temp = 0;

@@ -41,7 +41,7 @@ class CBoundingBox;
 
 namespace View{
 
-//! 描画クラスの抽象クラス
+//! Abstract class of drawing something
 class CDrawer
 {
 public:
