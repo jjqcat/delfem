@@ -345,11 +345,11 @@ void SetProblem()
             field.SetValue("sin(0.5*t)",1,Fem::Field::VALUE,world,true);
         }
 		
-		//˜A—§ˆêŸ•û’ö®‚Ö‚Ìİ’è
+		// set linear system
    		ls.Clear();
 	    ls.AddPattern_Field(id_disp,world);
 		ls.SetFixedBoundaryCondition_Field(id_disp_fix0,world);
-        //‘Oˆ—s—ñ‚Ìİ’è
+        // set preconditioner
         prec.SetFillInLevel(0);
         prec.SetLinearSystem(ls.m_ls);
 
