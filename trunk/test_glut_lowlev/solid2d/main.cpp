@@ -373,18 +373,14 @@ void SetProblem()
 
 int main(int argc,char* argv[])
 {
-	// 問題の設定
-	SetProblem();
-	drawer_ary.InitTrans(mvp_trans);
-
-	// GLUTの初期化
+	// Initialize GLUT
 	glutInitWindowPosition(200,200);
 	glutInitWindowSize(400, 300);
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGBA|GLUT_DEPTH);
 	glutCreateWindow("FEM View");
 
-	// コールバック関数の設定
+	// Define callback functions
 	glutDisplayFunc(myGlutDisplay);
 	glutReshapeFunc(myGlutResize);
 	glutMotionFunc(myGlutMotion);
@@ -392,6 +388,10 @@ int main(int argc,char* argv[])
 	glutKeyboardFunc(myGlutKeyboard);
 	glutSpecialFunc(myGlutSpecial);
 	glutIdleFunc(myGlutIdle);
+	
+	// 問題の設定
+	SetProblem();
+	drawer_ary.InitTrans(mvp_trans);
 	
 	// メインループ
 	glutMainLoop();
