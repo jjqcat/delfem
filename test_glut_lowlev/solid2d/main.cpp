@@ -312,7 +312,7 @@ void myGlutDisplay(void)
 
 void SetProblem()
 {
-	const unsigned int nprob = 1;	// –â‘è”
+	const unsigned int nprob = 1;	// number of problems
 	static int iprob = 0;
 
 	if( iprob == 0 )
