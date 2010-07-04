@@ -319,7 +319,7 @@ void SetProblem()
 	{
         cur_time = 0;
 		Cad::CCadObj2D cad_2d;
- 		{	// å`ÇçÏÇÈ
+ 		{	// define shape
             std::vector<Com::CVector2D> vec_ary;
             vec_ary.push_back( Com::CVector2D(0,1.0) );
             vec_ary.push_back( Com::CVector2D(5,1.0) );
