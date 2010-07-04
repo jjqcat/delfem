@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 /*! @file
-@brief B-repを用いた位相情報格納クラス(Cad::CBrep)のインターフェース
+@brief the basical definition refered from whole system including mesh and fem
 @author Nobuyuki Umetani
 */
 
@@ -34,14 +34,14 @@ namespace Cad{
 
 /*!
 @ingroup CAD
-@brief 構成要素の種類
+@brief the type of component 
 */
 enum CAD_ELEM_TYPE{
-    NOT_SET,    //!< 設定されていない(エラー処理のため)
-    VERTEX,     //!< 頂点
-    EDGE,       //!< 辺
-    LOOP,       //!< ループ
-	SOLID,		//!< ソリッド
+    NOT_SET,    //!< not setted(for the error handling)
+    VERTEX,     //!< vertex
+    EDGE,       //!< edge
+    LOOP,       //!< loop
+	SOLID,		//!< solid
 };
 
 

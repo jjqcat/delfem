@@ -17,10 +17,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/*! @file
-@brief 場可視化クラス(Fem::Field::View::CDrawerField, Fem::Field::View::CDrawerFace)のインターフェース
-@author Nobuyuki Umetani
-*/
+// this fiele define abstract fem discretized field (Fem::Field::View::CDrawerField)
+// and utility classes
 
 #if !defined(DRAWER_FIELD_H)
 #define DRAWER_FIELD_H
@@ -28,7 +26,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "memory"
 #include "delfem/drawer.h"
 #include "delfem/drawer_gl_utility.h"
-#include "delfem/elem_ary.h" // Fem::Field::ELEM_TYPEのために必要
+#include "delfem/elem_ary.h" // needed for Fem::Field::ELEM_TYPE
 
 namespace Fem{
 namespace Field{

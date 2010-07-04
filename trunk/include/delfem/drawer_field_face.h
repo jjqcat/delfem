@@ -43,7 +43,7 @@ public:
 	CDrawerFace(unsigned int id_field, bool isnt_value_disp, const Fem::Field::CFieldWorld& world, unsigned int id_field_color, std::auto_ptr<CColorMap> color_map );
 	virtual ~CDrawerFace();
 	////////////////////////////////
-	// virtualŠÖ”‚ÌéŒ¾
+	// declaration of virtual functions
 	virtual void Draw() const;
 	virtual void DrawSelection(unsigned int idraw) const{};
 	virtual Com::CBoundingBox GetBoundingBox( double rot[] ) const{
@@ -53,7 +53,7 @@ public:
 	virtual void ClearSelected(){}
 	virtual bool Update(const Fem::Field::CFieldWorld& world);
 	////////////////////////////////
-	// ”ñvirtualŠÖ”‚ÌéŒ¾
+	// declaration of non-virtual functions
     void SetColor(double r, double g, double b, unsigned int id_ea = 0){
         const unsigned int niea = m_apIndexArrayElem.size();
         if( id_ea == 0 ){
