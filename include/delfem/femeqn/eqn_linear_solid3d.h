@@ -17,11 +17,14 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/*! @file
-@brief 線形弾性体の要素剛性作成部のインターフェース
-@author Nobuyuki Umetani
-@sa http://ums.futene.net/wiki/FEM/46454D20666F72204C696E65617220456C6173746963.html
-*/
+
+// AUTHOR
+// Nobuyuki Umetani
+
+// DESCRIPTION
+// This file declar the functions for linear solid equation.
+// The function builds element matrices and marges them to linear system.
+// The definition of each functions can be found in eqn_linear_solid_3d.cpp
 
 #if !defined(EQN_LINEAR_SOLID_3D_H)
 #define EQN_LINEAR_SOLID_3D_H
@@ -35,61 +38,54 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 namespace Fem{
 namespace Ls
 {
-class CLinearSystem_Field;
-class CLinearSystem_Save;
-class CLinearSystem_SaveDiaM_NewmarkBeta;
-class CLinearSystem_Eigen;
-class CPreconditioner;
+	class CLinearSystem_Field;
+	class CLinearSystem_Save;
+	class CLinearSystem_SaveDiaM_NewmarkBeta;
+	class CLinearSystem_Eigen;
+	class CPreconditioner;
 }
 
 namespace Field
 {
-class CField;
-class CFieldWorld;
+	class CField;
+	class CFieldWorld;
 }
 
 namespace Eqn{
 
-class ILinearSystem_Eqn;
+	class ILinearSystem_Eqn;
 
-/*! @defgroup eqn_linear_solid 線形弾性体の方程式をマージする関数群
-@ingroup FemEqnMargeFunction
-　
-*/
-//! @{
+	// lienar elastic solid static
+	bool AddLinSys_LinearSolid3D_Static
+	(Fem::Ls::CLinearSystem_Field& ls,
+	 double lambda, double myu,
+	 double  rho, double g_x, double g_y, double g_z,
+	 const Fem::Field::CFieldWorld& world,
+	 unsigned int id_field_disp );
 
-// 静的線形弾性体
-bool AddLinSys_LinearSolid3D_Static(
-		Fem::Ls::CLinearSystem_Field& ls,
-		double lambda, double myu,
-		double  rho, double g_x, double g_y, double g_z,
-		const Fem::Field::CFieldWorld& world,
-		unsigned int id_field_disp );
+	// linear elastic solid dynamic with newmark-beta time integration
+	bool AddLinSys_LinearSolid3D_NonStatic_NewmarkBeta
+	(double dt, double gamma, double beta,
+	 Eqn::ILinearSystem_Eqn& ls,
+	 double lambda, double myu,
+	 double  rho, double g_x, double g_y, double g_z,
+	 const Fem::Field::CFieldWorld& world,
+	 unsigned int id_field_disp );
 
-// 動的線形弾性体
-bool AddLinSys_LinearSolid3D_NonStatic_NewmarkBeta(
-		double dt, double gamma, double beta,
-		Eqn::ILinearSystem_Eqn& ls,
-		double lambda, double myu,
-		double  rho, double g_x, double g_y, double g_z,
-		const Fem::Field::CFieldWorld& world,
-		unsigned int id_field_disp );
+	// linear elastic solid static (saving stiffness matrix)
+	bool AddLinSys_LinearSolid3D_Static_SaveStiffMat
+	(Fem::Ls::CLinearSystem_Save& ls,
+	 double lambda, double myu,
+	 double  rho, double g_x, double g_y, double g_z,
+	 const Fem::Field::CFieldWorld& world,
+	 unsigned int id_field_disp );
 
-// 静的線形弾性体(剛性行列を保存)
-bool AddLinSys_LinearSolid3D_Static_SaveStiffMat(
-		Fem::Ls::CLinearSystem_Save& ls,
-		double lambda, double myu,
-		double  rho, double g_x, double g_y, double g_z,
-		const Fem::Field::CFieldWorld& world,
-		unsigned int id_field_disp );
-
-// 動的弾性体の固有値解析用の行列を作る
-bool AddLinSys_LinearSolid3D_Eigen(
-		Fem::Ls::CLinearSystem_Eigen& ls,
-		double lambda, double myu, double rho,
-		const Fem::Field::CFieldWorld& world,
-		unsigned int id_field_disp );
-//! @}
+	// buld linear system for eigenanalysis of dynamic linear elastic solid
+	bool AddLinSys_LinearSolid3D_Eigen
+	(Fem::Ls::CLinearSystem_Eigen& ls,
+	 double lambda, double myu, double rho,
+	 const Fem::Field::CFieldWorld& world,
+	 unsigned int id_field_disp );
 }
 }
 

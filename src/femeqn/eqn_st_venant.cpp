@@ -42,241 +42,7 @@ using namespace Fem::Field;
 using namespace Fem::Ls;
 using namespace MatVec;
 
-////////////////////////////////////////////////////////////////
-// 2dim equation
 
-// stationary
-bool AddLinSys_StVenant2D_Static_P1(
-        Fem::Eqn::ILinearSystem_Eqn& ls,
-		double lambda, double myu,
-		double rho, double g_x, double g_y,
-		const unsigned int id_field_disp, const CFieldWorld& world, 
-		const unsigned int id_ea );
-
-// non-stationary
-bool AddLinSys_StVenant2D_NonStatic_NewmarkBeta_P1(
-		double dt, double gamma, double beta,
-        Fem::Eqn::ILinearSystem_Eqn& ls,
-		double lambda, double myu,
-		double rho, double g_x, double g_y,
-		const unsigned int id_field_disp, const CFieldWorld& world, 
-		bool is_initial,
-		const unsigned int id_ea );
-
-////////////////////////////////////////////////////////////////
-// ３Ｄの方程式
-
-////////////////
-// stationary
-bool AddLinSys_StVenant3D_Static_P1(
-        Fem::Eqn::ILinearSystem_Eqn& ls,
-		double lambda, double myu,
-		double rho, double g_x, double g_y, double g_z,
-		const unsigned int id_field_disp, const CFieldWorld& world, 
-		const unsigned int id_ea );
-
-bool AddLinSys_StVenant3D_Static_Q1(
-        Fem::Eqn::ILinearSystem_Eqn& ls,
-		double lambda, double myu,
-		double rho, double g_x, double g_y, double g_z,
-		const unsigned int id_field_disp, const CFieldWorld& world, 
-		const unsigned int id_ea );
-
-// non-statianary
-bool AddLinSys_StVenant3D_NonStatic_NewmarkBeta_P1(
-		double dt, double gamma, double beta,
-        Fem::Eqn::ILinearSystem_Eqn& ls,
-		double lambda, double myu,
-		double rho, double g_x, double g_y, double g_z,
-		const unsigned int id_field_disp, const CFieldWorld& world, 
-		bool is_initial, 
-        unsigned int id_ea );
-
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
-
-bool Fem::Eqn::AddLinSys_StVenant2D_Static(
-        Fem::Eqn::ILinearSystem_Eqn& ls,
-		double lambda, double myu,
-		double  rho, double g_x, double g_y,
-		const CFieldWorld& world,
-		const unsigned int id_field_disp,
-		unsigned int id_ea )
-{
-	const CField& field_disp = world.GetField(id_field_disp);
-	if( field_disp.GetFieldType() != VECTOR2 ) return false;
-
-	if( id_ea != 0 ){
-		if( field_disp.GetInterpolationType(id_ea,world) == TRI11 ){
-			return AddLinSys_StVenant2D_Static_P1(
-				ls,
-				lambda, myu,
-				rho, g_x, g_y,
-                id_field_disp,world,
-                id_ea);
-		}
-        assert(0);
-        return false;
-	}
-	else{
-		const std::vector<unsigned int>& aIdEA = field_disp.GetAry_IdElemAry();
-		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
-			const unsigned int id_ea = aIdEA[iiea];
-			bool res = Fem::Eqn::AddLinSys_StVenant2D_Static(
-				ls,
-				lambda, myu, rho,  g_x, g_y,
-				world, id_field_disp,
-				id_ea );
-			if( !res ) return false;
-		}
-		return true;
-	}
-	return true;
-}
-
-
-// 非定常
-bool Fem::Eqn::AddLinSys_StVenant2D_NonStatic_NewmarkBeta(
-		double dt, double gamma, double beta,
-        Fem::Eqn::ILinearSystem_Eqn& ls,
-		double lambda, double myu,
-		double  rho, double g_x, double g_y,
-		const Fem::Field::CFieldWorld& world,
-		unsigned int id_field_disp,
-		bool is_initial, 
-		unsigned int id_ea )
-{
-	const CField& field_disp = world.GetField(id_field_disp);
-	if( field_disp.GetFieldType() != VECTOR2 ) return false;
-
-	if( id_ea != 0 ){
-		if( field_disp.GetInterpolationType(id_ea,world) == TRI11 ){
-			AddLinSys_StVenant2D_NonStatic_NewmarkBeta_P1(
-				gamma,beta,dt,ls,
-				lambda, myu,
-				rho, g_x, g_y,
-                id_field_disp,world,
-				is_initial,
-                id_ea);
-		}
-		else{ assert(0); }
-	}
-	else{
-		const std::vector<unsigned int>& aIdEA = field_disp.GetAry_IdElemAry();
-		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
-			const unsigned int id_ea = aIdEA[iiea];
-			bool res = Fem::Eqn::AddLinSys_StVenant2D_NonStatic_NewmarkBeta(
-				dt, gamma, beta,
-				ls,
-				lambda, myu, rho, g_x, g_y,
-				world, id_field_disp, 
-				is_initial, 
-				id_ea );
-			if( !res ) return false;
-		}
-		return true;
-	}
-
-	return true;
-}
-
-		
-
-
-bool Fem::Eqn::AddLinSys_StVenant3D_Static(
-        Fem::Eqn::ILinearSystem_Eqn& ls,
-		double lambda, double myu,
-		double  rho, double g_x, double g_y, double g_z,
-		const CFieldWorld& world,
-		unsigned int id_field_disp, 
-		unsigned int id_ea )
-{
-	const CField& field_disp = world.GetField(id_field_disp);
-	if( field_disp.GetFieldType() != VECTOR3 ){ assert(0); return false; }
-
-	if( id_ea != 0 ){
-		if( field_disp.GetInterpolationType(id_ea,world) == TET11 ){
-			return AddLinSys_StVenant3D_Static_P1(
-				ls,
-				lambda, myu,
-				rho, g_x, g_y, g_z,
-                id_field_disp,world,
-                id_ea);
-		}
-		else if( field_disp.GetInterpolationType(id_ea,world) == HEX11 ){
-			return AddLinSys_StVenant3D_Static_Q1(ls,
-				lambda, myu,
-				rho, g_x, g_y, g_z,
-				id_field_disp,world,id_ea);
-		}
-		assert(0);
-        return false;
-	}
-	else{
-		const std::vector<unsigned int>& aIdEA = field_disp.GetAry_IdElemAry();
-		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
-			const unsigned int id_ea = aIdEA[iiea];
-			bool res = Fem::Eqn::AddLinSys_StVenant3D_Static(
-				ls,
-				lambda, myu, rho,  g_x, g_y, g_z,
-				world, id_field_disp, 
-				id_ea );
-			if( !res ) return false;
-		}
-		return true;
-	}
-	return true;
-}
-
-// 非定常
-bool Fem::Eqn::AddLinSys_StVenant3D_NonStatic_NewmarkBeta(
-		double dt, double gamma, double beta,
-        Fem::Eqn::ILinearSystem_Eqn& ls,
-		double lambda, double myu,
-		double  rho, double g_x, double g_y, double g_z,
-		const Fem::Field::CFieldWorld& world,
-		unsigned int id_field_disp,
-		bool is_initial, 
-		unsigned int id_ea )
-{
-	const CField& field_disp = world.GetField(id_field_disp);
-	if( field_disp.GetFieldType() != VECTOR3 ) return false;
-
-	if( id_ea != 0 ){
-		if( field_disp.GetInterpolationType(id_ea,world) == TET11 ){
-			return AddLinSys_StVenant3D_NonStatic_NewmarkBeta_P1(
-				gamma,beta,dt,ls,
-				lambda, myu, rho, g_x, g_y, g_z,
-				id_field_disp,world,
-				is_initial,
-                id_ea);
-		}
-		assert(0);
-        return false;
-	}
-	else{
-		const std::vector<unsigned int>& aIdEA = field_disp.GetAry_IdElemAry();
-		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
-			const unsigned int id_ea = aIdEA[iiea];
-			bool res = Fem::Eqn::AddLinSys_StVenant3D_NonStatic_NewmarkBeta(
-				dt, gamma, beta,
-				ls,
-				lambda, myu, rho,  g_x, g_y, g_z,
-				world, id_field_disp,
-				is_initial, 
-				id_ea );
-			if( !res ) return false;
-		}
-		return true;
-	}
-
-	return true;
-}
-
-
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
 
 void AddElemMatFin_StVenant2D( 
 		double detwei, double myu, double lambda, 
@@ -503,15 +269,56 @@ bool AddLinSys_StVenant2D_Static_P1(
 }
 
 
+bool Fem::Eqn::AddLinSys_StVenant2D_Static
+(Fem::Eqn::ILinearSystem_Eqn& ls,
+ double lambda, double myu,
+ double  rho, double g_x, double g_y,
+ const CFieldWorld& world,
+ const unsigned int id_field_disp,
+ unsigned int id_ea )
+{
+	const CField& field_disp = world.GetField(id_field_disp);
+	if( field_disp.GetFieldType() != VECTOR2 ) return false;
+	
+	if( id_ea != 0 ){
+		if( field_disp.GetInterpolationType(id_ea,world) == TRI11 ){
+			return AddLinSys_StVenant2D_Static_P1
+			(ls,
+			 lambda, myu,
+			 rho, g_x, g_y,
+			 id_field_disp,world,
+			 id_ea);
+		}
+        assert(0);
+        return false;
+	}
+	else{
+		const std::vector<unsigned int>& aIdEA = field_disp.GetAry_IdElemAry();
+		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
+			const unsigned int id_ea = aIdEA[iiea];
+			bool res = Fem::Eqn::AddLinSys_StVenant2D_Static
+			(ls,
+			 lambda, myu, rho,  g_x, g_y,
+			 world, id_field_disp,
+			 id_ea );
+			if( !res ) return false;
+		}
+		return true;
+	}
+	return true;
+}
 
-bool AddLinSys_StVenant2D_NonStatic_NewmarkBeta_P1(
-		double gamma, double beta, double dt,
-        Fem::Eqn::ILinearSystem_Eqn& ls,
-		double lambda, double myu,
-		double rho, double g_x, double g_y,
-		const unsigned int id_field_disp, const CFieldWorld& world, 
-		bool is_initial,
-		const unsigned int id_ea )
+///////////////////////////////////////////
+
+
+bool AddLinSys_StVenant2D_NonStatic_NewmarkBeta_P1
+(double gamma, double beta, double dt,
+ Fem::Eqn::ILinearSystem_Eqn& ls,
+ double lambda, double myu,
+ double rho, double g_x, double g_y,
+ const unsigned int id_field_disp, const CFieldWorld& world, 
+ bool is_initial,
+ const unsigned int id_ea )
 {
 //	std::cout << "St.Venant2D Triangle 3-point 1st order" << std::endl;
 
@@ -527,27 +334,16 @@ bool AddLinSys_StVenant2D_NonStatic_NewmarkBeta_P1(
 	const unsigned int nnoes = 3;
 	const unsigned int ndim = 2;
 
-	unsigned int noes[nnoes];	// 要素内の節点の節点番号
-
-	double emat[nnoes][nnoes][ndim][ndim];	// 要素係数行列
-	double eMmat[nnoes][nnoes][ndim][ndim];	// 要素剛性行列
-	double eKmat[nnoes][nnoes][ndim][ndim];	// 要素質量行列
-
-	double eforce_ex[nnoes][ndim];		// 要素内外力ベクトル
-	double eforce_in[nnoes][ndim];		// 要素内内力ベクトル
-	double eres[nnoes][ndim];		// 要素内残差ベクトル
-
-	double ecoords[nnoes][ndim];		// 要素節点座標
-	double edisp[  nnoes][ndim];		// 要素節点変位
-	double evelo[  nnoes][ndim];		// 要素節点変位
-	double eacc[  nnoes][ndim];			// 要素節点変位
-
-	double dldx[nnoes][ndim];		// 形状関数の空間微分
-	double zero_order_term[nnoes];	// 形状関数の定数項
+	unsigned int noes[nnoes];	// elment node nuber 2 grobal node number
+	
+	double eKmat[nnoes][nnoes][ndim][ndim];	// element stiffness matrix
+	double eMmat[nnoes][nnoes][ndim][ndim];	// element mass matrix		
+	double eforce_in[nnoes][ndim];		// element residual vector		
+	double eforce_ex[nnoes][ndim];		// element external force vector
 				
-	CMatDia_BlkCrs& mat_cc = ls.GetMatrix(id_field_disp,CORNER,world);	// 要素剛性行列(コーナ-コーナー)
-	CVector_Blk&     res_c = ls.GetResidual(id_field_disp,CORNER,world);// 要素残差ベクトル(コーナー)
-
+	CMatDia_BlkCrs& mat_cc = ls.GetMatrix(id_field_disp,CORNER,world);	// matrix
+	CVector_Blk&     res_c = ls.GetResidual(id_field_disp,CORNER,world);// residual vector
+	
 	const CNodeAry::CNodeSeg& ns_c_val  = field_disp.GetNodeSeg(CORNER,true,world,VALUE);
 	const CNodeAry::CNodeSeg& ns_c_velo = field_disp.GetNodeSeg(CORNER,true,world,VELOCITY);
 	const CNodeAry::CNodeSeg& ns_c_acc  = field_disp.GetNodeSeg(CORNER,true,world,ACCELERATION);
@@ -559,15 +355,16 @@ bool AddLinSys_StVenant2D_NonStatic_NewmarkBeta_P1(
 
 	for(unsigned int ielem=0;ielem<ea.Size();ielem++)
 	{
-		// 要素の節点番号を取ってくる
-		es_co.GetNodes(ielem,noes);
-		// 節点の座標、値を取ってくる
+		es_co.GetNodes(ielem,noes);	// get global node number of coordinate
+		double ecoords[nnoes][ndim];	// element node coordinate
 		for(unsigned int ino=0;ino<nnoes;ino++){
 			ns_c_co.GetValue(  noes[ino], ecoords[ino]);
 		}
-		// 要素の節点番号を取ってくる
-		es_va.GetNodes(ielem,noes);
-		// 節点の座標、値を取ってくる
+		
+		es_va.GetNodes(ielem,noes);	// get global node nubmer of value
+		double edisp[  nnoes][ndim];		// displacement 
+		double evelo[  nnoes][ndim];		// velocity
+		double eacc[  nnoes][ndim];			// acceleration
 		for(unsigned int ino=0;ino<nnoes;ino++){
 			ns_c_val.GetValue( noes[ino], edisp[ino]);
 			ns_c_velo.GetValue(noes[ino], evelo[ino]);
@@ -575,20 +372,20 @@ bool AddLinSys_StVenant2D_NonStatic_NewmarkBeta_P1(
 		}
 
 		////////////////////////////////
-
-		// 要素剛性行列、残差を０で初期化
+		
+		// set 0 to elemnet stiffness matrix, element residual
 		for(unsigned int i=0;i<nnoes*nnoes*ndim*ndim;i++){ *(&eKmat[0][0][0][0]+i) = 0.0; }
 		for(unsigned int i=0;i<nnoes*nnoes*ndim*ndim;i++){ *(&eMmat[0][0][0][0]+i) = 0.0; }
 		for(unsigned int i=0;i<           nnoes*ndim;i++){ *(&eforce_ex[0][0]  +i) = 0.0; }
 		for(unsigned int i=0;i<           nnoes*ndim;i++){ *(&eforce_in[0][0]  +i) = 0.0; }
 
-		// 面積を求める
-		double area = TriArea(ecoords[0],ecoords[1],ecoords[2]);
+		const double area = TriArea(ecoords[0],ecoords[1],ecoords[2]);
 
-		// 形状関数のｘｙ微分を求める
+		double dldx[nnoes][ndim];		// spacial derivative of shape function
+		double zero_order_term[nnoes];	// constant term of shape function
 		TriDlDx(dldx, zero_order_term,   ecoords[0], ecoords[1], ecoords[2]);
-
-		{	// 剛性行列を求める
+		
+		{	// calc stiffness matrix
             double dudx[ndim][ndim] = { { 0.0, 0.0}, {0.0, 0.0} };
 			for(unsigned int ino=0;ino<nnoes;ino++){
 				for(unsigned int idim=0;idim<ndim;idim++){
@@ -599,8 +396,7 @@ bool AddLinSys_StVenant2D_NonStatic_NewmarkBeta_P1(
 			}
 			AddElemMatFin_StVenant2D( area, myu,lambda, nnoes,dudx,dldx,  eKmat[0],eforce_in );
 		}
-
-		{	// 質量行列を求める
+		{	// calc mass matrix
 			const double tmp1 = rho*area/12.0;
 			for(unsigned int ino=0;ino<nnoes;ino++){
 				for(unsigned int jno=0;jno<nnoes;jno++){
@@ -613,8 +409,7 @@ bool AddLinSys_StVenant2D_NonStatic_NewmarkBeta_P1(
 				}
 			}
 		}
-
-		// 外力ベクトルを求める
+		// call external force
 		for(unsigned int ino=0;ino<nnoes;ino++){
 		for(unsigned int idim=0;idim<ndim;idim++){
 			eforce_ex[ino][idim] += area*rho*g[idim]/(double)nnoes;
@@ -622,12 +417,13 @@ bool AddLinSys_StVenant2D_NonStatic_NewmarkBeta_P1(
 		}
 
 		////////////////////////////////
-
+		
+		double emat[nnoes][nnoes][ndim][ndim];	// element coeff matrix	
+		double eres[nnoes][ndim];		// element residual vector		
 		for(unsigned int i=0;i<nnoes*nnoes*ndim*ndim;i++){
 			(&emat[0][0][0][0])[i] = (&eMmat[0][0][0][0])[i] + beta*dt*dt*(&eKmat[0][0][0][0])[i];
 		}
-
-		// 要素内残差ベクトルを求める
+		// get element residual vector
 		for(unsigned int ino=0;ino<nnoes;ino++){
 		for(unsigned int idim=0;idim<ndim;idim++){
 			eres[ino][idim] = eforce_ex[ino][idim] - eforce_in[ino][idim];
@@ -653,9 +449,8 @@ bool AddLinSys_StVenant2D_NonStatic_NewmarkBeta_P1(
 
 		////////////////////////////////
 		
-		mat_cc.Mearge(nnoes,noes, nnoes,noes, // 全体剛性行列に要素剛性行列をマージ
-			ndim*ndim,&emat[0][0][0][0] );
-		for(unsigned int ino=0;ino<nnoes;ino++){	// 要素内残差をマージ
+		mat_cc.Mearge(nnoes,noes, nnoes,noes, ndim*ndim,&emat[0][0][0][0] );	// marge element stiffness
+		for(unsigned int ino=0;ino<nnoes;ino++){	// marge element residual	
 		for(unsigned int idim=0;idim<ndim;idim++){
 			res_c.AddValue(noes[ino],idim,eres[ino][idim]);
 		}
@@ -665,8 +460,259 @@ bool AddLinSys_StVenant2D_NonStatic_NewmarkBeta_P1(
 }
 
 
+// Dynamic
+bool Fem::Eqn::AddLinSys_StVenant2D_NonStatic_NewmarkBeta
+(double dt, double gamma, double beta,
+ Fem::Eqn::ILinearSystem_Eqn& ls,
+ double lambda, double myu,
+ double  rho, double g_x, double g_y,
+ const Fem::Field::CFieldWorld& world,
+ unsigned int id_field_disp,
+ bool is_initial, 
+ unsigned int id_ea )
+{
+	const CField& field_disp = world.GetField(id_field_disp);
+	if( field_disp.GetFieldType() != VECTOR2 ) return false;
+	
+	if( id_ea != 0 ){
+		if( field_disp.GetInterpolationType(id_ea,world) == TRI11 ){
+			AddLinSys_StVenant2D_NonStatic_NewmarkBeta_P1
+			(gamma,beta,dt,ls,
+			 lambda, myu,
+			 rho, g_x, g_y,
+			 id_field_disp,world,
+			 is_initial,
+			 id_ea);
+		}
+		else{ assert(0); }
+	}
+	else{
+		const std::vector<unsigned int>& aIdEA = field_disp.GetAry_IdElemAry();
+		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
+			const unsigned int id_ea = aIdEA[iiea];
+			bool res = Fem::Eqn::AddLinSys_StVenant2D_NonStatic_NewmarkBeta
+			(dt, gamma, beta,
+			 ls,
+			 lambda, myu, rho, g_x, g_y,
+			 world, id_field_disp, 
+			 is_initial, 
+			 id_ea );
+			if( !res ) return false;
+		}
+		return true;
+	}
+	return true;
+}
+
+////////////////////////////////////////////////
+
+bool AddLinSys_StVenant2D_NonStatic_BackwardEular_P1
+(double dt,
+ Fem::Eqn::ILinearSystem_Eqn& ls,
+ double lambda, double myu,
+ double rho, double g_x, double g_y,
+ const unsigned int id_field_disp, const CFieldWorld& world, 
+ const MatVec::CVector_Blk& velo_pre,
+ bool is_initial,
+ const unsigned int id_ea )
+{
+	//	std::cout << "St.Venant2D Triangle 3-point 1st order" << std::endl;
+	
+	assert( world.IsIdEA(id_ea) );
+	const CElemAry& ea = world.GetEA(id_ea);
+	assert( ea.ElemType() == TRI );
+	
+	const CField& field_disp = world.GetField(id_field_disp);
+	
+	const CElemAry::CElemSeg& es_co = field_disp.GetElemSeg(id_ea,CORNER,false,world);
+	const CElemAry::CElemSeg& es_va = field_disp.GetElemSeg(id_ea,CORNER,true,world);
+	
+	const unsigned int nno = 3;
+	const unsigned int ndim = 2;
+	
+	unsigned int no[nno];	// elment node nuber 2 grobal node number
+	
+	double eKmat[nno][nno][ndim][ndim];	// element stiffness matrix
+	double eMmat[nno][nno][ndim][ndim];	// element mass matrix		
+	double eforce_in[nno][ndim];		// element residual vector		
+	double eforce_ex[nno][ndim];		// element external force vector
+	
+	CMatDia_BlkCrs& mat_cc = ls.GetMatrix(id_field_disp,CORNER,world);	// matrix
+	CVector_Blk&     res_c = ls.GetResidual(id_field_disp,CORNER,world);// residual vector
+	
+	const CNodeAry::CNodeSeg& ns_c_val  = field_disp.GetNodeSeg(CORNER,true,world,VALUE);
+	const CNodeAry::CNodeSeg& ns_c_velo = field_disp.GetNodeSeg(CORNER,true,world,VELOCITY);
+	const CNodeAry::CNodeSeg& ns_c_co   = field_disp.GetNodeSeg(CORNER,false,world);
+	assert( ns_c_val.GetLength() == ndim );
+	assert( ns_c_co.GetLength()  == ndim );
+	
+	double g[2] = { g_x, g_y };
+	
+	for(unsigned int ielem=0;ielem<ea.Size();ielem++)
+	{
+		es_co.GetNodes(ielem,no);	// get global node number of coordinate
+		double ecoords[nno][ndim];	// element node coordinate
+		for(unsigned int ino=0;ino<nno;ino++){
+			ns_c_co.GetValue(  no[ino], ecoords[ino]);
+		}
+		
+		es_va.GetNodes(ielem,no);	// get global node nubmer of value
+		double edisp[nno][ndim];	// displacement 
+		double evelo[nno][ndim];	// velocity
+		for(unsigned int ino=0;ino<nno;ino++){
+			ns_c_val.GetValue( no[ino], edisp[ino]);
+			ns_c_velo.GetValue(no[ino], evelo[ino]);
+		}
+		
+		////////////////////////////////
+		
+		// set 0 to elemnet stiffness matrix, element residual
+		for(unsigned int i=0;i<nno*nno*ndim*ndim;i++){ *(&eKmat[0][0][0][0]+i) = 0.0; }
+		for(unsigned int i=0;i<nno*nno*ndim*ndim;i++){ *(&eMmat[0][0][0][0]+i) = 0.0; }
+		for(unsigned int i=0;i<         nno*ndim;i++){ *(&eforce_ex[0][0]  +i) = 0.0; }
+		for(unsigned int i=0;i<         nno*ndim;i++){ *(&eforce_in[0][0]  +i) = 0.0; }
+		
+		const double area = TriArea(ecoords[0],ecoords[1],ecoords[2]);
+		
+		double dldx[nno][ndim];		// spacial derivative of shape function
+		double zero_order_term[nno];	// constant term of shape function
+		TriDlDx(dldx, zero_order_term,   ecoords[0], ecoords[1], ecoords[2]);
+		
+		{	// calc stiffness matrix
+            double dudx[ndim][ndim] = { { 0.0, 0.0}, {0.0, 0.0} };
+			for(unsigned int ino=0;ino<nno;ino++){
+				for(unsigned int idim=0;idim<ndim;idim++){
+					for(unsigned int jdim=0;jdim<ndim;jdim++){
+						dudx[idim][jdim] += edisp[ino][idim]*dldx[ino][jdim];
+					}
+				}
+			}
+			AddElemMatFin_StVenant2D( area, myu,lambda, nno,dudx,dldx,  eKmat[0],eforce_in );
+		}
+		{	// calc mass matrix
+			const double tmp1 = rho*area/12.0;
+			for(unsigned int ino=0;ino<nno;ino++){
+				for(unsigned int jno=0;jno<nno;jno++){
+					for(unsigned int idim=0;idim<ndim;idim++){
+						eMmat[ino][jno][idim][idim] += tmp1;
+					}
+				}
+				for(unsigned int idim=0;idim<ndim;idim++){
+					eMmat[ino][ino][idim][idim] += tmp1;
+				}
+			}
+		}
+		// call external force
+		for(unsigned int ino=0;ino<nno;ino++){
+		for(unsigned int idim=0;idim<ndim;idim++){
+			eforce_ex[ino][idim] += area*rho*g[idim]*0.33333333333333333333;
+		}
+		}
+		
+		////////////////////////////////
+		
+		double emat[nno][nno][ndim][ndim];	// element coeff matrix	
+		double eres[nno][ndim];		// element residual vector		
+		for(unsigned int i=0;i<nno*nno*ndim*ndim;i++){
+			(&emat[0][0][0][0])[i] = (&eMmat[0][0][0][0])[i] + dt*dt*(&eKmat[0][0][0][0])[i];
+		}
+		// get element residual vector
+		for(unsigned int ino=0;ino<nno;ino++){
+		for(unsigned int idim=0;idim<ndim;idim++){
+			eres[ino][idim] = (eforce_ex[ino][idim] - eforce_in[ino][idim])*dt;
+		}
+		}
+		if( is_initial ){
+			for(unsigned int ino=0;ino<nno;ino++){
+			for(unsigned int idim=0;idim<ndim;idim++){
+				for(unsigned int jno=0;jno<nno;jno++){
+				for(unsigned int jdim=0;jdim<ndim;jdim++){
+					eres[ino][idim] -= eKmat[ino][jno][idim][jdim]*evelo[jno][jdim]*dt*dt;
+				}
+				}
+			}
+			}
+		}
+		else{
+			double velo0[nno][ndim];
+			for(unsigned int ino=0;ino<nno;ino++){
+			for(unsigned int idim=0;idim<ndim;idim++){
+				velo0[ino][idim] = velo_pre.GetValue(no[ino],idim);
+			}
+			}
+			for(unsigned int ino=0;ino<nno;ino++){
+			for(unsigned int idim=0;idim<ndim;idim++){
+				for(unsigned int jno=0;jno<nno;jno++){
+				for(unsigned int jdim=0;jdim<ndim;jdim++){
+					eres[ino][idim] -= eMmat[ino][jno][idim][jdim]*(evelo[jno][jdim]-velo0[jno][jdim]);
+				}
+				}
+			}
+			}
+		}
+		
+		////////////////////////////////
+		
+		mat_cc.Mearge(nno,no, nno,no, ndim*ndim,&emat[0][0][0][0] );	// marge element stiffness
+		for(unsigned int ino=0;ino<nno;ino++){	// marge element residual	
+			for(unsigned int idim=0;idim<ndim;idim++){
+				res_c.AddValue(no[ino],idim,eres[ino][idim]);
+			}
+		}
+	}
+	return true;
+}
 
 
+
+
+// Dynamic
+bool Fem::Eqn::AddLinSys_StVenant2D_NonStatic_BackwardEular
+(double dt, 
+ Fem::Eqn::ILinearSystem_Eqn& ls,
+ double lambda, double myu,
+ double rho, double g_x, double g_y,
+ const Fem::Field::CFieldWorld& world,
+ unsigned int id_field_disp, 
+ const MatVec::CVector_Blk& velo_pre,
+ bool is_initial,
+ unsigned int id_ea )
+{
+	const CField& field_disp = world.GetField(id_field_disp);
+	if( field_disp.GetFieldType() != VECTOR2 ) return false;
+	
+	if( id_ea != 0 ){
+		if( field_disp.GetInterpolationType(id_ea,world) == TRI11 ){
+			AddLinSys_StVenant2D_NonStatic_BackwardEular_P1
+			(dt,
+			 ls,
+			 lambda, myu,
+			 rho, g_x, g_y,
+			 id_field_disp,world,
+			 velo_pre,
+			 is_initial,
+			 id_ea);
+		}
+		else{ assert(0); }
+	}
+	else{
+		const std::vector<unsigned int>& aIdEA = field_disp.GetAry_IdElemAry();
+		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
+			const unsigned int id_ea = aIdEA[iiea];
+			bool res = Fem::Eqn::AddLinSys_StVenant2D_NonStatic_BackwardEular
+			(dt,
+			 ls,
+			 lambda, myu, rho, g_x, g_y,
+			 world, id_field_disp, 
+			 velo_pre,
+			 is_initial, 
+			 id_ea );
+			if( !res ) return false;
+		}
+		return true;
+	}
+	return true;
+}
 
 
 
@@ -675,10 +721,10 @@ bool AddLinSys_StVenant2D_NonStatic_NewmarkBeta_P1(
 
 ////////////////////////////////////////////////////////////////
 
-void SetElemMatFin_StVenant3D( 
-		double detwei, double myu, double lambda, 
-		const unsigned int nno, const double dudx[][3], const double dndx[][3],
-		double eKMat[][3][3], double eForce_in[][3] )
+void SetElemMatFin_StVenant3D
+(double detwei, double myu, double lambda, 
+ const unsigned int nno, const double dudx[][3], const double dndx[][3],
+ double eKMat[][3][3], double eForce_in[][3] )
 {
 	const unsigned int ndim = 3;
 
@@ -787,19 +833,14 @@ void SetElemMatFin_StVenant3D(
 	}
 }
 
+////////////////
 
-
-
-
-
-
-
-bool AddLinSys_StVenant3D_Static_P1(
-        Fem::Eqn::ILinearSystem_Eqn& ls,
-		double lambda, double myu,
-		double  rho, double g_x, double g_y, double g_z,
-		const unsigned int id_field_disp, const CFieldWorld& world, 
-		unsigned int id_ea)
+bool AddLinSys_StVenant3D_Static_P1
+(Fem::Eqn::ILinearSystem_Eqn& ls,
+ double lambda, double myu,
+ double  rho, double g_x, double g_y, double g_z,
+ const unsigned int id_field_disp, const CFieldWorld& world, 
+ unsigned int id_ea)
 {
 //	std::cout << "StVenant3D Tet 4-point 1st order" << std::endl;
 
@@ -894,19 +935,15 @@ bool AddLinSys_StVenant3D_Static_P1(
 			}
 		}
 	}
-
 	return true;
 }
 
-
-
-
-bool AddLinSys_StVenant3D_Static_Q1(
-        Fem::Eqn::ILinearSystem_Eqn& ls,
-		double lambda, double myu,
-		double  rho, double g_x, double g_y, double g_z,
-		const unsigned int id_field_disp, const CFieldWorld& world, 
-		const unsigned int	id_ea)
+bool AddLinSys_StVenant3D_Static_Q1
+(Fem::Eqn::ILinearSystem_Eqn& ls,
+ double lambda, double myu,
+ double  rho, double g_x, double g_y, double g_z,
+ const unsigned int id_field_disp, const CFieldWorld& world, 
+ const unsigned int	id_ea)
 {
 //	std::cout << "StVenant3D Hex 8-point 1st order" << std::endl;
 
@@ -1019,17 +1056,64 @@ bool AddLinSys_StVenant3D_Static_Q1(
 	return true;
 }
 
+bool Fem::Eqn::AddLinSys_StVenant3D_Static
+(Fem::Eqn::ILinearSystem_Eqn& ls,
+ double lambda, double myu,
+ double  rho, double g_x, double g_y, double g_z,
+ const CFieldWorld& world,
+ unsigned int id_field_disp, 
+ unsigned int id_ea )
+{
+	const CField& field_disp = world.GetField(id_field_disp);
+	if( field_disp.GetFieldType() != VECTOR3 ){ assert(0); return false; }
+	
+	if( id_ea != 0 ){
+		if( field_disp.GetInterpolationType(id_ea,world) == TET11 ){
+			return AddLinSys_StVenant3D_Static_P1
+			(ls,
+			 lambda, myu,
+			 rho, g_x, g_y, g_z,
+			 id_field_disp,world,
+			 id_ea);
+		}
+		else if( field_disp.GetInterpolationType(id_ea,world) == HEX11 ){
+			return AddLinSys_StVenant3D_Static_Q1
+			(ls,
+			 lambda, myu,
+			 rho, g_x, g_y, g_z,
+			 id_field_disp,world,id_ea);
+		}
+		assert(0);
+        return false;
+	}
+	else{
+		const std::vector<unsigned int>& aIdEA = field_disp.GetAry_IdElemAry();
+		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
+			const unsigned int id_ea = aIdEA[iiea];
+			bool res = Fem::Eqn::AddLinSys_StVenant3D_Static
+			(ls,
+			 lambda, myu, rho,  g_x, g_y, g_z,
+			 world, id_field_disp, 
+			 id_ea );
+			if( !res ) return false;
+		}
+		return true;
+	}
+	return true;
+}
 
 
+/////////////////////////////////////////////////
 
-bool AddLinSys_StVenant3D_NonStatic_NewmarkBeta_P1(
-		double gamma, double beta, double dt,
-        Fem::Eqn::ILinearSystem_Eqn& ls,
-		double lambda, double myu,
-		double rho, double g_x, double g_y, double g_z,
-		const unsigned int id_field_disp, const CFieldWorld& world, 
-		bool is_initial,
-		const unsigned int id_ea)
+
+bool AddLinSys_StVenant3D_NonStatic_NewmarkBeta_P1
+(double gamma, double beta, double dt,
+ Fem::Eqn::ILinearSystem_Eqn& ls,
+ double lambda, double myu,
+ double rho, double g_x, double g_y, double g_z,
+ const unsigned int id_field_disp, const CFieldWorld& world, 
+ bool is_initial,
+ const unsigned int id_ea)
 {
 //	std::cout << "St.Venant3D Tet1st" << std::endl;
 
@@ -1044,9 +1128,9 @@ bool AddLinSys_StVenant3D_NonStatic_NewmarkBeta_P1(
 	const unsigned int nnoes = 4;
 	const unsigned int ndim = 3;
 
-	double emat[nnoes][nnoes][ndim][ndim];	// 要素係数行列
-	double eMmat[nnoes][nnoes][ndim][ndim];	// 要素剛性行列
-	double eKmat[nnoes][nnoes][ndim][ndim];	// 要素質量行列
+	double emat[nnoes][nnoes][ndim][ndim];	// coefficient element matrix
+	double eMmat[nnoes][nnoes][ndim][ndim];	// mass element matrix
+	double eKmat[nnoes][nnoes][ndim][ndim];	// stiffness element matrix
 
 	double eforce_in[nnoes][ndim];		// 要素内内力ベクトル
 	double eres[nnoes][ndim];		// 要素内残差ベクトル
@@ -1065,14 +1149,12 @@ bool AddLinSys_StVenant3D_NonStatic_NewmarkBeta_P1(
 
 	for(unsigned int ielem=0;ielem<ea.Size();ielem++)
     {
-		// 要素の節点番号を取ってくる
-	    unsigned int noes[nnoes];	// 要素内の節点の節点番号
+	    unsigned int noes[nnoes];
 		es_c.GetNodes(ielem,noes);
-		// 節点の座標、値を取ってくる
-	    double ecoords[nnoes][ndim];		// 要素節点座標
-	    double edisp[  nnoes][ndim];		// 要素節点変位
-	    double evelo[  nnoes][ndim];		// 要素節点変位
-	    double eacc[  nnoes][ndim];			// 要素節点変位
+	    double ecoords[nnoes][ndim];		// coordinate 
+	    double edisp[  nnoes][ndim];		// displacement 
+	    double evelo[  nnoes][ndim];		// velocity
+	    double eacc[  nnoes][ndim];			// acceleration
 		for(unsigned int ino=0;ino<nnoes;ino++){
 			ns_c_co.GetValue(  noes[ino], ecoords[ino]);
 			ns_c_val.GetValue( noes[ino], edisp[ino]);
@@ -1082,15 +1164,13 @@ bool AddLinSys_StVenant3D_NonStatic_NewmarkBeta_P1(
 
 		////////////////////////////////
 
-		// 面積を求める
 		const double vol = TetVolume(ecoords[0],ecoords[1],ecoords[2],ecoords[3]);
 
-		// 形状関数のｘｙ微分を求める
-	    double dldx[nnoes][ndim];		// 形状関数の空間微分
-	    double zero_order_term[nnoes];	// 形状関数の定数項
+	    double dldx[nnoes][ndim];		// derivative of shape function
+	    double zero_order_term[nnoes];	// constant term of shape function
 		TetDlDx(dldx, zero_order_term,  ecoords[0],ecoords[1],ecoords[2],ecoords[3]);
-
-		{	// 剛性行列を求める
+		
+		{	// calc stiffness matrix
 			double dudx[ndim][ndim] = { {0.0,0.0,0.0}, {0.0,0.0,0.0}, {0.0,0.0,0.0} };
 			for(unsigned int ino=0;ino<nnoes;ino++){
 			for(unsigned int idim=0;idim<ndim;idim++){
@@ -1102,7 +1182,7 @@ bool AddLinSys_StVenant3D_NonStatic_NewmarkBeta_P1(
 			SetElemMatFin_StVenant3D( vol, myu,lambda, nnoes,dudx,dldx,  eKmat[0],eforce_in );
 		}
 
-		{	// 質量行列を求める
+		{	// calc mass matrix
 		    for(unsigned int i=0;i<nnoes*nnoes*ndim*ndim;i++){ *(&eMmat[0][0][0][0]+i) = 0.0; }
 			const double tmp1 = rho*vol*0.05;
 			for(unsigned int ino=0;ino<nnoes;ino++){
@@ -1124,8 +1204,6 @@ bool AddLinSys_StVenant3D_NonStatic_NewmarkBeta_P1(
 		for(unsigned int i=0;i<nnoes*nnoes*ndim*ndim;i++){
 			(&emat[0][0][0][0])[i] = (&eMmat[0][0][0][0])[i] + beta*dt*dt*(&eKmat[0][0][0][0])[i];
 		}
-
-		// 要素内残差ベクトルを求める
 		for(unsigned int ino=0;ino<nnoes;ino++){
 		for(unsigned int idim=0;idim<ndim;idim++){
 			eres[ino][idim] = vol*rho*g[idim]*0.25 - eforce_in[ino][idim];
@@ -1151,9 +1229,8 @@ bool AddLinSys_StVenant3D_NonStatic_NewmarkBeta_P1(
 
 		////////////////////////////////
 		
-		mat_cc.Mearge(nnoes,noes, nnoes,noes, // 全体剛性行列に要素剛性行列をマージ
-			ndim*ndim,&emat[0][0][0][0] );
-		for(unsigned int ino=0;ino<nnoes;ino++){	// 要素内残差をマージ
+		mat_cc.Mearge(nnoes,noes, nnoes,noes, ndim*ndim,&emat[0][0][0][0] );
+		for(unsigned int ino=0;ino<nnoes;ino++){
 		for(unsigned int idim=0;idim<ndim;idim++){
 			res_c.AddValue(noes[ino],idim,eres[ino][idim]);
 		}
@@ -1161,5 +1238,53 @@ bool AddLinSys_StVenant3D_NonStatic_NewmarkBeta_P1(
 	}
 	return true;
 }
+
+
+// 非定常
+bool Fem::Eqn::AddLinSys_StVenant3D_NonStatic_NewmarkBeta
+(double dt, double gamma, double beta,
+ Fem::Eqn::ILinearSystem_Eqn& ls,
+ double lambda, double myu,
+ double  rho, double g_x, double g_y, double g_z,
+ const Fem::Field::CFieldWorld& world,
+ unsigned int id_field_disp,
+ bool is_initial, 
+ unsigned int id_ea )
+{
+	const CField& field_disp = world.GetField(id_field_disp);
+	if( field_disp.GetFieldType() != VECTOR3 ) return false;
+	
+	if( id_ea != 0 ){
+		if( field_disp.GetInterpolationType(id_ea,world) == TET11 ){
+			return AddLinSys_StVenant3D_NonStatic_NewmarkBeta_P1
+			(gamma,beta,dt,ls,
+			 lambda, myu, rho, g_x, g_y, g_z,
+			 id_field_disp,world,
+			 is_initial,
+			 id_ea);
+		}
+		assert(0);
+        return false;
+	}
+	else{
+		const std::vector<unsigned int>& aIdEA = field_disp.GetAry_IdElemAry();
+		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
+			const unsigned int id_ea = aIdEA[iiea];
+			bool res = Fem::Eqn::AddLinSys_StVenant3D_NonStatic_NewmarkBeta
+			(dt, gamma, beta,
+			 ls,
+			 lambda, myu, rho,  g_x, g_y, g_z,
+			 world, id_field_disp,
+			 is_initial, 
+			 id_ea );
+			if( !res ) return false;
+		}
+		return true;
+	}
+	
+	return true;
+}
+
+
 
 

@@ -25,7 +25,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = A9B28B8011D4182D000CF08E /* dfm_core.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D /* dfm_core */;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = dfm_core;
 		};
 /* End PBXContainerItemProxy section */
