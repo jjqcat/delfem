@@ -1359,7 +1359,6 @@ static bool AddLinSys_LinearSolid2D_NonStatic_BackwardEular_P1
 	const unsigned int nno = 3;	assert( nno == es_co.GetSizeNoes() );
 	const unsigned int ndim = 2;
 	
-	
 	double eKmat[nno][nno][ndim][ndim];	// stiffness matrix
 	double eMmat[nno][nno][ndim][ndim];	// mass matrix
 	double emat[nno][nno][ndim][ndim];	// coefficient matrix

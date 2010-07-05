@@ -239,14 +239,15 @@ void Solve(){
 		velo_pre.Initialize(nblk,len);
 		na.GetValueFromNodeSegment(id_ns_v,velo_pre);
 	}	
-	for(unsigned int itr=0;itr<2;itr++){
+	for(unsigned int itr=0;itr<4;itr++){
 		double res;
 		{
 			ls.InitializeMarge();
-            Fem::Eqn::AddLinSys_LinearSolid2D_NonStatic_BackwardEular
+//            Fem::Eqn::AddLinSys_LinearSolid2D_NonStatic_BackwardEular			
+			Fem::Eqn::AddLinSys_StVenant2D_NonStatic_BackwardEular
 			(dt,
 			 ls,
-			 0.00, 2000.0,
+			 0.00, 4000.0,
 			 1.0, gravity[0], gravity[1],
 			 world, id_disp,
 			 velo_pre,
