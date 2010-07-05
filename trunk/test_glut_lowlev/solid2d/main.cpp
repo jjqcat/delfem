@@ -46,9 +46,6 @@ using namespace Fem::Ls;
 using namespace MatVec;
 using namespace Fem::Field;
 
-
-
-
 Com::View::CCamera mvp_trans;
 double mov_begin_x, mov_begin_y;
 
@@ -104,7 +101,6 @@ void ShowFPS(){
 	::glMatrixMode(GL_MODELVIEW);
 }
 
-// リサイズ時のコールバック関数
 void myGlutResize(int w, int h)
 {
 	mvp_trans.SetWindowAspect((double)w/h);
@@ -231,39 +227,32 @@ LsSol::CPreconditioner_ILU prec;
 
 void Solve(){	
 	////////////////
-	const double gamma_newmark = 0.55;
-	const double beta_newmark = 0.25*(0.5+gamma_newmark)*(0.5+gamma_newmark);
-	for(int itr=0;itr<3;itr++){
+	MatVec::CVector_Blk velo_pre;
+	{
+		Fem::Field::CField& field = world.GetField(id_disp);
+		unsigned int id_ns_v = field.GetNodeSegInNodeAry(CORNER).id_ns_ve;
+		unsigned int id_na = field.GetNodeSegInNodeAry(CORNER).id_na_va;
+		Fem::Field::CNodeAry& na = world.GetNA(id_na);		
+		Fem::Field::CNodeAry::CNodeSeg& ns_v = field.GetNodeSeg(CORNER,true,world,VELOCITY);
+		unsigned int nblk = ns_v.GetNnode();		
+		unsigned int len = ns_v.GetLength();
+		velo_pre.Initialize(nblk,len);
+		na.GetValueFromNodeSegment(id_ns_v,velo_pre);
+	}	
+	for(unsigned int itr=0;itr<2;itr++){
 		double res;
 		{
 			ls.InitializeMarge();
-//            Fem::Eqn::AddLinSys_LinearSolid2D_NonStatic_NewmarkBeta(
-			Fem::Eqn::AddLinSys_StVenant2D_NonStatic_NewmarkBeta(
-				dt, gamma_newmark, beta_newmark,
-				ls,
-				0.00, 2000.0,
-				1.0, gravity[0], gravity[1],
-				world, id_disp,
-				itr==0);
+            Fem::Eqn::AddLinSys_LinearSolid2D_NonStatic_BackwardEular
+			(dt,
+			 ls,
+			 0.00, 2000.0,
+			 1.0, gravity[0], gravity[1],
+			 world, id_disp,
+			 velo_pre,
+			 itr==0);
 			res = ls.FinalizeMarge();
 		}
-/*		{	// 行列を解く
-			double conv_ratio = 1.0e-9;
-			unsigned int max_iter = 1000;
-			// Solve with Preconditioned Conjugate Gradient
-			Sol::Solve_CG(conv_ratio,max_iter,ls);
-			std::cout << max_iter << " " << conv_ratio << std::endl;
-		}*/
-/*        {
-            ls.ReSizeTmpVecSolver(1);
-            ls.COPY(-1,0);
-            ls.COPY(-1,-2);
-            prec.SetValue(ls);
-            prec.SolvePrecond(ls,-2);
-            ls.MATVEC(-1,-2,1,0);
-            std::cout << "****************" << std::endl;
-            std::cout << itr << " Res After : " << ls.DOT(0,0) << std::endl;
-        }*/
         {
 			double conv_ratio = 1.0e-9;
 			unsigned int max_iter = 1000;
@@ -272,8 +261,8 @@ void Solve(){
 			LsSol::Solve_PCG(conv_ratio,max_iter,lsp);
 			std::cout << max_iter << " " << conv_ratio << std::endl;
         }
-		ls.UpdateValueOfField_NewmarkBeta(gamma_newmark,beta_newmark,dt, id_disp  ,world,itr==0);
-		std::cout << "Res : " << res << std::endl;
+		ls.UpdateValueOfField_BackwardEular(dt, id_disp  ,world,itr==0);
+		std::cout << "iter : " << itr << "  Res : " << res << std::endl;
 		if( res < 1.0e-6 ) break;
 	}
 //    getchar();
@@ -300,8 +289,6 @@ void myGlutDisplay(void)
 //		Solve2();
 		drawer_ary.Update(world);
 	}
-
-//	circle.Draw(world);
 
 	drawer_ary.Draw();
 	ShowFPS();

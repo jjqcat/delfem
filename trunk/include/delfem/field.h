@@ -163,19 +163,17 @@ public:
 
 public:
 	CField(
-		unsigned int id_field_parent,	// 親フィールド
+		unsigned int id_field_parent,	// parent field
 		const std::vector<CElemInterpolation>& aEI, 
 		const CNodeSegInNodeAry& nsna_c, const CNodeSegInNodeAry& nsna_b, 
 		CFieldWorld& world );
-	//! デフォルト・コンストラクタ
-	CField(){};
+	CField(){};	//! default constructor
 
 	//////////////// 
 	// Getメソッド
 
-	//! 有効かどうか調べる
-	bool IsValid() const{ return m_is_valid; }
-	bool AssertValid(CFieldWorld& world) const;
+	bool IsValid() const{ return m_is_valid; }	//!< get the validation flag
+	bool AssertValid(CFieldWorld& world) const;	//!< check if it is valid
 	//! 座標の次元を得る
 	unsigned int GetNDimCoord() const{ return m_ndim_coord; }
 	//! 値の長さを得る

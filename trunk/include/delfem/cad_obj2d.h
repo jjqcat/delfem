@@ -228,20 +228,18 @@ public:
 	// 形状操作関数（トポロジーを変えない）
 
     bool SetCurve_Polyline(const unsigned int id_e);
-	//! ID:id_eの辺をメッシュにセットする
+	//! set edge (ID:id_e) mesh
 	bool SetCurve_Polyline(unsigned int id_e, const std::vector<Com::CVector2D>& aVec);
-	//! ID:id_eの辺を円弧にセットする
+	//! set edge (ID:id_e) arc 
     bool SetCurve_Arc(const unsigned int id_e, bool is_left_side=false, double rdist=10.0);
-    //! ID:id_eの辺を直線にセットする
+    //! set edge (ID:id_e) straight line
 	bool SetCurve_Line(const unsigned int id_e);
 
 	////////////////////////////////////////////////
-	// IOルーティン
-
-	//! DXFへ書き出し
+	// IO routines
+	
 	bool WriteToFile_dxf(const std::string& file_name) const;
-	//! 読み込み書き出し
-	bool Serialize( Com::CSerializer& serialize );	
+	bool Serialize( Com::CSerializer& serialize );		
 protected:
 	// id_vs, id_ve, po_s, po_eが代入されたEdgeを返す
 	const CEdge2D& GetEdge(unsigned int id_e) const;
@@ -256,7 +254,7 @@ protected:
 	unsigned int CheckInOut_ItrLoopPoint_ItrLoop(ICad2D::CItrLoop& itrl1, ICad2D::CItrLoop& itrl2) const;
 	
 	bool CheckIsPointInsideLoop(unsigned int id_l1, const Com::CVector2D& point) const;
-//    ループが健全かどうか調べる．０なら健全
+	// assert loop : return 0 if loop is OK
     int CheckLoop(unsigned int id_l) const;
 
 	// 返り値は半辺のIDでid_vとpointを結ぶ半直線からid_vを中心に時計周りに最初に出会う半辺
@@ -271,7 +269,7 @@ protected:
 	Com::CObjSet<CEdge2D>   m_EdgeSet;
 	Com::CObjSet<CVertex2D> m_VertexSet;
 	////////////////
-	CBRep2D m_BRep;	// 位相情報を持っているクラス
+	CBRep2D m_BRep;	// class which have topology
 };
 
 }	// end namespace CAD

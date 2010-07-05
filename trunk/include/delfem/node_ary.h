@@ -38,13 +38,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "delfem/complex.h"
 #include "delfem/objset.h"
-#include "delfem/elem_ary.h"	// ElemAryに依存しないように頑張る
+#include "delfem/elem_ary.h"	// remove this dependency in future
 
-////////////////////////////////
-// 仮のクラス定義
-
+// the temp class declearation
 namespace MatVec{
-	class  CVector_Blk;
+	class CVector_Blk;
 	class CZVector_Blk;
     class CBCFlag;
 }
@@ -139,7 +137,7 @@ public:
 	//! Check if id_ns is whether ID of Node Segment or not
 	bool IsSegID( unsigned int id_ns ) const{ return m_aSeg.IsObjID(id_ns); }
 	const std::vector<unsigned int>& GetAry_SegID() const { return this->m_aSeg.GetAry_ObjID(); }
-	//! 節点セグメントを取得する関数
+	//! Get Node Segment (const)
 	const CNodeSeg& GetSeg(unsigned int id_ns) const{		
 		assert( this->m_aSeg.IsObjID(id_ns) );
 		if( !m_aSeg.IsObjID(id_ns) ) throw;
@@ -150,7 +148,7 @@ public:
 		ns.nnode = m_Size;
 		return ns;
 	}
-	//! 節点セグメントを取得する関数
+	//! Get Node Segment 
 	CNodeSeg& GetSeg(unsigned int id_ns){			
 		assert( this->m_aSeg.IsObjID(id_ns) );
 		if( !m_aSeg.IsObjID(id_ns) ) throw;
