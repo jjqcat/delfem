@@ -49,56 +49,66 @@ using namespace MatVec;
 ////////////////
 // 静的問題
 
-static bool AddLinSys_LinearSolid2D_Static_P1(
-		ILinearSystem_Eqn& ls, 
-		double lambda, double myu,
-		double  rho, double g_x, double g_y,
-		unsigned int id_field_val, const CFieldWorld& world,
-		unsigned int id_ea);
+static bool AddLinSys_LinearSolid2D_Static_P1
+(ILinearSystem_Eqn& ls, 
+ double lambda, double myu,
+ double  rho, double g_x, double g_y,
+ unsigned int id_field_val, const CFieldWorld& world,
+ unsigned int id_ea);
 
-static bool AddLinSys_LinearSolid2D_Static_P1b(
-		ILinearSystem_Eqn& ls, 
-		double lambda, double myu,
-		double  rho, double g_x, double g_y,
-		const unsigned int id_field_val, const CFieldWorld& world,
-		const unsigned int iei);
+static bool AddLinSys_LinearSolid2D_Static_P1b
+(ILinearSystem_Eqn& ls, 
+ double lambda, double myu,
+ double  rho, double g_x, double g_y,
+ const unsigned int id_field_val, const CFieldWorld& world,
+ const unsigned int iei);
 
-static bool AddLinSys_LinearSolid2D_Static_P1_SaveStiffMat(
-		CLinearSystem_Save& ls, 
-		double lambda, double myu,
-		double  rho, double g_x, double g_y,
-		unsigned int id_field_val, const CFieldWorld& world,
-		unsigned int id_ea);
+static bool AddLinSys_LinearSolid2D_Static_P1_SaveStiffMat
+(CLinearSystem_Save& ls, 
+ double lambda, double myu,
+ double  rho, double g_x, double g_y,
+ unsigned int id_field_val, const CFieldWorld& world,
+ unsigned int id_ea);
 
 ////////////////
 // 静的熱応力問題
 
-static bool AddLinSys_LinearSolidThermalStress2D_Static_P1(
-		ILinearSystem_Eqn& ls, 
-		double lambda, double myu,
-		double rho, double g_x, double g_y,
-		double thermoelastic,
-		unsigned int id_field_disp, unsigned int id_field_temp, const CFieldWorld& world,
-		const unsigned int iei);
+static bool AddLinSys_LinearSolidThermalStress2D_Static_P1
+(ILinearSystem_Eqn& ls, 
+ double lambda, double myu,
+ double rho, double g_x, double g_y,
+ double thermoelastic,
+ unsigned int id_field_disp, unsigned int id_field_temp, const CFieldWorld& world,
+ const unsigned int iei);
 
 ////////////////
-// 動的問題
+// dynamic problem
 
-static bool AddLinSys_LinearSolid2D_NonStatic_NewmarkBeta_P1(				
-		double gamma, double beta, double dt,
-		ILinearSystem_Eqn& ls, 
-		double lambda, double myu,
-		double  rho, double g_x, double g_y,
-		const unsigned int id_field_val, const CFieldWorld& world,
-		bool is_initial,
-		unsigned int id_ea);
+static bool AddLinSys_LinearSolid2D_NonStatic_NewmarkBeta_P1
+(double gamma, double beta, double dt,
+ ILinearSystem_Eqn& ls, 
+ double lambda, double myu,
+ double  rho, double g_x, double g_y,
+ const unsigned int id_field_val, const CFieldWorld& world,
+ bool is_initial,
+ unsigned int id_ea);
 
-static bool AddLinSys_LinearSolid2D_NonStatic_Save_NewmarkBeta_P1(
-		CLinearSystem_SaveDiaM_NewmarkBeta& ls, 
-		double lambda, double myu,
-		double  rho, double g_x, double g_y,
-		const unsigned int id_field_val, const CFieldWorld& world,
-		unsigned int id_ea);
+static bool AddLinSys_LinearSolid2D_NonStatic_BackwardEular_P1
+(double dt,
+ ILinearSystem_Eqn& ls, 
+ double lambda, double myu,
+ double  rho, double g_x, double g_y,
+ const unsigned int id_field_val, const CFieldWorld& world,
+ const MatVec::CVector_Blk& velo_pre,												
+ bool is_initial, 
+ unsigned int id_ea);
+
+static bool AddLinSys_LinearSolid2D_NonStatic_Save_NewmarkBeta_P1
+(CLinearSystem_SaveDiaM_NewmarkBeta& ls, 
+ double lambda, double myu,
+ double  rho, double g_x, double g_y,
+ const unsigned int id_field_val, const CFieldWorld& world,
+ unsigned int id_ea);
 
 static bool AddLinSys_LinearSolid2D_Eigen_P1(				
 		CLinearSystem_Eigen& ls, 
@@ -297,7 +307,7 @@ bool Fem::Eqn::AddLinSys_LinearSolid2D_Eigen(
 	return true;
 }
 
-// 動的線形弾性体(剛性行列を保存)
+// dynamic linear elastic solid (saving stiffness matrix)
 bool Fem::Eqn::AddLinSys_LinearSolid2D_NonStatic_Save_NewmarkBeta(
 		Fem::Ls::CLinearSystem_SaveDiaM_NewmarkBeta& ls,
 		double lambda, double myu, double rho, double g_x, double g_y,
@@ -356,7 +366,7 @@ bool Fem::Eqn::AddLinSys_LinearSolid2D_NonStatic_NewmarkBeta(
 
 	if( id_ea != 0 ){
 		if( field_val.GetInterpolationType(id_ea,world) == TRI11 ){
-			AddLinSys_LinearSolid2D_NonStatic_NewmarkBeta_P1(
+			return AddLinSys_LinearSolid2D_NonStatic_NewmarkBeta_P1(
 				gamma, beta, dt,
 				ls,
 				lambda, myu, rho, g_x, g_y,
@@ -381,9 +391,57 @@ bool Fem::Eqn::AddLinSys_LinearSolid2D_NonStatic_NewmarkBeta(
 		}
 		return true;
 	}
-
 	return true;
 }
+
+
+// 2D dynamic linear elastic solid
+// this function use backward eular time integration method
+bool Fem::Eqn::AddLinSys_LinearSolid2D_NonStatic_BackwardEular
+(double dt, 
+ ILinearSystem_Eqn& ls,
+ double lambda, double myu, double rho, double g_x, double g_y,
+ const CFieldWorld& world, unsigned int id_field_val, 
+ const MatVec::CVector_Blk& velo_pre,
+ bool is_initial, 
+ unsigned int id_ea )
+{
+	if( !world.IsIdField(id_field_val) ) return false;
+	const CField& field_val = world.GetField(id_field_val);
+	if( field_val.GetFieldType() != VECTOR2 ) return false;
+	
+	if( id_ea != 0 ){
+		if( field_val.GetInterpolationType(id_ea,world) == TRI11 ){
+			return AddLinSys_LinearSolid2D_NonStatic_BackwardEular_P1
+			(dt,
+			 ls,
+			 lambda, myu, rho, g_x, g_y,
+			 id_field_val,world,
+			 velo_pre,
+			 is_initial,
+			 id_ea);
+		}
+		else{ assert(0); }
+	}
+	else{
+		const std::vector<unsigned int>& aIdEA = field_val.GetAry_IdElemAry();
+		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
+			const unsigned int id_ea = aIdEA[iiea];
+			bool res = Fem::Eqn::AddLinSys_LinearSolid2D_NonStatic_BackwardEular
+			(dt,
+			 ls,
+			 lambda, myu, rho, g_x, g_y,
+			 world, id_field_val, 
+			 velo_pre,
+			 is_initial,
+			 id_ea );
+			if( !res ) return false;
+		}
+		return true;
+	}	
+	return true;
+}
+
 
 
 // 静的 熱応力 線形弾性体
@@ -1142,13 +1200,12 @@ static bool AddLinSys_LinearSolid2D_NonStatic_NewmarkBeta_P1(
 	const unsigned int nno = 3;	assert( nno == es_co.GetSizeNoes() );
 	const unsigned int ndim = 2;
 
-	unsigned int noes[nno];	// 要素内の節点の節点番号
 
-	double eKmat[nno][nno][ndim][ndim];
-	double eMmat[nno][nno][ndim][ndim];
-	double emat[nno][nno][ndim][ndim];	// 要素剛性行列
-	double eqf_out[nno][ndim];	// 要素内外力ベクトル
-	double eres[nno][ndim];		// 要素内残差ベクトル
+	double eKmat[nno][nno][ndim][ndim];	// stiffness matrix
+	double eMmat[nno][nno][ndim][ndim];	// mass matrix
+	double emat[nno][nno][ndim][ndim];	// coefficient matrix
+	double eqf_out[nno][ndim];	// element external force vector
+	double eres[nno][ndim];		// element internal force vector
 
 	CMatDia_BlkCrs& mat_cc = ls.GetMatrix(  id_field_val,CORNER,world);
 	CVector_Blk&    res_c  = ls.GetResidual(id_field_val,CORNER,world);
@@ -1159,20 +1216,20 @@ static bool AddLinSys_LinearSolid2D_NonStatic_NewmarkBeta_P1(
 	const CNodeAry::CNodeSeg& ns_c_co  = field_val.GetNodeSeg(CORNER,false,world);
 
 	for(unsigned int ielem=0;ielem<ea.Size();ielem++)
-	{
-		// 要素の節点番号を取ってくる
-		es_co.GetNodes(ielem,noes);
-		double coords[nno][ndim];		// 要素節点座標
-		// 節点の座標を取ってくる
+	{		
+		// fetch global node number for coordinate node
+		unsigned int noes[nno];	es_co.GetNodes(ielem,noes);		
+		// fetch coordinate
+		double coords[nno][ndim];	
 		for(unsigned int ino=0;ino<nno;ino++){
-			ns_c_co.GetValue(  noes[ino],coords[ino]);
+			ns_c_co.GetValue( noes[ino],coords[ino]);
 		}
-		// 要素の節点番号を取ってくる
+		
+		// fetch global node nubmer for value node
 		es_va.GetNodes(ielem,noes);
-		double disp[  nno][ndim];		// 要素節点変位
-		double acc[   nno][ndim];
-		double velo[  nno][ndim];
-		// 節点の値を取ってくる
+		double disp[  nno][ndim];	// displacement 		
+		double velo[  nno][ndim];	// velocity
+		double acc[   nno][ndim];	// acceleration
 		for(unsigned int ino=0;ino<nno;ino++){
 			ns_c_val.GetValue( noes[ino],disp[  ino]);
 			ns_c_velo.GetValue(noes[ino],velo[  ino]);
@@ -1181,19 +1238,19 @@ static bool AddLinSys_LinearSolid2D_NonStatic_NewmarkBeta_P1(
 
 		////////////////////////////////
 
-		// 要素剛性行列、残差を０で初期化
+		// 0 clear elemnet stiffness matrix and residual
 		for(unsigned int i=0;i<nno*nno*ndim*ndim;i++){ *( &emat[0][0][0][0]+i) = 0.0; }
 		for(unsigned int i=0;i<nno*nno*ndim*ndim;i++){ *(&eKmat[0][0][0][0]+i) = 0.0; }
 		for(unsigned int i=0;i<nno*nno*ndim*ndim;i++){ *(&eMmat[0][0][0][0]+i) = 0.0; }
 		for(unsigned int i=0;i<         nno*ndim;i++){ *(&eqf_out[0][0]    +i) = 0.0; }
 
-		// 面積を求める
-		double area = TriArea(coords[0],coords[1],coords[2]);
+		const double area = TriArea(coords[0],coords[1],coords[2]);
 
-		// 形状関数のｘｙ微分を求める
-		double dldx[nno][ndim];		// 形状関数の空間微分
-		double zero_order_term[nno];	// 形状関数の定数項
-		TriDlDx(dldx, zero_order_term,   coords[0], coords[1], coords[2]);
+		double dldx[nno][ndim];		// spatial derivative of linear shape function
+		{
+			double zero_order_term[nno];	// const term of shape function
+			TriDlDx(dldx, zero_order_term,   coords[0], coords[1], coords[2]);
+		}
 
 		for(unsigned int ino=0;ino<nno;ino++){
 		for(unsigned int jno=0;jno<nno;jno++){
@@ -1223,21 +1280,22 @@ static bool AddLinSys_LinearSolid2D_NonStatic_NewmarkBeta_P1(
 			}
 		}
 
-		// 外力ベクトルを求める
+		// calc external force
 		for(unsigned int ino=0;ino<nno;ino++){
 			eqf_out[ino][0] = area*rho*g_x*0.33333333333333333333333333;
 			eqf_out[ino][1] = area*rho*g_y*0.33333333333333333333333333;
 		}
 
 		////////////////
-
-		{
+		
+		{	// calc coeff matrix for newmark-beta
 			double dtmp1 = beta*dt*dt;
 			for(unsigned int i=0;i<nno*nno*ndim*ndim;i++){
 				(&emat[0][0][0][0])[i] = (&eMmat[0][0][0][0])[i]+dtmp1*(&eKmat[0][0][0][0])[i];
 			}
 		}
-		// 要素内残差ベクトルを求める
+		
+		// calc element redisual vector
 		for(unsigned int ino=0;ino<nno;ino++){
 			eres[ino][0] = eqf_out[ino][0];
 			eres[ino][1] = eqf_out[ino][1];
@@ -1265,9 +1323,9 @@ static bool AddLinSys_LinearSolid2D_NonStatic_NewmarkBeta_P1(
 
 		////////////////////////////////
 
-		// 全体剛性行列に要素剛性行列をマージ
+		// Mearge stiffness matrix
 		mat_cc.Mearge(nno,noes, nno,noes, ndim*ndim, &emat[0][0][0][0]);
-		// 要素内残差をマージ
+		// Mearge residual vector
 		for(unsigned int ino=0;ino<nno;ino++){
 			res_c.AddValue(noes[ino],0,eres[ino][0]);
 			res_c.AddValue(noes[ino],1,eres[ino][1]);
@@ -1275,6 +1333,168 @@ static bool AddLinSys_LinearSolid2D_NonStatic_NewmarkBeta_P1(
 	}
 	return true;
 }
+
+static bool AddLinSys_LinearSolid2D_NonStatic_BackwardEular_P1
+(double dt,
+ ILinearSystem_Eqn& ls, 
+ double lambda, double myu,
+ double  rho, double g_x, double g_y,
+ const unsigned int id_field_val, const CFieldWorld& world,
+ const MatVec::CVector_Blk& velo_pre,
+ bool is_initial, 
+ unsigned int id_ea)
+{
+	//	std::cout << "LinearSolid2D NonStatic NewmarkBeta Tri P1" << std::endl;
+	
+	assert( world.IsIdEA(id_ea) );
+	const CElemAry& ea = world.GetEA(id_ea);
+	assert( ea.ElemType() == TRI );
+	
+	if( !world.IsIdField(id_field_val) ) return false;
+	const CField& field_val = world.GetField(id_field_val);
+	
+	const CElemAry::CElemSeg& es_co = field_val.GetElemSeg(id_ea,CORNER,false,world);
+	const CElemAry::CElemSeg& es_va = field_val.GetElemSeg(id_ea,CORNER,true, world);
+	
+	const unsigned int nno = 3;	assert( nno == es_co.GetSizeNoes() );
+	const unsigned int ndim = 2;
+	
+	
+	double eKmat[nno][nno][ndim][ndim];	// stiffness matrix
+	double eMmat[nno][nno][ndim][ndim];	// mass matrix
+	double emat[nno][nno][ndim][ndim];	// coefficient matrix
+	double eqf_out[nno][ndim];	// element external force vector
+	double eres[nno][ndim];		// element internal force vector
+	
+	CMatDia_BlkCrs& mat_cc = ls.GetMatrix(  id_field_val,CORNER,world);
+	CVector_Blk&    res_c  = ls.GetResidual(id_field_val,CORNER,world);
+	
+	const CNodeAry::CNodeSeg& ns_c_val  = field_val.GetNodeSeg(CORNER,true, world,VALUE);
+	const CNodeAry::CNodeSeg& ns_c_velo = field_val.GetNodeSeg(CORNER,true, world,VELOCITY);
+	const CNodeAry::CNodeSeg& ns_c_co   = field_val.GetNodeSeg(CORNER,false,world);
+	
+	for(unsigned int ielem=0;ielem<ea.Size();ielem++)
+	{		
+		// fetch global node number for coordinate node
+		unsigned int noes[nno];	es_co.GetNodes(ielem,noes);		
+		// fetch coordinate
+		double coords[nno][ndim];	
+		for(unsigned int ino=0;ino<nno;ino++){
+			ns_c_co.GetValue( noes[ino],coords[ino]);
+		}
+		
+		// fetch global node nubmer for value node
+		es_va.GetNodes(ielem,noes);
+		double disp[  nno][ndim];	// displacement 		
+		double velo[  nno][ndim];	// velocity
+		for(unsigned int ino=0;ino<nno;ino++){
+			ns_c_val.GetValue( noes[ino],disp[  ino]);
+			ns_c_velo.GetValue(noes[ino],velo[  ino]);
+		}
+		double velo0[nno][ndim];
+		for(unsigned int ino=0;ino<nno;ino++){
+			velo0[ino][0] = velo_pre.GetValue(noes[ino],0);
+			velo0[ino][1] = velo_pre.GetValue(noes[ino],1);
+		}
+				
+		////////////////////////////////
+		
+		// 0 clear elemnet stiffness matrix and residual
+		for(unsigned int i=0;i<nno*nno*ndim*ndim;i++){ *(&emat[0][0][0][0] +i) = 0.0; }
+		for(unsigned int i=0;i<nno*nno*ndim*ndim;i++){ *(&eKmat[0][0][0][0]+i) = 0.0; }
+		for(unsigned int i=0;i<nno*nno*ndim*ndim;i++){ *(&eMmat[0][0][0][0]+i) = 0.0; }
+		for(unsigned int i=0;i<         nno*ndim;i++){ *(&eqf_out[0][0]    +i) = 0.0; }
+		
+		const double area = TriArea(coords[0],coords[1],coords[2]);
+		
+		double dldx[nno][ndim];		// spatial derivative of linear shape function
+		{
+			double zero_order_term[nno];	// const term of shape function
+			TriDlDx(dldx, zero_order_term,   coords[0], coords[1], coords[2]);
+		}
+		
+		for(unsigned int ino=0;ino<nno;ino++){
+			for(unsigned int jno=0;jno<nno;jno++){
+				double dtmp1 = 0.0;
+				for(unsigned int idim=0;idim<ndim;idim++){
+					for(unsigned int jdim=0;jdim<ndim;jdim++){
+						eKmat[ino][jno][idim][jdim] 
+						+= area*( lambda*dldx[ino][idim]*dldx[jno][jdim]+myu*dldx[jno][idim]*dldx[ino][jdim] );
+					}
+					dtmp1 += dldx[ino][idim]*dldx[jno][idim];
+				}
+				for(unsigned int idim=0;idim<ndim;idim++){
+					eKmat[ino][jno][idim][idim] += area*myu*dtmp1;
+				}
+			}
+		}
+		
+		{	// make consistient mass matrix
+			const double dtmp1 = area*rho*0.0833333333333333333333333;
+			for(unsigned int ino=0;ino<nno;ino++){
+				for(unsigned int jno=0;jno<nno;jno++){
+					eMmat[ino][jno][0][0] += dtmp1;
+					eMmat[ino][jno][1][1] += dtmp1;
+				}
+				eMmat[ino][ino][0][0] += dtmp1;
+				eMmat[ino][ino][1][1] += dtmp1;
+			}
+		}
+		
+		// calc external force
+		for(unsigned int ino=0;ino<nno;ino++){
+			eqf_out[ino][0] = area*rho*g_x*0.33333333333333333333333333;
+			eqf_out[ino][1] = area*rho*g_y*0.33333333333333333333333333;
+		}
+		
+		////////////////
+		
+		{	// calc coeff matrix for newmark-beta
+			for(unsigned int i=0;i<nno*nno*ndim*ndim;i++){
+				(&emat[0][0][0][0])[i] = (&eMmat[0][0][0][0])[i]+dt*dt*(&eKmat[0][0][0][0])[i];
+			}
+		}
+		
+		// calc element redisual vector
+		for(unsigned int ino=0;ino<nno;ino++){
+			eres[ino][0] = eqf_out[ino][0]*dt;
+			eres[ino][1] = eqf_out[ino][1]*dt;
+			for(unsigned int jno=0;jno<nno;jno++){
+				eres[ino][0] -= dt*(eKmat[ino][jno][0][0]*disp[jno][0]+eKmat[ino][jno][0][1]*disp[jno][1]);
+				eres[ino][1] -= dt*(eKmat[ino][jno][1][0]*disp[jno][0]+eKmat[ino][jno][1][1]*disp[jno][1]);
+			}
+		}
+		if( is_initial ){
+			for(unsigned int ino=0;ino<nno;ino++){
+			for(unsigned int jno=0;jno<nno;jno++){
+				eres[ino][0] -= dt*dt*(eKmat[ino][jno][0][0]*velo[jno][0]+eKmat[ino][jno][0][1]*velo[jno][1]);
+				eres[ino][1] -= dt*dt*(eKmat[ino][jno][1][0]*velo[jno][0]+eKmat[ino][jno][1][1]*velo[jno][1]);
+			}
+			}
+		}
+		else {			
+			for(unsigned int ino=0;ino<nno;ino++){
+			for(unsigned int jno=0;jno<nno;jno++){					
+				eres[ino][0] -= eMmat[ino][jno][0][0]*(velo[jno][0]-velo0[jno][0])+eMmat[ino][jno][0][1]*(velo[jno][1]-velo0[jno][1]);
+				eres[ino][1] -= eMmat[ino][jno][1][0]*(velo[jno][0]-velo0[jno][0])+eMmat[ino][jno][1][1]*(velo[jno][1]-velo0[jno][1]);			
+			}
+			}
+		}
+
+		
+		////////////////////////////////
+		
+		// Mearge stiffness matrix
+		mat_cc.Mearge(nno,noes, nno,noes, ndim*ndim, &emat[0][0][0][0]);
+		// Mearge residual vector
+		for(unsigned int ino=0;ino<nno;ino++){
+			res_c.AddValue(noes[ino],0,eres[ino][0]);
+			res_c.AddValue(noes[ino],1,eres[ino][1]);
+		}
+	}
+	return true;	
+}
+
 
 static bool AddLinSys_LinearSolidThermalStress2D_NonStatic_NewmarkBeta_P1(
 		double dt, double gamma, double beta, ILinearSystem_Eqn& ls, 

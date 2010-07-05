@@ -58,10 +58,8 @@ public:
         m_DofPtr = 0;
         this->Initialize(nblk,aLen);
 	}
-	//! デフォルトコンストラクタ
-	CVector_Blk() : m_nBlk(0), m_Len(0), m_Value(0), m_DofPtr(0){}	
-	//! デストラクタ
-	virtual ~CVector_Blk(){ if( m_Value!=0) delete[] m_Value; }
+	CVector_Blk() : m_nBlk(0), m_Len(0), m_Value(0), m_DofPtr(0){}	//!< default constructor
+	virtual ~CVector_Blk(){ if( m_Value!=0) delete[] m_Value; }	//!< destructor
 
 	bool Initialize(unsigned int nblk, unsigned int len ){
 		m_nBlk = nblk;

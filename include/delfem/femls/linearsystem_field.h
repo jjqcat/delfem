@@ -56,37 +56,32 @@ namespace Ls{
 class CLinearSystem_Field : public LsSol::ILinearSystem_Sol, public Eqn::ILinearSystem_Eqn
 {
 public:
-	//! デフォルトコンストラクタ
-    CLinearSystem_Field(){}
-	//! Destructor
-    virtual ~CLinearSystem_Field(){ this->Clear(); }
-
+    CLinearSystem_Field(){}	//! default constructor
+    virtual ~CLinearSystem_Field(){ this->Clear(); }	//! destructor
+	
 	////////////////
     virtual void Clear(){ m_ls.Clear(); m_aSegField.clear(); }
 
 	////////////////////////////////
 	// function for marge element matrix
 
-	//! 残差ベクトルをゲットする
+	//! Get residual vector for node location (elseg_type) in field (id_field)
     virtual MatVec::CVector_Blk& GetResidual(unsigned int id_field, Field::ELSEG_TYPE elseg_type, const Field::CFieldWorld& world);
-	//! 対角行列をゲットする
+	//! Get square sub-matrix from diagonal part of full linear system
     virtual MatVec::CMatDia_BlkCrs& GetMatrix(
         unsigned int id_field, Fem::Field::ELSEG_TYPE elseg_type, const Fem::Field::CFieldWorld& world);
-	// 非対角行列をゲットする
+	//! Get non-square sub-matrix from off-diagonal part of full linear system
     virtual MatVec::CMat_BlkCrs& GetMatrix(
         unsigned int id_field_col, Field::ELSEG_TYPE elseg_type_col,
 		unsigned int id_field_row, Field::ELSEG_TYPE elseg_type_row,
 		const Field::CFieldWorld& world);
-
-
-	//! 更新ベクトルをゲットする
-//    MatVec::CVector_Blk* GetUpdatePtr(unsigned int id_field, const Field::ELSEG_TYPE& elseg_type, const Field::CFieldWorld& world);
 	
 	////////////////////////////////
 	// function for marge
-	//! マージ前の初期化(値を０にセット)
+	
+	//! Initialize before marge (set zero value to residual & matrix)	
     virtual void InitializeMarge(){ m_ls.InitializeMarge(); }
-	//! マージ後の処理（境界条件をセットする．残差ノルムを返す)
+	//! Finalization before marge (set boundary condition, return residual square norm)
     virtual double FinalizeMarge(){ return m_ls.FinalizeMarge(); }
 
     ////////////////////////////////
@@ -102,12 +97,10 @@ public:
 	////////////////////////////////
 	// function for fixed boundary condition
 
-	//! 固定境界条件を全解除
 	void ClearFixedBoundaryCondition();
-	// 固定境界条件の設定
-	//! idof:固定する自由度
+	//! set fix boundary condition to dof (idof) in field (id_field)
 	bool SetFixedBoundaryCondition_Field( unsigned int id_field, unsigned int idofns, const Field::CFieldWorld& world );
-	//! 固定境界条件の設定---field中の全自由度固定
+	//! set fix boundary condition to all dof in field (id_field)
 	bool SetFixedBoundaryCondition_Field( unsigned int id_field, const Field::CFieldWorld& world );
 
 	////////////////////////////////
@@ -121,6 +114,7 @@ public:
 	virtual bool UpdateValueOfField_RotCRV( unsigned int id_field, Fem::Field::CFieldWorld& world, Fem::Field::FIELD_DERIVATION_TYPE fdt );
 	bool UpdateValueOfField_Newmark(double gamma, double dt, unsigned int id_field_val, Field::CFieldWorld& world, Fem::Field::FIELD_DERIVATION_TYPE fdt, bool IsInitial );
 	bool UpdateValueOfField_NewmarkBeta(double gamma, double beta, double dt, unsigned int id_field_val, Field::CFieldWorld& world, bool IsInitial );
+	bool UpdateValueOfField_BackwardEular(double dt, unsigned int id_field_val, Field::CFieldWorld& world, bool IsInitial );
 
 	// 存在しないなら-1を返す
 	int FindIndexArray_Seg(

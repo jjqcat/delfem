@@ -21,6 +21,13 @@
 			remoteGlobalIDString = D2AAC046055464E500DB518D;
 			remoteInfo = dfm_core;
 		};
+		A9E449DB11E0F21300E4FB3E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A9B28B8011D4182D000CF08E /* dfm_core.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC045055464E500DB518D /* dfm_core */;
+			remoteInfo = dfm_core;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -117,6 +124,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				A9E449DC11E0F21300E4FB3E /* PBXTargetDependency */,
 			);
 			name = solid;
 			productInstallPath = "$(HOME)/bin";
@@ -168,6 +176,14 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		A9E449DC11E0F21300E4FB3E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = dfm_core;
+			targetProxy = A9E449DB11E0F21300E4FB3E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
 		1DEB923208733DC60010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -217,6 +233,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = ../../../DelFEM/include/;
+				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
 				SDKROOT = macosx10.6;
 			};
