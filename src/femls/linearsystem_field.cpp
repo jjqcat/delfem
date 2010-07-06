@@ -944,9 +944,8 @@ bool CLinearSystem_Field::UpdateValueOfField_NewmarkBeta
 }
 
 bool CLinearSystem_Field::UpdateValueOfField_BackwardEular
-( 
- double dt, 
- unsigned int id_field, Field::CFieldWorld& world, 
+(double dt, 
+ unsigned int id_field, Fem::Field::CFieldWorld& world, 
  bool IsInitial )
 {
 	if( !world.IsIdField(id_field) ) return false;
