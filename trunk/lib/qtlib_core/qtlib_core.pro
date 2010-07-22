@@ -10,7 +10,7 @@ VPATH += ../../src \
 #VERSION = 1.2.0
 QT += opengl
 DEFINES += NDEBUG
-#MAKE_CXXFLAGS_RELEASE = -O3
+MAKE_CXXFLAGS_RELEASE = -O3
 SOURCES += \
 #   Com
     com/drawer.cpp \

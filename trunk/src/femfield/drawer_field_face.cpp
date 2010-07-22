@@ -247,7 +247,7 @@ bool CDrawerFace::Update(const Fem::Field::CFieldWorld& world)
 		}
 		else{ npoin = npoin_co; }
 	}
-	std::cout << m_vertex_ary.NPoin() << " " << npoin << std::endl;
+//	std::cout << m_vertex_ary.NPoin() << " " << npoin << std::endl;
 	assert( m_vertex_ary.NPoin() == npoin );
 
 	if( !m_isnt_value_disp ){	// •ÏˆÊ‚ª”½‰f‚³‚ê‚éê‡•ÏˆÊ‚ª”½‰f‚³‚ê‚éê‡
