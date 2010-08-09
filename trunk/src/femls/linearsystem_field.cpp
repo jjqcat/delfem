@@ -460,23 +460,25 @@ bool CLinearSystem_Field::AddPattern_Field(
 
 
 // 残差ベクトルをゲットする
-MatVec::CVector_Blk& CLinearSystem_Field::GetResidual(
-        unsigned int id_field, const ELSEG_TYPE elseg_type, 
-		const CFieldWorld& world)
+MatVec::CVector_Blk& CLinearSystem_Field::GetResidual
+(unsigned int id_field, const ELSEG_TYPE elseg_type, 
+ const CFieldWorld& world)
 {
 	int ils0 = this->FindIndexArray_Seg(id_field,elseg_type,world);
     if( ils0 < 0 || ils0 >= (int)this->GetNLynSysSeg() ){ assert(0); throw 0; }
 	return m_ls.GetVector(-1,ils0);
 }
-/*
+
 // 更新ベクトルをゲットする
-CVector_Blk* CLinearSystem_Field::GetUpdatePtr(unsigned int id_field, const ELSEG_TYPE& elseg_type, 
-									  const CFieldWorld& world){	
+MatVec::CVector_Blk& CLinearSystem_Field::GetUpdate
+(unsigned int id_field, const ELSEG_TYPE elseg_type, 
+ const CFieldWorld& world)
+{
 	int ils0 = this->FindIndexArray_Seg(id_field,elseg_type,world);
-	if( ils0 < 0 || ils0 >= this->GetNLynSysSeg() ) return 0;
-	return m_ls.m_Update[ils0];
+    if( ils0 < 0 || ils0 >= (int)this->GetNLynSysSeg() ){ assert(0); throw 0; }
+	return m_ls.GetVector(-2,ils0);
 }
-*/
+
 CMatDia_BlkCrs& CLinearSystem_Field::GetMatrix(
         unsigned int id_field,
         const ELSEG_TYPE elseg_type, 

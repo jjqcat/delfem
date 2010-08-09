@@ -23,7 +23,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(DRAWER_FIELD_H)
 #define DRAWER_FIELD_H
 
-#include "memory"
 #include "delfem/drawer.h"
 #include "delfem/drawer_gl_utility.h"
 #include "delfem/elem_ary.h" // needed for Fem::Field::ELEM_TYPE
@@ -47,7 +46,8 @@ public:
 		this->max = max;
 	}
 public:
-	virtual void GetColor( float color[], const double val ){	// 標準のColorMap
+	virtual void GetColor( float color[], const double val ) const
+  {	// 標準のColorMap
 		const double r = (val-min)/(max-min);
 		const double d = 2.0*r-1;
 		if(     r> 0.75 ){ color[0] = 1.0;                 color[1] = (float)(2-2*d); color[2] = 0;                   }
@@ -68,8 +68,10 @@ protected:
 	double max;
 	bool is_min_max_fix;
 };
+  
+void DrawColorLegend(const CColorMap& map);
 
-//! OpenGL頂点配列用のIndexArray格納クラス
+//! IndexArray storing class for OpenGL vertex array
 class CIndexArrayElem
 {
 public : 
@@ -107,8 +109,7 @@ private:
 public:
 	int ilayer;
 private:
-	// これはelem_ary.hで定義されているELEM_TYPEを使うべき
-	Fem::Field::ELEM_TYPE itype; // 0:none 1:vertex 2:line 3:tri 4:quad 5:tet 6:hex	
+	Fem::Field::ELEM_TYPE itype;
 	bool is_selected;
 	unsigned int id_ea;
 	unsigned int id_es;
@@ -122,7 +123,7 @@ private:
 	std::vector<unsigned int> aIndElem;	// tetやhexの面から，要素idexへのマップ
 };
 
-//! Vertexのインデックスを格納するクラス
+//! class storing vertex index
 class CIndexVertex{
 public:
 	CIndexVertex(unsigned int id_v, unsigned int id_ea, unsigned int id_es) 
@@ -135,7 +136,7 @@ public:
 
 ////////////////////////////////////////////////////////////////
 
-//! 場可視化クラスの抽象クラス
+//! abstruct class for field visualization
 class CDrawerField : public Com::View::CDrawer 
 {
 public:
@@ -144,7 +145,7 @@ public:
 
 ////////////////////////////////////////////////////////////////
 
-//! DrawerField配列クラス。(C++のデモプログラムからのみ使われる)
+//! array of DrawerField class
 class CDrawerArrayField : public Com::View::CDrawerArray
 {
 public:

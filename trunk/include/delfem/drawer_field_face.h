@@ -26,14 +26,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(DRAWER_FIELD_FACE_H)
 #define DRAWER_FIELD_FACE_H
 
-#include <memory>
 #include "delfem/drawer_field.h"
 
 namespace Fem{
 namespace Field{
 namespace View{
 
-//! 面の描画クラス
+//! drawing face class
 class CDrawerFace : public CDrawerField
 {
 public:
@@ -42,8 +41,10 @@ public:
 	CDrawerFace(unsigned int id_field, bool isnt_value_disp, const Fem::Field::CFieldWorld& world, unsigned int id_field_color, double min, double max);
 	CDrawerFace(unsigned int id_field, bool isnt_value_disp, const Fem::Field::CFieldWorld& world, unsigned int id_field_color, std::auto_ptr<CColorMap> color_map );
 	virtual ~CDrawerFace();
+  
 	////////////////////////////////
 	// declaration of virtual functions
+  
 	virtual void Draw() const;
 	virtual void DrawSelection(unsigned int idraw) const{};
 	virtual Com::CBoundingBox GetBoundingBox( double rot[] ) const{
@@ -52,19 +53,21 @@ public:
 	virtual void AddSelected(const int selec_flag[]){}
 	virtual void ClearSelected(){}
 	virtual bool Update(const Fem::Field::CFieldWorld& world);
+  
 	////////////////////////////////
 	// declaration of non-virtual functions
-    void SetColor(double r, double g, double b, unsigned int id_ea = 0){
-        const unsigned int niea = m_apIndexArrayElem.size();
-        if( id_ea == 0 ){
-            for(unsigned int i=0;i<niea;i++){ m_apIndexArrayElem[i]->SetColor(r,g,b); }
-            return;
-        }
-        for(unsigned int i=0;i<niea;i++){
-            if( m_apIndexArrayElem[i]->GetIdEA() != id_ea ){ continue; }
-            m_apIndexArrayElem[i]->SetColor(r,g,b);
-        }
+  
+  void SetColor(double r, double g, double b, unsigned int id_ea = 0){
+    const unsigned int niea = m_apIndexArrayElem.size();
+    if( id_ea == 0 ){
+      for(unsigned int i=0;i<niea;i++){ m_apIndexArrayElem[i]->SetColor(r,g,b); }
+      return;
     }
+    for(unsigned int i=0;i<niea;i++){
+      if( m_apIndexArrayElem[i]->GetIdEA() != id_ea ){ continue; }
+      m_apIndexArrayElem[i]->SetColor(r,g,b);
+    }
+  }
 	void SetColor(unsigned int id_es_v, unsigned int id_ns_v, const Fem::Field::CFieldWorld& world,
 		const std::auto_ptr<CColorMap>& color_map);
 protected:
@@ -82,7 +85,7 @@ protected:
 	unsigned int id_field_val;
 	std::auto_ptr<CColorMap> color_map;
 	float* pColorArray;	//!< array of color ( rgb for each node )
-	bool is_draw_color_legend;	// trueならレジェンドを描画する
+	bool is_draw_color_legend;	// draw legent if true
 };
 
 }	// View

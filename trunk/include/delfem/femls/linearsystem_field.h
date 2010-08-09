@@ -67,6 +67,7 @@ public:
 
 	//! Get residual vector for node location (elseg_type) in field (id_field)
     virtual MatVec::CVector_Blk& GetResidual(unsigned int id_field, Field::ELSEG_TYPE elseg_type, const Field::CFieldWorld& world);
+    virtual MatVec::CVector_Blk& GetUpdate(  unsigned int id_field, Field::ELSEG_TYPE elseg_type, const Field::CFieldWorld& world);
 	//! Get square sub-matrix from diagonal part of full linear system
     virtual MatVec::CMatDia_BlkCrs& GetMatrix(
         unsigned int id_field, Fem::Field::ELSEG_TYPE elseg_type, const Fem::Field::CFieldWorld& world);
