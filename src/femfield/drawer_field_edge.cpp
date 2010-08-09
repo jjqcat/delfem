@@ -18,17 +18,17 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 ////////////////////////////////////////////////////////////////
-// CDrawerEdge.cpp : ê‚ğ•Ó‚Å‰Â‹‰»‚·‚éƒNƒ‰ƒX(CDrawerEdge)‚ÌÀ‘•
+// CDrawerEdge.cpp : implementation of edge drawing class(CDrawerEdge)
 ////////////////////////////////////////////////////////////////
 
 #if defined(__VISUALC__)
-    #pragma warning ( disable : 4786 )
+#  pragma warning ( disable : 4786 )
 #endif
 
 #if defined(_WIN32)
 #  include <windows.h>
 #if defined(__VISUALC__)
-#  pragma comment (lib, "winmm.lib")      /* link with Windows MultiMedia lib */
+#  pragma comment (lib, "winmm.lib")     /* link with Windows MultiMedia lib */
 #  pragma comment (lib, "opengl32.lib")  /* link with Microsoft OpenGL lib */
 #  pragma comment (lib, "glu32.lib")     /* link with Microsoft OpenGL Utility lib */
 #endif

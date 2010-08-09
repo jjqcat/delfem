@@ -127,8 +127,8 @@ public:
 	////////////////////////////////
 	// Getメソッド	
 
-	const std::string& Name() const { return m_str_name; }  //!< 名前の取得
-	unsigned int Size()	const { return m_Size; }  //!< 節点の数の取得
+	const std::string& Name() const { return m_str_name; }  //!< name
+	unsigned int Size()	const { return m_Size; }  //!< number of nodes
 
 	//! Get a not-used ID of Node Segment
 	unsigned int GetFreeSegID() const { return m_aSeg.GetFreeObjID(); }

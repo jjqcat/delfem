@@ -153,9 +153,9 @@ public:
 	virtual void AddSelected(const int selec_flag[]){}
 	virtual void ClearSelected(){}
 private :
-	unsigned int m_texName;	// ０なら何もテクスチャが設定されていない
-	unsigned int m_texWidth;	// 2のべき乗になってるはず
-	unsigned int m_texHight;	// 2のべき乗になってるはず
+	unsigned int m_texName;	// if ０ then no texture
+	unsigned int m_texWidth;	// should be power of 2
+	unsigned int m_texHight;	// should be power of 2
 	double x_min,x_max,  y_min,y_max;
 };
 

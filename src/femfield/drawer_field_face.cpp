@@ -18,17 +18,17 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 ////////////////////////////////////////////////////////////////
-// DrawerField.cpp : èÍâ¬éãâªÉNÉâÉX(DrawerField)ÇÃé¿ëï
+// DrawerField.cpp : implementation of the field visualization class (DrawerField)
 ////////////////////////////////////////////////////////////////
 
 #if defined(__VISUALC__)
-    #pragma warning ( disable : 4786 )
+#  pragma warning ( disable : 4786 )
 #endif
 
 #if defined(_WIN32)
 #  include <windows.h>
 #if defined(__VISUALC__)
-#  pragma comment (lib, "winmm.lib")      /* link with Windows MultiMedia lib */
+#  pragma comment (lib, "winmm.lib")     /* link with Windows MultiMedia lib */
 #  pragma comment (lib, "opengl32.lib")  /* link with Microsoft OpenGL lib */
 #  pragma comment (lib, "glu32.lib")     /* link with Microsoft OpenGL Utility lib */
 #endif
@@ -49,7 +49,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #endif
 
 #include "delfem/drawer_field_face.h"
-#include "delfem/uglyfont.h"
 #include "delfem/elem_ary.h"
 #include "delfem/field.h"
 #include "delfem/drawer.h"
@@ -65,8 +64,9 @@ CDrawerFace::CDrawerFace()
 	color_map = std::auto_ptr<CColorMap>(new CColorMap());
 }
 
-CDrawerFace::CDrawerFace(const unsigned int id_field, bool isnt_value_disp, 
-						 const Fem::Field::CFieldWorld& world, unsigned int id_field_color)
+CDrawerFace::CDrawerFace
+(const unsigned int id_field, bool isnt_value_disp, 
+ const Fem::Field::CFieldWorld& world, unsigned int id_field_color)
 {
 	pColorArray = 0;
 	if( world.IsIdField(id_field_color) ){ is_draw_color_legend = true;  }
@@ -75,9 +75,10 @@ CDrawerFace::CDrawerFace(const unsigned int id_field, bool isnt_value_disp,
 	this->Set( id_field, world, isnt_value_disp, id_field_color);
 }
 
-CDrawerFace::CDrawerFace(const unsigned int id_field, bool isnt_value_disp, 
-						 const Fem::Field::CFieldWorld& world, unsigned int id_field_color,
-						 double min, double max)
+CDrawerFace::CDrawerFace
+(const unsigned int id_field, bool isnt_value_disp, 
+ const Fem::Field::CFieldWorld& world, unsigned int id_field_color,
+ double min, double max)
 {
 	pColorArray = 0;
 	if( world.IsIdField(id_field_color) ){ is_draw_color_legend = true;  }
@@ -86,9 +87,10 @@ CDrawerFace::CDrawerFace(const unsigned int id_field, bool isnt_value_disp,
 	this->Set( id_field, world, isnt_value_disp, id_field_color);
 }
 
-CDrawerFace::CDrawerFace(const unsigned int id_field, bool isnt_value_disp, 
-						 const Fem::Field::CFieldWorld& world, unsigned int id_field_color, 
-						 std::auto_ptr<CColorMap> color_map )
+CDrawerFace::CDrawerFace
+(const unsigned int id_field, bool isnt_value_disp, 
+ const Fem::Field::CFieldWorld& world, unsigned int id_field_color, 
+ std::auto_ptr<CColorMap> color_map )
 {
 	pColorArray = 0;
 	is_draw_color_legend = false;
@@ -121,7 +123,7 @@ void CDrawerFace::Draw() const
 		else{
 			ilayer_min=0;	ilayer_max=0;
 		}
-		for(unsigned int idp=1;idp<this->m_apIndexArrayElem.size();idp++){ 
+		for(unsigned int idp=1;idp<this->m_apIndexArrayElem.size();idp++){
 			const int ilayer = this->m_apIndexArrayElem[idp]->ilayer;
 			ilayer_min = (ilayer<ilayer_min) ? ilayer : ilayer_min;
 			ilayer_max = (ilayer>ilayer_max) ? ilayer : ilayer_max;
@@ -131,16 +133,16 @@ void CDrawerFace::Draw() const
 	const double layer_height = 1.0/(ilayer_max-ilayer_min+1);
 
 	if( this->pColorArray == 0 ){
-		glLineWidth(3);
+		::glLineWidth(3);
 		::glEnableClientState(GL_VERTEX_ARRAY);
 		::glVertexPointer(m_vertex_ary.NDim(),GL_DOUBLE,0,m_vertex_ary.pVertexArray);
 		for(unsigned int idp=0;idp<this->m_apIndexArrayElem.size();idp++){ 
 			View::CIndexArrayElem* pIndexArray = this->m_apIndexArrayElem[idp];
-			if( pIndexArray->GetElemDim() == 2 ){	// ê¸ÇÃï`âÊ
+			if( pIndexArray->GetElemDim() == 2 ){	// draw line
 				::glColor3d(0.0,0.0,0.0);
 				::glLineWidth(3);
 			}
-			if( pIndexArray->GetElemDim() == 3 ){	// ñ ÇÃï`âÊ
+			if( pIndexArray->GetElemDim() == 3 ){	// draw face
 				 ::glColor3d(0.8,0.8,0.8);
 //				 ::glColor3d(0.8,0.2,0.2);
 			}
@@ -149,7 +151,7 @@ void CDrawerFace::Draw() const
 		::glDisableClientState(GL_VERTEX_ARRAY);
 	}
 	else{
-        ::glShadeModel(GL_SMOOTH);
+    ::glShadeModel(GL_SMOOTH);
 		::glEnableClientState(GL_VERTEX_ARRAY);
 		::glVertexPointer(m_vertex_ary.NDim(),GL_DOUBLE,0,m_vertex_ary.pVertexArray);
 		::glEnableClientState(GL_COLOR_ARRAY);
@@ -157,77 +159,24 @@ void CDrawerFace::Draw() const
 		for(unsigned int idp=0;idp<this->m_apIndexArrayElem.size();idp++){ 
 			const unsigned int ilayer = m_apIndexArrayElem[idp]->ilayer;
 			const double height = (ilayer-ilayer_min)*layer_height;
-         ::glTranslated(0,0,+height);
+      ::glTranslated(0,0,+height);
 			this->m_apIndexArrayElem[idp]->DrawElements(); 
-         ::glTranslated(0,0,-height);
+      ::glTranslated(0,0,-height);
 		}
 		::glDisableClientState(GL_COLOR_ARRAY);
 		::glDisableClientState(GL_VERTEX_ARRAY);
 	}
 
-	if( this->is_draw_color_legend )	// ÉåÉWÉFÉìÉhÇÃï`âÊ
-	{
-		::glShadeModel(GL_SMOOTH);
-		::glDisable(GL_CULL_FACE);
-		::glLineWidth(1);
-		::glColor3d(0,0,0);
-	
-		// Get View Port
-		int viewport[4];
-		glGetIntegerv(GL_VIEWPORT, viewport);
-		double asp = (viewport[2]+1.0)/(viewport[3]+1.0);
-	
-		::glMatrixMode(GL_PROJECTION);
-		::glPushMatrix();
-		::glLoadIdentity();
-		::glOrtho(-asp,asp, -1,1, -1,1);
-		
-		::glMatrixMode(GL_MODELVIEW);
-		::glPushMatrix();
-		::glLoadIdentity();
-        ::glTranslated((asp-9*0.03)-0.05,   (1-0.05*10.5*1.7)-0.05,   0.3);
-	
-		double interval_n = 17.0;
-		const unsigned int ndiv_c = 20;
-		::glScaled(0.03,0.05,1.0);
-		::glBegin(GL_QUADS);
-		const double min_val = color_map->GetMin();
-		const double max_val = color_map->GetMax();
-		for(unsigned int i=0;i<ndiv_c;i++){
-			const double val0 = (max_val-min_val)*(1.0/ndiv_c)*(i+0) + min_val;
-			const double val1 = (max_val-min_val)*(1.0/ndiv_c)*(i+1) + min_val;
-			float color0[3], color1[3];
-            color_map->GetColor(color0, val0);
-            color_map->GetColor(color1, val1);
-			::glColor3fv(color0);
-			::glVertex2d(-3,interval_n*(1.0/ndiv_c)*i    );
-			::glVertex2d(-0,interval_n*(1.0/ndiv_c)*i    );
-			::glColor3fv(color1);
-			::glVertex2d(-0,interval_n*(1.0/ndiv_c)*(i+1));
-			::glVertex2d(-3,interval_n*(1.0/ndiv_c)*(i+1));
-		}
-		::glEnd();
-		////////////////
-		glColor3f(0,0,0);
-		::glTranslated(0,-0.5,0);
-		const unsigned int ndiv_n = 10;
-		for(unsigned int i=0;i<ndiv_n+1;i++){
-			double val = (max_val-min_val)*i/ndiv_n + min_val;
-			char str1[32];
-			sprintf(str1,"% 5.1e",val);
-			::YsDrawUglyFont(str1,false,false);
-			::glTranslated(0,+interval_n/ndiv_n,0);
-		}
-		::glMatrixMode(GL_PROJECTION);
-		::glPopMatrix();
-		::glMatrixMode(GL_MODELVIEW);
-		::glPopMatrix();
+	if( this->is_draw_color_legend )	
+	{ // draw legend
+    View::DrawColorLegend(*color_map);
 	}
 }
 
 
 
-bool CDrawerFace::Update(const Fem::Field::CFieldWorld& world)
+bool CDrawerFace::Update
+(const Fem::Field::CFieldWorld& world)
 {
 	const Fem::Field::CField& field = world.GetField(m_id_field);
 	// í∏ì_îzóÒÇÃê›íË
@@ -250,7 +199,7 @@ bool CDrawerFace::Update(const Fem::Field::CFieldWorld& world)
 //	std::cout << m_vertex_ary.NPoin() << " " << npoin << std::endl;
 	assert( m_vertex_ary.NPoin() == npoin );
 
-	if( !m_isnt_value_disp ){	// ïœà Ç™îΩâfÇ≥ÇÍÇÈèÍçáïœà Ç™îΩâfÇ≥ÇÍÇÈèÍçá
+	if( !m_isnt_value_disp ){	// ïœà Ç™îΩâfÇ≥ÇÍÇÈèÍçá
 		unsigned int id_na_c_val = field.GetNodeSegInNodeAry(CORNER).id_na_va;
 		assert( world.IsIdNA(id_na_c_val) );
 		const Fem::Field::CNodeAry& na_c_val = world.GetNA(id_na_c_val);
@@ -298,8 +247,8 @@ bool CDrawerFace::Update(const Fem::Field::CFieldWorld& world)
 	}
 
 	////////////////////////////////////////////////
-	// êFÇÇ¬Ç≠ÇÈ
-
+	// make color
+  
 	if( world.IsIdField(id_field_val) )
 	{
 		const Fem::Field::CField& field_val = world.GetField(id_field_val);
@@ -324,7 +273,7 @@ bool CDrawerFace::Update(const Fem::Field::CFieldWorld& world)
 			if( pColorArray == 0 ){ pColorArray = new float [npoin*4]; }
 			for(unsigned int ipoin=0;ipoin<npoin;ipoin++){
 				ns_v.GetValue(ipoin,val);
-                color_map->GetColor(&pColorArray[ipoin*4],val[0]);
+        color_map->GetColor(&pColorArray[ipoin*4],val[0]);
 				pColorArray[ipoin*4+3] = 0.0f;
 			}
 		}
@@ -344,8 +293,9 @@ bool CDrawerFace::Update(const Fem::Field::CFieldWorld& world)
 	return true;
 }
 
-bool CDrawerFace::Set(unsigned int id_field, const Fem::Field::CFieldWorld& world, bool isnt_value_disp,
-					  unsigned int id_field_val)
+bool CDrawerFace::Set
+(unsigned int id_field, const Fem::Field::CFieldWorld& world, bool isnt_value_disp,
+ unsigned int id_field_val)
 {
 	if( !world.IsIdField(id_field) ){ return false; }
 	////////////////
@@ -355,14 +305,14 @@ bool CDrawerFace::Set(unsigned int id_field, const Fem::Field::CFieldWorld& worl
 
 	const Fem::Field::CField& field = world.GetField(id_field);
 
-	// í∏ì_îzóÒÇÃê›íË
+	// setting of vertex array
 	unsigned int id_na_c_co = field.GetNodeSegInNodeAry(CORNER).id_na_co;
 	unsigned int id_na_c_val = field.GetNodeSegInNodeAry(CORNER).id_na_va;
 	////////////////////////////////
-	// ns_vÇï`âÊÇ∑ÇÈÇ©Ç«Ç§Ç©ÇåàÇﬂÇÈ
+	// decide whether draw ns of value or coord
 	if( id_na_c_val == 0 ){ 
-		this->m_is_draw_nsv = false;	// CoordÇÃNSÇï`âÊ 
-		this->m_isnt_value_disp = true;	// ïœà Ç…ÇÕëŒâûÇµÇ»Ç¢
+		this->m_is_draw_nsv = false;	// draw NS of Coord
+		this->m_isnt_value_disp = true;	// don't include displacement
 	}
 	else{ this->m_is_draw_nsv = true;}
 	////////////////
@@ -394,7 +344,7 @@ bool CDrawerFace::Set(unsigned int id_field, const Fem::Field::CFieldWorld& worl
 	CDrawerFace::Update(world);
 
 	////////////////////////////////
-	{	// óvëfîzóÒÇÃê›íË
+	{	// setting of element array        
 		const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
@@ -410,7 +360,7 @@ bool CDrawerFace::Set(unsigned int id_field, const Fem::Field::CFieldWorld& worl
 	}
 
 	////////////////////////////////
-	// êFÇÃê›íË
+	// color setting
 
 	if( world.IsIdField(id_field_val) ){
 		const Fem::Field::CField& field_val = world.GetField(id_field_val);
