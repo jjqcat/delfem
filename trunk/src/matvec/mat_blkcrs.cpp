@@ -17,7 +17,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 ////////////////////////////////////////////////////////////////
-// Mat_BlkCrs.h : ベクトルクラス(CMat_BlkCrs)のインターフェース
+// Mat_BlkCrs.h : interface of blk crs matrix class (CMat_BlkCrs)
 ////////////////////////////////////////////////////////////////
 
 #if defined(__VISUALC__)
@@ -41,7 +41,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 using namespace MatVec;
 
 //////////////////////////////////////////////////////////////////////
-// 構築/消滅
+// construction and destruction
 //////////////////////////////////////////////////////////////////////
 
 CMat_BlkCrs::CMat_BlkCrs()

@@ -100,6 +100,7 @@ public :
 			no[ino] = pIA_Elem[ielem*nnoel+ino];
 		}
 	}
+  ELEM_TYPE GetElemType() const { return itype; }
 private:
 	bool Set_Line(unsigned int id_ea, unsigned int id_es, const Fem::Field::CFieldWorld& world);
 	bool Set_Tri( unsigned int id_ea, unsigned int id_es, const Fem::Field::CFieldWorld& world);

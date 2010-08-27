@@ -50,6 +50,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "delfem/drawer_field_edge.h"
 #include "delfem/elem_ary.h"
+#include "delfem/field_world.h"
 #include "delfem/field.h"
 #include "delfem/drawer.h"
 #include "delfem/vector3d.h"
@@ -238,8 +239,10 @@ bool CDrawerEdge::Set(unsigned int id_field, bool isnt_value_disp, const Fem::Fi
 void CDrawerEdge::Draw() const{
 	if( m_nline == 0 ) return;
 	assert( m_paVer != 0 );
-	::glDisable(GL_TEXTURE_2D);
-	::glColor3d(0.0,0.0,0.0);
+  const bool is_texture = glIsEnabled(GL_TEXTURE_2D); ::glDisable(GL_TEXTURE_2D);
+  const bool is_lighting = glIsEnabled(GL_LIGHTING);  ::glDisable(GL_LIGHTING);
+  
+		::glColor3d(0.0,0.0,0.0);
 	::glLineWidth(1);
 	::glEnableClientState(GL_VERTEX_ARRAY);
 	::glVertexPointer(m_paVer->NDim(),GL_DOUBLE,0,m_paVer->pVertexArray);
@@ -247,4 +250,6 @@ void CDrawerEdge::Draw() const{
 	::glDrawArrays(GL_LINES,0,m_nline*2);
    if( m_paVer->NDim() == 2 ){ ::glTranslated(0,0,-0.01); }
 	::glDisableClientState(GL_VERTEX_ARRAY);
+  if( is_texture ){ ::glEnable(GL_TEXTURE_2D); }
+  if( is_lighting ){ ::glEnable(GL_LIGHTING); }
 }

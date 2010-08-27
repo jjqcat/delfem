@@ -29,6 +29,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "delfem/elem_ary.h"	// need because reference of class "CElemAry" used
 #include "delfem/node_ary.h"	// need because reference of class "CNodeAry" used
+#include "delfem/field.h"
 #include "delfem/objset.h"		// template for container with ID
 #include "delfem/cad_com.h"		// need for enum CAD_ELEM_TYPE
 
@@ -38,19 +39,7 @@ namespace Msh{
 
 namespace Fem{
 namespace Field{
-
-//! the type of field
-enum FIELD_TYPE{ 
-	NO_VALUE,	//!< not setted
-	SCALAR,		//!< real value scalar
-	VECTOR2,	//!< 2D vector
-	VECTOR3,	//!< 3D vector
-	STSR2,		//!< 2D symmetrical tensor
-	ZSCALAR		//!< complex value scalar
-};
-
-class CField;	
-
+  
 /*! 
 @brief ID converter between element array, mesh, CAD
 @ingroup Fem
@@ -86,11 +75,11 @@ public:
 		return 0;
 	}
 	// itype_cad_part : Vertex(0), Edge(1), Loop(2)
-    unsigned int GetIdEA_fromCad(unsigned int id_part_cad, Cad::CAD_ELEM_TYPE itype_cad_part, unsigned int inum_ext = 0) const {
-		for(unsigned int iid=0;iid<m_aIdAry.size();iid++){
-			if(    m_aIdAry[iid].id_part_cad    == id_part_cad 
-				&& m_aIdAry[iid].itype_part_cad == itype_cad_part 
-                && m_aIdAry[iid].inum_extrude   == inum_ext ){
+  unsigned int GetIdEA_fromCad(unsigned int id_part_cad, Cad::CAD_ELEM_TYPE itype_cad_part, unsigned int inum_ext = 0) const {
+		for(unsigned int iid=0;iid<m_aIdAry.size();iid++){      
+			if(   m_aIdAry[iid].id_part_cad    == id_part_cad 
+         && m_aIdAry[iid].itype_part_cad == itype_cad_part 
+         && m_aIdAry[iid].inum_extrude   == inum_ext ){
 				return m_aIdAry[iid].id_ea;
 			}
 		}
@@ -138,13 +127,13 @@ public:
 		std::vector<unsigned int>& mapVal2Co);
 
 	CIDConvEAMshCad GetIDConverter(unsigned int id_field_base) const {
-        std::map<unsigned int,CIDConvEAMshCad>::const_iterator itr = m_map_field_conv.find(id_field_base);
-        if( itr == m_map_field_conv.end() ){
-            CIDConvEAMshCad conv;
-            return conv;
-        }
-        return itr->second;
+    std::map<unsigned int,CIDConvEAMshCad>::const_iterator itr = m_map_field_conv.find(id_field_base);
+    if( itr == m_map_field_conv.end() ){
+      CIDConvEAMshCad conv;
+      return conv;
     }
+    return itr->second;
+  }
 
 	void Clear();	// Delate all field, elem_ary, node_ary
 
@@ -191,16 +180,15 @@ public:
 
 	unsigned int MakeField_FieldElemAry(unsigned int id_field, unsigned int id_ea, Field::FIELD_TYPE field_type = NO_VALUE, const int derivative_type = 1, const int node_configuration_type = 1 );
 	unsigned int MakeField_FieldElemDim(unsigned int id_field, int idim_elem,      Field::FIELD_TYPE field_type = NO_VALUE, const int derivative_type = 1, const int node_configuration_type = 1 );
-	unsigned int MakeField_GlueEdge_Lambda( unsigned int id_field, unsigned int id_ea1, unsigned int id_ea2, const int derivative_type );
-	unsigned int MakeEdgeField_Tri(unsigned int id_field);
-	unsigned int MakeHingeField_Tri(unsigned int id_field);
-
+  unsigned int AddField(unsigned int id_field_parent,	// parent field
+                        const std::vector<CField::CElemInterpolation>& aEI, 
+                        const CField::CNodeSegInNodeAry& nsna_c, const CField::CNodeSegInNodeAry& nsna_b,
+                        unsigned int id_field_candidate = 0);  
+  
 	//! Get partial field consists of element array with ID:id_ea
 	unsigned int GetPartialField(unsigned int id_field, unsigned int IdEA );
 	//! Get partial field consists of IDs of element array:aIdEA
 	unsigned int GetPartialField(unsigned int id_field, std::vector<unsigned int> aIdEA);
-	unsigned int GetPartialField_GlueEdge_Penalty(unsigned int id_field, unsigned int id_ea1, unsigned int id_ea2);
-
 	void FieldValueExec(double time);
 	void FieldValueDependExec();
 

@@ -51,6 +51,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "delfem/drawer_field_face.h"
 #include "delfem/elem_ary.h"
 #include "delfem/field.h"
+#include "delfem/field_world.h"
 #include "delfem/drawer.h"
 #include "delfem/vector3d.h"
 
@@ -59,15 +60,20 @@ using namespace Fem::Field;
 
 CDrawerFace::CDrawerFace()
 {
+  pNormalArray = 0;
+  ////
 	pColorArray = 0;
 	is_draw_color_legend = false;
 	color_map = std::auto_ptr<CColorMap>(new CColorMap());
+  
 }
 
 CDrawerFace::CDrawerFace
 (const unsigned int id_field, bool isnt_value_disp, 
  const Fem::Field::CFieldWorld& world, unsigned int id_field_color)
 {
+  pNormalArray = 0;
+  ////
 	pColorArray = 0;
 	if( world.IsIdField(id_field_color) ){ is_draw_color_legend = true;  }
 	else{                                  is_draw_color_legend = false; }
@@ -80,6 +86,8 @@ CDrawerFace::CDrawerFace
  const Fem::Field::CFieldWorld& world, unsigned int id_field_color,
  double min, double max)
 {
+  pNormalArray = 0;
+  ////
 	pColorArray = 0;
 	if( world.IsIdField(id_field_color) ){ is_draw_color_legend = true;  }
 	else{                                  is_draw_color_legend = false; }
@@ -92,6 +100,8 @@ CDrawerFace::CDrawerFace
  const Fem::Field::CFieldWorld& world, unsigned int id_field_color, 
  std::auto_ptr<CColorMap> color_map )
 {
+  pNormalArray = 0;
+  ////
 	pColorArray = 0;
 	is_draw_color_legend = false;
 	this->color_map = color_map;
@@ -100,7 +110,8 @@ CDrawerFace::CDrawerFace
 
 CDrawerFace::~CDrawerFace()
 {
-	if( pColorArray != 0 ){ delete[] pColorArray; }
+	if( pColorArray != 0  ){ delete[] pColorArray; }
+  if( pNormalArray != 0 ){ delete[] pNormalArray; }
 	for(unsigned int i=0;i<this->m_apIndexArrayElem.size();i++){
 		delete this->m_apIndexArrayElem[i];
 	}
@@ -136,6 +147,17 @@ void CDrawerFace::Draw() const
 		::glLineWidth(3);
 		::glEnableClientState(GL_VERTEX_ARRAY);
 		::glVertexPointer(m_vertex_ary.NDim(),GL_DOUBLE,0,m_vertex_ary.pVertexArray);
+    if( this->pNormalArray != 0 && this->is_lighting && glIsEnabled(GL_LIGHTING) ){
+      ::glEnableClientState(GL_NORMAL_ARRAY);
+      ::glNormalPointer(GL_DOUBLE,0,pNormalArray);
+//      ::glEnable(GL_COLOR_MATERIAL);
+//      ::glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
+      float gray[3] = {0.8,0.8,0.8};
+      ::glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, gray);
+      float shine[4] = {1,1,1,1};
+      ::glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, shine);
+      ::glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 100.0);      
+    }
 		for(unsigned int idp=0;idp<this->m_apIndexArrayElem.size();idp++){ 
 			View::CIndexArrayElem* pIndexArray = this->m_apIndexArrayElem[idp];
 			if( pIndexArray->GetElemDim() == 2 ){	// draw line
@@ -143,17 +165,26 @@ void CDrawerFace::Draw() const
 				::glLineWidth(3);
 			}
 			if( pIndexArray->GetElemDim() == 3 ){	// draw face
-				 ::glColor3d(0.8,0.8,0.8);
-//				 ::glColor3d(0.8,0.2,0.2);
+				 ::glColor3d(0.8,0.2,0.2);
 			}
 			this->m_apIndexArrayElem[idp]->DrawElements(); 
 		}
 		::glDisableClientState(GL_VERTEX_ARRAY);
+    ::glDisableClientState(GL_NORMAL_ARRAY);
 	}
 	else{
     ::glShadeModel(GL_SMOOTH);
 		::glEnableClientState(GL_VERTEX_ARRAY);
 		::glVertexPointer(m_vertex_ary.NDim(),GL_DOUBLE,0,m_vertex_ary.pVertexArray);
+    if( this->pNormalArray != 0 && this->is_lighting && glIsEnabled(GL_LIGHTING) ){
+      ::glEnableClientState(GL_NORMAL_ARRAY);
+      ::glNormalPointer(GL_DOUBLE,0,pNormalArray);
+      ::glEnable(GL_COLOR_MATERIAL);
+      ::glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+      float shine[4] = {1,1,1,1};
+      ::glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, shine);
+      ::glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 100.0);
+    }    
 		::glEnableClientState(GL_COLOR_ARRAY);
 		::glColorPointer(4,GL_FLOAT,0,pColorArray);
 		for(unsigned int idp=0;idp<this->m_apIndexArrayElem.size();idp++){ 
@@ -165,6 +196,7 @@ void CDrawerFace::Draw() const
 		}
 		::glDisableClientState(GL_COLOR_ARRAY);
 		::glDisableClientState(GL_VERTEX_ARRAY);
+    ::glDisableClientState(GL_NORMAL_ARRAY);
 	}
 
 	if( this->is_draw_color_legend )	
@@ -174,6 +206,14 @@ void CDrawerFace::Draw() const
 }
 
 
+inline void  UnitNormalAreaTri3D(double n[3], double& a, const double v1[3], const double v2[3], const double v3[3]){
+	n[0] = ( v2[1] - v1[1] )*( v3[2] - v1[2] ) - ( v3[1] - v1[1] )*( v2[2] - v1[2] );
+	n[1] = ( v2[2] - v1[2] )*( v3[0] - v1[0] ) - ( v3[2] - v1[2] )*( v2[0] - v1[0] );
+	n[2] = ( v2[0] - v1[0] )*( v3[1] - v1[1] ) - ( v3[0] - v1[0] )*( v2[1] - v1[1] );
+	a = sqrt(n[0]*n[0]+n[1]*n[1]+n[2]*n[2])*0.5;
+	const double invlen = 0.5/a;
+	n[0]*=invlen;	n[1]*=invlen;	n[2]*=invlen;
+}
 
 bool CDrawerFace::Update
 (const Fem::Field::CFieldWorld& world)
@@ -199,7 +239,7 @@ bool CDrawerFace::Update
 //	std::cout << m_vertex_ary.NPoin() << " " << npoin << std::endl;
 	assert( m_vertex_ary.NPoin() == npoin );
 
-	if( !m_isnt_value_disp ){	// •ÏˆÊ‚ª”½‰f‚³‚ê‚éê‡
+	if( !m_isnt_value_disp ){	// including displacement
 		unsigned int id_na_c_val = field.GetNodeSegInNodeAry(CORNER).id_na_va;
 		assert( world.IsIdNA(id_na_c_val) );
 		const Fem::Field::CNodeAry& na_c_val = world.GetNA(id_na_c_val);
@@ -290,6 +330,46 @@ bool CDrawerFace::Update
 			}
 		}
 	}
+  
+  /////////////////////
+  // make normal
+  
+  if( is_lighting ){
+//    std::cout << "make normal " << std::endl;
+    const unsigned int npoin = m_vertex_ary.NPoin();
+    if( pNormalArray == 0 ){ pNormalArray = new double [npoin*3]; }
+    for(unsigned int i=0;i<3*npoin;i++){ pNormalArray[i] = 0; }   
+    for(unsigned int idp=0;idp<this->m_apIndexArrayElem.size();idp++){ 
+      View::CIndexArrayElem* pIA = this->m_apIndexArrayElem[idp];
+      const unsigned int nelem = pIA->GetSize();
+      for(unsigned int ielem=0;ielem<nelem;ielem++){
+        unsigned int no[8];
+        pIA->GetNoes(ielem, no);
+        const double* c0 = &this->m_vertex_ary.pVertexArray[no[0]*3];
+        const double* c1 = &this->m_vertex_ary.pVertexArray[no[1]*3];
+        const double* c2 = &this->m_vertex_ary.pVertexArray[no[2]*3];
+        double n[3], area;
+        UnitNormalAreaTri3D(n,area,c0,c1,c2);
+        pNormalArray[no[0]*3+0] += n[0];
+        pNormalArray[no[0]*3+1] += n[1];
+        pNormalArray[no[0]*3+2] += n[2];
+        pNormalArray[no[1]*3+0] += n[0];
+        pNormalArray[no[1]*3+1] += n[1];
+        pNormalArray[no[1]*3+2] += n[2];
+        pNormalArray[no[2]*3+0] += n[0];
+        pNormalArray[no[2]*3+1] += n[1];
+        pNormalArray[no[2]*3+2] += n[2];        
+      }
+    }
+    for(unsigned int ipoin=0;ipoin<npoin;ipoin++){
+      double* p = &pNormalArray[ipoin*3];
+      const double invlen = 1.0/sqrt(p[0]*p[0]+p[1]*p[1]+p[2]*p[2]);
+      p[0] *= invlen;
+      p[1] *= invlen;
+      p[2] *= invlen;    
+//      std::cout << ipoin << "   " << p[0] << " " << p[1] << " " << p[2] << std::endl;
+    }
+  }  
 	return true;
 }
 
@@ -331,12 +411,17 @@ bool CDrawerFace::Set
 		npoin = na_c_co.Size(); 
 	}
 	////////////////
+  // set size to vertex array
+  
 	unsigned int ndim_draw;
 	if( this->m_isnt_value_disp == false && ndim_field == 2 && (field.GetFieldType()==SCALAR||field.GetFieldType()==ZSCALAR) ){
 		ndim_draw = 3;
 	}
 	else{ ndim_draw = ndim_field; }
 	this->m_vertex_ary.SetSize(npoin,ndim_draw);
+  if( pNormalArray != 0 ){ delete pNormalArray; }
+  if( is_lighting ){ pNormalArray = new double [npoin*3]; }
+  
 	////////////////
 	if(      ndim_draw  == 2 ){ sutable_rot_mode = 1; }
 	else if( ndim_field == 3 ){ sutable_rot_mode = 3; }

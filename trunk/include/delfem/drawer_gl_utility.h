@@ -72,19 +72,26 @@ std::vector<SSelectedObject> PickPost(
 //		int win_width=-1, int win_height=-1 );
 
 
-//! 座標を描くクラス
+//! Draw coordinate
 class CDrawerCoord : public CDrawer{
 public:
-	CDrawerCoord(){}
+  CDrawerCoord(){}
 	CDrawerCoord(const CCamera& trans, unsigned int win_h );
 	virtual void Draw() const;
+
+  // virutal functions which do nothing
 	virtual void DrawSelection(unsigned int idraw) const {}
 	virtual Com::CBoundingBox GetBoundingBox(double rot[]) const { return Com::CBoundingBox(); }
 	virtual void AddSelected(const int selec_flag[]){}
 	virtual void ClearSelected(){}
 
-    void  SetTrans(const CCamera& trans, int win_h = -1);
-private :
+  // non-virtual functions
+  void SetTrans(const CCamera& trans, int win_h = -1);
+  void SetIsShown(bool is_show){ this->is_show = is_show; }
+  bool GetIsShown() const { return is_show; }
+private:
+  bool is_show;
+
 	std::vector<double> x_axis_coord;
 	std::vector<std::string> x_axis_name;
 
@@ -96,28 +103,28 @@ private :
 	double coord_len;
 };
 
-//! 矩形領域を描くクラス（矩形選択の領域表示に使われる）
+//! Draweing Rectangular Box for selection or specifying region
 class CDrawerRect : public CDrawer
 {
 public:
-    CDrawerRect(){
-        begin_x = 0;    begin_y = 0;
-        this->m_imode = 0;
-    }
+  CDrawerRect(){
+    begin_x = 0;    begin_y = 0;
+    this->m_imode = 0;
+  }
 	CDrawerRect(double x, double y, unsigned int imode = 0);
-	virtual void Draw() const;
-    void SetInitialPositionMode(double x, double y, unsigned int imode){
-        begin_x = x;    begin_y = y;
-        this->m_imode = imode;
-    }
+  virtual void Draw() const;
+  void SetInitialPositionMode(double x, double y, unsigned int imode){
+    begin_x = x;    begin_y = y;
+    this->m_imode = imode;
+  }
 	void SetPosition(double x, double y);
-	void GetCenterSize(double& cent_x, double& cent_y, double& size_x, double& size_y);
-    void GetPosition(double& x0, double& y0, double& x1, double& y1){
-        x0 = begin_x;   y0 = begin_y;
-        x1 = end_x;   y1 = end_y;
-    }
+  void GetCenterSize(double& cent_x, double& cent_y, double& size_x, double& size_y);
+  void GetPosition(double& x0, double& y0, double& x1, double& y1){
+    x0 = begin_x;   y0 = begin_y;
+    x1 = end_x;   y1 = end_y;
+  }
 
-	// 以下のvirtual関数は実装されない
+  // vertual function
 	virtual void DrawSelection(unsigned int idraw) const {}
 	virtual Com::CBoundingBox GetBoundingBox(double rot[]) const { return Com::CBoundingBox(); }
 	virtual void AddSelected(const int selec_flag[]){}
@@ -128,7 +135,7 @@ private :
 	unsigned int m_imode;
 };
 
-//! 矩形領域を描くクラス（矩形選択の領域表示に使われる）
+//! Draw texture in the background
 class CDrawerImageTexture : public CDrawer
 {
 public:
@@ -153,7 +160,7 @@ public:
 	virtual void AddSelected(const int selec_flag[]){}
 	virtual void ClearSelected(){}
 private :
-	unsigned int m_texName;	// if ０ then no texture
+  unsigned int m_texName;	// if 0 then no texture
 	unsigned int m_texWidth;	// should be power of 2
 	unsigned int m_texHight;	// should be power of 2
 	double x_min,x_max,  y_min,y_max;

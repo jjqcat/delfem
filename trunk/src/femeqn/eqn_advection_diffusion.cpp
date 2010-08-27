@@ -23,6 +23,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include <math.h>
 
+#include "delfem/field_world.h"
+
 #include "delfem/femeqn/eqn_advection_diffusion.h"
 
 #include "delfem/femls/linearsystem_field.h"
@@ -222,7 +224,7 @@ bool Fem::Eqn::AddLinSys_AdvectionDiffusion_Static(
 	if( !world.IsIdField(id_field_velo) ) return false;
 	const CField& field_velo = world.GetField(id_field_velo);
 
-	if( field_val.GetFieldType() != SCALAR ) return false;
+	if( field_val.GetFieldType() != Fem::Field::SCALAR ) return false;
 	if( field_velo.GetFieldType() != VECTOR2 ) return false;
 
 

@@ -38,14 +38,14 @@ class CBCFlag
 {
 public:
 	CBCFlag(unsigned int nBlk, unsigned int lenBlk)
-		: m_lenBlk(lenBlk), m_nBlk(nBlk){
-        m_DofPtr = 0;
-		m_Flag = new int [m_lenBlk*m_nBlk];
-		this->SetAllFlagZero();
+  : m_lenBlk(lenBlk), m_nBlk(nBlk){
+    m_DofPtr = 0;
+    m_Flag = new int [m_lenBlk*m_nBlk];
+      this->SetAllFlagZero();
 	}
-    CBCFlag(unsigned int nBlk, const std::vector<unsigned int>& aLen )
-		: m_lenBlk(-1), m_nBlk(nBlk)
-    {
+  CBCFlag(unsigned int nBlk, const std::vector<unsigned int>& aLen )
+  : m_lenBlk(-1), m_nBlk(nBlk)
+  {
         m_DofPtr = new unsigned int [m_nBlk+1];
         m_DofPtr[0] = 0;
         for(unsigned int iblk=0;iblk<m_nBlk;iblk++){

@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 ////////////////////////////////////////////////////////////////
-// ElemAry.cpp: 要素配列クラス(CElemAry)のインターフェース
+// ElemAry.cpp: interface of element array class (CElemAry)
 ////////////////////////////////////////////////////////////////
 
 

@@ -70,6 +70,8 @@ public:
   }
 	void SetColor(unsigned int id_es_v, unsigned int id_ns_v, const Fem::Field::CFieldWorld& world,
 		const std::auto_ptr<CColorMap>& color_map);
+  
+  void EnableLighting(bool is_lighting){ this->is_lighting = is_lighting; }
 protected:
 	bool Set(unsigned int id_field, const Fem::Field::CFieldWorld& world, bool isnt_value_disp, unsigned int id_field_color);
 protected:
@@ -85,7 +87,12 @@ protected:
 	unsigned int id_field_val;
 	std::auto_ptr<CColorMap> color_map;
 	float* pColorArray;	//!< array of color ( rgb for each node )
-	bool is_draw_color_legend;	// draw legent if true
+	bool is_draw_color_legend;	//!< draw legent if true
+  
+  ////////////////
+  // Lighting
+  bool is_lighting;
+  double* pNormalArray;
 };
 
 }	// View

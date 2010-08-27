@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #endif
 #define for if(0); else for
 
+#include "delfem/field_world.h"
 
 #include "delfem/matvec/matdia_blkcrs.h"
 #include "delfem/matvec/vector_blk.h"

@@ -5,6 +5,8 @@
 #include <math.h>
 #include <fstream>
 
+#include "delfem/field_world.h"
+
 #include "delfem/vector3d.h"
 #include "delfem/matvec/matdia_blkcrs.h"
 #include "delfem/matvec/diamat_blk.h"

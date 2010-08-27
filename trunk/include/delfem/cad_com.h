@@ -37,10 +37,10 @@ namespace Cad{
 @brief the type of component 
 */
 enum CAD_ELEM_TYPE{
-    NOT_SET,    //!< not setted(for the error handling)
-    VERTEX,     //!< vertex
-    EDGE,       //!< edge
-    LOOP,       //!< loop
+  NOT_SET,  //!< not setted(for the error handling)
+  VERTEX,   //!< vertex
+  EDGE,     //!< edge
+  LOOP,     //!< loop
 	SOLID,		//!< solid
 };
 
