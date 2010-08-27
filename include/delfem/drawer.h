@@ -141,6 +141,8 @@ public:
 		this->ndim = ndim;
 		pVertexArray = new double [npoin*ndim];
 	}
+  // rot == 0 : return object axis bounding box
+  // rot != 0 : return rotated axis bounding box (rot is 3x3 matrix)
 	Com::CBoundingBox GetBoundingBox( double rot[] ) const;
 	inline unsigned int NDim() const { return ndim; }
 	inline unsigned int NPoin() const { return npoin; }

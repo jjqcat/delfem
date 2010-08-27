@@ -36,7 +36,7 @@ class CBCFlag;
 class COrdering_Blk;
 
 /*!
-@brief 正方行列クラス
+@brief square crs matrix class
 @ingroup MatVec
 
 データ構造:対角成分を持つブロックCRSクラス
@@ -113,8 +113,8 @@ public:
 protected:
 	double* m_valDia_Blk;	// 対角ブロック成分
     
-    // Flex時に定義される値
-    unsigned int* m_DiaValPtr;
+  // Flex時に定義される値
+  unsigned int* m_DiaValPtr;
 };
 
 }	// end namespace 'Ls'

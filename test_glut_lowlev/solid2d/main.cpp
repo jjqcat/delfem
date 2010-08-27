@@ -254,14 +254,14 @@ void Solve(){
 			 itr==0);
 			res = ls.FinalizeMarge();
 		}
-        {
+    {
 			double conv_ratio = 1.0e-9;
 			unsigned int max_iter = 1000;
-            prec.SetValue(ls.m_ls);
-            LsSol::CLinearSystemPreconditioner lsp(ls.m_ls,prec);
+      prec.SetValue(ls.m_ls);
+      LsSol::CLinearSystemPreconditioner lsp(ls.m_ls,prec);
 			LsSol::Solve_PCG(conv_ratio,max_iter,lsp);
 			std::cout << max_iter << " " << conv_ratio << std::endl;
-        }
+    }
 		ls.UpdateValueOfField_BackwardEular(dt, id_disp  ,world,itr==0);
 		std::cout << "iter : " << itr << "  Res : " << res << std::endl;
 		if( res < 1.0e-6 ) break;
@@ -305,41 +305,41 @@ void SetProblem()
 
 	if( iprob == 0 )
 	{
-        cur_time = 0;
+    cur_time = 0;
 		Cad::CCadObj2D cad_2d;
  		{	// define shape
-            std::vector<Com::CVector2D> vec_ary;
-            vec_ary.push_back( Com::CVector2D(0,1.0) );
-            vec_ary.push_back( Com::CVector2D(5,1.0) );
-            vec_ary.push_back( Com::CVector2D(5,2.0) );
-            vec_ary.push_back( Com::CVector2D(0,2.0) );
+      std::vector<Com::CVector2D> vec_ary;
+      vec_ary.push_back( Com::CVector2D(0,1.0) );
+      vec_ary.push_back( Com::CVector2D(5,1.0) );
+      vec_ary.push_back( Com::CVector2D(5,2.0) );
+      vec_ary.push_back( Com::CVector2D(0,2.0) );
 			cad_2d.AddPolygon( vec_ary );
 		}
 		world.Clear();
 		const unsigned int id_base = world.AddMesh( Msh::CMesher2D(cad_2d,0.2) );
-        const CIDConvEAMshCad& conv = world.GetIDConverter(id_base);
+    const CIDConvEAMshCad& conv = world.GetIDConverter(id_base);
 
 		////////////////		
 		id_disp = world.MakeField_FieldElemDim(id_base,2, VECTOR2, VALUE|VELOCITY|ACCELERATION, CORNER);
 //		world.FieldValueExec(cur_time);
         unsigned int id_disp_fix0;
-        {   // ã´äEèåèÇÃê›íË
-		    std::vector<unsigned int> aIdEAFix;
-    //		aIdEAFix.push_back(3);
+    {   // ã´äEèåèÇÃê›íË
+      std::vector<unsigned int> aIdEAFix;
+      //		aIdEAFix.push_back(3);
 			aIdEAFix.push_back( conv.GetIdEA_fromCad(2,Cad::EDGE) );
-            id_disp_fix0 = world.GetPartialField(id_disp,aIdEAFix);
-            Fem::Field::CField& field = world.GetField(id_disp_fix0);
-            field.SetValue("sin(t)",    0,Fem::Field::VALUE,world,true);
-            field.SetValue("sin(0.5*t)",1,Fem::Field::VALUE,world,true);
-        }
+      id_disp_fix0 = world.GetPartialField(id_disp,aIdEAFix);
+      Fem::Field::CField& field = world.GetField(id_disp_fix0);
+      field.SetValue("sin(t)",    0,Fem::Field::VALUE,world,true);
+      field.SetValue("sin(0.5*t)",1,Fem::Field::VALUE,world,true);
+    }
 		
 		// set linear system
-   		ls.Clear();
-	    ls.AddPattern_Field(id_disp,world);
+    ls.Clear();
+    ls.AddPattern_Field(id_disp,world);
 		ls.SetFixedBoundaryCondition_Field(id_disp_fix0,world);
-        // set preconditioner
-        prec.SetFillInLevel(0);
-        prec.SetLinearSystem(ls.m_ls);
+    // set preconditioner
+    prec.SetFillInLevel(0);
+    prec.SetLinearSystem(ls.m_ls);
 
 		// ï`âÊÉIÉuÉWÉFÉNÉgÇÃìoò^
 		drawer_ary.Clear();

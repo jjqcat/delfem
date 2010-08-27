@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 // eqn_diffusion.cpp : ŠgU•û’ö®‚Ì—v‘f„«ì¬•”‚ÌÀ‘•
 ////////////////////////////////////////////////////////////////
 
-
+#include "delfem/field_world.h"
 
 #include "delfem/femeqn/eqn_diffusion.h"
 #include "delfem/femls/linearsystem_field.h"

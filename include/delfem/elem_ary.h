@@ -42,26 +42,26 @@ namespace Field{
 
 //! 要素セグメントの種類
 enum ELSEG_TYPE{ 
-	CORNER=1,	//!< コーナー節点
-	EDGE=2,		//!< 辺上の節点
-	BUBBLE=4	//!< 要素内の節点
+	CORNER=1,	//!< corner node
+	EDGE=2,		//!< edge node
+	BUBBLE=4	//!< in the element node
 };
 
-// この整数のIndexはelem_ary.cppで使われるので，むやみに変更しないこと
+// this integet index will be used in "elem_ary.cpp". Please don't change without consideration.
 // ここだけは別のヘッダファイルに移したほうがいいかも．このIndexだけ欲しいクラス(drawer_field.hとか)のために
 //! 要素の種類
 enum ELEM_TYPE{	
 	ELEM_TYPE_NOT_SET=0,
-	POINT=1,	//!< 点要素
-	LINE=2,		//!< 線要素
-	TRI=3, 		//!< 三角形要素
-	QUAD=4, 	//!< 四角形要素
-	TET=5, 		//!< 四面体要素
-	HEX=6 		//!< 六面体要素
+	POINT=1,	//!< point element
+	LINE=2,		//!< line element
+	TRI=3, 		//!< triangle element
+	QUAD=4, 	//!< quadratic element
+	TET=5, 		//!< tetrahedra element
+	HEX=6 		//!< hexagonal element
 };
 
 /*! 
-@brief 要素配列クラス
+@brief class of Element Array
 @ingroup Fem
 */
 class CElemAry
@@ -72,14 +72,13 @@ public:
 	class CElemSeg{
 		friend class CElemAry;
 	public:
-//		// そのうちコンストラクタを作る予定
 		CElemSeg(unsigned int id, unsigned int id_na, ELSEG_TYPE elseg_type)
 			: m_id(id), m_id_na(id_na), m_elseg_type(elseg_type){}
 
 		// Getメソッド
 		unsigned int GetMaxNoes() const { return max_noes; }	//!< ノード番号の一番大きなものを得る（このnoesを格納するためには一つ大きな配列が必要なので注意）
 		unsigned int GetSizeNoes() const { return m_nnoes; }	//!< 要素辺りの節点数を返す
-		unsigned int GetSizeElem() const { return nelem; }	//!< 要素数を得る
+		unsigned int GetSizeElem() const { return nelem; }	//!< get the number of elements
 		unsigned int GetIdNA() const { return m_id_na; }	//!< この要素セグメントが参照する節点配列IDを得る
 		unsigned int GetID() const { return m_id; }	//!< 要素セグメントIDを得る
 		ELSEG_TYPE GetElSegType() const { return m_elseg_type; }	//!< 要素セグメントタイプ(Fem::Field::CORNER,Fem::Field::BUBBLE,Fem::Field::EDGE)を得る
@@ -235,7 +234,7 @@ public:
 	*/
 	virtual CElemAry* MakeBoundElemAry(unsigned int id_es_corner, unsigned int& id_es_add, std::vector<unsigned int>& aIndElemFace) const;
 	
-	//! ファイルIO関数
+	//! IO functions
 	int InitializeFromFile(const std::string& file_name, long& offset);
 	int WriteToFile(       const std::string& file_name, long& offset, unsigned int id) const;
 
@@ -248,21 +247,19 @@ public:
 	bool MakeElemSurElem( const unsigned int& id_es_corner, int* elsuel) const;
 private:
 
-	bool MakePointSurElem( 
-		const unsigned int id_es, 
-        Com::CIndexedArray& elsup ) const;
+	bool MakePointSurElem( const unsigned int id_es, Com::CIndexedArray& elsup ) const;
 
-	bool MakePointSurPoint( 
-        const unsigned int id_es, const Com::CIndexedArray& elsup, bool isnt_self,
-        Com::CIndexedArray& psup ) const;
+	bool MakePointSurPoint
+  (const unsigned int id_es, const Com::CIndexedArray& elsup, bool isnt_self,
+   Com::CIndexedArray& psup ) const;
 
-    bool MakeElemSurElem( const unsigned int& id_es_corner, Com::CIndexedArray& elsup, int* elsuel) const;
+  bool MakeElemSurElem( const unsigned int& id_es_corner, Com::CIndexedArray& elsup, int* elsuel) const;
 private:
 
 
 protected:
-    unsigned int m_nElem;	//!< 要素の数
-    ELEM_TYPE m_ElemType;	//!< 要素タイプ
+    unsigned int m_nElem;	//!< number of elements
+    ELEM_TYPE m_ElemType;	//!< type of element
 	unsigned int npoel;		//!< 一要素辺りの説点数
 	// コネクティビティはunsigned intにすべきでは？（混合要素への対応のため？）
 	int * m_pLnods;			//!< コネクティビティ格納配列

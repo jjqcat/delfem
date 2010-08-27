@@ -41,7 +41,8 @@ Com::CBoundingBox CDrawerArray::GetBoundingBox( double rm[] ) const
 Com::CBoundingBox CVertexArray::GetBoundingBox( double rot[] ) const
 {
 	if( pVertexArray == 0 ){ return Com::CBoundingBox(); }
-	if( rot == 0 ){
+	if( rot == 0 )  // object axis alligned bounding box
+  {
 		if( ndim == 2 ){		
 			Com::CBoundingBox bb;
 			{
@@ -79,16 +80,16 @@ Com::CBoundingBox CVertexArray::GetBoundingBox( double rot[] ) const
 			return bb;
 		}		
 	}
-	if( ndim == 2 ){		
-		Com::CBoundingBox bb;
+	if( ndim == 2 ) // view axis alligned bounding box
+  {		
+    double x_min,x_max, y_min,y_max, z_min,z_max;
 		{
 			const double x1 = pVertexArray[0];
 			const double y1 = pVertexArray[1];
 			const double z1 = 0.0;
-			const double x2 = x1*rot[0]+y1*rot[1]+z1*rot[2];
-			const double y2 = x1*rot[3]+y1*rot[4]+z1*rot[5];
-			const double z2 = x1*rot[6]+y1*rot[7]+z1*rot[8];
-			bb = Com::CBoundingBox(x2,x2, y2,y2, z2,z2);
+			x_min = x_max = x1*rot[0]+y1*rot[1]+z1*rot[2];
+			y_min = y_max = x1*rot[3]+y1*rot[4]+z1*rot[5];
+			z_min = z_max = x1*rot[6]+y1*rot[7]+z1*rot[8];
 		}
 		for(unsigned int ipoin=1;ipoin<npoin;ipoin++){
 			const double x1 = pVertexArray[ipoin*2  ];
@@ -97,22 +98,31 @@ Com::CBoundingBox CVertexArray::GetBoundingBox( double rot[] ) const
 			const double x2 = x1*rot[0]+y1*rot[1]+z1*rot[2];
 			const double y2 = x1*rot[3]+y1*rot[4]+z1*rot[5];
 			const double z2 = x1*rot[6]+y1*rot[7]+z1*rot[8];
-			bb.x_max = ( x2 > bb.x_max ) ? x2 : bb.x_max;  bb.x_min = ( x2 < bb.x_min ) ? x2 : bb.x_min;			
-			bb.y_max = ( y2 > bb.y_max ) ? y2 : bb.y_max;  bb.y_min = ( y2 < bb.y_min ) ? y2 : bb.y_min;			
-			bb.z_max = ( z2 > bb.z_max ) ? z2 : bb.z_max;  bb.z_min = ( z2 < bb.z_min ) ? z2 : bb.z_min;			
-		}
-		return bb;
+			x_max = ( x2 > x_max ) ? x2 : x_max;  x_min = ( x2 < x_min ) ? x2 : x_min;			
+			y_max = ( y2 > y_max ) ? y2 : y_max;  y_min = ( y2 < y_min ) ? y2 : y_min;			
+			z_max = ( z2 > z_max ) ? z2 : z_max;  z_min = ( z2 < z_min ) ? z2 : z_min;
+		}    
+    const double c1x = (x_min + x_max)*0.5;
+    const double c1y = (y_min + y_max)*0.5;
+    const double c1z = (z_min + z_max)*0.5;    
+    const double c2x = c1x*rot[0]+c1y*rot[3]+c1z*rot[6];
+    const double c2y = c1x*rot[1]+c1y*rot[4]+c1z*rot[7];
+    const double c2z = c1x*rot[2]+c1y*rot[5]+c1z*rot[8];    
+    const double hx = (x_max - x_min)*0.5;
+    const double hy = (y_max - y_min)*0.5;
+    const double hz = (z_max - z_min)*0.5;    
+		return Com::CBoundingBox(c2x-hx,c2x+hx, c2y-hy,c2y+hy, c2z-hz,c2z+hz);
 	}
-	if( ndim == 3 ){
-		Com::CBoundingBox bb;
-		{
-			const double x1 = pVertexArray[0];
-			const double y1 = pVertexArray[1];
-			const double z1 = 0.0;
-			const double x2 = x1*rot[0]+y1*rot[1]+z1*rot[2];
-			const double y2 = x1*rot[3]+y1*rot[4]+z1*rot[5];
-			const double z2 = x1*rot[6]+y1*rot[7]+z1*rot[8];
-			bb = Com::CBoundingBox(x2,x2, y2,y2, z2,z2);
+	if( ndim == 3 ) // view axis alligned bounding box
+  {
+    double x_min,x_max, y_min,y_max, z_min,z_max;
+    {
+      const double x1 = pVertexArray[0];
+      const double y1 = pVertexArray[1];
+      const double z1 = pVertexArray[2];
+			x_min = x_max = x1*rot[0]+y1*rot[1]+z1*rot[2];
+			y_min = y_max = x1*rot[3]+y1*rot[4]+z1*rot[5];
+			z_min = z_max = x1*rot[6]+y1*rot[7]+z1*rot[8];
 		}
 		for(unsigned int ipoin=1;ipoin<npoin;ipoin++){
 			const double x1 = pVertexArray[ipoin*3  ];
@@ -121,11 +131,20 @@ Com::CBoundingBox CVertexArray::GetBoundingBox( double rot[] ) const
 			const double x2 = x1*rot[0]+y1*rot[1]+z1*rot[2];
 			const double y2 = x1*rot[3]+y1*rot[4]+z1*rot[5];
 			const double z2 = x1*rot[6]+y1*rot[7]+z1*rot[8];
-			bb.x_max = ( x2 > bb.x_max ) ? x2 : bb.x_max;  bb.x_min = ( x2 < bb.x_min ) ? x2 : bb.x_min;			
-			bb.y_max = ( y2 > bb.y_max ) ? y2 : bb.y_max;  bb.y_min = ( y2 < bb.y_min ) ? y2 : bb.y_min;			
-			bb.z_max = ( z2 > bb.z_max ) ? z2 : bb.z_max;  bb.z_min = ( z2 < bb.z_min ) ? z2 : bb.z_min;			
+			x_max = ( x2 > x_max ) ? x2 : x_max;  x_min = ( x2 < x_min ) ? x2 : x_min;
+			y_max = ( y2 > y_max ) ? y2 : y_max;  y_min = ( y2 < y_min ) ? y2 : y_min;
+			z_max = ( z2 > z_max ) ? z2 : z_max;  z_min = ( z2 < z_min ) ? z2 : z_min;
 		}
-		return bb;
+    const double c1x = (x_min + x_max)*0.5;
+    const double c1y = (y_min + y_max)*0.5;
+    const double c1z = (z_min + z_max)*0.5;    
+    const double c2x = c1x*rot[0]+c1y*rot[3]+c1z*rot[6];
+    const double c2y = c1x*rot[1]+c1y*rot[4]+c1z*rot[7];
+    const double c2z = c1x*rot[2]+c1y*rot[5]+c1z*rot[8];    
+    const double hx = (x_max - x_min)*0.5;
+    const double hy = (y_max - y_min)*0.5;
+    const double hz = (z_max - z_min)*0.5;    
+		return Com::CBoundingBox(c2x-hx,c2x+hx, c2y-hy,c2y+hy, c2z-hz,c2z+hz);
 	}
 	return Com::CBoundingBox();
 }

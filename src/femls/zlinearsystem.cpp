@@ -24,6 +24,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <math.h>
 #include <cstdlib> //(abort)
 
+#include "delfem/field_world.h"
+
 #include "delfem/indexed_array.h"
 #include "delfem/matvec/zmatdia_blkcrs.h"
 #include "delfem/matvec/zmat_blkcrs.h"

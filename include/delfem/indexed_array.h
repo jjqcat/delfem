@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 /*! @file
-@brief サイズ可変な配列の配列(Com::CIndexedArray)のインターフェース
+@brief the interface and implementation of jagged-array class (Com::CIndexedArray)
 @author Nobuyuki Umetani
 */
 
@@ -36,7 +36,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 namespace Com{
 	
-//! 可変長の配列の配列
+//! Jagged array
 class CIndexedArray
 {
 public:
@@ -103,7 +103,7 @@ public:
 			}
 		}
 	}
-	//! ソート
+	//! sort that each sub array have incremental odering
 	void Sort(){
 		for(unsigned int ipoin=0;ipoin<size;ipoin++){
 			const unsigned int is = index[ipoin  ];
@@ -127,7 +127,7 @@ public:
 		if( index[size] > array.size()+1 ) return false;
 		return true;
 	}
-public:
+public: // TODO: make this private 
 	unsigned int size;
 	// unsigned int Size(){ return index.size()-1; }	// とかでサイズを出しては駄目なの？
 	std::vector<unsigned int> index;

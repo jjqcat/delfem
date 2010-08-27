@@ -207,21 +207,29 @@ void Com::View::SetProjectionTransform(const Com::View::CCamera& mvp_trans)
 
 void Com::View::SetModelViewTransform(const View::CCamera& mvp_trans)
 {
-	{	// ï®ëÃÇïΩçtà⁄ìÆÇ≥ÇπÇÈ
+	{	// pan the object
 		double x,y,z;
 		mvp_trans.GetCenterPosition(x,y,z);
 		::glTranslated( x, y, z );
+//    std::cout << x << " " << y << " " << z << std::endl;
 	}
-	{	// ï®ëÃÇÃíÜêSÇå¥ì_Ç…Ç∑ÇÈ
+/*	{	// ï®ëÃÇÃíÜêSÇå¥ì_Ç…Ç∑ÇÈ
 		double x,y,z;
 		mvp_trans.GetObjectCenter(x,y,z);
-		::glTranslated( -x, -y, -z );
-	}	
-	{	// ï®ëÃÇâÒì]Ç≥ÇπÇÈ
+		::glTranslated( +x, +y, +z );
+    std::cout << x << " " << y << " " << z << std::endl;    
+	}	*/
+	{	// rotate
 		double rot[16];
 		mvp_trans.RotMatrix44Trans(rot);
 		::glMultMatrixd(rot);
 	}
+  {	// put the origin at the center of object
+		double x,y,z;
+		mvp_trans.GetObjectCenter(x,y,z);
+		::glTranslated( -x, -y, -z );
+//    std::cout << x << " " << y << " " << z << std::endl;        
+	}	  
 }
  
 
@@ -343,6 +351,8 @@ void CDrawerCoord::SetTrans(const CCamera& trans, int win_h)
 }
 void CDrawerCoord::Draw() const
 {
+  if( !this->is_show ) return;
+
 	::glDisable(GL_DEPTH_TEST);
 	::glLineWidth(1);
 	::glColor3d(0.5,0.5,0.5);
@@ -391,7 +401,8 @@ void  CDrawerRect::SetPosition(double pos_x, double pos_y){
 	end_y = pos_y;
 }
 
-void CDrawerRect::Draw() const{
+void CDrawerRect::Draw() const
+{
 	if( m_imode == 0 ){
 		::glMatrixMode(GL_PROJECTION);
 		::glPushMatrix();
@@ -423,17 +434,17 @@ void CDrawerRect::Draw() const{
 	}
 	else if( m_imode == 1 ){
 		::glColor3d(0.0,0.0,0.0);
-		::glLineWidth(1);
-        double offset = 0.1;
-		::glBegin(GL_LINES);
-        ::glVertex3d(begin_x,begin_y, offset);
-        ::glVertex3d(begin_x,end_y,   offset);
-        ::glVertex3d(begin_x,end_y,   offset);
-        ::glVertex3d(end_x,  end_y,   offset);
-        ::glVertex3d(end_x,  end_y,   offset);
-        ::glVertex3d(end_x,  begin_y, offset);
-        ::glVertex3d(end_x,  begin_y, offset);
-        ::glVertex3d(begin_x,begin_y, offset);
+    ::glLineWidth(1);
+    double offset = 0.1;
+    ::glBegin(GL_LINES);
+    ::glVertex3d(begin_x,begin_y, offset);
+    ::glVertex3d(begin_x,end_y,   offset);
+    ::glVertex3d(begin_x,end_y,   offset);
+    ::glVertex3d(end_x,  end_y,   offset);
+    ::glVertex3d(end_x,  end_y,   offset);
+    ::glVertex3d(end_x,  begin_y, offset);
+    ::glVertex3d(end_x,  begin_y, offset);
+    ::glVertex3d(begin_x,begin_y, offset);
 		::glEnd();
 	}
 }

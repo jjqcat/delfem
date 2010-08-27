@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 /*! @file
-@brief 節点配列クラス(Fem::Field::CNodeAry)のインターフェース
+@brief the interface of node array class (Fem::Field::CNodeAry)
 @author Nobuyuki Umetani
 */
 
@@ -44,7 +44,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 namespace MatVec{
 	class CVector_Blk;
 	class CZVector_Blk;
-    class CBCFlag;
+  class CBCFlag;
 }
 
 namespace Fem{

@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 /*! @file
-@brief 場クラス(Fem::Field::CField)のインターフェース
+@brief interface of FEM descretization field class (Fem::Field::CField)
 @author Nobuyuki Umetani
 */
 
@@ -32,21 +32,35 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <string>
 #include <stdio.h>
 
-#include "delfem/field_world.h"
+//#include "delfem/field_world.h"
 #include "delfem/eval.h"
+#include "delfem/elem_ary.h"
+#include "delfem/node_ary.h"
 
 //(FieldとMatVecは分離させたいから，そのうちこのヘッダへのリンクは削除)
 #include "delfem/matvec/bcflag_blk.h"
 
 namespace Fem{
 namespace Field{
+  
+class CFieldWorld;
 
-//! 場の微分の種類
+//! the type of field
+enum FIELD_TYPE{ 
+  NO_VALUE,	//!< not setted   
+  SCALAR,		//!< real value scalar
+  VECTOR2,	//!< 2D vector
+  VECTOR3,	//!< 3D vector
+  STSR2,		//!< 2D symmetrical tensor
+  ZSCALAR		//!< complex value scalar
+};
+
+//! types of the value derivaration
 enum FIELD_DERIVATION_TYPE
 { 
-	VALUE=1,		//!< 微分されていない値
-	VELOCITY=2,		//!< 一回時間微分された値(速度)
-	ACCELERATION=4	//!< ２回時間微分された値(加速度)
+	VALUE=1,		//!< not being derivated
+	VELOCITY=2,		//!< first time derivative (velocity)
+	ACCELERATION=4	//!< 2nd time derivative (acceralation)
 };
 
 // このネーミング規則分かりにくいかも？
@@ -54,20 +68,20 @@ enum FIELD_DERIVATION_TYPE
 // [要素タイプ] (座標)[cbef],(値)[cbef]のように定義する
 // befのうち座標，値とも０ならば，後ろから(febの順に)省略してよい
 ////////////////
-//! 要素の補間の種類
+//! the types of interpolation
 enum INTERPOLATION_TYPE{
-	LINE11,		//!< 線分一次要素
-	TRI11,		//!< ３角形要素
-	TRI1001,	//!< ３角形要素一定補間
-	TRI1011,	//!< ３角形バブル要素
-	TET11,		//!< 四面体一次補間
-	TET1001,	//!< 四面体要素一定補間
-	HEX11,		//!< 六面体一次要素
-	HEX1001		//!< 六面体要素一定補間
+	LINE11,		//!< line element (1st order)
+	TRI11,		//!< triangle element (1st order)
+	TRI1001,	//!< triangle element (constatnt value in elemnet)
+	TRI1011,	//!< triangle element (bubble interpolation)
+	TET11,		//!< tetrahedral element (1st order)
+	TET1001,	//!< tetrahedral element (constant value in element)
+	HEX11,		//!< hexagonal element (1st order,iso-parametric)
+	HEX1001		//!< hexagonal element (constant value in element)
 };	
 
 /*! 
-@brief 有限要素法離散場クラス
+@brief fem discretization class
 @ingroup Fem
 */
 class CField
@@ -76,15 +90,16 @@ public:
 	//! store ID of element segment
 	class CElemInterpolation{
 	public:
-		CElemInterpolation(unsigned int id_ea, 
-			unsigned int id_es_c_va, unsigned int id_es_c_co,
-			unsigned int id_es_e_va, unsigned int id_es_e_co,
-			unsigned int id_es_b_va, unsigned int id_es_b_co)
-			: id_ea(id_ea), 
-			id_es_c_va(id_es_c_va), id_es_c_co(id_es_c_co),
-			id_es_e_va(id_es_e_va), id_es_e_co(id_es_e_co),
-			id_es_b_va(id_es_b_va), id_es_b_co(id_es_b_co),
-			ilayer(0){}
+		CElemInterpolation
+    (unsigned int id_ea, 
+     unsigned int id_es_c_va, unsigned int id_es_c_co,
+     unsigned int id_es_e_va, unsigned int id_es_e_co,
+     unsigned int id_es_b_va, unsigned int id_es_b_co)
+    : id_ea(id_ea), 
+    id_es_c_va(id_es_c_va), id_es_c_co(id_es_c_co),
+    id_es_e_va(id_es_e_va), id_es_e_co(id_es_e_co),
+    id_es_b_va(id_es_b_va), id_es_b_co(id_es_b_co),
+    ilayer(0){}
 	public:
 		unsigned int id_ea;	//!< ID of element array
 		unsigned int id_es_c_va, id_es_c_co;	//!< ID of element segment of corner (value or coordinate )
@@ -93,33 +108,33 @@ public:
 		int ilayer;
 	};
 public: 
-	//! 節点Segment保管クラス
+	//! store ID of node segment in eace node configuration (CORNER, BUBBLE or EDGE..etc)
 	class CNodeSegInNodeAry{
-    public:
+  public:
 		unsigned int id_na_co;
-        bool is_part_co;		//!< 要素によってこの座標NAが全て参照されるかどうか//!< 要素によってこの値NAが全て参照されるかどうか
-        unsigned int id_ns_co;
+    bool is_part_co;		//!< 要素によってこの座標NAが全て参照されるかどうか//!< 要素によってこの値NAが全て参照されるかどうか
+    unsigned int id_ns_co;
 		unsigned int id_na_va;
-        bool is_part_va;
+    bool is_part_va;
 		unsigned int id_ns_va;	//!< 値セグメント
 		unsigned int id_ns_ve;	//!< 速度セグメント
-        unsigned int id_ns_ac;	//!< 加速度セグメント
-    public:
+    unsigned int id_ns_ac;	//!< 加速度セグメント
+  public:
 		CNodeSegInNodeAry() 
 			: id_na_co(0), id_ns_co(0), 
 			id_na_va(0), id_ns_va(0){}
-		CNodeSegInNodeAry(
-			unsigned int id_na_co, bool is_part_co, unsigned int id_ns_co, 
-			unsigned int id_na_va, bool is_part_va, 
-			unsigned int id_ns_va, unsigned int id_ns_ve, unsigned int id_ns_ac )
-            : id_na_co(id_na_co), is_part_co(is_part_co),
-            id_ns_co(id_ns_co),
-			id_na_va(id_na_va), is_part_va(is_part_va),
-			id_ns_va(id_ns_va), id_ns_ve(id_ns_ve), id_ns_ac(id_ns_ac){}
+		CNodeSegInNodeAry
+    (unsigned int id_na_co, bool is_part_co, unsigned int id_ns_co, 			
+     unsigned int id_na_va, bool is_part_va, 
+     unsigned int id_ns_va, unsigned int id_ns_ve, unsigned int id_ns_ac )
+    : id_na_co(id_na_co), is_part_co(is_part_co),
+    id_ns_co(id_ns_co),
+    id_na_va(id_na_va), is_part_va(is_part_va),
+    id_ns_va(id_ns_va), id_ns_ve(id_ns_ve), id_ns_ac(id_ns_ac){}
 		CNodeSegInNodeAry( const CNodeSegInNodeAry& nsna )
-			: id_na_co(nsna.id_na_co), is_part_co(nsna.is_part_co), id_ns_co(nsna.id_ns_co), 
-			id_na_va(nsna.id_na_va), is_part_va(nsna.is_part_va), 
-			id_ns_va(nsna.id_ns_va), id_ns_ve(nsna.id_ns_ve), id_ns_ac(nsna.id_ns_ac){}
+    : id_na_co(nsna.id_na_co), is_part_co(nsna.is_part_co), id_ns_co(nsna.id_ns_co), 
+    id_na_va(nsna.id_na_va), is_part_va(nsna.is_part_va), 
+    id_ns_va(nsna.id_ns_va), id_ns_ve(nsna.id_ns_ve), id_ns_ac(nsna.id_ns_ac){}
 	};
 public:	
 	//! 場の値定義クラス（そのうち抽象クラスにする予定）
@@ -162,11 +177,11 @@ public:
 	};
 
 public:
-	CField(
-		unsigned int id_field_parent,	// parent field
-		const std::vector<CElemInterpolation>& aEI, 
-		const CNodeSegInNodeAry& nsna_c, const CNodeSegInNodeAry& nsna_b, 
-		CFieldWorld& world );
+	CField
+  (unsigned int id_field_parent,	// parent field
+   const std::vector<CElemInterpolation>& aEI, 
+   const CNodeSegInNodeAry& nsna_c, const CNodeSegInNodeAry& nsna_b, 
+   CFieldWorld& world );
 	CField(){};	//! default constructor
 
 	//////////////// 

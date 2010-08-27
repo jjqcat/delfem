@@ -17,7 +17,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 ////////////////////////////////////////////////////////////////
-// Vector_Blk.h : ベクトルクラス(CVector_Blk)の実装
+// Vector_Blk.h : implentation of vector class (CVector_Blk)
 ////////////////////////////////////////////////////////////////
 
 #include <cassert>

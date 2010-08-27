@@ -34,9 +34,10 @@ using namespace MatVec;
 ////////////////////////////////////////////////////////////////
 // Solve Matrix with CG Methods
 ////////////////////////////////////////////////////////////////
-bool MatVec::Sol::Solve_CG(double& conv_ratio,
-				unsigned int& iteration,
-                const MatVec::CMatDia_BlkCrs& mat, MatVec::CVector_Blk& r_vec, MatVec::CVector_Blk& u_vec)
+bool MatVec::Sol::Solve_CG
+(double& conv_ratio,
+ unsigned int& iteration,
+ const MatVec::CMatDia_BlkCrs& mat, MatVec::CVector_Blk& r_vec, MatVec::CVector_Blk& u_vec)
 {
 	const double conv_ratio_tol = conv_ratio;
 	const unsigned int mx_iter = iteration;
@@ -45,10 +46,10 @@ bool MatVec::Sol::Solve_CG(double& conv_ratio,
 	assert( r_vec.NBlk() == nblk );
 	assert( u_vec.NBlk() == nblk );
 
-    assert( mat.LenBlkCol() >= 0 );
-    const unsigned int blk_len = mat.LenBlkCol();
-    assert( r_vec.Len() == (int)blk_len );
-    assert( u_vec.Len() == (int)blk_len );
+  assert( mat.LenBlkCol() >= 0 );
+  const unsigned int blk_len = mat.LenBlkCol();
+  assert( r_vec.Len() == (int)blk_len );
+  assert( u_vec.Len() == (int)blk_len );
 
  	u_vec.SetVectorZero();
 
@@ -111,10 +112,11 @@ bool MatVec::Sol::Solve_CG(double& conv_ratio,
 	return true;
 }
 
-bool MatVec::Sol::Solve_PCG(double& conv_ratio,
-				unsigned int& iteration,
-				const CMatDia_BlkCrs& mat, CVector_Blk& r_vec, CVector_Blk& u_vec,
-				const CPrecond_Blk& precond, const CMatDia_BlkCrs& mat_p)
+bool MatVec::Sol::Solve_PCG
+(double& conv_ratio,
+ unsigned int& iteration,
+ const CMatDia_BlkCrs& mat, CVector_Blk& r_vec, CVector_Blk& u_vec,
+ const CPrecond_Blk& precond, const CMatDia_BlkCrs& mat_p)
 {
 
 	const double conv_ratio_tol = conv_ratio;

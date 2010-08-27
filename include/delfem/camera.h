@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 // DESCRIPTION
 // This file implements the class CCamera. 
 // This class have a data represents model-view transformation.
-// This class doesn't transform actually so as to keep indipendency with OpenGL
+// This class doesn't have actual transformation function so as to keep indipendency with OpenGL
 // If you want to apply transformation use functions in drawer_gl_utility.h
 
 #if !defined(CAMERA_H)
@@ -125,9 +125,9 @@ public:
 		this->Fit();
 	}
 	
-	//! スケールの取得
+	//! get scale :  
 	double GetScale() const { return 1.0 / inv_scale; }
-	//! スケールの設定
+	//! set scale
 	void SetScale(const double& scale){
 		if( scale < 0.01 ){ this->inv_scale = 100; }
 		else if( scale > 100.0 ){ this->inv_scale = 0.01; }
@@ -164,9 +164,9 @@ public:
 	void GetOrtho(double& hw, double& hh, double& hd) const {
 		hw = half_view_height*inv_scale*win_aspect;
 		hh = half_view_height*inv_scale;
-		hd = ( obj_d*10.0 > 1.0e-4 ) ? obj_d*10.0 : 1.0e-4;
-		hd = ( obj_w*10.0 > hd ) ? obj_w*10.0 : hd;
-		hd = ( obj_h*10.0 > hd ) ? obj_h*10.0 : hd;
+    hd = ( obj_d*20.0 > 1.0e-4 ) ? obj_d*20.0 : 1.0e-4;
+    hd = ( obj_w*20.0 > hd ) ? obj_w*20.0 : hd;
+    hd = ( obj_h*20.0 > hd ) ? obj_h*20.0 : hd;
 	}
 
 	////////////////

@@ -48,9 +48,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #  include <GL/glu.h>
 #endif
 
+
 #include "delfem/drawer_field_vector.h"
 #include "delfem/elem_ary.h"
 #include "delfem/field.h"
+#include "delfem/field_world.h"
 #include "delfem/drawer.h"
 #include "delfem/vector3d.h"
 

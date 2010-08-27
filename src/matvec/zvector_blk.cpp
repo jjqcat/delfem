@@ -1,8 +1,24 @@
-// Vector_Blk.cpp: CVector_Blk クラスのインプリメンテーション
-//
-//			Copy Rights (c) Nobuyuki Umetani 2007
-//          e-mail : umetani@sml.k.u-tokyo.ac.jp 
-//			Last Updated 02/21/2007		
+/*
+ DelFEM (Finite Element Analysis)
+ Copyright (C) 2009  Nobuyuki Umetani    n.umetani@gmail.com
+ 
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 2.1 of the License, or (at your option) any later version.
+ 
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+ 
+ You should have received a copy of the GNU Lesser General Public
+ License along with this library; if not, write to the Free Software
+ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+//////////////////////////////////////////////////////////////////////
+// Vector_Blk.cpp: implementation of vector class CVector_Blk
 //////////////////////////////////////////////////////////////////////
 
 #include <cassert>
@@ -23,12 +39,12 @@ namespace MatVec{
 Com::Complex operator*(const CZVector_Blk& lhs, const CZVector_Blk& rhs){	
 	assert( lhs.m_BlkLen == rhs.m_BlkLen );
 	assert( lhs.m_BlkVecLen == rhs.m_BlkVecLen );
-    if( lhs.BlkLen() < 0 ){
-        std::cout << "Error!-->Not Implemented" << std::endl;
-        assert(0);
-        abort();
-    }
-    const unsigned int ndof = (unsigned int)lhs.BlkLen() * lhs.BlkVecLen();
+  if( lhs.BlkLen() < 0 ){
+    std::cout << "Error!-->Not Implemented" << std::endl;
+    assert(0);
+    abort();
+  }
+  const unsigned int ndof = (unsigned int)lhs.BlkLen() * lhs.BlkVecLen();
 	double real0 = 0;
 	double imag0 = 0;
 	for(unsigned int idof=0;idof<ndof;idof++){ 

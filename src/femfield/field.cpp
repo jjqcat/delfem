@@ -34,6 +34,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <stdio.h>
 
 #include "delfem/field.h"
+#include "delfem/field_world.h"
 #include "delfem/eval.h"
 #include "delfem/femeqn/ker_emat_hex.h"
 #include "delfem/femeqn/ker_emat_tet.h"
@@ -80,11 +81,11 @@ bool CField::CValueFieldDof::GetValue(double cur_t, double& value) const {
 
 
 
-CField::CField(
-	unsigned int id_field_parent,	// 親フィールド
-	const std::vector<CElemInterpolation>& aEI, 
-	const CNodeSegInNodeAry& nsna_c, const CNodeSegInNodeAry& nsna_b, 
-	CFieldWorld& world)
+CField::CField
+(unsigned int id_field_parent,	// 親フィールド
+ const std::vector<CElemInterpolation>& aEI, 
+ const CNodeSegInNodeAry& nsna_c, const CNodeSegInNodeAry& nsna_b, 
+ CFieldWorld& world)
 {
 	m_aElemIntp = aEI;
 
@@ -94,16 +95,18 @@ CField::CField(
 	m_ndim_coord = 0;
 	if( m_na_c.id_na_co ){
 		const CNodeAry& na = world.GetNA( m_na_c.id_na_co );
-        assert( na.IsSegID( m_na_c.id_ns_co ) );
+    assert( na.IsSegID( m_na_c.id_ns_co ) );
 		const CNodeAry::CNodeSeg& ns_co = na.GetSeg( m_na_c.id_ns_co );
 		m_ndim_coord = ns_co.GetLength();
 	}
 	else if( m_na_b.id_na_co ){
 		const CNodeAry& na = world.GetNA( m_na_b.id_na_co );
-        assert( na.IsSegID( m_na_b.id_ns_co ) );
+    assert( na.IsSegID( m_na_b.id_ns_co ) );
 		const CNodeAry::CNodeSeg& ns_co = na.GetSeg( m_na_b.id_ns_co );
 		m_ndim_coord = ns_co.GetLength();
 	}
+  
+//  std::cout << "field : " << m_na_b.id_na_co << " " << m_na_b.id_ns_co << std::endl;
 
 	m_field_type = NO_VALUE;
 	m_field_derivative_type = 0;
@@ -266,9 +269,9 @@ bool CField::AssertValid(CFieldWorld& world) const
 	return true;
 }
 
-const CNodeAry::CNodeSeg& CField::GetNodeSeg(
-	ELSEG_TYPE elseg_type, 
-	bool is_value, const CFieldWorld& world, unsigned int fdt ) const
+const CNodeAry::CNodeSeg& CField::GetNodeSeg
+(ELSEG_TYPE elseg_type, 
+ bool is_value, const CFieldWorld& world, unsigned int fdt ) const
 {
 	unsigned int id_na = 0;
 	unsigned int id_ns = 0;
@@ -378,10 +381,22 @@ CNodeAry::CNodeSeg& CField::GetNodeSeg(
 
 const CElemAry::CElemSeg& CField::GetElemSeg(unsigned int id_ea, ELSEG_TYPE elseg_type, bool is_value, const CFieldWorld& world ) const
 {
-	const unsigned int id_es = this->GetIdElemSeg(id_ea,elseg_type,is_value,world);
-	if( id_es == 0 ){
-		assert(0);
-		throw 0;
+	unsigned int id_es = this->GetIdElemSeg(id_ea,elseg_type,is_value,world);
+	if( id_es == 0 ){// try partiel element
+    const CElemAry& ea = world.GetEA(id_ea);
+    unsigned int id_na_co = this->GetNodeSegInNodeAry(CORNER).id_na_co;
+    unsigned int id_na_va = this->GetNodeSegInNodeAry(CORNER).id_na_va;    
+    const std::vector<unsigned int>& aIdES = ea.GetAry_SegID();
+    for(unsigned int iies=0;iies<aIdES.size();iies++){
+      unsigned int id_es0 = aIdES[iies];
+      const CElemAry::CElemSeg& es = ea.GetSeg(id_es0);
+      if( is_value ){ if( es.GetIdNA() == id_na_va ){ id_es = id_es0; break; } }
+      else{           if( es.GetIdNA() == id_na_co ){ id_es = id_es0; break; } }
+    }
+    if( id_es == 0 ){
+      assert(0);
+      throw 0;
+    }
 	}
 	const CElemAry& ea = world.GetEA(id_ea);
 	assert( ea.IsSegID(id_es) );
@@ -395,7 +410,7 @@ unsigned int CField::GetIdElemSeg(unsigned int id_ea, ELSEG_TYPE elseg_type, boo
 	for(iei=0;iei<m_aElemIntp.size();iei++){
 		if( m_aElemIntp[iei].id_ea == id_ea ){ break; }
 	}
-	if( iei == m_aElemIntp.size() ){ return false; }
+	if( iei == m_aElemIntp.size() ){ return 0; }
 	const CElemInterpolation& ei = m_aElemIntp[iei];
 	unsigned int id_es = 0;
 	if( is_value ){

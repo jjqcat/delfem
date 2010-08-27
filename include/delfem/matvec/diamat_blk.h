@@ -37,7 +37,7 @@ namespace MatVec{
 
 
 /*! 
-@brief ‘ÎŠps—ñƒNƒ‰ƒX
+@brief diagonal matrix class
 @ingroup MatVec
 */
 class CDiaMat_Blk
