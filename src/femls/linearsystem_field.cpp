@@ -708,8 +708,8 @@ bool CLinearSystem_Field::UpdateValueOfField_RotCRV(
 			assert( na.IsSegID(id_ns_val) );
 			CNodeAry::CNodeSeg& ns = na.GetSeg(id_ns_val);
 			const unsigned int nblk = m_Update->NBlk();
-			assert( ns.GetNnode() == nblk );
-			assert( ns.GetLength() == 3 );
+			assert( ns.Size() == nblk );
+			assert( ns.Length() == 3 );
 			for(unsigned int iblk=0;iblk<nblk;iblk++){
 				Com::CMatrix3 rot0;
 				{

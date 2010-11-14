@@ -348,8 +348,8 @@ bool AddLinSys_StVenant2D_NonStatic_NewmarkBeta_P1
 	const CNodeAry::CNodeSeg& ns_c_velo = field_disp.GetNodeSeg(CORNER,true,world,VELOCITY);
 	const CNodeAry::CNodeSeg& ns_c_acc  = field_disp.GetNodeSeg(CORNER,true,world,ACCELERATION);
 	const CNodeAry::CNodeSeg& ns_c_co  = field_disp.GetNodeSeg(CORNER,false,world);
-	assert( ns_c_val.GetLength() == ndim );
-	assert( ns_c_co.GetLength()  == ndim );
+	assert( ns_c_val.Length() == ndim );
+	assert( ns_c_co.Length()  == ndim );
 
 	double g[2] = { g_x, g_y };
 
@@ -543,8 +543,8 @@ bool AddLinSys_StVenant2D_NonStatic_BackwardEular_P1
 	const CNodeAry::CNodeSeg& ns_c_val  = field_disp.GetNodeSeg(CORNER,true,world,VALUE);
 	const CNodeAry::CNodeSeg& ns_c_velo = field_disp.GetNodeSeg(CORNER,true,world,VELOCITY);
 	const CNodeAry::CNodeSeg& ns_c_co   = field_disp.GetNodeSeg(CORNER,false,world);
-	assert( ns_c_val.GetLength() == ndim );
-	assert( ns_c_co.GetLength()  == ndim );
+	assert( ns_c_val.Length() == ndim );
+	assert( ns_c_co.Length()  == ndim );
 	
 	double g[2] = { g_x, g_y };
 	
@@ -852,7 +852,7 @@ bool AddLinSys_StVenant3D_Static_P1
 
 	const CElemAry::CElemSeg& es_c = field_disp.GetElemSeg(id_ea,CORNER,true,world);
 
-	const unsigned int nnoes = 4;	assert( nnoes == es_c.GetSizeNoes() );
+	const unsigned int nnoes = 4;	assert( nnoes == es_c.Length() );
 	const unsigned int ndim = 3;
 
 	unsigned int noes[nnoes];	// 要素内の節点の節点番号
@@ -961,7 +961,7 @@ bool AddLinSys_StVenant3D_Static_Q1
 	const double (*Gauss)[2] = LineGauss[num_integral];
 	double detjac, detwei;
 
-	const unsigned int nnoes = 8;	assert( nnoes == es_c.GetSizeNoes() );
+	const unsigned int nnoes = 8;	assert( nnoes == es_c.Length() );
 	const unsigned int ndim = 3;
 
 	unsigned int noes[nnoes];	// 要素内の節点の節点番号
@@ -1142,8 +1142,8 @@ bool AddLinSys_StVenant3D_NonStatic_NewmarkBeta_P1
 	const CNodeAry::CNodeSeg& ns_c_velo = field_disp.GetNodeSeg(CORNER,true,world,VELOCITY);
 	const CNodeAry::CNodeSeg& ns_c_acc  = field_disp.GetNodeSeg(CORNER,true,world,ACCELERATION);
 	const CNodeAry::CNodeSeg& ns_c_co  = field_disp.GetNodeSeg(CORNER,false,world);
-	assert( ns_c_val.GetLength() == ndim );
-	assert( ns_c_co.GetLength()  == ndim );
+	assert( ns_c_val.Length() == ndim );
+	assert( ns_c_co.Length()  == ndim );
 
 	const double g[ndim] = { g_x, g_y, g_z };
 

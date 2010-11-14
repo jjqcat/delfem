@@ -58,6 +58,27 @@ void CMesher2D::Clear()
 	this->ClearMeshData();
 }
 
+CMesher2D::CMesher2D(const CMesher2D& rhs)
+{
+  this->Clear();
+	setIdLCad_CutMesh = rhs.setIdLCad_CutMesh;
+	m_imode_meshing = rhs.m_imode_meshing;
+	m_elen = rhs.m_elen;
+	m_esize = rhs.m_esize;
+  
+	m_ElemType = rhs.m_ElemType;
+	m_ElemLoc = rhs.m_ElemLoc;
+	m_include_relation = rhs.m_include_relation;
+  
+	m_aVertex = rhs.m_aVertex;
+	m_aBarAry = rhs.m_aBarAry;
+	m_aTriAry = rhs.m_aTriAry;
+	m_aQuadAry = rhs.m_aQuadAry;
+  
+	aVec2D = rhs.aVec2D;
+}
+
+
 unsigned int CMesher2D::FindMaxID() const
 {
 	unsigned int max_id = 0;

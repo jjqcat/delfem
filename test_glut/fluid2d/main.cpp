@@ -261,7 +261,7 @@ void SetNewProblem()
 			vec_ary.push_back( Com::CVector2D( 0.5,-0.5) );
 			vec_ary.push_back( Com::CVector2D( 0.5, 0.5) );
 			vec_ary.push_back( Com::CVector2D(-0.5, 0.5) );
-			unsigned int id_l = cad_2d.AddPolygon( vec_ary );
+			unsigned int id_l = cad_2d.AddPolygon( vec_ary ).id_l_add;
 			cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.0,0.0));
 		}
 		cur_time = 0;
@@ -480,7 +480,7 @@ void SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(2.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(2.0,0.6) );
 			vec_ary.push_back( Com::CVector2D(0.0,0.6) );
-			const unsigned int id_l = cad_2d.AddPolygon( vec_ary );
+			const unsigned int id_l = cad_2d.AddPolygon( vec_ary ).id_l_add;
 			const unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.2,0.2));
 			const unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.3,0.2));
 			const unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.3,0.4));
@@ -660,7 +660,7 @@ void SetNewProblem()
 			vec_ary.push_back( Com::CVector2D( 3.0, 0.0) );
 			vec_ary.push_back( Com::CVector2D( 3.0, 3.0) );
 			vec_ary.push_back( Com::CVector2D( 0.0, 3.0) );
-			const unsigned int id_l = cad_2d.AddPolygon( vec_ary );
+			const unsigned int id_l = cad_2d.AddPolygon( vec_ary ).id_l_add;
 			vec_ary.clear();
 			vec_ary.push_back( Com::CVector2D( 1.0, 1.0) );
 			vec_ary.push_back( Com::CVector2D( 1.5, 1.0) );
@@ -719,21 +719,21 @@ void SetNewProblem()
 			vec_ary.push_back( Com::CVector2D( 2.0,0.0) );
 			vec_ary.push_back( Com::CVector2D( 2.0,1.0) );
 			vec_ary.push_back( Com::CVector2D( 0.0,1.0) );
-			id_l = cad_2d.AddPolygon( vec_ary );
+			id_l = cad_2d.AddPolygon( vec_ary ).id_l_add;
 			unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.5,0.5) );
-			id_e1 = cad_2d.ConnectVertex_Line(2,id_v1);
+			id_e1 = cad_2d.ConnectVertex_Line(2,id_v1).id_e_add;
 			unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(1.0,0.3) );
 			unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(1.0,0.9) );
-			id_e2 = cad_2d.ConnectVertex_Line(id_v2,id_v3);
+			id_e2 = cad_2d.ConnectVertex_Line(id_v2,id_v3).id_e_add;
 			unsigned int id_v4 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(1.5,0.4) );
 			unsigned int id_v5 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(1.5,0.1) );
 			unsigned int id_v6 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(1.5,0.7) );
 			unsigned int id_v7 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(1.2,0.4) );
 			unsigned int id_v8 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(1.8,0.4) );
-			id_e3 = cad_2d.ConnectVertex_Line(id_v4,id_v5);
-			id_e4 = cad_2d.ConnectVertex_Line(id_v4,id_v6);
-			id_e5 = cad_2d.ConnectVertex_Line(id_v4,id_v7);
-			id_e6 = cad_2d.ConnectVertex_Line(id_v4,id_v8);
+			id_e3 = cad_2d.ConnectVertex_Line(id_v4,id_v5).id_e_add;
+			id_e4 = cad_2d.ConnectVertex_Line(id_v4,id_v6).id_e_add;
+			id_e5 = cad_2d.ConnectVertex_Line(id_v4,id_v7).id_e_add;
+			id_e6 = cad_2d.ConnectVertex_Line(id_v4,id_v8).id_e_add;
 		}
 		Msh::CMesher2D mesh_2d(cad_2d,0.05);
 

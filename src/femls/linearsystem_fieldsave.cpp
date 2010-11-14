@@ -267,7 +267,7 @@ bool CLinearSystem_Save::UpdateValueOfField(
 			if( lss0.id_field == id_field ){
 				{	// Updateに固定境界条件の値をセット
 					const unsigned int nblk = na.Size();
-					const unsigned int nlen = ns.GetLength();
+					const unsigned int nlen = ns.Length();
 					assert( nblk == bc_flag.NBlk() );
 					double* val = new double [nlen];
 					for(unsigned int iblk=0;iblk<nblk;iblk++){
@@ -287,7 +287,7 @@ bool CLinearSystem_Save::UpdateValueOfField(
 				const unsigned int ilen1 = field1.GetNLenValue();
 				{	// Updateに固定境界条件の値をセット
 					const unsigned int nblk = na.Size();
-					const unsigned int nlen = ns.GetLength();
+					const unsigned int nlen = ns.Length();
 					assert( nblk == bc_flag.NBlk() );
                     assert( (int)(nlen+ilen1) == bc_flag.LenBlk() );
 					double* val = new double [nlen];
@@ -535,8 +535,8 @@ bool CLinearSystem_SaveDiaM_Newmark::UpdateValueOfField(
 			const unsigned int nblk = na.Size();
 			CNodeAry::CNodeSeg& ns_u = field.GetNodeSeg(CORNER,true,world,VALUE);
 			CNodeAry::CNodeSeg& ns_v = field.GetNodeSeg(CORNER,true,world,VELOCITY);
-			assert( ns_v.GetLength() == ns_u.GetLength() );
-			const unsigned int nlen = ns_u.GetLength();
+			assert( ns_v.Length() == ns_u.Length() );
+			const unsigned int nlen = ns_u.Length();
 			const CBCFlag& bc_flag = m_ls.GetBCFlag(ilss0);//this->m_ls.m_BCFlag[ilss0];
 			assert( nblk == bc_flag.NBlk() );
             assert( (int)nlen == bc_flag.LenBlk() );
@@ -814,8 +814,8 @@ bool CLinearSystem_SaveDiaM_NewmarkBeta::UpdateValueOfField(
 			CNodeAry::CNodeSeg& ns_u = field.GetNodeSeg(CORNER,true,world,VALUE);
 			CNodeAry::CNodeSeg& ns_v = field.GetNodeSeg(CORNER,true,world,VELOCITY);
 			CNodeAry::CNodeSeg& ns_a = field.GetNodeSeg(CORNER,true,world,ACCELERATION);
-			assert( ns_v.GetLength() == ns_u.GetLength() );
-			const unsigned int nlen = ns_u.GetLength();
+			assert( ns_v.Length() == ns_u.Length() );
+			const unsigned int nlen = ns_u.Length();
 			const CBCFlag& bc_flag = m_ls.GetBCFlag(ilss0);//this->m_ls.m_BCFlag[ilss0];
 			assert( nblk == bc_flag.NBlk() );
 			double* velo0 = new double [nlen];
@@ -1193,7 +1193,7 @@ bool CLinearSystem_Eigen::SetVector_fromField(int iv1,
 		const CNodeAry& na = world.GetNA(id_na);
 		const CNodeAry::CNodeSeg& ns = field.GetNodeSeg(CORNER,true,world,fdt);
 		const unsigned int nblk = na.Size();
-		const unsigned int nlen = ns.GetLength();
+		const unsigned int nlen = ns.Length();
 		double* val = new double [nlen];
 		for(unsigned int iblk=0;iblk<nblk;iblk++){
 			ns.GetValue(iblk,val);

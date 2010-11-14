@@ -191,7 +191,7 @@
 		A9EDB28711A8ABFF0003AC93 /* drawer_field_streamline.h */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.c.h; name = drawer_field_streamline.h; path = ../../include/delfem/drawer_field_streamline.h; sourceTree = SOURCE_ROOT; };
 		A9EDB28811A8ABFF0003AC93 /* drawer_field_vector.h */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.c.h; name = drawer_field_vector.h; path = ../../include/delfem/drawer_field_vector.h; sourceTree = SOURCE_ROOT; };
 		A9EDB28911A8ABFF0003AC93 /* drawer_field.h */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.c.h; name = drawer_field.h; path = ../../include/delfem/drawer_field.h; sourceTree = SOURCE_ROOT; };
-		A9EDB28A11A8ABFF0003AC93 /* drawer_gl_utility.h */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.c.h; name = drawer_gl_utility.h; path = ../../include/delfem/drawer_gl_utility.h; sourceTree = SOURCE_ROOT; };
+		A9EDB28A11A8ABFF0003AC93 /* drawer_gl_utility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = drawer_gl_utility.h; path = ../../include/delfem/drawer_gl_utility.h; sourceTree = SOURCE_ROOT; };
 		A9EDB28B11A8ABFF0003AC93 /* drawer_msh.h */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.c.h; name = drawer_msh.h; path = ../../include/delfem/drawer_msh.h; sourceTree = SOURCE_ROOT; };
 		A9EDB28C11A8ABFF0003AC93 /* drawer.h */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.c.h; name = drawer.h; path = ../../include/delfem/drawer.h; sourceTree = SOURCE_ROOT; };
 		A9EDB28D11A8ABFF0003AC93 /* elem_ary.h */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.c.h; name = elem_ary.h; path = ../../include/delfem/elem_ary.h; sourceTree = SOURCE_ROOT; };
@@ -273,7 +273,7 @@
 		A9EDB33D11A8AC2C0003AC93 /* cad_obj2d.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = cad_obj2d.cpp; sourceTree = "<group>"; };
 		A9EDB33E11A8AC2C0003AC93 /* drawer_cad.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = drawer_cad.cpp; sourceTree = "<group>"; };
 		A9EDB34011A8AC2C0003AC93 /* drawer.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = drawer.cpp; sourceTree = "<group>"; };
-		A9EDB34111A8AC2C0003AC93 /* drawer_gl_utility.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = drawer_gl_utility.cpp; sourceTree = "<group>"; };
+		A9EDB34111A8AC2C0003AC93 /* drawer_gl_utility.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = drawer_gl_utility.cpp; sourceTree = "<group>"; };
 		A9EDB34211A8AC2C0003AC93 /* quaternion.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = quaternion.cpp; sourceTree = "<group>"; };
 		A9EDB34311A8AC2C0003AC93 /* uglyfont.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = uglyfont.cpp; sourceTree = "<group>"; };
 		A9EDB34411A8AC2C0003AC93 /* vector3d.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = vector3d.cpp; sourceTree = "<group>"; };
@@ -292,7 +292,7 @@
 		A9EDB35211A8AC2C0003AC93 /* eqnsys_fluid.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = eqnsys_fluid.cpp; sourceTree = "<group>"; };
 		A9EDB35311A8AC2C0003AC93 /* eqnsys_scalar.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = eqnsys_scalar.cpp; sourceTree = "<group>"; };
 		A9EDB35411A8AC2C0003AC93 /* eqnsys_shell.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = eqnsys_shell.cpp; sourceTree = "<group>"; };
-		A9EDB35511A8AC2C0003AC93 /* eqnsys_solid.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = eqnsys_solid.cpp; sourceTree = "<group>"; };
+		A9EDB35511A8AC2C0003AC93 /* eqnsys_solid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = eqnsys_solid.cpp; sourceTree = "<group>"; };
 		A9EDB35611A8AC2C0003AC93 /* ker_emat_tri.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = ker_emat_tri.cpp; sourceTree = "<group>"; };
 		A9EDB35811A8AC2C0003AC93 /* drawer_field.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = drawer_field.cpp; sourceTree = "<group>"; };
 		A9EDB35911A8AC2C0003AC93 /* drawer_field_edge.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = drawer_field_edge.cpp; sourceTree = "<group>"; };
@@ -303,7 +303,7 @@
 		A9EDB35E11A8AC2C0003AC93 /* elem_ary.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = elem_ary.cpp; sourceTree = "<group>"; };
 		A9EDB35F11A8AC2C0003AC93 /* eval.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = eval.cpp; sourceTree = "<group>"; };
 		A9EDB36011A8AC2C0003AC93 /* field.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = field.cpp; sourceTree = "<group>"; };
-		A9EDB36111A8AC2C0003AC93 /* field_world.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = field_world.cpp; sourceTree = "<group>"; };
+		A9EDB36111A8AC2C0003AC93 /* field_world.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = field_world.cpp; sourceTree = "<group>"; };
 		A9EDB36211A8AC2C0003AC93 /* node_ary.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = node_ary.cpp; sourceTree = "<group>"; };
 		A9EDB36411A8AC2C0003AC93 /* linearsystem_field.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = linearsystem_field.cpp; sourceTree = "<group>"; };
 		A9EDB36511A8AC2C0003AC93 /* linearsystem_fieldsave.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = linearsystem_fieldsave.cpp; sourceTree = "<group>"; };
@@ -830,7 +830,14 @@
 			isa = PBXProject;
 			buildConfigurationList = 1DEB91EF08733DB70010E9CD /* Build configuration list for PBXProject "dfm_core" */;
 			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
 			mainGroup = 08FB7794FE84155DC02AAC07 /* dfm_core */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -969,7 +976,15 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_AUTO_VECTORIZATION = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_SSE3_EXTENSIONS = NO;
+				GCC_ENABLE_SSE41_EXTENSIONS = NO;
+				GCC_ENABLE_SSE42_EXTENSIONS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = NDEBUG;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				ONLY_ACTIVE_ARCH = YES;

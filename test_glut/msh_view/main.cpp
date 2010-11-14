@@ -30,7 +30,7 @@
 
 Com::View::CCamera camera;
 double mov_begin_x, mov_begin_y;
-int press_button;
+int imodifier;
 
 void myGlutMotion( int x, int y ){
 	GLint viewport[4];
@@ -39,12 +39,14 @@ void myGlutMotion( int x, int y ){
 	const int win_h = viewport[3];
 	const double mov_end_x = (2.0*x-win_w)/win_w;
 	const double mov_end_y = (win_h-2.0*y)/win_h;
-	if( press_button == GLUT_MIDDLE_BUTTON ){
-		camera.MouseRotation(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
+  ////
+  if( imodifier == GLUT_ACTIVE_SHIFT ){ // pan
+    camera.MousePan(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 		
 	}
-	else if( press_button == GLUT_RIGHT_BUTTON ){
-		camera.MousePan(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
+	else if( imodifier == GLUT_ACTIVE_CTRL ){ //  rotation
+    camera.MouseRotation(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 		
 	}
+  ////
 	mov_begin_x = mov_end_x;
 	mov_begin_y = mov_end_y;
 	::glutPostRedisplay();
@@ -136,7 +138,7 @@ void myGlutMouse(int button, int state, int x, int y){
 	const int win_h = viewport[3];
 	mov_begin_x = (2.0*x-win_w)/(double)win_w;
 	mov_begin_y = (win_h-2.0*y)/(double)win_h;
-	press_button = button;
+	imodifier = glutGetModifiers();
 	if( button == GLUT_LEFT_BUTTON && state == GLUT_DOWN ){
 		const unsigned int size_buffer = 128;
 		unsigned int select_buffer[size_buffer];
@@ -171,6 +173,12 @@ bool SetNewProblem()
 			cad_2d.ConnectVertex_Line(6,3);
 		}
 		Msh::CMesher2D mesh_2d(cad_2d,0.05);
+    ////
+    {
+      Msh::CMesher2D msh_tmp(mesh_2d);
+      mesh_2d.Clear();
+      mesh_2d = msh_tmp;
+    }
 		{	// write file
 			Com::CSerializer fout("hoge.txt",false);
 			mesh_2d.Serialize(fout);
@@ -179,6 +187,7 @@ bool SetNewProblem()
 			Com::CSerializer fin( "hoge.txt",true);
 			mesh_2d.Serialize(fin);
 		}
+    ////
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh2D(mesh_2d) );
 		drawer_ary.InitTrans( camera );
@@ -187,6 +196,11 @@ bool SetNewProblem()
 	{
 		Msh::CMesher2D mesh_2d;
 		mesh_2d.ReadFromFile_GiDMsh("../input_file/hexa_tri.msh");
+    {
+      Msh::CMesher2D msh_tmp(mesh_2d);
+      mesh_2d.Clear();
+      mesh_2d = msh_tmp;
+    }    
 		{	// write file
 			Com::CSerializer fout("hoge.txt",false);
 			mesh_2d.Serialize(fout);
@@ -203,6 +217,11 @@ bool SetNewProblem()
 	{
 		Msh::CMesher2D mesh_2d;
 		mesh_2d.ReadFromFile_GiDMsh("../input_file/rect_quad.msh");
+    {
+      Msh::CMesher2D msh_tmp(mesh_2d);
+      mesh_2d.Clear();
+      mesh_2d = msh_tmp;
+    }    
 		{	// write file
 			Com::CSerializer fout("hoge.txt",false);
 			mesh_2d.Serialize(fout);
@@ -231,6 +250,11 @@ bool SetNewProblem()
 		Msh::CMesher2D mesh_2d(cad_2d, 0.1);
 		Msh::CMesh3D_Extrude mesh_3d;
 		mesh_3d.Extrude(mesh_2d, 0.5, 0.1 );
+    {
+      Msh::CMesher2D msh_tmp(mesh_2d);
+      mesh_2d.Clear();
+      mesh_2d = msh_tmp;
+    }    
 		{	// write file
 			Com::CSerializer fout("hoge.txt",false);
 			mesh_3d.Serialize(fout);
@@ -249,6 +273,11 @@ bool SetNewProblem()
 		mesh_2d.ReadFromFile_GiDMsh("../input_file/hexa_tri.msh");
 		Msh::CMesh3D_Extrude mesh_3d;
 		mesh_3d.Extrude(mesh_2d, 5.0, 0.5 );
+    {
+      Msh::CMesher2D msh_tmp(mesh_2d);
+      mesh_2d.Clear();
+      mesh_2d = msh_tmp;
+    }    
 		{	// write file
 			Com::CSerializer fout("hoge.txt",false);
 			mesh_2d.Serialize(fout);
@@ -269,7 +298,7 @@ bool SetNewProblem()
 			Com::CSerializer fout("hoge.txt",false);
 			mesh_3d.Serialize(fout);
 		}
-		{	// read file
+		{	// read files
 			Com::CSerializer fin( "hoge.txt",true);
 			mesh_3d.Serialize(fin);
 		}
@@ -299,6 +328,11 @@ bool SetNewProblem()
 		mesh_2d.ReadFromFile_GiDMsh("../input_file/rect_quad.msh");
 		Msh::CMesh3D_Extrude mesh_3d;
 		mesh_3d.Extrude(mesh_2d, 5.0, 0.5 );
+    {
+      Msh::CMesher2D msh_tmp(mesh_2d);
+      mesh_2d.Clear();
+      mesh_2d = msh_tmp;
+    }    
 		{	// write file
 			Com::CSerializer fout("hoge.txt",false);
 			mesh_2d.Serialize(fout);
@@ -321,7 +355,7 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(1.0,1.0) );
 			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
-			id_l = cad_2d.AddPolygon( vec_ary );
+			id_l = cad_2d.AddPolygon( vec_ary ).id_l_add;
 		}
 		cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.8,0.6) );
 		cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.6,0.6) );
@@ -332,6 +366,11 @@ bool SetNewProblem()
 		cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.4,0.4) );
 		cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.2,0.4) );
 		Msh::CMesher2D mesh_2d(cad_2d,0.02);
+    {
+      Msh::CMesher2D msh_tmp(mesh_2d);
+      mesh_2d.Clear();
+      mesh_2d = msh_tmp;
+    }    
 		{	// write file
 			Com::CSerializer fout("hoge.txt",false);
 			mesh_2d.Serialize(fout);
@@ -361,6 +400,11 @@ bool SetNewProblem()
 		cad_2d.SetCurve_Arc(3,true, -0.5);
 		cad_2d.SetCurve_Arc(4,false,-0.5);
 		Msh::CMesher2D mesh_2d(cad_2d,0.05);
+    {
+      Msh::CMesher2D msh_tmp(mesh_2d);
+      mesh_2d.Clear();
+      mesh_2d = msh_tmp;
+    }    
 		{	// write file
 			Com::CSerializer fout("hoge.txt",false);
 			mesh_2d.Serialize(fout);
@@ -382,7 +426,7 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(1.0,1.0) );
 			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
-			const unsigned int id_l = cad_2d.AddPolygon( vec_ary );
+			const unsigned int id_l = cad_2d.AddPolygon( vec_ary ).id_l_add;
 			const unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.3,0.2));
 			const unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.7,0.2));
 			const unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.7,0.8));
@@ -398,6 +442,11 @@ bool SetNewProblem()
 		  mesh_2d.SetMeshingMode_ElemLength(0.05);
 		  mesh_2d.Meshing(cad_2d);
 		}
+    {
+      Msh::CMesher2D msh_tmp(mesh_2d);
+      mesh_2d.Clear();
+      mesh_2d = msh_tmp;
+    }    
 		{	// write file
 			Com::CSerializer fout("hoge.txt",false);
 			mesh_2d.Serialize(fout);
@@ -422,18 +471,18 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(1.0,1.0) );
 			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
-			id_l = cad_2d.AddPolygon( vec_ary );
+			id_l = cad_2d.AddPolygon( vec_ary ).id_l_add;
 			unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.3,0.5) );
-			id_e1 = cad_2d.ConnectVertex_Line(2,id_v1);
+			id_e1 = cad_2d.ConnectVertex_Line(2,id_v1).id_e_add;
 			unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.7,0.5) );
 			unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.7,0.2) );
 			unsigned int id_v4 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.7,0.8) );
 			unsigned int id_v5 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.5,0.5) );
 			unsigned int id_v6 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.9,0.5) );
-			id_e2 = cad_2d.ConnectVertex_Line(id_v2,id_v3);
-			id_e3 = cad_2d.ConnectVertex_Line(id_v2,id_v4);
-			id_e4 = cad_2d.ConnectVertex_Line(id_v2,id_v5);
-			id_e5 = cad_2d.ConnectVertex_Line(id_v2,id_v6);
+			id_e2 = cad_2d.ConnectVertex_Line(id_v2,id_v3).id_e_add;
+			id_e3 = cad_2d.ConnectVertex_Line(id_v2,id_v4).id_e_add;
+			id_e4 = cad_2d.ConnectVertex_Line(id_v2,id_v5).id_e_add;
+			id_e5 = cad_2d.ConnectVertex_Line(id_v2,id_v6).id_e_add;
 		}
 		Msh::CMesher2D mesh_2d(cad_2d,0.2);
 //		mesh_2d.Tesselation(cad_2d);
@@ -452,7 +501,11 @@ bool SetNewProblem()
 			std::vector<unsigned int> mapVal2Co;
 			mesh_2d.GetClipedMesh(aLnods,mapVal2Co,   aIdMsh_Inc,aIdMshBar_Cut);
 		}
-
+    {
+      Msh::CMesher2D msh_tmp(mesh_2d);
+      mesh_2d.Clear();
+      mesh_2d = msh_tmp;
+    }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh2D(mesh_2d) );
 		drawer_ary.InitTrans( camera );
@@ -472,14 +525,14 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(1.5, 1.0) );
 			vec_ary.push_back( Com::CVector2D(1.0, 1.0) );
 			vec_ary.push_back( Com::CVector2D(0.0, 1.0) );
-			unsigned int id_l0 = cad_2d.AddPolygon( vec_ary );
+			unsigned int id_l0 = cad_2d.AddPolygon( vec_ary ).id_l_add;
 			unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l0, Com::CVector2D(0.5,0.5) );
-			unsigned int id_e1 = cad_2d.ConnectVertex_Line(2,7);
-			unsigned int id_e2 = cad_2d.ConnectVertex_Line(3,6);
+			unsigned int id_e1 = cad_2d.ConnectVertex_Line(2,7).id_e_add;
+			unsigned int id_e2 = cad_2d.ConnectVertex_Line(3,6).id_e_add;
 			unsigned int id_v2 = cad_2d.AddVertex(Cad::EDGE,id_e1, Com::CVector2D(1.0,0.5) );
 			unsigned int id_v3 = cad_2d.AddVertex(Cad::EDGE,1,     Com::CVector2D(0.5,0.0) );
-			id_e3 = cad_2d.ConnectVertex_Line(id_v1,id_v2);
-			id_e4 = cad_2d.ConnectVertex_Line(id_v1,id_v3);
+			id_e3 = cad_2d.ConnectVertex_Line(id_v1,id_v2).id_e_add;
+			id_e4 = cad_2d.ConnectVertex_Line(id_v1,id_v3).id_e_add;
 			id_l1 = 1;
 			id_l2 = 2;
 		}
@@ -497,7 +550,11 @@ bool SetNewProblem()
 			std::vector<unsigned int> mapVal2Co;
 			mesh_2d.GetClipedMesh(aLnods,mapVal2Co,   aIdMsh_Inc,aIdMshBar_Cut);
 		}
-
+    {
+      Msh::CMesher2D msh_tmp(mesh_2d);
+      mesh_2d.Clear();
+      mesh_2d = msh_tmp;
+    }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh2D(mesh_2d) );
 		drawer_ary.InitTrans( camera );
@@ -516,14 +573,19 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(2.0, 1.0) );	// 7
 			vec_ary.push_back( Com::CVector2D(0.0, 1.0) );	// 8
 			vec_ary.push_back( Com::CVector2D(0.0, 0.5) );	// 9
-			unsigned int id_l0 = cad_2d.AddPolygon( vec_ary );
-			unsigned int id_e1 = cad_2d.ConnectVertex_Line(5,9);
+			unsigned int id_l0 = cad_2d.AddPolygon( vec_ary ).id_l_add;
+			unsigned int id_e1 = cad_2d.ConnectVertex_Line(5,9).id_e_add;
 			cad_2d.ShiftLayer_Loop(id_l0,true);
 			const double col[3] = { 0.9, 0.4, 0.4 };
 			cad_2d.SetColor_Loop(id_l0, col);
 			cad_2d.AddVertex(Cad::EDGE,3, Com::CVector2D(1.3,0.5) );
 		}
 		Msh::CMesher2D mesh_2d(cad_2d,0.05);
+    {
+      Msh::CMesher2D msh_tmp(mesh_2d);
+      mesh_2d.Clear();
+      mesh_2d = msh_tmp;
+    }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh2D(mesh_2d) );
 		drawer_ary.InitTrans( camera );
@@ -570,6 +632,8 @@ int main(int argc,char* argv[])
 	::glutDisplayFunc(myGlutDisplay);
 	::glutReshapeFunc(myGlutResize);
 	::glutIdleFunc(myGlutIdle);
+  
+  camera.SetRotationMode( Com::View::ROT_3D );
 	
 	SetNewProblem();
 

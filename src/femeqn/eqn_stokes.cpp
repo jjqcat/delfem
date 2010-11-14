@@ -1149,9 +1149,9 @@ static bool AddLinearSystem_Stokes3D_Static_P1P1(
 	const CNodeAry::CNodeSeg& ns_velo = field_velo.GetNodeSeg(CORNER,true, world,VELOCITY);//na_velo.GetSeg(id_ns_velo);
 	const CNodeAry::CNodeSeg& ns_press  = field_press.GetNodeSeg(CORNER,true,world,VELOCITY);//na_press.GetSeg(id_ns_press);
 
-	assert( ns_co.GetLength() == ndim );
-	assert( ns_velo.GetLength() == ndim );
-	assert( ns_press.GetLength() == 1 );
+	assert( ns_co.Length() == ndim );
+	assert( ns_velo.Length() == ndim );
+	assert( ns_press.Length() == 1 );
 
 	for(unsigned int ielem=0;ielem<ea.Size();ielem++)
 	{
@@ -1308,8 +1308,8 @@ static bool AddLinearSystem_Stokes3D_Static_Hex81(
 
 	const CElemAry::CElemSeg& es_c_v = field_velo.GetElemSeg(id_ea,CORNER,true,world);
 	const CElemAry::CElemSeg& es_b_p = field_press.GetElemSeg(id_ea,BUBBLE,true,world);
-	assert( es_c_v.GetSizeNoes() == 8 );
-	assert( es_b_p.GetSizeNoes() == 1 );
+	assert( es_c_v.Length() == 8 );
+	assert( es_b_p.Length() == 1 );
 
 	unsigned int num_integral = 1;
 	const unsigned int nInt = NIntLineGauss[num_integral];
@@ -1347,9 +1347,9 @@ static bool AddLinearSystem_Stokes3D_Static_Hex81(
 	const CNodeAry::CNodeSeg& ns_velo  = field_velo.GetNodeSeg(CORNER,true,world,VELOCITY);
 	const CNodeAry::CNodeSeg& ns_press = field_press.GetNodeSeg(BUBBLE,true,world,VELOCITY);
 
-	assert( ns_co.GetLength()    == ndim );
-	assert( ns_velo.GetLength()  == ndim );
-	assert( ns_press.GetLength() == 1 );
+	assert( ns_co.Length()    == ndim );
+	assert( ns_velo.Length()  == ndim );
+	assert( ns_press.Length() == 1 );
 
 	for(unsigned int ielem=0;ielem<ea.Size();ielem++)
 	{

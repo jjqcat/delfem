@@ -77,8 +77,8 @@ public:
 	////////////////////////////////
 	// Getメソッド
 
-    //! 辺の両側のループのIDを返す
-    virtual bool GetIdLoop_Edge(unsigned int &id_l_l, unsigned int& id_l_r, unsigned int id_e) const = 0;
+  //! 辺の両側のループのIDを返す
+  virtual bool GetIdLoop_Edge(unsigned int &id_l_l, unsigned int& id_l_r, unsigned int id_e) const = 0;
 	//! 辺の始点と終点の頂点のIDを返す
 	virtual bool GetIdVertex_Edge(unsigned int &id_v_s, unsigned int& id_v_e, unsigned int id_e) const = 0;  
 

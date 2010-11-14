@@ -228,7 +228,7 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D( 0.5,-0.5) );
 			vec_ary.push_back( Com::CVector2D( 0.5, 0.5) );
 			vec_ary.push_back( Com::CVector2D(-0.5, 0.5) );
-			const unsigned int id_l0 = cad_2d.AddPolygon( vec_ary );
+			const unsigned int id_l0 = cad_2d.AddPolygon( vec_ary ).id_l_add;
 		}
 		world.Clear();
 		id_base = world.AddMesh( Msh::CMesher2D(cad_2d,0.02) );
@@ -271,7 +271,7 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D( 0.5,-0.5) );
 			vec_ary.push_back( Com::CVector2D( 0.5, 0.5) );
 			vec_ary.push_back( Com::CVector2D(-0.5, 0.5) );
-			const unsigned int id_l0 = cad_2d.AddPolygon( vec_ary );
+			const unsigned int id_l0 = cad_2d.AddPolygon( vec_ary ).id_l_add;
 		}
 		Msh::CMesher2D mesh_2d(cad_2d,0.07);
 		Msh::CMesh3D_Extrude mesh_3d;
@@ -313,7 +313,7 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D( 0.5,-0.5) );
 			vec_ary.push_back( Com::CVector2D( 0.5, 0.5) );
 			vec_ary.push_back( Com::CVector2D(-0.5, 0.5) );
-			const unsigned int id_l0 = cad_2d.AddPolygon( vec_ary );
+			const unsigned int id_l0 = cad_2d.AddPolygon( vec_ary ).id_l_add;
 			cad_2d.AddVertex(Cad::EDGE, 1, Com::CVector2D(0.0, -0.5) );
 			cad_2d.AddVertex(Cad::EDGE, 3, Com::CVector2D(0.0,  0.5) );
 			cad_2d.ConnectVertex_Line(5,6);
@@ -457,7 +457,7 @@ bool SetNewProblem()
 		drawer_ary.InitTrans( camera);
 	}
 	else if( iprob == 12 )
-	{	// ÉoÉuÉãêﬂì_Çä‹ÇÒÇæï‚ä‘
+	{	// √âo√âu√â√£√™Ô¨Ç√¨_√áÔ£ø√§‚Äπ√á√í√á√¶√Ø‚Äö√§‚Äò
 		Cad::CCadObj2D cad_2d;
  		{
 			std::vector<Com::CVector2D> vec_ary;
@@ -465,7 +465,7 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D( 0.5,-0.5) );
 			vec_ary.push_back( Com::CVector2D( 0.5, 0.5) );
 			vec_ary.push_back( Com::CVector2D(-0.5, 0.5) );
-			const unsigned int id_l0 = cad_2d.AddPolygon( vec_ary );
+			const unsigned int id_l0 = cad_2d.AddPolygon( vec_ary ).id_l_add;
 		}
 		world.Clear();
 		id_base = world.AddMesh( Msh::CMesher2D(cad_2d,0.1) );
@@ -501,7 +501,7 @@ void myGlutKeyboard(unsigned char key, int x, int y)
   switch (key) {
   case 'q':
   case 'Q':
-  case '\033':  /* '\033' ÇÕ ESC ÇÃ ASCII ÉRÅ[Éh */
+  case '\033':  /* '\033' √á√ï ESC √á√É ASCII √âR√Ö[√âh */
 	  exit(0);
 	  break;
   case 'a' :

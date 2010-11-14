@@ -109,12 +109,12 @@ private:
 	bool Set_Hex( unsigned int id_ea, unsigned int id_es, const Fem::Field::CFieldWorld& world);
 public:
 	int ilayer;
+  float color[3];  
 private:
 	Fem::Field::ELEM_TYPE itype;
 	bool is_selected;
 	unsigned int id_ea;
 	unsigned int id_es;
-    double color[3];
 	////////////////
 	unsigned int nElem;
 	unsigned int nnoel;

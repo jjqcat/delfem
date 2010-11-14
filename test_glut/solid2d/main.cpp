@@ -258,7 +258,7 @@ void myGlutDisplay(void)
 void SetNewProblem()
 {
 	const unsigned int nprob = 30;	// number of problem settings
-	static unsigned int iprob = 27;
+	static unsigned int iprob = 0;
 
 	static unsigned int id_field_disp_fix0 = 0;
 	static unsigned int id_field_temp = 0;
@@ -284,7 +284,7 @@ void SetNewProblem()
 		const CIDConvEAMshCad conv = world.GetIDConverter(id_base);
 
 		solid.Clear();
-	    solid.UpdateDomain_Field(id_base, world);
+    solid.UpdateDomain_Field(id_base, world);
 		solid.SetSaveStiffMat(false);	
 		solid.SetStationary(true);
 		// Setting Material Parameter
@@ -427,7 +427,7 @@ void SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(1.0,1.0) );
 			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
-			const unsigned int id_l = cad_2d.AddPolygon( vec_ary );
+			const unsigned int id_l = cad_2d.AddPolygon( vec_ary ).id_l_add;
 			const unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.3,0.2));
 			const unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.7,0.2));
 			const unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.7,0.8));
@@ -691,18 +691,18 @@ void SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(1.0,1.0) );
 			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
-			id_l = cad_2d.AddPolygon( vec_ary );
+			id_l = cad_2d.AddPolygon( vec_ary ).id_l_add;
 			unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.2,0.5) );
-			id_e1 = cad_2d.ConnectVertex_Line(2,id_v1);
+			id_e1 = cad_2d.ConnectVertex_Line(2,id_v1).id_e_add;
 			unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.5,0.2) );
 			unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.5,0.5) );
 			unsigned int id_v4 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.5,0.8) );
 			unsigned int id_v5 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.8,0.5) );
 			unsigned int id_v6 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.3,0.5) );
-			id_e2 = cad_2d.ConnectVertex_Line(id_v2,id_v3);
-			id_e3 = cad_2d.ConnectVertex_Line(id_v3,id_v4);
-			id_e4 = cad_2d.ConnectVertex_Line(id_v3,id_v5);
-			id_e5 = cad_2d.ConnectVertex_Line(id_v3,id_v6);
+			id_e2 = cad_2d.ConnectVertex_Line(id_v2,id_v3).id_e_add;
+			id_e3 = cad_2d.ConnectVertex_Line(id_v3,id_v4).id_e_add;
+			id_e4 = cad_2d.ConnectVertex_Line(id_v3,id_v5).id_e_add;
+			id_e5 = cad_2d.ConnectVertex_Line(id_v3,id_v6).id_e_add;
 		}
 		Msh::CMesher2D mesh_2d(cad_2d,0.1);
 
@@ -765,10 +765,10 @@ void SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(5.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(5.0,2.0) );
 			vec_ary.push_back( Com::CVector2D(0.0,2.0) );
-			id_l = cad_2d.AddPolygon( vec_ary );
+			id_l = cad_2d.AddPolygon( vec_ary ).id_l_add;
 			unsigned int id_v1 = cad_2d.AddVertex(Cad::EDGE,3,Com::CVector2D(2.5,2.0));
 			unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(2.5,1.0));
-			id_e = cad_2d.ConnectVertex_Line(id_v1,id_v2);
+			id_e = cad_2d.ConnectVertex_Line(id_v1,id_v2).id_e_add;
 		}
 		Msh::CMesher2D mesh_2d(cad_2d,0.2);
 		world.Clear();

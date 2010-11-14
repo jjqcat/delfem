@@ -521,7 +521,7 @@ static bool AddLinSys_LinearSolid2D_Static_P1(
 	const CElemAry::CElemSeg& es_co = field_disp.GetElemSeg(id_ea,CORNER,false,world);
 	const CElemAry::CElemSeg& es_va = field_disp.GetElemSeg(id_ea,CORNER,true,world);
 
-	const unsigned int nno = 3;		assert( nno == es_co.GetSizeNoes() );
+	const unsigned int nno = 3;		assert( nno == es_co.Length() );
 	const unsigned int ndim = 2;
 
 	unsigned int noes[nno];	// 要素内の節点の節点番号
@@ -626,7 +626,7 @@ static bool AddLinSys_LinearSolidThermalStress2D_Static_P1(
 	const CElemAry::CElemSeg& es_c_disp = field_disp.GetElemSeg(id_ea,CORNER,true,world);
 	const CElemAry::CElemSeg& es_c_temp = field_temp.GetElemSeg(id_ea,CORNER,true,world);
 
-	const unsigned int nno = 3;		assert( nno == es_c_disp.GetSizeNoes() );
+	const unsigned int nno = 3;		assert( nno == es_c_disp.Length() );
 	const unsigned int ndim = 2;
 
 	double emat[nno][nno][ndim][ndim];	// 要素剛性行列
@@ -732,8 +732,8 @@ static bool AddLinSys_LinearSolid2D_Static_P1b(
 	const CElemAry::CElemSeg& es_c = field_val.GetElemSeg(id_ea,CORNER,true,world);
 	const CElemAry::CElemSeg& es_b = field_val.GetElemSeg(id_ea,BUBBLE,true,world);
 
-	const unsigned int nno_c = 3;	assert( nno_c == es_c.GetSizeNoes() );
-	const unsigned int nno_b = 1;	assert( nno_b == es_b.GetSizeNoes() );
+	const unsigned int nno_c = 3;	assert( nno_c == es_c.Length() );
+	const unsigned int nno_b = 1;	assert( nno_b == es_b.Length() );
 	const unsigned int ndim = 2;
 
 	unsigned int noes_c[nno_c];	// 要素内の節点の節点番号
@@ -976,7 +976,7 @@ static bool AddLinSys_LinearSolid2D_Eigen_P1(
 
 	const CElemAry::CElemSeg& es_co = field_val.GetElemSeg(id_ea,CORNER,false,world);
 
-	const unsigned int nnoes = 3;	assert( nnoes == es_co.GetSizeNoes() );
+	const unsigned int nnoes = 3;	assert( nnoes == es_co.Length() );
 	const unsigned int ndim = 2;
 
 	unsigned int noes[nnoes];	// 要素内の節点の節点番号
@@ -1067,7 +1067,7 @@ static bool AddLinSys_LinearSolid2D_NonStatic_Save_NewmarkBeta_P1(
 
 	const CElemAry::CElemSeg& es_co = field_val.GetElemSeg(id_ea,CORNER,false,world);
 
-	const unsigned int nno = 3;	assert( nno == es_co.GetSizeNoes() );
+	const unsigned int nno = 3;	assert( nno == es_co.Length() );
 	const unsigned int ndim = 2;
 
 	unsigned int noes[nno];	// 要素内の節点の節点番号
@@ -1199,7 +1199,7 @@ static bool AddLinSys_LinearSolid2D_NonStatic_NewmarkBeta_P1(
 	const CElemAry::CElemSeg& es_co = field_val.GetElemSeg(id_ea,CORNER,false,world);
 	const CElemAry::CElemSeg& es_va = field_val.GetElemSeg(id_ea,CORNER,true, world);
 
-	const unsigned int nno = 3;	assert( nno == es_co.GetSizeNoes() );
+	const unsigned int nno = 3;	assert( nno == es_co.Length() );
 	const unsigned int ndim = 2;
 
 
@@ -1358,7 +1358,7 @@ static bool AddLinSys_LinearSolid2D_NonStatic_BackwardEular_P1
 	const CElemAry::CElemSeg& es_co = field_val.GetElemSeg(id_ea,CORNER,false,world);
 	const CElemAry::CElemSeg& es_va = field_val.GetElemSeg(id_ea,CORNER,true, world);
 	
-	const unsigned int nno = 3;	assert( nno == es_co.GetSizeNoes() );
+	const unsigned int nno = 3;	assert( nno == es_co.Length() );
 	const unsigned int ndim = 2;
 	
 	double eKmat[nno][nno][ndim][ndim];	// stiffness matrix
@@ -1523,7 +1523,7 @@ static bool AddLinSys_LinearSolidThermalStress2D_NonStatic_NewmarkBeta_P1(
 	const CElemAry::CElemSeg& es_va   = field_disp.GetElemSeg(id_ea,CORNER,true, world);
 	const CElemAry::CElemSeg& es_temp = field_temp.GetElemSeg(id_ea,CORNER,true, world);
 
-	assert( nno == es_co.GetSizeNoes() );
+	assert( nno == es_co.Length() );
 
 	unsigned int noes[nno];	// 要素内の節点の節点番号
 

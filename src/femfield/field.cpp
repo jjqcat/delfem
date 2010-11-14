@@ -79,7 +79,28 @@ bool CField::CValueFieldDof::GetValue(double cur_t, double& value) const {
     return false;
 }
 
-
+CField::CField(const CField& rhs)
+{
+	m_is_valid = rhs.m_is_valid;
+  m_id_field_parent = rhs.m_id_field_parent;
+	m_ndim_coord = rhs.m_ndim_coord;
+	m_aElemIntp = rhs.m_aElemIntp;
+  
+	m_na_c = rhs.m_na_c;
+	m_na_e = rhs.m_na_e;
+	m_na_b = rhs.m_na_b;
+  
+	m_field_type = rhs.m_field_type;
+	m_field_derivative_type = rhs.m_field_derivative_type;
+	m_name = rhs.m_name;  
+	m_map_val2co = rhs.m_map_val2co;
+  
+	////////////////
+	m_DofSize = rhs.m_DofSize;
+	m_aValueFieldDof = rhs.m_aValueFieldDof;  
+	m_id_field_dep = rhs.m_id_field_dep;
+	m_is_gradient = rhs.m_is_gradient;
+}
 
 CField::CField
 (unsigned int id_field_parent,	// 親フィールド
@@ -97,13 +118,13 @@ CField::CField
 		const CNodeAry& na = world.GetNA( m_na_c.id_na_co );
     assert( na.IsSegID( m_na_c.id_ns_co ) );
 		const CNodeAry::CNodeSeg& ns_co = na.GetSeg( m_na_c.id_ns_co );
-		m_ndim_coord = ns_co.GetLength();
+		m_ndim_coord = ns_co.Length();
 	}
 	else if( m_na_b.id_na_co ){
 		const CNodeAry& na = world.GetNA( m_na_b.id_na_co );
     assert( na.IsSegID( m_na_b.id_ns_co ) );
 		const CNodeAry::CNodeSeg& ns_co = na.GetSeg( m_na_b.id_ns_co );
-		m_ndim_coord = ns_co.GetLength();
+		m_ndim_coord = ns_co.Length();
 	}
   
 //  std::cout << "field : " << m_na_b.id_na_co << " " << m_na_b.id_ns_co << std::endl;
@@ -139,8 +160,8 @@ CField::CField
 			const CElemAry::CElemSeg& es_val = ea.GetSeg(ei.id_es_c_va);
 			unsigned int noes_co[10];
 			unsigned int noes_val[10];
-			unsigned int nnoes = es_co.GetSizeNoes();
-			assert( es_co.GetSizeNoes() == es_val.GetSizeNoes() );
+			unsigned int nnoes = es_co.Length();
+			assert( es_co.Size() == es_val.Size() );
 			for(unsigned int ielem=0;ielem<ea.Size();ielem++){
 				es_co.GetNodes(ielem,noes_co);
 				es_val.GetNodes(ielem,noes_val);
@@ -197,7 +218,7 @@ bool CField::AssertValid(CFieldWorld& world) const
 			const CNodeAry& na_c_coord = world.GetNA(m_na_c.id_na_co);
 			assert( na_c_coord.IsSegID(m_na_c.id_ns_co) );
 			const CNodeAry::CNodeSeg& ns_c_coord = na_c_coord.GetSeg(m_na_c.id_ns_co);
-			assert( this->m_ndim_coord == ns_c_coord.GetLength() );
+			assert( this->m_ndim_coord == ns_c_coord.Length() );
 		}
 		// TODO : bubbleやedgeについても調べたい
 	}
@@ -216,7 +237,7 @@ bool CField::AssertValid(CFieldWorld& world) const
 				assert( ea.IsSegID(id_es_val) );
 				const CElemAry::CElemSeg& es_val = ea.GetSeg(id_es_val);
 				assert( es_val.GetMaxNoes() < nnode_val );
-				unsigned int nnoes = es_val.GetSizeNoes();
+				unsigned int nnoes = es_val.Length();
 				unsigned int nno_c[64];
 				for(unsigned int ielem=0;ielem<ea.Size();ielem++){
 					es_val.GetNodes(ielem,nno_c);
@@ -249,7 +270,7 @@ bool CField::AssertValid(CFieldWorld& world) const
 				assert( ea.IsSegID(id_es_co) );
 				const CElemAry::CElemSeg& es_co = ea.GetSeg(id_es_co);
 				assert( es_co.GetMaxNoes() < nnode_co );
-				unsigned int nnoes = es_co.GetSizeNoes();
+				unsigned int nnoes = es_co.Length();
 				unsigned int no_c[64];
 				for(unsigned int ielem=0;ielem<ea.Size();ielem++){
 					es_co.GetNodes(ielem,no_c);
@@ -299,6 +320,7 @@ const CNodeAry::CNodeSeg& CField::GetNodeSeg
 			id_ns = this->m_na_b.id_ns_co;
 		}
 	}
+//  std::cout << "IsNodeSeg : " << id_na << " " << id_ns << std::endl;
 	assert( world.IsIdNA(id_na) );
 	const CNodeAry& na = world.GetNA(id_na);
 	assert( na.IsSegID(id_ns) );
@@ -459,7 +481,7 @@ void CField::GetMinMaxValue(double& min, double& max, const CFieldWorld& world,
 			const double val = pVal[idof];
 			min = val; max = val;
 		}
-		const unsigned int nnode = ns_c.GetNnode();
+		const unsigned int nnode = ns_c.Size();
 		for(unsigned int inode=0;inode<nnode;inode++){
 			ns_c.GetValue(inode,pVal);
 			double val = pVal[idof];
@@ -475,7 +497,7 @@ void CField::GetMinMaxValue(double& min, double& max, const CFieldWorld& world,
 			const double val = pVal[idof];
 			min = val; max = val;
 		}
-		for(unsigned int inode=0;inode<ns_b.GetNnode();inode++){
+		for(unsigned int inode=0;inode<ns_b.Size();inode++){
 			ns_b.GetValue(inode,pVal);
 			const double val = pVal[idof];
 			min = ( val < min ) ? val : min;
@@ -804,8 +826,8 @@ void CField::SetVelocity(unsigned int id_field, CFieldWorld& world){
 		}
 		const CNodeAry::CNodeSeg ns_rhs = field_rhs.GetNodeSeg(CORNER,true,world,VELOCITY);
 		CNodeAry::CNodeSeg ns_lhs = this->GetNodeSeg(CORNER,true,world,VELOCITY);
-		const unsigned int ndimval_rhs = ns_rhs.GetLength();
-		const unsigned int ndimval_lhs = ns_rhs.GetLength();
+		const unsigned int ndimval_rhs = ns_rhs.Length();
+		const unsigned int ndimval_lhs = ns_rhs.Length();
 		if(  ndimval_rhs != ndimval_lhs ){
 			assert(0);
 			return;
@@ -817,7 +839,7 @@ void CField::SetVelocity(unsigned int id_field, CFieldWorld& world){
 			assert( ea.IsSegID(m_aElemIntp[iei].id_es_c_va) );
 			const CElemAry::CElemSeg& es = ea.GetSeg(m_aElemIntp[iei].id_es_c_va);
 			const unsigned int nelem = ea.Size();
-			const unsigned int nnoes = es.GetSizeNoes();
+			const unsigned int nnoes = es.Length();
 			unsigned int node_es[64];
 			double value_rhs[64];
 			for(unsigned int ielem=0;ielem<nelem;ielem++){
@@ -915,7 +937,7 @@ bool CField::SetValue(double time, unsigned int idofns, FIELD_DERIVATION_TYPE fd
 				else{ assert(0); }
 				assert( na.IsSegID(id_ns) );
 				const CNodeAry::CNodeSeg& ns = na.GetSeg(id_ns);
-				assert( idofns < ns.GetLength() );
+				assert( idofns < ns.Length() );
 			}
 			if( m_aElemIntp.size() == 0 || !this->IsPartial() ){	// 剛体の場合
 				const unsigned int nnode = na.Size();
@@ -959,7 +981,7 @@ bool CField::SetValue(double time, unsigned int idofns, FIELD_DERIVATION_TYPE fd
 				else{ assert(0); }
 				assert( na.IsSegID(id_ns) );
 				const CNodeAry::CNodeSeg& ns = na.GetSeg(id_ns);
-				assert( idofns < ns.GetLength() );
+				assert( idofns < ns.Length() );
 			}
 //			const CNodeAry::CNodeSeg& ns_val = na.GetSeg(id_ns);
 			for(unsigned int iea=0;iea<m_aElemIntp.size();iea++){
@@ -992,7 +1014,7 @@ bool CField::SetValue(double time, unsigned int idofns, FIELD_DERIVATION_TYPE fd
 				else{ assert(0); }
 				assert( na_va.IsSegID(id_ns_va) );
 				const CNodeAry::CNodeSeg& ns = na_va.GetSeg(id_ns_va);
-				assert( idofns < ns.GetLength() );
+				assert( idofns < ns.Length() );
 			}
 			assert( na_va.IsSegID(id_ns_va) );
 			CNodeAry::CNodeSeg& ns_va = na_va.GetSeg(id_ns_va);
@@ -1002,7 +1024,7 @@ bool CField::SetValue(double time, unsigned int idofns, FIELD_DERIVATION_TYPE fd
 			assert( na_co.IsSegID(id_ns_co) );
 			const CNodeAry::CNodeSeg& ns_co = na_co.GetSeg(id_ns_co);
 			const unsigned int ndim = this->GetNDimCoord();
-			assert( ns_co.GetLength() == ndim );
+			assert( ns_co.Length() == ndim );
 			assert( ndim <= 3 );
 			double coord[3];
 			if( !this->IsPartial() ){	// 親フィールドなら節点を全部参照している。
@@ -1029,7 +1051,7 @@ bool CField::SetValue(double time, unsigned int idofns, FIELD_DERIVATION_TYPE fd
 					CElemAry& ea = world.GetEA(id_ea);
 					assert( ea.IsSegID(ei.id_es_c_va) );
 					const CElemAry::CElemSeg& es_c_va = ea.GetSeg(ei.id_es_c_va);
-					const unsigned int nnoes = es_c_va.GetSizeNoes();
+					const unsigned int nnoes = es_c_va.Length();
 					unsigned int noes[16];
 					for(unsigned int ielem=0;ielem<ea.Size();ielem++){
 						es_c_va.GetNodes(ielem,noes);
@@ -1090,16 +1112,16 @@ bool CField::SetValue(double time, unsigned int idofns, FIELD_DERIVATION_TYPE fd
 					////////////////
 					assert( ea.IsSegID(ei.id_es_b_va) );
 					const CElemAry::CElemSeg& es_b_va = ea.GetSeg(ei.id_es_b_va);
-					assert( es_b_va.GetSizeNoes() == 1);
+					assert( es_b_va.Length() == 1);
 					////////////////
 					assert( ea.IsSegID(ei.id_es_c_co) );
 					const CElemAry::CElemSeg& es_c_co = ea.GetSeg(ei.id_es_c_co);
-					const unsigned int nnoes = es_c_co.GetSizeNoes();
+					const unsigned int nnoes = es_c_co.Length();
 					////////////////
 					const CNodeAry& na_c_co = world.GetNA(m_na_c.id_na_co);
 					assert( na_c_co.IsSegID(m_na_c.id_ns_co) );
 					const CNodeAry::CNodeSeg& ns_c_co = na_c_co.GetSeg(m_na_c.id_ns_co);
-					const unsigned int ndim = ns_c_co.GetLength();
+					const unsigned int ndim = ns_c_co.Length();
 					////////////////
 					unsigned int noes_c[16];
 					double coord[3], coord_cnt[3];
@@ -1144,17 +1166,17 @@ bool CField::SetValue(double time, unsigned int idofns, FIELD_DERIVATION_TYPE fd
 bool Fem::Field::CField::SetBCFlagToES(MatVec::CBCFlag& bc_flag, 
         const Fem::Field::CElemAry& ea, unsigned int id_es, unsigned int idofblk) const
 {
-    assert( (int)idofblk < bc_flag.LenBlk() );
-    if( (int)idofblk >= bc_flag.LenBlk() ) return false;
+  assert( (int)idofblk < bc_flag.LenBlk() );
+  if( (int)idofblk >= bc_flag.LenBlk() ) return false;
 	assert( ea.IsSegID(id_es) );
 	const Fem::Field::CElemAry::CElemSeg& es = ea.GetSeg(id_es);
 	unsigned int noes[256];
-	unsigned int nnoes = es.GetSizeNoes();
+	unsigned int nnoes = es.Length();
 	for(unsigned int ielem=0;ielem<ea.Size();ielem++){
 		es.GetNodes(ielem,noes);
 		for(unsigned int inoes=0;inoes<nnoes;inoes++){
 			const unsigned int inode0 = noes[inoes];
-            bc_flag.SetBC(inode0,idofblk);
+      bc_flag.SetBC(inode0,idofblk);
 //			m_Flag[inode0*m_lenBlk+idofblk] = 1;
 		}
 	}
@@ -1162,8 +1184,9 @@ bool Fem::Field::CField::SetBCFlagToES(MatVec::CBCFlag& bc_flag,
 }
 
 
-void CField::BoundaryCondition(const ELSEG_TYPE& elseg_type, unsigned int idofns, MatVec::CBCFlag& bc_flag, const CFieldWorld& world) const{
-    assert( (int)idofns < bc_flag.LenBlk()  );
+void CField::BoundaryCondition(const ELSEG_TYPE& elseg_type, unsigned int idofns, MatVec::CBCFlag& bc_flag, const CFieldWorld& world) const
+{
+  assert( (int)idofns < bc_flag.LenBlk()  );
 	if( m_aElemIntp.size() == 0 ){
 		const unsigned int nblk = bc_flag.NBlk();
 		for(unsigned int iblk=0;iblk<nblk;iblk++){
@@ -1216,7 +1239,7 @@ void CField::BoundaryCondition(
 		unsigned int noes[256];
 		if( elseg_type == CORNER && m_aElemIntp[iea].id_es_c_va != 0 ){
 			const Fem::Field::CElemAry::CElemSeg& es = this->GetElemSeg(id_ea,CORNER,true,world);
-			unsigned int nnoes = es.GetSizeNoes();
+			unsigned int nnoes = es.Length();
 			for(unsigned int ielem=0;ielem<ea.Size();ielem++){
 				es.GetNodes(ielem,noes);
 				for(unsigned int inoes=0;inoes<nnoes;inoes++){
@@ -1228,7 +1251,7 @@ void CField::BoundaryCondition(
 		}
 		if( elseg_type == BUBBLE && m_aElemIntp[iea].id_es_b_va != 0 ){
 			const Fem::Field::CElemAry::CElemSeg& es = this->GetElemSeg(id_ea,BUBBLE,true,world);
-			unsigned int nnoes = es.GetSizeNoes();
+			unsigned int nnoes = es.Length();
 			for(unsigned int ielem=0;ielem<ea.Size();ielem++){
 				es.GetNodes(ielem,noes);
 				for(unsigned int inoes=0;inoes<nnoes;inoes++){
@@ -1240,7 +1263,7 @@ void CField::BoundaryCondition(
 		}
 		if( elseg_type == EDGE   && m_aElemIntp[iea].id_es_e_va != 0 ){
 			const Fem::Field::CElemAry::CElemSeg& es = this->GetElemSeg(id_ea,EDGE,true,world);
-			unsigned int nnoes = es.GetSizeNoes();
+			unsigned int nnoes = es.Length();
 			for(unsigned int ielem=0;ielem<ea.Size();ielem++){
 				es.GetNodes(ielem,noes);
 				for(unsigned int inoes=0;inoes<nnoes;inoes++){
@@ -1314,18 +1337,18 @@ bool CField::FindVelocityAtPoint(double velo[],
 {
 	const Fem::Field::CNodeAry::CNodeSeg& ns_v = this->GetNodeSeg(CORNER,true, world,VELOCITY);
 	const Fem::Field::CNodeAry::CNodeSeg& ns_c = this->GetNodeSeg(CORNER,false,world,VELOCITY);
-	assert( ns_v.GetLength() == 2 );
-	assert( ns_c.GetLength() == 2 );
+	assert( ns_v.Length() == 2 );
+	assert( ns_c.Length() == 2 );
 	for(unsigned int iiea=0;iiea<m_aElemIntp.size();iiea++)
 	{
 		unsigned int id_ea = m_aElemIntp[iiea].id_ea;
 		const Fem::Field::CElemAry::CElemSeg& es_v = this->GetElemSeg(id_ea,CORNER,true, world);
 		const Fem::Field::CElemAry::CElemSeg& es_c = this->GetElemSeg(id_ea,CORNER,false,world);
 		const unsigned int nnoes = 3;		
-		assert( es_v.GetSizeNoes() == nnoes );
-		assert( es_c.GetSizeNoes() == nnoes );
-		assert( es_v.GetSizeElem() == es_c.GetSizeElem() );
-		const unsigned int nelem = es_v.GetSizeElem();
+		assert( es_v.Length() == nnoes );
+		assert( es_c.Length() == nnoes );
+		assert( es_v.Size() == es_c.Size() );
+		const unsigned int nelem = es_v.Size();
 		for(unsigned int ielem=0;ielem<nelem;ielem++)
 		{
 			unsigned int noes_c[nnoes];
@@ -1587,7 +1610,7 @@ bool CField::ExportFile_Inp(const std::string& file_name, const CFieldWorld& wor
 		unsigned int id_na_c_co = m_na_c.id_na_co;
 		assert( id_na_c_co == es_c_co.GetIdNA() );
 		unsigned int noes_c[16];
-		unsigned int nnoes_c = es_c_co.GetSizeNoes();
+		unsigned int nnoes_c = es_c_co.Length();
 		for(unsigned int ielem=0;ielem<ea.Size();ielem++){
 			es_c_co.GetNodes(ielem,noes_c);
 			fout << ielem+1 << " 0 " << str_elem_type << " ";
@@ -1611,7 +1634,7 @@ bool CField::ExportFile_Inp(const std::string& file_name, const CFieldWorld& wor
 		const CNodeAry::CNodeSeg& ns_b_va = na_b_va.GetSeg(id_ns_b_va);
 		unsigned int inoes_b;
 		double value[3];
-		const unsigned int nnoes = es_b_va.GetSizeNoes();
+		const unsigned int nnoes = es_b_va.Length();
 		assert( nnoes == 1 );
 		for(unsigned int ielem=0;ielem<ea.Size();ielem++){
 			es_b_va.GetNodes(ielem,&inoes_b);

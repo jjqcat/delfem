@@ -45,7 +45,7 @@ using namespace Fem::Ls;
 
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
-// ３Ｄの方程式
+// 3D equation
 
 Fem::Eqn::CEqnSystem_DKT::CEqnSystem_DKT(unsigned int id_base, Fem::Field::CFieldWorld& world) 
 : m_IsGeomNonlin(false), m_IsStationary(true), m_IsSaveStiffMat(false)
@@ -211,9 +211,9 @@ bool CEqnSystem_DKT::InitializeLinearSystem(const Fem::Field::CFieldWorld& world
 				pLS->SetFixedBoundaryCondition_Field( id_field, idof, world ); // bc0_fieldを固定境界条件に設定	
 			}
 		}
-        pPrec = new LsSol::CPreconditioner_ILU;
-        ((LsSol::CPreconditioner_ILU*)pPrec)->SetOrdering(true);
-        ((LsSol::CPreconditioner_ILU*)pPrec)->SetFillInLevel(2);
+    pPrec = new LsSol::CPreconditioner_ILU;
+//    ((LsSol::CPreconditioner_ILU*)pPrec)->SetOrdering(true);
+    ((LsSol::CPreconditioner_ILU*)pPrec)->SetFillInLevel(2);
 		pPrec->SetLinearSystem((*pLS).m_ls);
 	}
 	else{
@@ -243,7 +243,7 @@ bool CEqnSystem_DKT::InitializeLinearSystem(const Fem::Field::CFieldWorld& world
 
 bool CEqnSystem_DKT::Solve(Fem::Field::CFieldWorld& world)
 {
-	if( this->m_IsGeomNonlin ){	//　非線形解析
+	if( this->m_IsGeomNonlin ){	// nonlinear
 		assert( !this->m_IsSaveStiffMat );
 		if( pLS == 0 || pPrec == 0 ){ this->InitializeLinearSystem(world); }
 		double ini_norm_res;	
@@ -256,7 +256,7 @@ bool CEqnSystem_DKT::Solve(Fem::Field::CFieldWorld& world)
 			}
 			if( norm_res < ini_norm_res * 1.0e-6 ) break;
 //			std::cout << iitr << " " << norm_res << " " << ini_norm_res << " " << norm_res / ini_norm_res << std::endl;
-			{	// 行列を解く
+			{	// solve matrix
 				double conv_ratio = 1.0e-5;
 				unsigned int max_iter = 4000;
 				// Solve with Preconditioned Conjugate Gradient
@@ -264,7 +264,7 @@ bool CEqnSystem_DKT::Solve(Fem::Field::CFieldWorld& world)
 					LsSol::Solve_CG(conv_ratio,max_iter,*pLS);
 				}
 				else{
-                    LsSol::CLinearSystemPreconditioner lsp((*pLS).m_ls,*pPrec);
+          LsSol::CLinearSystemPreconditioner lsp((*pLS).m_ls,*pPrec);
 					LsSol::Solve_PCG(conv_ratio,max_iter,lsp);
 				}
 				// Solve with Conjugate Gradient
@@ -353,16 +353,16 @@ bool CEqnSystem_DKT::Solve(Fem::Field::CFieldWorld& world)
 
 bool CEqnSystem_DKT::SetDomain_FieldElemAry(unsigned int id_base, unsigned int id_ea, Fem::Field::CFieldWorld& world)
 {
-    {   // 入力フィールドの座標節点セグメントのdofが３かどうかチェックする
-        assert( world.IsIdField(id_base) );
-        Fem::Field::CField& field = world.GetField(id_base);
-        if( field.GetNDimCoord() != 3 ){
-	        this->ClearLinearSystemPreconditioner();
-            m_id_disp = 0;
-            m_id_rot = 0;
-            return false;
-        }
+  {   // 入力フィールドの座標節点セグメントのdofが３かどうかチェックする
+    assert( world.IsIdField(id_base) );
+    Fem::Field::CField& field = world.GetField(id_base);
+    if( field.GetNDimCoord() != 3 ){
+      this->ClearLinearSystemPreconditioner();
+      m_id_disp = 0;
+      m_id_rot = 0;
+      return false;
     }
+  }
 	m_id_disp = world.MakeField_FieldElemAry(id_base,id_ea,VECTOR3,VALUE|VELOCITY|ACCELERATION,CORNER);
 	m_id_rot  = world.MakeField_FieldElemAry(id_base,id_ea,VECTOR3,VALUE|VELOCITY|ACCELERATION,CORNER);
 	this->ClearLinearSystemPreconditioner();
@@ -371,17 +371,17 @@ bool CEqnSystem_DKT::SetDomain_FieldElemAry(unsigned int id_base, unsigned int i
 
 bool CEqnSystem_DKT::SetDomain_Field(unsigned int id_base, Fem::Field::CFieldWorld& world)
 {
-    {   // 入力フィールドの座標節点セグメントのdofが３かどうかチェックする
-//        const unsigned int id_base = world.GetFieldBaseID();
-        assert( world.IsIdField(id_base) );
-        Fem::Field::CField& field = world.GetField(id_base);
-        if( field.GetNDimCoord() != 3 ){
-	        this->ClearLinearSystemPreconditioner();
-            m_id_disp = 0;
-            m_id_rot = 0;
-            return false;
-        }
+  {   // 入力フィールドの座標節点セグメントのdofが３かどうかチェックする
+    //        const unsigned int id_base = world.GetFieldBaseID();
+    assert( world.IsIdField(id_base) );
+    Fem::Field::CField& field = world.GetField(id_base);
+    if( field.GetNDimCoord() != 3 ){
+      this->ClearLinearSystemPreconditioner();
+      m_id_disp = 0;
+      m_id_rot = 0;
+      return false;
     }
+  }
 	m_id_disp = world.MakeField_FieldElemDim(id_base,2,VECTOR3,VALUE|VELOCITY|ACCELERATION,CORNER);
 	m_id_rot  = world.MakeField_FieldElemDim(id_base,2,VECTOR3,VALUE|VELOCITY|ACCELERATION,CORNER);
 	this->ClearLinearSystemPreconditioner();

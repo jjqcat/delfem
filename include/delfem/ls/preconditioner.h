@@ -63,8 +63,8 @@ public:
 		m_is_ordering = false;
 	}
 	CPreconditioner_ILU(const CLinearSystem& ls, unsigned int nlev = 0){ 
-        m_is_ordering = false;
-        this->SetFillInLevel(nlev);
+    m_is_ordering = false;
+    this->SetFillInLevel(nlev);
 		this->SetLinearSystem(ls); 
 	}
 	virtual ~CPreconditioner_ILU(){
@@ -74,17 +74,10 @@ public:
 	void Clear();
 
 	//! fill_inのレベル設定
-	void SetFillInLevel(int lev, int ilss0 = -1){ 
-        m_alev_input.push_back( std::make_pair(lev,ilss0) );
-    }
+	void SetFillInLevel(int lev, int ilss0 = -1){ m_alev_input.push_back( std::make_pair(lev,ilss0) ); }
 
-    // このノードには必ずFill_Inを入れる
-    void SetFillBlk(const std::vector<unsigned int>& aBlk){
-        m_afill_blk = aBlk;
-    }
-
-	//! Orderingの有無を設定
-	void SetOrdering(bool is_ordering){ m_is_ordering = is_ordering; }
+  // このノードには必ずFill_Inを入れる
+  void SetFillBlk(const std::vector<unsigned int>& aBlk){ m_afill_blk = aBlk; }
 
 	// ILU(0)のパターン初期化
 	virtual void SetLinearSystem(const CLinearSystem& ls);
@@ -95,14 +88,23 @@ public:
 
 	// Solve Preconditioning System
 	virtual bool SolvePrecond(CLinearSystem& ls, unsigned int iv);
+  
+	//! Orderingの有無を設定
+	void SetOrdering(const std::vector<int>& aind){ 
+    if( aind.empty() ){ m_is_ordering = false; return; }
+    m_is_ordering = true;
+    m_order.SetOrdering(aind);
+  }
 private:
-    std::vector< std::pair<int,int> > m_alev_input;
-    std::vector< unsigned int > m_afill_blk;
-	bool m_is_ordering;
-    std::vector< std::vector< MatVec::CMatFrac_BlkCrs* > > m_Matrix_NonDia;
-    std::vector< MatVec::CMatDiaFrac_BlkCrs* > m_Matrix_Dia;
-    MatVec::COrdering_Blk m_order;
-    MatVec::CVector_Blk m_vec;  // オーダリングの時に使うTMP行列
+  std::vector< std::pair<int,int> > m_alev_input;
+  std::vector< unsigned int > m_afill_blk;
+  std::vector< std::vector< MatVec::CMatFrac_BlkCrs* > > m_Matrix_NonDia;
+  std::vector< MatVec::CMatDiaFrac_BlkCrs* > m_Matrix_Dia;
+  
+  // Ordering 
+	bool m_is_ordering;  
+  MatVec::COrdering_Blk m_order;
+  MatVec::CVector_Blk m_vec;  // オーダリングの時に使うTMP行列
 };
 
 

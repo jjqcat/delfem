@@ -9,8 +9,8 @@ VPATH += ../../src \
     ../../include/delfem/
 #VERSION = 1.2.0
 QT += opengl
-DEFINES += NDEBUG
-MAKE_CXXFLAGS_RELEASE = -O3
+#DEFINES += NDEBUG
+#MAKE_CXXFLAGS_RELEASE = -O3
 SOURCES += \
 #   Com
     com/drawer.cpp \

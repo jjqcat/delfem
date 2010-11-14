@@ -17,7 +17,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 /*! @file
-@brief 連立一次方程式の反復法ソルバの関数
+@brief linear solver functions
 @author Nobuyuki Umetani
 */
 
@@ -31,16 +31,16 @@ namespace LsSol{
 @addtogroup LsSol
 */
 //@{
-//! CG法
+//! conjuaget gradient method
 bool Solve_CG(double& conv_ratio, unsigned int& num_iter, 
 		ILinearSystem_Sol& ls);
-//! 前処理付きCG法
+//! preconditioned conjugate gradient method
 bool Solve_PCG(double& conv_ratio,unsigned int& iteration, 
 		ILinearSystemPreconditioner_Sol& lsp);
-//! BiCGSTAB法
+//! BiCGSTAB method
 bool Solve_BiCGSTAB(double& conv_ratio, unsigned int& num_iter, 
         ILinearSystem_Sol& ls);
-//! 前処理付きBiCGSTAB法
+//! preconditioned BiCGSTAB method
 bool Solve_PBiCGSTAB(double& conv_ratio, unsigned int& num_iter, 
 		ILinearSystemPreconditioner_Sol& ls);
 //@}

@@ -360,7 +360,7 @@ double LsSol::MinimumEigenValueVector_InvPower(
 			unsigned int num_iter = itr_lssol;
             LsSol::CLinearSystemPreconditioner lsp(ls,pls);
             bool res = LsSol::Solve_PCG(conv_ratio, num_iter, lsp);
-			std::cout << "PCG iter : " << num_iter << " " << conv_ratio << std::endl;
+//			std::cout << "PCG iter : " << num_iter << " " << conv_ratio << std::endl;
 			if( !res ){ 
 				iflag_conv = 1;	// ICCG‚ªŽû‘©‚µ‚È‚©‚Á‚½ƒtƒ‰ƒO
 				return 0; 

@@ -72,15 +72,15 @@ public:
 	class CElemSeg{
 		friend class CElemAry;
 	public:
-		CElemSeg(unsigned int id, unsigned int id_na, ELSEG_TYPE elseg_type)
-			: m_id(id), m_id_na(id_na), m_elseg_type(elseg_type){}
+		CElemSeg(unsigned int id_na, ELSEG_TYPE elseg_type)
+			: m_id_na(id_na), m_elseg_type(elseg_type){}
 
 		// Getメソッド
 		unsigned int GetMaxNoes() const { return max_noes; }	//!< ノード番号の一番大きなものを得る（このnoesを格納するためには一つ大きな配列が必要なので注意）
-		unsigned int GetSizeNoes() const { return m_nnoes; }	//!< 要素辺りの節点数を返す
-		unsigned int GetSizeElem() const { return nelem; }	//!< get the number of elements
-		unsigned int GetIdNA() const { return m_id_na; }	//!< この要素セグメントが参照する節点配列IDを得る
-		unsigned int GetID() const { return m_id; }	//!< 要素セグメントIDを得る
+		unsigned int Length() const { return m_nnoes; }	//!< return the node size per elem seg  ( will be renamed to Length() );
+		unsigned int Size() const { return nelem; }	  //!< get the number of elements ( will be renamed to Size() )
+		unsigned int GetIdNA() const { return m_id_na; }	    //!< この要素セグメントが参照する節点配列IDを得る
+//		unsigned int GetID() const { return m_id; }	          //!< 要素セグメントIDを得る<- そのうち廃止(ObjSegに含まれる情報と重複)
 		ELSEG_TYPE GetElSegType() const { return m_elseg_type; }	//!< 要素セグメントタイプ(Fem::Field::CORNER,Fem::Field::BUBBLE,Fem::Field::EDGE)を得る
 
 		/*
@@ -98,7 +98,7 @@ public:
 			}
 		}
 		//! 節点番号を設定
-		void SetNodes(unsigned int ielem, unsigned int idofes, int ino ) const {
+		void SetNodes(unsigned int ielem, unsigned int idofes, int ino ){
 			pLnods[ielem*npoel+begin+idofes] = ino;
 		}
 		//! 各場所(Corner,Bubble)に定義されている要素節点の数を出す
@@ -144,18 +144,18 @@ public:
 			return 0;
 		}
 		//! 要素の次元を取得する
-        static unsigned GetElemDim(ELEM_TYPE elem_type){
-            if(      elem_type == POINT ){ return 0; }
-            else if( elem_type == LINE  ){ return 1; }
-            else if( elem_type == TRI   ){ return 2; }
-            else if( elem_type == QUAD  ){ return 2; }
-            else if( elem_type == TET   ){ return 3; }
-            else if( elem_type == HEX   ){ return 3; }
-			else{ assert(0); }
+    static unsigned GetElemDim(ELEM_TYPE elem_type){
+      if(      elem_type == POINT ){ return 0; }
+      else if( elem_type == LINE  ){ return 1; }
+      else if( elem_type == TRI   ){ return 2; }
+      else if( elem_type == QUAD  ){ return 2; }
+      else if( elem_type == TET   ){ return 3; }
+      else if( elem_type == HEX   ){ return 3; }
+			else{ assert(0); }      
 			return 0;
-        }
+    }
 	private: // 初期化で必要な関数
-		unsigned int m_id;	// <- そのうち廃止
+//		unsigned int m_id;	// <- そのうち廃止(ObjSegに含まれる情報と重複)
 		unsigned int m_id_na; // <- 復活、ないと大変なことになった。
 		enum ELSEG_TYPE m_elseg_type;
 		// int id_es_corner <- そのうち追加予定
@@ -173,6 +173,7 @@ public:
 	CElemAry(){
 		m_nElem = 0; npoel = 0; m_pLnods = 0;
 	}
+  CElemAry(const CElemAry& ea);
 	/*! 
 	@brief コンストラクタ
 	@param [in] nelem 要素数
@@ -181,7 +182,7 @@ public:
 	CElemAry(unsigned int nelem, ELEM_TYPE elem_type) : m_nElem(nelem), m_ElemType(elem_type){
 		npoel = 0; m_pLnods = 0;
 	}
-	//! デストラクタ
+	//! destructor
 	virtual ~CElemAry(){
 		if( this->m_pLnods != 0 ) delete[] m_pLnods;
 	}
@@ -240,8 +241,8 @@ public:
 
 	// lnodsはunsigned int にすべきでは？
 	//! 要素セグメントの追加
-	std::vector<int> AddSegment(const std::vector<CElemSeg>& es_ary, const std::vector<int>& lnods );
-	int              AddSegment(const CElemSeg& es,					 const std::vector<int>& lnods );
+	std::vector<int> AddSegment(const std::vector< std::pair<unsigned int,CElemSeg> >& es_ary, const std::vector<int>& lnods );
+	int              AddSegment(unsigned int id, const CElemSeg& es,					 const std::vector<int>& lnods );
 
 	// 要素を囲む要素を作る．内部でelsuelのメモリ領域確保はしないので，最初から確保しておく
 	bool MakeElemSurElem( const unsigned int& id_es_corner, int* elsuel) const;
@@ -258,13 +259,12 @@ private:
 
 
 protected:
-    unsigned int m_nElem;	//!< number of elements
-    ELEM_TYPE m_ElemType;	//!< type of element
-	unsigned int npoel;		//!< 一要素辺りの説点数
+  unsigned int m_nElem;	//!< number of elements
+  ELEM_TYPE m_ElemType;	//!< type of element
+	unsigned int npoel;		//!< the total number of nodes including in one elemement
 	// コネクティビティはunsigned intにすべきでは？（混合要素への対応のため？）
-	int * m_pLnods;			//!< コネクティビティ格納配列
-	
-	Com::CObjSet<CElemSeg> m_aSeg;	//!< 要素セグメントの集合
+	int * m_pLnods;			//!< connectivity
+	Com::CObjSet<CElemSeg> m_aSeg;	//!< the set of elem segment
 };
 
 }

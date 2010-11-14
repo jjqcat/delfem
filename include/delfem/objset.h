@@ -39,6 +39,13 @@ template <class T>
 class CObjSet
 {		
 public:
+  CObjSet(){}
+  CObjSet(const CObjSet& rhs){
+    this->Clear();
+    this->m_aIndex2ID = rhs.m_aIndex2ID;
+    this->m_aID2Index = rhs.m_aID2Index;
+    this->m_aObj = rhs.m_aObj;
+  }  
 	void Clear(){
 		m_aIndex2ID.clear();
 		m_aID2Index.clear();
@@ -157,7 +164,7 @@ protected:
 	}
 protected:
 	std::vector<unsigned int> m_aIndex2ID;
-    std::vector<int> m_aID2Index;
+  std::vector<int> m_aID2Index;
 	std::vector<T> m_aObj;
 };
 

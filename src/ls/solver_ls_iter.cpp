@@ -165,7 +165,10 @@ bool LsSol::Solve_PCG(double& conv_ratio, unsigned int& iteration,
 		ls.SCAL(beta,ip);
 		ls.AXPY(1.0,iz,ip);
 	}
-	return false;
+	// Converge Judgement
+  double sq_norm_res = ls.DOT(ir,ir);
+  conv_ratio = sqrt( sq_norm_res * sq_inv_norm_res0 );
+  return false;
 }
 
 ////////////////////////////////////////////////////////////////

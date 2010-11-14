@@ -67,6 +67,10 @@ bool CBRep::SetLoopIDtoUseLoop(unsigned int id_ul, unsigned int id_l)
 	if( !m_UseLoopSet.IsObjID(id_ul) ) return false;
 	CUseLoop& ul = this->m_UseLoopSet.GetObj(id_ul);
 	ul.id_l = id_l;
+  if( ul.id_ul_p == 0 || ul.id_ul_p == id_ul ){
+    if( id_l == 0 ){ ul.id_ul_p == 0; }
+    else{            ul.id_ul_p = id_ul; }
+  }
 	return true;
 }
 
@@ -92,7 +96,7 @@ int CBRep::AssertValid_Use() const
 	// Check UseVertex
 	const std::vector<unsigned int>& id_uv_ary = m_UseVertexSet.GetAry_ObjID();
 	for(unsigned int iid=0;iid<id_uv_ary.size();iid++){
-        const unsigned int id_uv = id_uv_ary[iid];
+    const unsigned int id_uv = id_uv_ary[iid];
 		assert( m_UseVertexSet.IsObjID(id_uv) );
 		const CUseVertex& uv = m_UseVertexSet.GetObj(id_uv);
 		assert( uv.id == id_uv );
@@ -106,13 +110,13 @@ int CBRep::AssertValid_Use() const
 	// Check UseEdge
 	const std::vector<unsigned int>& id_hedge_ary = m_HalfEdgeSet.GetAry_ObjID();
 	for(unsigned int iid=0;iid<id_hedge_ary.size();iid++){
-        const unsigned int id_he = id_hedge_ary[iid];
+    const unsigned int id_he = id_hedge_ary[iid];
 		assert( m_HalfEdgeSet.IsObjID(id_he) );
 		const CHalfEdge& hedge = m_HalfEdgeSet.GetObj(id_he);
 		assert( hedge.id == id_he );
 
 		{
-            const unsigned int id_uv1 = hedge.id_uv;
+      const unsigned int id_uv1 = hedge.id_uv;
 			assert( m_UseVertexSet.IsObjID(id_uv1) );
 			const CUseVertex& uv = m_UseVertexSet.GetObj(id_uv1);
 			assert( uv.id == id_uv1 );
@@ -133,7 +137,7 @@ int CBRep::AssertValid_Use() const
 		}
 
 		{
-            const unsigned int id_he_ccw = hedge.id_he_b;
+      const unsigned int id_he_ccw = hedge.id_he_b;
 			assert( m_HalfEdgeSet.IsObjID(id_he_ccw) );
 			const CHalfEdge& edge_ccw = m_HalfEdgeSet.GetObj(id_he_ccw);
 			assert( edge_ccw.id == id_he_ccw );
@@ -142,7 +146,7 @@ int CBRep::AssertValid_Use() const
 		}
 
 		{
-            const unsigned int id_he_o = hedge.id_he_o;
+      const unsigned int id_he_o = hedge.id_he_o;
 			assert( m_HalfEdgeSet.IsObjID(id_he_o) );
 			const CHalfEdge& edge_o = m_HalfEdgeSet.GetObj(id_he_o);
 			assert( edge_o.id == id_he_o );
@@ -154,38 +158,34 @@ int CBRep::AssertValid_Use() const
 	// Check UseLoop
 	const std::vector<unsigned int>& id_ul_ary = m_UseLoopSet.GetAry_ObjID();
 	for(unsigned int iid=0;iid<id_ul_ary.size();iid++){
-        const unsigned int id_ul = id_ul_ary[iid];
+    const unsigned int id_ul = id_ul_ary[iid];
 		assert( m_UseLoopSet.IsObjID(id_ul) );
 		const CUseLoop& ul = m_UseLoopSet.GetObj(id_ul);
 		assert( ul.id == id_ul );
-		std::set<unsigned int> passed_hedge;
-		unsigned int id_he = ul.id_he;
-		for(;;){
-			assert( passed_hedge.find(id_he) == passed_hedge.end() );
-			passed_hedge.insert(id_he);
-			assert( m_HalfEdgeSet.IsObjID(id_he) );
-			const CHalfEdge& he = m_HalfEdgeSet.GetObj(id_he);
-			assert( he.id == id_he );
-			assert( he.id_ul == id_ul );
-			const unsigned int id_he_next = he.id_he_f;
-			if( id_he_next == ul.id_he ) break;
-			id_he = id_he_next;
-		}
-		if( ul.id_ul_p != 0 ){	// 自分は子ループ
+    {
+      std::set<unsigned int> passed_hedge;
+      unsigned int id_he = ul.id_he;
+      for(;;){
+        assert( passed_hedge.find(id_he) == passed_hedge.end() );
+        passed_hedge.insert(id_he);
+        assert( m_HalfEdgeSet.IsObjID(id_he) );
+        const CHalfEdge& he = m_HalfEdgeSet.GetObj(id_he);
+        assert( he.id == id_he );
+        assert( he.id_ul == id_ul );
+        const unsigned int id_he_next = he.id_he_f;
+        if( id_he_next == ul.id_he ) break;
+        id_he = id_he_next;
+      }      
+    }
+		if( ul.id_ul_p != id_ul && ul.id_ul_p != 0 ){	// 自分は子ループ
 			const unsigned int id_ul_p = ul.id_ul_p;
 			unsigned int id_ul2 = id_ul_p;
 			bool iflag = false;
 			for(;;){
 				assert( m_UseLoopSet.IsObjID(id_ul2) );
 				const CUseLoop& ul2 = m_UseLoopSet.GetObj(id_ul2);
-				if( id_ul2 != id_ul_p ){
-					assert( ul2.id_ul_p == id_ul_p );
-					if( id_ul2 == id_ul ) iflag = true;
-				}
-				else{
-					assert( ul2.id_ul_p == 0 );
-					assert( ul2.id_ul_c != 0 );
-				}
+        assert( ul2.id_ul_p == id_ul_p );
+        if( id_ul2 == id_ul ) iflag = true;
 				id_ul2 = ul2.id_ul_c;
 				if( id_ul2 == 0 ) break;
 			}
@@ -244,18 +244,18 @@ bool CBRep::KVEL(const unsigned int id_uv_rem)
 		const CHalfEdge& he = m_HalfEdgeSet.GetObj(id_he_rem);
 		id_ul_rem = he.id_ul;
 		assert( he.id_he_b == id_he_rem );
-		assert( he.id_he_f  == id_he_rem );
-		assert( he.id_he_o   == id_he_rem );
+		assert( he.id_he_f == id_he_rem );
+		assert( he.id_he_o == id_he_rem );
 	}
 
 	unsigned int id_ul_p;
 	{
-		const CUseLoop& ul = m_UseLoopSet.GetObj(id_ul_rem);
-		id_ul_p = ul.id_ul_p;
-		if( id_ul_p != 0 ){
+		const CUseLoop& ul_rem = m_UseLoopSet.GetObj(id_ul_rem);
+		id_ul_p = ul_rem.id_ul_p;
+		if( id_ul_p != id_ul_rem && id_ul_p != 0 ){ // assertion
 			assert( m_UseLoopSet.IsObjID(id_ul_p) );
 			const CUseLoop& ul_p = m_UseLoopSet.GetObj(id_ul_p);
-			assert( ul_p.id_ul_p == 0 );
+			assert( ul_p.id_ul_p == id_ul_p );
 			assert( ul_p.id_ul_c != 0 );
 		}
 	}
@@ -263,7 +263,7 @@ bool CBRep::KVEL(const unsigned int id_uv_rem)
 	// Leave Imput Check Section
 	////////////////////////////////
 
-	if( id_ul_p != 0 ){	// 子ループリストからid_ul_remを削除
+	if( id_ul_p != id_ul_rem && id_ul_p != 0 ){	// 子ループリストからid_ul_remを削除
 		unsigned int id_ul = id_ul_p;
 		for(;;){
 			CUseLoop& ul =m_UseLoopSet.GetObj(id_ul);
@@ -278,7 +278,7 @@ bool CBRep::KVEL(const unsigned int id_uv_rem)
 			id_ul = id_ul_c;
 		}
 	}
-
+  
 	m_UseLoopSet.DeleteObj(id_ul_rem);
 	m_UseVertexSet.DeleteObj(id_uv_rem);
 	m_HalfEdgeSet.DeleteObj(id_he_rem);
@@ -312,7 +312,7 @@ bool CBRep::MVEL(unsigned int& id_uv_add, unsigned int& id_he_add, unsigned int&
 	}
 	if( id_ul1 != 0 ){
 		unsigned int id_ul = id_ul1;
-		// P/Cループリストの最後を探す;
+		// P/Cループリストの最後を探す
 		for(;;){
 			assert( m_UseLoopSet.IsObjID(id_ul) );
 			CUseLoop& ul = m_UseLoopSet.GetObj(id_ul);
@@ -402,7 +402,8 @@ bool CBRep::MEVVL(unsigned int& id_he_add1, unsigned int& id_he_add2,
 
 // ループをつなげる
 bool CBRep::KEML(unsigned int& id_ul_add, 
-		  const unsigned int& id_he1 ){
+		  const unsigned int& id_he1 )
+{
 
 	unsigned int id_he1f, id_he1b, id_uv1, id_ul1, id_he2;
 	{
@@ -460,11 +461,10 @@ bool CBRep::KEML(unsigned int& id_ul_add,
 		CUseLoop& ul = m_UseLoopSet.GetObj(id_ul1);
 		ul.id_he = id_he1b;
 		id_ul_p = ul.id_ul_p;
-		if( id_ul_p == 0 ){ id_ul_p = id_ul1; }
-		else{
+		if( id_ul_p != 0 ){ // assertion
 			assert( m_UseLoopSet.IsObjID(id_ul_p) );
 			CUseLoop& ul_p = m_UseLoopSet.GetObj(id_ul_p);
-			assert( ul_p.id_ul_p == 0 );
+			assert( ul_p.id_ul_p == id_ul_p );
 		}
 		unsigned int id_ul = id_ul1;
 		for(;;){ // 子ループリストの一番最後に追加したループを付け加える
@@ -601,8 +601,9 @@ bool CBRep::MEKL_TwoFloatingVertex(const unsigned int id_he1, const unsigned int
 
 
 // 両方が端点であるEdgeを削除する。
-bool CBRep::KEML_TwoFloatingVertex(unsigned int& id_ul_add,
-		const unsigned int id_he1)
+bool CBRep::KEML_TwoFloatingVertex
+(unsigned int& id_ul_add,
+ const unsigned int id_he1)
 {
 	unsigned int id_he2;
 	unsigned int id_uv1;
@@ -623,9 +624,8 @@ bool CBRep::KEML_TwoFloatingVertex(unsigned int& id_ul_add,
 	}
 	unsigned int id_ul_p, id_ul_c;
 	{
-		const CUseLoop ul = m_UseLoopSet.GetObj(id_ul);
+		const CUseLoop& ul = m_UseLoopSet.GetObj(id_ul);
 		id_ul_p = ul.id_ul_p;
-		assert( id_ul_p != 0 );
 		id_ul_c = ul.id_ul_c;
 	}
 	unsigned int id_uv2;
@@ -696,9 +696,8 @@ bool CBRep::KEML_OneFloatingVertex(unsigned int& id_ul_add, const unsigned int i
 		assert( he.id_he_f != id_he2 );
 		assert( id_he1 != id_he2 );
 		id_ul1 = he.id_ul;
-		const CUseLoop ul = m_UseLoopSet.GetObj(id_ul1);
-		if( ul.id_ul_p == 0 ){ id_ul_p = id_ul1; }
-		else{ id_ul_p = ul.id_ul_p; }
+		const CUseLoop& ul = m_UseLoopSet.GetObj(id_ul1);
+		id_ul_p = ul.id_ul_p;
 	}
 	unsigned int id_uv2;
 	unsigned int id_he2b;
@@ -716,7 +715,7 @@ bool CBRep::KEML_OneFloatingVertex(unsigned int& id_ul_add, const unsigned int i
 	{
 		assert( m_UseLoopSet.IsObjID(id_ul_p) );
 		const CUseLoop ul_p = m_UseLoopSet.GetObj(id_ul_p);
-		assert( ul_p.id_ul_p == 0 );
+		assert( ul_p.id_ul_p == id_ul_p );
 	}
 	{
 		assert( m_HalfEdgeSet.IsObjID(id_he1f) );
@@ -802,7 +801,6 @@ bool CBRep::MEKL_OneFloatingVertex(unsigned int& id_he_add1,
 		assert( m_UseLoopSet.IsObjID(id_ul1) );
 		const CUseLoop& ul = m_UseLoopSet.GetObj(id_ul1);
 		id_ul1p = ul.id_ul_p;
-		if( id_ul1p == 0 ){ id_ul1p = id_ul1; }
 	}
 
 	unsigned int id_uv2, id_ul2;
@@ -866,19 +864,21 @@ bool CBRep::MEKL_OneFloatingVertex(unsigned int& id_he_add1,
 			const CUseLoop& ul = m_UseLoopSet.GetObj(id_ul2);
 			id_ul_cc = ul.id_ul_c;
 		}
-		unsigned int id_ul = id_ul1p;
-		for(;;){
-			assert( m_UseLoopSet.IsObjID(id_ul) );
-			CUseLoop& ul = m_UseLoopSet.GetObj(id_ul);
-			const unsigned int id_ul_c = ul.id_ul_c;
-			if( id_ul_c==id_ul2 ){
-				ul.id_ul_c = id_ul_cc;
-				break;
-			}
-			if( id_ul_c == 0 ){ break; }	// if floating vertex is outside
-			assert( id_ul_c != id_ul_cc );
-			id_ul = id_ul_c;
-		}
+    if( id_ul1p != 0 ){
+      unsigned int id_ul = id_ul1p;
+      for(;;){
+        assert( m_UseLoopSet.IsObjID(id_ul) );
+        CUseLoop& ul = m_UseLoopSet.GetObj(id_ul);
+        const unsigned int id_ul_c = ul.id_ul_c;
+        if( id_ul_c==id_ul2 ){
+          ul.id_ul_c = id_ul_cc;
+          break;
+        }
+        if( id_ul_c == 0 ){ break; }	// if floating vertex is outside
+        assert( id_ul_c != id_ul_cc );
+        id_ul = id_ul_c;
+      }      
+    }
 	}
 	m_UseLoopSet.DeleteObj(id_ul2);
 	assert( !m_UseLoopSet.IsObjID(id_ul2) );
@@ -1001,22 +1001,22 @@ bool CBRep::MEKL(unsigned int& id_he_add1, unsigned int& id_he_add2,
 		he.id_he_b = id_he_add1;
 	}
 	{	// Modefy Old Half Edges ( Connecting Loop )
-        int id_he = id_he_add2; // 途中で-1になるかもしれないからint型
+    int id_he = id_he_add2; // 途中で-1になるかもしれないからint型
 		for(;;){
 			assert( m_HalfEdgeSet.IsObjID(id_he) );
 			CHalfEdge& edge = m_HalfEdgeSet.GetObj(id_he);
-            assert( (int)edge.id == id_he );
+      assert( (int)edge.id == id_he );
 			edge.id_ul = id_ul1;
 			id_he = edge.id_he_f;
-            if( id_he == (int)id_he_add2 ) break;
+      if( id_he == (int)id_he_add2 ) break;
 		}
 	}
 	////////////////
 	m_UseLoopSet.DeleteObj(id_ul2);
 	assert( !m_UseLoopSet.IsObjID(id_ul2) );
-	if( id_ul2p != 0 ){	// ul2は子ループ
+	if( id_ul2p != id_ul2 ){	// ul2は子ループ
 		unsigned int id_ul;
-		if( id_ul1p != 0 ){	// ２つのループの外側に辺を追加した場合
+		if( id_ul1p != id_ul1 ){	// ２つのループの外側に辺を追加した場合
 			assert( id_ul1p == id_ul2p );
 			id_ul = id_ul1p;
 		}
@@ -1041,7 +1041,7 @@ bool CBRep::MEKL(unsigned int& id_he_add1, unsigned int& id_he_add2,
 			{
 				assert( m_UseLoopSet.IsObjID(id_ul1) );
 				CUseLoop& ul = m_UseLoopSet.GetObj(id_ul1);
-				ul.id_ul_p = 0;
+				ul.id_ul_p = id_ul1;
 			}
 			unsigned int id_ul = id_ul1c;
 			for(;;){
@@ -1063,7 +1063,7 @@ bool CBRep::MEKL(unsigned int& id_he_add1, unsigned int& id_he_add2,
 				const unsigned int id_ul_c = ul.id_ul_c;
 				assert( ul.id_ul_p == id_ul2 );
 				if( id_ul == id_ul1 ){
-					ul.id_ul_p = 0;
+					ul.id_ul_p = id_ul;
 					ul.id_ul_c = id_ul2c;
 				}
 				else{
@@ -1222,14 +1222,12 @@ bool CBRep::KEL(const unsigned int id_he1){
 	{
 		CUseLoop& ul1 = m_UseLoopSet.GetObj(id_ul1);
 		id_ul1p = ul1.id_ul_p;
-		if( id_ul1p == 0 ) id_ul1p = id_ul1;
 		id_ul1c = ul1.id_ul_c;
 	}
 	unsigned int id_ul2p,id_ul2c;
 	{
 		CUseLoop& ul2 = m_UseLoopSet.GetObj(id_ul2);
 		id_ul2p = ul2.id_ul_p;
-		if( id_ul2p == 0 ) id_ul2p = id_ul2;
 		id_ul2c = ul2.id_ul_c;
 	}
 	m_UseLoopSet.DeleteObj(id_ul2);
@@ -1263,7 +1261,7 @@ bool CBRep::KEL(const unsigned int id_he1){
 		}
 	}
 	else{	// ul1と、ul1,ul2の全ての子ループの親はid_ul2pになる
-		std::cout << "parent 1 " << std::endl;
+//		std::cout << "parent 1 " << std::endl;
 		assert( id_ul1p == id_ul1 );
 		{	// ul1に属していた子ループの親ul2pに移し変える
 			unsigned int id_ul = id_ul1;
@@ -1301,12 +1299,11 @@ bool CBRep::KEL(const unsigned int id_he1){
 // ループを２つに分ける
 bool CBRep::MEL(unsigned int& id_he_add1, unsigned int& id_he_add2, unsigned int& id_ul_add,
 		 const unsigned int id_he1, const unsigned int id_he2)
-{
+{  
 	id_he_add1 = 0; id_he_add2 = 0;
 	id_ul_add = 0;
 
 	unsigned int id_ul;
-
 	unsigned int id_he1b, id_uv1;
 	{
 		assert( m_HalfEdgeSet.IsObjID(id_he1) );
@@ -1342,7 +1339,7 @@ bool CBRep::MEL(unsigned int& id_he_add1, unsigned int& id_he_add2, unsigned int
 	////////////////////////////////
 	// leave input check section
 
-    id_ul_add = m_UseLoopSet.GetFreeObjID();
+  id_ul_add = m_UseLoopSet.GetFreeObjID();
 
 	{
 		const std::vector<unsigned int>& free_edge_id_ary = m_HalfEdgeSet.GetFreeObjID(2);
@@ -1358,13 +1355,13 @@ bool CBRep::MEL(unsigned int& id_he_add1, unsigned int& id_he_add2, unsigned int
 	// enter topological change section
 
 	{	// Add New Use Loops
-        const int tmp_id = m_UseLoopSet.AddObj( CUseLoop(id_ul_add,id_he_add2,0,0) );
-        assert( (int)id_ul_add == tmp_id );
+    const int tmp_id = m_UseLoopSet.AddObj( CUseLoop(id_ul_add,id_he_add2,0,0) );
+    assert( (int)id_ul_add == tmp_id );
 		assert( m_UseLoopSet.IsObjID(id_ul_add) );
 	}
 	{	// Modefy Old Use Loop ( Connecting Edge )
 		assert( m_UseLoopSet.IsObjID(id_ul) );
-		CUseLoop& loop = m_UseLoopSet.GetObj(id_ul);
+		CUseLoop& loop = m_UseLoopSet.GetObj(id_ul);    
 		assert( loop.id == id_ul );
 		loop.id_he = id_he_add1;
 	}
@@ -1410,10 +1407,10 @@ bool CBRep::MEL(unsigned int& id_he_add1, unsigned int& id_he_add2, unsigned int
 		for(;;){
 			assert( m_HalfEdgeSet.IsObjID(id_he) );
 			CHalfEdge& edge = m_HalfEdgeSet.GetObj(id_he);
-            assert( (int)edge.id == id_he );
+      assert( (int)edge.id == id_he );
 			edge.id_ul = id_ul_add;
 			id_he = edge.id_he_f;
-            if( id_he == (int)id_he_add2 ) break;
+      if( id_he == (int)id_he_add2 ) break;
 		}
 	}
 
@@ -1727,7 +1724,7 @@ bool CBRep::MoveUseLoop(unsigned int id_ul1, unsigned int id_ul2){
 	{
 		const CUseLoop& ul1 = m_UseLoopSet.GetObj(id_ul1);
 		id_ul1p = ul1.id_ul_p;
-		assert( id_ul1p != 0 );	// id_ul1は親であってはならない
+		assert( id_ul1p != id_ul1 );	// id_ul1は親であってはならない
 		id_ul1c = ul1.id_ul_c;
 	}
 	unsigned int id_ul2c, id_ul2p;
@@ -1735,7 +1732,6 @@ bool CBRep::MoveUseLoop(unsigned int id_ul1, unsigned int id_ul2){
 		const CUseLoop& ul2 = m_UseLoopSet.GetObj(id_ul2);
 		id_ul2c = ul2.id_ul_c;
 		id_ul2p = ul2.id_ul_p;
-		if( id_ul2p == 0 ) id_ul2p = id_ul2;
 	}
 
 	////////////////
@@ -1780,25 +1776,23 @@ bool CBRep::SwapUseLoop(unsigned int id_ul1, unsigned int id_ul2){
 	{
 		const CUseLoop& ul1 = m_UseLoopSet.GetObj(id_ul1);
 		id_ul1p = ul1.id_ul_p;
-		if( id_ul1p == 0 ) id_ul1p = id_ul1;
 	}
 	unsigned int id_ul2p;
 	{
 		const CUseLoop& ul2 = m_UseLoopSet.GetObj(id_ul2);
 		id_ul2p = ul2.id_ul_p;
-		if( id_ul2p == 0 ) id_ul2p = id_ul2;
 	}
-	if( id_ul1p == id_ul1 && id_ul2p == id_ul1 ){ 
+	if(      id_ul1p == id_ul1 && id_ul2p == id_ul1 ){ 
 		return SwapUseLoop_CP_SameLoop(id_ul2,id_ul1); 
 	}
 	else if( id_ul2p == id_ul2 && id_ul1p == id_ul2 ){ 
 		return SwapUseLoop_CP_SameLoop(id_ul1,id_ul2); 
 	}
 	////////////////
-	else if( id_ul1p == id_ul1 && id_ul2p != id_ul1 ){
+	else if( (id_ul1p == id_ul1 || id_ul1p == 0) && id_ul2p != id_ul1 ){
 		return SwapUseLoop_CP_DifferentLoop(id_ul2,id_ul1); 
 	}
-	else if( id_ul2p == id_ul2 && id_ul1p != id_ul2 ){
+	else if( (id_ul2p == id_ul2 || id_ul2p == 0) && id_ul1p != id_ul2 ){
 		return SwapUseLoop_CP_DifferentLoop(id_ul1,id_ul2); 
 	}
 	////////////////
@@ -1815,7 +1809,7 @@ bool CBRep::SwapUseLoop_CP_DifferentLoop(unsigned int id_ul1, unsigned int id_ul
 	{
 		const CUseLoop& ul1 = m_UseLoopSet.GetObj(id_ul1);
 		id_ul1p = ul1.id_ul_p;
-		assert( id_ul1p != 0 );
+		assert( id_ul1p != id_ul1 );
 		assert( id_ul2 != id_ul1p );
 		id_ul1c = ul1.id_ul_c;
 	}
@@ -1823,7 +1817,7 @@ bool CBRep::SwapUseLoop_CP_DifferentLoop(unsigned int id_ul1, unsigned int id_ul
 	{
 		assert( m_UseLoopSet.IsObjID(id_ul2) );
 		const CUseLoop& ul2 = m_UseLoopSet.GetObj(id_ul2);
-		assert( ul2.id_ul_p == 0 );
+		assert( ul2.id_ul_p == id_ul2 || ul2.id_ul_p == 0 );
 		id_ul2c = ul2.id_ul_c;
 	}
 	unsigned int id_ul = id_ul1p;
@@ -1836,7 +1830,7 @@ bool CBRep::SwapUseLoop_CP_DifferentLoop(unsigned int id_ul1, unsigned int id_ul
 		////////////////
 		if( id_ul == id_ul1 ){
 			ul.id_ul_c = id_ul2c;
-			ul.id_ul_p = 0;
+			ul.id_ul_p = id_ul;
 		}
 		else{
 			if( ul.id_ul_c == id_ul1 ){ ul.id_ul_c = id_ul2; }
@@ -1883,7 +1877,7 @@ bool CBRep::SwapUseLoop_CP_SameLoop(unsigned int id_ul1, unsigned int id_ul2){
 	{
 		assert( m_UseLoopSet.IsObjID(id_ul2) );
 		const CUseLoop& ul2 = m_UseLoopSet.GetObj(id_ul2);
-		assert( ul2.id_ul_p == 0 );
+		assert( ul2.id_ul_p == id_ul2 );
 		id_ul2c = ul2.id_ul_c;
 		assert( id_ul2c != 0 );
 	}
@@ -1904,7 +1898,7 @@ bool CBRep::SwapUseLoop_CP_SameLoop(unsigned int id_ul1, unsigned int id_ul2){
 		else if( id_ul == id_ul1 ){
 			if( id_ul2c != id_ul1 ){ ul.id_ul_c = id_ul2c; }
 			else{ ul.id_ul_c = id_ul2; }
-			ul.id_ul_p = 0;
+			ul.id_ul_p = id_ul;
 		}
 		else{
 			assert( ul.id_ul_c != id_ul2 );

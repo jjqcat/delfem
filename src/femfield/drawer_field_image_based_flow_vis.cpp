@@ -81,8 +81,8 @@ bool CEdgeTextureColor::Update(const Fem::Field::CFieldWorld& world)
 	const Fem::Field::CNodeAry::CNodeSeg& ns_c = fv.GetNodeSeg(CORNER,false,world,VELOCITY);
 	const Fem::Field::CElemAry::CElemSeg& es_v = fv.GetElemSeg(id_ea,CORNER,true, world);
 	const Fem::Field::CElemAry::CElemSeg& es_c = fv.GetElemSeg(id_ea,CORNER,false,world);
-	assert( es_v.GetSizeNoes() == 2 );
-	assert( es_c.GetSizeNoes() == 2 );
+	assert( es_v.Length() == 2 );
+	assert( es_c.Length() == 2 );
 	for(unsigned int ielem=0;ielem<nelem;ielem++)
 	{
 		unsigned int noes[2];
@@ -373,7 +373,7 @@ bool CDrawerImageBasedFlowVis::Update(const Fem::Field::CFieldWorld& world)
 	}*/
 	const Fem::Field::CNodeAry::CNodeSeg& ns_v = fv.GetNodeSeg(CORNER,true, world,VELOCITY);
 	const Fem::Field::CNodeAry::CNodeSeg& ns_c = fv.GetNodeSeg(CORNER,false,world,VELOCITY);
-	nnode = ns_v.GetNnode();
+	nnode = ns_v.Size();
 	if( aVelo ==0 ){ aVelo  = new double [nnode*2]; }
 	if( aCoord == 0 ){ aCoord = new double [nnode*2]; }
 	for(unsigned int inode=0;inode<nnode;inode++){

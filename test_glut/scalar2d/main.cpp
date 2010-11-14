@@ -122,7 +122,7 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(1.0,1.0) );
 			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
-			const unsigned int id_l = cad_2d.AddPolygon( vec_ary );
+			const unsigned int id_l = cad_2d.AddPolygon( vec_ary ).id_l_add;
 			const unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.7,0.5));
 			const unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.7,0.9));
 			const unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.8,0.9));
@@ -301,7 +301,7 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(1.0,1.0) );
 			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
-			const unsigned int id_l = cad_2d.AddPolygon( vec_ary );
+			const unsigned int id_l = cad_2d.AddPolygon( vec_ary ).id_l_add;
 			const unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.3,0.2));
 			const unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.7,0.2));
 			const unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.7,0.8));

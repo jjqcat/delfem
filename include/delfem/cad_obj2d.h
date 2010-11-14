@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
 /*! @file
-@brief ２次元ＣＡＤクラス(Cad::CCadObj2Dm)のインターフェース
+@brief interface of 2D cad class (Cad::CCadObj2Dm)
 @author Nobuyuki Umetani
 */
 
@@ -43,19 +43,18 @@ class CEdge2D;
 class CTopology;
 
 /*! 
-@brief ２次元ＣＡＤモデルクラス
+@brief 2 dimentional cad model class
 @ingroup CAD
 */
 class CCadObj2D : public Cad::ICad2D
 {
 public:
-	//! Iterator which go around loop (面の周りを回るイテレータ)
+	//! Iterator which go around loop (iterator witch go around loop)
 	class CItrLoop : public Cad::ICad2D::CItrLoop
 	{
 	public:
-		CItrLoop(const CCadObj2D* pCadObj2D, unsigned int id_l)
-			: itrl(pCadObj2D->m_BRep.GetItrLoop(id_l)){}
-		void Begin(){ itrl.Begin(); }	//! ループの初めの辺に戻す
+		CItrLoop(const CCadObj2D* pCadObj2D, unsigned int id_l) : itrl(pCadObj2D->m_BRep.GetItrLoop(id_l)){}
+		void Begin(){ itrl.Begin(); }	//! return first position in the loop
 		void operator++(){ itrl++; } //!< move to next edge
 		void operator++(int n){ itrl++; }	//!< dummy operator ( work same as ++)
 		//! return current id of edge and return if this edge is counter-clock wise
@@ -63,9 +62,9 @@ public:
 		//! Shift next child loop. if this is end of loop, return false
 		bool ShiftChildLoop(){ return itrl.ShiftChildLoop(); }
 		bool IsEndChild() const { return itrl.IsEndChild(); }	//!< return true if iterator go around
-		unsigned int GetIdVertex() const {        return itrl.GetIdVertex(); }	//!< 現在の頂点を返す
-		unsigned int GetIdVertex_Ahead()  const { return itrl.GetIdVertex_Ahead(); }	//!< 一つ先の頂点を返す
-        unsigned int GetIdVertex_Behind() const { return itrl.GetIdVertex_Behind(); }	//!< 一つ前の頂点を返す		
+		unsigned int GetIdVertex() const {        return itrl.GetIdVertex(); }	//!< return current vertex
+		unsigned int GetIdVertex_Ahead()  const { return itrl.GetIdVertex_Ahead(); }	//!< return next vertex on loop
+    unsigned int GetIdVertex_Behind() const { return itrl.GetIdVertex_Behind(); }	//!< return previous vertex on loop
 		bool IsEnd() const { return itrl.IsEnd(); }	//!< return true if went around this loop
 	private:
 		CBRep2D::CItrLoop itrl;
@@ -87,44 +86,78 @@ public:
 	private:
 		CBRep2D::CItrVertex itrv;
 	};
-    friend class CItrLoop;
-    friend class CItrVertex;
-	//! デフォルトコンストラクタ
+  friend class CItrLoop;
+  friend class CItrVertex;
+  
+  class CResConnectVertex{
+  public:
+    CResConnectVertex(){
+      id_e_add = 0;
+      id_l_add = 0;
+      is_left_l_add = 0;
+    }
+  public:
+    unsigned int id_e_add;
+    unsigned int id_l;
+    unsigned int id_l_add;
+    bool is_left_l_add;
+  };
+  
+  class CResAddPolygon{
+  public:
+    CResAddPolygon(){
+      id_l_add = 0;
+    }
+    CResAddPolygon(const CResAddPolygon& lhs){
+      this->id_l_add = lhs.id_l_add;
+      this->aIdV = lhs.aIdV;
+      this->aIdE = lhs.aIdE;
+    }
+  public:
+    unsigned int id_l_add;
+    std::vector<unsigned int> aIdV;
+    std::vector<unsigned int> aIdE;
+  };
+  
+  
+  ////////////////////////////////
+	// constructor & destructor
+  
+	//! default constructor
 	CCadObj2D();
-	//! デストラクタ
+  //! copy constructor
+  CCadObj2D(const CCadObj2D& cad);
+	//! destructor
 	virtual ~CCadObj2D();
-	//! 全ての要素を削除して初期化
+	//! initialization clear all element
 	void Clear();
 
 	////////////////////////////////
-	// Getメソッド
+	// Get method
 
 	//! ID:id_lのループを構成する頂点や辺をめぐるイテレータを返す関数
-    virtual std::auto_ptr<Cad::ICad2D::CItrLoop> GetItrLoop(unsigned int id_l) const{
-        return std::auto_ptr<Cad::ICad2D::CItrLoop>( new CItrLoop(this,id_l) );	// インスタンスを生成
+  virtual std::auto_ptr<Cad::ICad2D::CItrLoop> GetItrLoop(unsigned int id_l) const{
+    return std::auto_ptr<Cad::ICad2D::CItrLoop>( new CItrLoop(this,id_l) );	// インスタンスを生成
 	}
 	//! ID:id_lのループを構成する頂点や辺をめぐるイテレータを返す関数
     virtual std::auto_ptr<Cad::ICad2D::CItrVertex> GetItrVertex(unsigned int id_v) const{
-        return std::auto_ptr<Cad::ICad2D::CItrVertex>( new CItrVertex(this,id_v) );	// インスタンスを生成
+      return std::auto_ptr<Cad::ICad2D::CItrVertex>( new CItrVertex(this,id_v) );	// インスタンスを生成
 	}
-	////////////////////////////////////////////////
-	// 構成要素へのアクセス
+  
 	virtual bool IsElemID(Cad::CAD_ELEM_TYPE,unsigned int id) const;
 	virtual const std::vector<unsigned int> GetAryElemID(Cad::CAD_ELEM_TYPE itype) const;
 
-	////////////////////////////////
-	// レイヤ関係の関数
-    virtual int GetLayer(Cad::CAD_ELEM_TYPE, unsigned int id) const;
+	// functions related to layer
+  virtual int GetLayer(Cad::CAD_ELEM_TYPE, unsigned int id) const;
 	virtual void GetLayerMinMax(int& layer_min, int& layer_max) const;
 
-	////////////////////////////////
-	// ループのメンバ関数
-
+	// loop function  
 	//! @{
-    //! ID:id_lのループの色を返す
-    virtual bool GetColor_Loop(unsigned int id_l, double color[3] ) const;
-    //! ID:id_lのループの色を設定する
-    virtual bool SetColor_Loop(unsigned int id_l, const double color[3] );
+	bool CheckIsPointInsideLoop(unsigned int id_l1, const Com::CVector2D& point) const;    
+  //! ID:id_lのループの色を返す
+  virtual bool GetColor_Loop(unsigned int id_l, double color[3] ) const;
+  //! ID:id_lのループの色を設定する
+  virtual bool SetColor_Loop(unsigned int id_l, const double color[3] );
 	//! ID:id_lのループの面積を返えす
 	virtual double GetArea_Loop(unsigned int id_l) const;
 	bool ShiftLayer_Loop(unsigned int id_l, bool is_up);
@@ -139,8 +172,10 @@ public:
 	//! @{
 	//! 辺の始点と終点の頂点のIDを返す
 	virtual bool GetIdVertex_Edge(unsigned int &id_v_s, unsigned int& id_v_e, unsigned int id_e) const;
-    //! 辺の両側のループのIDを返す
-    virtual bool GetIdLoop_Edge(unsigned int &id_l_l, unsigned int& id_l_r, unsigned int id_e) const;
+  //! 辺の両側のループのIDを返す
+  virtual bool GetIdLoop_Edge(unsigned int &id_l_l, unsigned int& id_l_r, unsigned int id_e) const;
+	// return edge with vertex id(id_vs, id_ve) and vertex coord
+	const CEdge2D& GetEdge(unsigned int id_e) const;  
 	/*!
 	@brief 辺の形状タイプを返す
     @retval 0 線分
@@ -151,17 +186,17 @@ public:
 	//! ID:id_eの辺の情報を得る
 	virtual bool GetCurve_Arc(unsigned int id_e, bool& is_left_side, double& dist) const;
 	virtual bool GetCurve_Polyline(unsigned int id_e, std::vector<double>& aRelCoMesh) const;
-    virtual bool GetCurve_Polyline(unsigned int id_e, std::vector<Com::CVector2D>& aCo, double elen = -1) const;    
-    //! ID:id_eの辺をndiv個に分割したものを得る. 但し始点，終点はそれぞれps,peとする
-    virtual bool GetCurve_Polyline(unsigned int id_e, std::vector<Com::CVector2D>& aCo,
-		unsigned int ndiv, const Com::CVector2D& ps, const Com::CVector2D& pe) const;
+  virtual bool GetCurve_Polyline(unsigned int id_e, std::vector<Com::CVector2D>& aCo, double elen = -1) const;    
+  //! ID:id_eの辺をndiv個に分割したものを得る. 但し始点，終点はそれぞれps,peとする
+  virtual bool GetCurve_Polyline(unsigned int id_e, std::vector<Com::CVector2D>& aCo,
+                                 unsigned int ndiv, const Com::CVector2D& ps, const Com::CVector2D& pe) const;
 	//! @}
 
-    bool GetPointOnCurve_OnCircle(unsigned int id_e,
-                                  const Com::CVector2D& v0, double len, bool is_front,
-                                  bool& is_exceed, Com::CVector2D& out) const;
-    //! 入力点から最も近い辺上の点と距離を返す
-    Com::CVector2D GetNearestPoint(unsigned int id_e, const Com::CVector2D& po_in) const;
+  bool GetPointOnCurve_OnCircle(unsigned int id_e,
+                                const Com::CVector2D& v0, double len, bool is_front,
+                                bool& is_exceed, Com::CVector2D& out) const;
+  //! 入力点から最も近い辺上の点と距離を返す
+  Com::CVector2D GetNearestPoint(unsigned int id_e, const Com::CVector2D& po_in) const;
 
 	////////////////////////////////
 	// 頂点のメンバ関数
@@ -186,7 +221,7 @@ public:
 	@retval 新しくできた面ＩＤ 成功した場合
 	@retval ０ 失敗した場合
 	*/
-	unsigned int AddPolygon( const std::vector<Com::CVector2D>& vec_ary, unsigned int id_l = 0);
+	CResAddPolygon AddPolygon(const std::vector<Com::CVector2D>& vec_ary, unsigned int id_l = 0);
 
 	/*!
 	@brief 頂点を加える関数
@@ -207,18 +242,9 @@ public:
 	@pre 辺を消去する時は辺の両側が面でなければならない
 	*/
 	bool RemoveElement(Cad::CAD_ELEM_TYPE itype, unsigned int id);
-	/*!
-	@brief ２つの頂点(ID:id_v1,id_v2)からEdgeを作る、
-	@retval 新しくできた辺のＩＤ 成功した場合
-	@retval ０ 失敗した場合
-	*/
-	unsigned int ConnectVertex(CEdge2D edge);
-	/*!
-	@brief ２つの頂点(ID:id_v1,id_v2)からEdgeを作る、
-	@retval 新しくできた辺のＩＤ 成功した場合
-	@retval ０ 失敗した場合
-	*/
-	unsigned int ConnectVertex_Line(unsigned int id_v1, unsigned int id_v2){
+
+	CResConnectVertex ConnectVertex(CEdge2D edge);
+	CResConnectVertex ConnectVertex_Line(unsigned int id_v1, unsigned int id_v2){
 		Cad::CEdge2D e(id_v1,id_v2, 0, 0, 0 );
 		return this->ConnectVertex(e);
 	}
@@ -227,12 +253,12 @@ public:
 	////////////////////////////////////////////////
 	// 形状操作関数（トポロジーを変えない）
 
-    bool SetCurve_Polyline(const unsigned int id_e);
+  bool SetCurve_Polyline(const unsigned int id_e);
 	//! set edge (ID:id_e) mesh
 	bool SetCurve_Polyline(unsigned int id_e, const std::vector<Com::CVector2D>& aVec);
 	//! set edge (ID:id_e) arc 
-    bool SetCurve_Arc(const unsigned int id_e, bool is_left_side=false, double rdist=10.0);
-    //! set edge (ID:id_e) straight line
+  bool SetCurve_Arc(const unsigned int id_e, bool is_left_side=false, double rdist=10.0);
+  //! set edge (ID:id_e) straight line
 	bool SetCurve_Line(const unsigned int id_e);
 
 	////////////////////////////////////////////////
@@ -241,10 +267,8 @@ public:
 	bool WriteToFile_dxf(const std::string& file_name) const;
 	bool Serialize( Com::CSerializer& serialize );		
 protected:
-	// id_vs, id_ve, po_s, po_eが代入されたEdgeを返す
-	const CEdge2D& GetEdge(unsigned int id_e) const;
-	// id_vs, id_ve, po_s, po_eが代入されたEdgeを返す
-	CEdge2D& GetEdge(unsigned int id_e);
+	// return edge with vertex id(id_vs, id_ve) and vertex coord  
+	CEdge2D& GetEdgeRef(unsigned int id_e);  
 	int AssertValid() const;
 	bool CheckIsPointInside_ItrLoop(ICad2D::CItrLoop& itrl, const Com::CVector2D& p1) const;
 
@@ -253,15 +277,15 @@ protected:
 //    返り値が２ならid_ul1の中の点は全てid_ul2の外
 	unsigned int CheckInOut_ItrLoopPoint_ItrLoop(ICad2D::CItrLoop& itrl1, ICad2D::CItrLoop& itrl2) const;
 	
-	bool CheckIsPointInsideLoop(unsigned int id_l1, const Com::CVector2D& point) const;
 	// assert loop : return 0 if loop is OK
-    int CheckLoop(unsigned int id_l) const;
+  int CheckLoop(unsigned int id_l) const;
 
 	// 返り値は半辺のIDでid_vとpointを結ぶ半直線からid_vを中心に時計周りに最初に出会う半辺
 	// この半辺の属するループはこの半直線と重なっている。
 	// id_vが浮遊点の場合は浮遊点周りのループが帰る
 	CBRep2D::CItrVertex FindCorner_HalfLine(unsigned int id_v, const Com::CVector2D& point) const;
-	bool CheckLoopIntersection(unsigned int id_l=0) const;
+	bool CheckIntersection_Loop(unsigned int id_l=0) const;
+  bool CheckIntersection_EdgeAgainstLoop(const CEdge2D& edge,unsigned int id_l=0) const;
 	double GetArea_ItrLoop(ICad2D::CItrLoop& itrl) const;
 protected:
 	////////////////

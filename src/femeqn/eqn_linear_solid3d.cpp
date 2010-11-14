@@ -350,7 +350,7 @@ static bool AddLinSys_LinearSolid3D_Eigen_P1(
 
 	const CElemAry::CElemSeg& es_c = field_val.GetElemSeg(id_ea,CORNER,true,world);
 
-	const unsigned int nnoes = 4;	assert( nnoes == es_c.GetSizeNoes() );
+	const unsigned int nnoes = 4;	assert( nnoes == es_c.Length() );
 	const unsigned int ndim = 3;
 
 	unsigned int noes[nnoes];	// 要素内の節点の節点番号
@@ -542,7 +542,7 @@ static bool AddLinSys_LinearSolid3D_NonStatic_NewmarkBeta_P1(
 
 	const CElemAry::CElemSeg& es_c = field_val.GetElemSeg(id_ea,CORNER,true,world);
 
-	const unsigned int nnoes = 4;	assert( nnoes == es_c.GetSizeNoes() );
+	const unsigned int nnoes = 4;	assert( nnoes == es_c.Length() );
 	const unsigned int ndim = 3;
 
 	unsigned int noes[nnoes];	// 要素内の節点の節点番号
@@ -714,7 +714,7 @@ static bool AddLinSys_LinearSolid3D_NonStatic_NewmarkBeta_Q1(
 	const double (*Gauss)[2] = LineGauss[num_integral];
 	double detjac, detwei;
 
-	const unsigned int nnoes = 8;	assert( nnoes == es_c.GetSizeNoes() );
+	const unsigned int nnoes = 8;	assert( nnoes == es_c.Length() );
 	const unsigned int ndim = 3;
 
 	double eKmat[nnoes][nnoes][ndim][ndim];
