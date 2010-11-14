@@ -162,7 +162,7 @@ bool View::CIndexArrayElem::Set_Line(unsigned int id_ea, unsigned int id_es,
 	nnoel = 2;
 	if( this->pIA_Elem != 0 ) delete[] pIA_Elem;
 	pIA_Elem = new unsigned int [nElem*2];
-	unsigned int nnoes = es.GetSizeNoes();
+	unsigned int nnoes = es.Length();
 	assert( nnoes == 2 );
 	for(unsigned int iedge=0;iedge<nElem;iedge++){
 		es.GetNodes(iedge,pIA_Elem+iedge*2);
@@ -187,7 +187,7 @@ bool View::CIndexArrayElem::Set_Tri(unsigned int id_ea, unsigned int id_es,
 	nnoel = 3;
 	if( this->pIA_Elem != 0 ) delete[] pIA_Elem;
 	pIA_Elem = new unsigned int [nElem*3];
-	unsigned int nnoes = es.GetSizeNoes();
+	unsigned int nnoes = es.Length();
 	assert( nnoes == 3 );
 	for(unsigned int itri=0;itri<nElem;itri++){
 		es.GetNodes(itri,pIA_Elem+itri*3);
@@ -211,7 +211,7 @@ bool View::CIndexArrayElem::Set_Quad(unsigned int id_ea, unsigned int id_es,
 	nnoel = 4;
 	if( this->pIA_Elem != 0 ) delete[] pIA_Elem;
 	pIA_Elem = new unsigned int [nElem*4];
-	const unsigned int nnoes = es.GetSizeNoes();
+	const unsigned int nnoes = es.Length();
 	assert( nnoes == 4 );
 	for(unsigned int iquad=0;iquad<nElem;iquad++){
 		es.GetNodes(iquad,pIA_Elem+iquad*4);
@@ -285,14 +285,14 @@ bool View::CIndexArrayElem::SetColor
 		if( !ea.IsSegID(id_es) ) return false;
 		if( ea.ElemType() != TRI ) return false;
 		const CElemAry::CElemSeg& es_v = ea.GetSeg(id_es_v);
-		assert( es_v.GetSizeNoes() == 1 );
+		assert( es_v.Size() == 1 );
 		unsigned int id_na_v = es_v.GetIdNA();
 		assert( world.IsIdNA(id_na_v) );
 		const CNodeAry& na = world.GetNA(id_na_v);
 		assert( es_v.GetMaxNoes() < na.Size() );
 		assert( na.IsSegID(id_ns_v) );
 		const CNodeAry::CNodeSeg& ns = na.GetSeg(id_ns_v);
-		assert( ns.GetLength() == 1 );
+		assert( ns.Length() == 1 );
 		if( this->pColor == 0 ){ this->pColor = new float [nElem*3]; }
 		for(unsigned int itri=0;itri<nElem;itri++){
 			unsigned int inode0;
@@ -310,14 +310,14 @@ bool View::CIndexArrayElem::SetColor
 		if( !ea.IsSegID(id_es) ) return false;
 		if( ea.ElemType() != QUAD ) return false;
 		const CElemAry::CElemSeg& es_v = ea.GetSeg(id_es_v);
-		assert( es_v.GetSizeNoes() == 1 );
+		assert( es_v.Length() == 1 );
 		unsigned int id_na_v = es_v.GetIdNA();
 		assert( world.IsIdNA(id_na_v) );
 		const CNodeAry& na = world.GetNA(id_na_v);
 		assert( es_v.GetMaxNoes() < na.Size() );
 		assert( na.IsSegID(id_ns_v) );
 		const CNodeAry::CNodeSeg& ns = na.GetSeg(id_ns_v);
-		assert( ns.GetLength() == 1 );
+		assert( ns.Length() == 1 );
 		if( this->pColor == 0 ){ this->pColor = new float [nElem*3]; }
 		for(unsigned int iquad=0;iquad<nElem;iquad++){
 			unsigned int inode0;
@@ -336,14 +336,14 @@ bool View::CIndexArrayElem::SetColor
 		if( !ea.IsSegID(id_es) ) return false;
 		if( ea.ElemType() != TET ) return false;
 		const CElemAry::CElemSeg& es_v = ea.GetSeg(id_es_v);
-		assert( es_v.GetSizeNoes() == 1 );
+		assert( es_v.Length() == 1 );
 		unsigned int id_na_v = es_v.GetIdNA();
 		assert( world.IsIdNA(id_na_v) );
 		const CNodeAry& na = world.GetNA(id_na_v);
 		assert( es_v.GetMaxNoes() < na.Size() );
 		assert( na.IsSegID(id_ns_v) );
 		const CNodeAry::CNodeSeg& ns = na.GetSeg(id_ns_v);
-		assert( ns.GetLength() == 1 );
+		assert( ns.Length() == 1 );
 		if( this->pColor == 0 ){ this->pColor = new float [nElem*3]; }
 		for(unsigned int iface=0;iface<nElem;iface++){
 			unsigned int itet = aIndElem[iface];
@@ -364,14 +364,14 @@ bool View::CIndexArrayElem::SetColor
 		if( !ea.IsSegID(id_es) ) return false;
 		if( ea.ElemType() != HEX ) return false;
 		const CElemAry::CElemSeg& es_v = ea.GetSeg(id_es_v);
-		assert( es_v.GetSizeNoes() == 1 );
+		assert( es_v.Length() == 1 );
 		unsigned int id_na_v = es_v.GetIdNA();
 		assert( world.IsIdNA(id_na_v) );
 		const CNodeAry& na = world.GetNA(id_na_v);
 		assert( es_v.GetMaxNoes() < na.Size() );
 		assert( na.IsSegID(id_ns_v) );
 		const CNodeAry::CNodeSeg& ns = na.GetSeg(id_ns_v);
-		assert( ns.GetLength() == 1 );
+		assert( ns.Length() == 1 );
 		if( this->pColor == 0 ){ this->pColor = new float [nElem*3]; }
 		for(unsigned int iface=0;iface<nElem;iface++){
 			unsigned int ihex = aIndElem[iface];

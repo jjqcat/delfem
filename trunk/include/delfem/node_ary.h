@@ -64,9 +64,9 @@ public:
 	public:
 		CNodeSeg(const unsigned int& len, const std::string& name)
 			: len(len), name(name){}
-		unsigned int GetLength() const { return len; }	//!< The length of value
-		unsigned int GetNnode() const { return nnode; }	//!< The number of nodes
-		void GetValue(unsigned int inode, double* aVal ) const	//!< get value from node
+		unsigned int Length() const { return len; }	//!< The length of value
+		unsigned int Size() const { return nnode; }	//!< The number of nodes
+		inline void GetValue(unsigned int inode, double* aVal ) const	//!< get value from node
 		{
 			for(unsigned int i=0;i<len;i++){
 				aVal[i] = paValue[inode*DofSize+idofval_begin+i];
@@ -81,11 +81,11 @@ public:
 				aVal[i] = Com::Complex(dr,di);
 			}
 		}
-		void SetValue(unsigned int inode, unsigned int idofns, double val )	//!< set value to node 
+		inline void SetValue(unsigned int inode, unsigned int idofns, double val )	//!< set value to node 
 		{
 			paValue[inode*DofSize+idofval_begin+idofns] = val;
 		}
-		void AddValue(unsigned int inode, unsigned int idofns, double val )	//!< add value to node
+		inline void AddValue(unsigned int inode, unsigned int idofns, double val )	//!< add value to node
 		{
 			paValue[inode*DofSize+idofval_begin+idofns] += val;
 		}
@@ -98,8 +98,8 @@ public:
 			}
 		}
 	private:
-        unsigned int len;	//!< the size of value
-        std::string name;	//!< name
+    unsigned int len;	//!< the size of value
+    std::string name;	//!< name
 	private: // not need when initialize 
 		unsigned int idofval_begin;	//!< offset of value
 	private: // the variables given by CNodeAry
@@ -120,12 +120,13 @@ private:
 public:
 	CNodeAry(const unsigned int size);
 	CNodeAry();
+  CNodeAry(const CNodeAry& na);
 	virtual ~CNodeAry();
 
 	bool ClearSegment();
 
 	////////////////////////////////
-	// Getメソッド	
+	// Get Methods
 
 	const std::string& Name() const { return m_str_name; }  //!< name
 	unsigned int Size()	const { return m_Size; }  //!< number of nodes
@@ -167,93 +168,14 @@ public:
 	////////////////
 	// 参照要素セグメント追加メソッド
 
-	void AddEaEs( std::pair<unsigned int, unsigned int> eaes ){
-		unsigned int ieaes = this->GetIndEaEs( eaes );
-		if( ieaes != m_aEaEs.size() ) return;
-		{
-			CEaEsInc eaesinc;
-			eaesinc.id_ea = eaes.first;
-			eaesinc.id_es = eaes.second;
-			m_aEaEs.push_back( eaesinc );
-		}
-	}
-
-	std::vector< std::pair<unsigned int, unsigned int> > GetAryEaEs() const {
-		std::vector< std::pair<unsigned int, unsigned int> > aEaEs;
-		for(unsigned int ieaes=0;ieaes<m_aEaEs.size();ieaes++){
-			aEaEs.push_back( std::make_pair(m_aEaEs[ieaes].id_ea,m_aEaEs[ieaes].id_es) );
-		}
-		return aEaEs;
-	}
-
+	void AddEaEs( std::pair<unsigned int, unsigned int> eaes );
+	std::vector< std::pair<unsigned int, unsigned int> > GetAryEaEs() const;
 	void SetIncludeEaEs_InEaEs( std::pair<unsigned int, unsigned int> eaes_included,
-		std::pair<unsigned int, unsigned int> eaes_container )
-	{
-		unsigned int ieaes_included = this->GetIndEaEs( eaes_included );
-		if( ieaes_included == m_aEaEs.size() ) return;
-		unsigned int ieaes_container = this->GetIndEaEs( eaes_container );
-		if( ieaes_container == m_aEaEs.size() ) return;
-//        std::cout << "SetInclude " << eaes_included.first << " " << eaes_included.second << "    in    ";
-//        std::cout << eaes_container.first << " " << eaes_container.second << std::endl;
-		m_aEaEs[ieaes_container].aIndEaEs_Include.push_back(ieaes_included);
-	}
-
-	
+                             std::pair<unsigned int, unsigned int> eaes_container );
 	bool IsIncludeEaEs_InEaEs( std::pair<unsigned int, unsigned int> eaes_inc,
-		std::pair<unsigned int, unsigned int> eaes_in ) const
-	{
-		unsigned int ieaes_inc = this->GetIndEaEs( eaes_inc );
-		if( ieaes_inc == m_aEaEs.size() ) return false;
-		unsigned int ieaes_in = this->GetIndEaEs( eaes_in );
-		if( ieaes_in == m_aEaEs.size() ) return false;
-		const std::vector<unsigned int>& inc = m_aEaEs[ieaes_in].aIndEaEs_Include;
-		for(unsigned int iieaes=0;iieaes<inc.size();iieaes++){
-			if( inc[iieaes] == ieaes_inc ){
-				return true;
-			}
-		}
-		return false;
-	}
-
-	std::vector< std::pair<unsigned int, unsigned int> > GetAry_EaEs_Min() const
-	{
-		std::vector< std::pair<unsigned int, unsigned int> > aEaEs;
-		std::vector<unsigned int> aflg;
-		aflg.resize(m_aEaEs.size(),1);
-		for(unsigned int ieaes=0;ieaes<m_aEaEs.size();ieaes++){
-			const std::vector<unsigned int>& inc = m_aEaEs[ieaes].aIndEaEs_Include;
-			for(unsigned int jjeaes=0;jjeaes<inc.size();jjeaes++){
-				unsigned int jeaes = inc[jjeaes];
-				assert( jeaes < m_aEaEs.size() );
-				aflg[jeaes] = 0;
-			}
-		}
-		for(unsigned int ieaes=0;ieaes<m_aEaEs.size();ieaes++){
-			if( aflg[ieaes] == 1 ){
-				aEaEs.push_back( std::make_pair(m_aEaEs[ieaes].id_ea,m_aEaEs[ieaes].id_es) );
-			}
-		}
-		return aEaEs;
-	}
-
-	unsigned int IsContainEa_InEaEs(std::pair<unsigned int, unsigned int>eaes, unsigned int id_ea) const
-	{
-		const unsigned int ieaes = this->GetIndEaEs( eaes );
-		if( ieaes == m_aEaEs.size() ) return 0;
-		if( m_aEaEs[ieaes].id_ea == id_ea ){
-			return m_aEaEs[ieaes].id_es;
-		}
-		const std::vector<unsigned int>& inc = m_aEaEs[ieaes].aIndEaEs_Include;
-		for(unsigned int jjeaes=0;jjeaes<inc.size();jjeaes++){
-			unsigned int jeaes = inc[jjeaes];
-			assert( jeaes < m_aEaEs.size() );
-			if( m_aEaEs[jeaes].id_ea == id_ea ){
-				return m_aEaEs[jeaes].id_es;
-			}
-		}
-		return 0;
-	}
-
+                            std::pair<unsigned int, unsigned int> eaes_in ) const;
+	std::vector< std::pair<unsigned int, unsigned int> > GetAry_EaEs_Min() const;
+	unsigned int IsContainEa_InEaEs(std::pair<unsigned int, unsigned int>eaes, unsigned int id_ea) const;
 
 
 	////////////////
@@ -280,7 +202,7 @@ public:
 		const CElemAry::CElemSeg& es = ea.GetSeg(id_es);
 
 		unsigned int noes[256];
-		unsigned int nnoes = es.GetSizeNoes();
+		unsigned int nnoes = es.Length();
 		for(unsigned int ielem=0;ielem<ea.Size();ielem++){
 			es.GetNodes(ielem,noes);
 			for(unsigned int inoes=0;inoes<nnoes;inoes++){
@@ -315,12 +237,9 @@ private:
 private:
 	std::string m_str_name;	//!< name
 	unsigned int m_Size;	//!< number of nodes
-	
+	unsigned int m_DofSize;		//!< the size of DOF in node  	
+	double* m_paValue;		//!< the values in nodes  
 	Com::CObjSet<CNodeSeg> m_aSeg;	//!< the array of node segment
-
-	double* m_paValue;		//!< the values in nodes
-	unsigned int m_DofSize;		//!< the size of DOF in node
-
 	std::vector< CEaEsInc > m_aEaEs;	//!< whitch element segments this node is included
 };
 

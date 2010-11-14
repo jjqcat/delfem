@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
 /*! @file
-@brief オーダリングクラス(MatVec::COrdering_Blk)のインターフェース
+@brief interface of node ordering class (MatVec::COrdering_Blk)
 @author Nobuyuki Umetani
 */
 
@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define ORDERING_BLK_H
 
 #include <assert.h>
+#include <vector>
 
 namespace MatVec{
 
@@ -34,7 +35,7 @@ class CMatDia_BlkCrs;
 class CVector_Blk;
 
 /*! 
-@brief 節点オーダリングクラス
+@brief node ordering class
 @ingroup MatVec
 */
 class COrdering_Blk{
@@ -47,16 +48,13 @@ public:
 		if( m_pOrder != 0 ) delete[] m_pOrder;
 		if( m_pInvOrder != 0 ) delete[] m_pInvOrder;
 	}
+  void SetOrdering(const std::vector<int>& ord);
 	void MakeOrdering_RCM(const CMatDia_BlkCrs& mat);
 	void MakeOrdering_RCM2(const CMatDia_BlkCrs& mat);
 	void MakeOrdering_AMD(const CMatDia_BlkCrs& mat);
 	unsigned int NBlk() const { return m_nblk; }
-	int NewToOld(unsigned int iblk_new) const {
-		return m_pOrder[iblk_new];
-	}
-	int OldToNew(unsigned int iblk_old) const {
-		return m_pInvOrder[iblk_old];
-	}
+	int NewToOld(unsigned int iblk_new) const { return m_pOrder[iblk_new]; }
+	int OldToNew(unsigned int iblk_old) const { return m_pInvOrder[iblk_old]; }
 	void OrderingVector_NewToOld(CVector_Blk& vec_to, const CVector_Blk& vec_from);
 	void OrderingVector_OldToNew(CVector_Blk& vec_to, const CVector_Blk& vec_from);
 private:

@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 /*! @file
-@brief GLUT‚Ì•Ö—˜‚ÈŠÖ”CƒNƒ‰ƒXŒQ
+@brief GLUTã®ä¾¿åˆ©ãªé–¢æ•°ï¼Œã‚¯ãƒ©ã‚¹ç¾¤
 @author Nobuyuki Umetani
 */
 
@@ -38,71 +38,73 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 namespace Com{
 namespace View{
 
-//! ‘I‘ğƒIƒuƒWƒFƒNƒg
+//! é¸æŠã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 struct SSelectedObject{
-	unsigned int name_depth;	//!< –¼‘O‚Ì[‚³
-	int name[4];	//!< –¼‘O‚ğŠi”[‚µ‚Ä‚¢‚é”z—ñ(4‚Â‚Ü‚Å‚µ‚©‚È‚¢‚Ì‚Í–â‘è‚¶‚á‚ËH)
-	Com::CVector3D picked_pos;	//!< ƒsƒbƒN‚³‚ê‚½“_‚Ì‚RŸŒ³“I‚ÈˆÊ’u
+  unsigned int name_depth;	//!< åå‰ã®æ·±ã•
+  int name[4];	//!< åå‰ã‚’æ ¼ç´ã—ã¦ã„ã‚‹é…åˆ—(4ã¤ã¾ã§ã—ã‹ãªã„ã®ã¯å•é¡Œã˜ã‚ƒã­ï¼Ÿ)
+  Com::CVector3D picked_pos;	//!< ãƒ”ãƒƒã‚¯ã•ã‚ŒãŸç‚¹ã®ï¼“æ¬¡å…ƒçš„ãªä½ç½®
 };
-
+  
+  
 class CCamera;
 /*!
-@brief Projection•ÏŠ·‚ğ‚·‚é
-@remark glLoadIdentity()‚Í‚±‚ÌŠÖ”‚ÉŠÜ‚Ü‚ê‚È‚¢‚Ì‚ÅC‚±‚ÌŠÖ”‚ğŒÄ‚Ô‘O‚És‚¤‚±‚Æ(ƒsƒbƒN‚Å—p‚¢‚é‚½‚ß)
-*/
+ @brief Projectionå¤‰æ›ã‚’ã™ã‚‹
+ @remark glLoadIdentity()ã¯ã“ã®é–¢æ•°ã«å«ã¾ã‚Œãªã„ã®ã§ï¼Œã“ã®é–¢æ•°ã‚’å‘¼ã¶å‰ã«è¡Œã†ã“ã¨(ãƒ”ãƒƒã‚¯ã§ç”¨ã„ã‚‹ãŸã‚)
+ */
 void SetProjectionTransform(const CCamera& mvp_trans);	
 /*!
-@brief ModelView•ÏŠ·‚ğ‚·‚é
-@remark glLoadIdentity()‚Í‚±‚ÌŠÖ”‚ÉŠÜ‚Ü‚ê‚È‚¢‚Ì‚ÅC‚±‚ÌŠÖ”‚ğŒÄ‚Ô‘O‚És‚¤‚±‚Æ(ƒsƒbƒN‚Å—p‚¢‚é‚½‚ß)
-*/
+ @brief ModelViewå¤‰æ›ã‚’ã™ã‚‹
+ @remark glLoadIdentity()ã¯ã“ã®é–¢æ•°ã«å«ã¾ã‚Œãªã„ã®ã§ï¼Œã“ã®é–¢æ•°ã‚’å‘¼ã¶å‰ã«è¡Œã†ã“ã¨(ãƒ”ãƒƒã‚¯ã§ç”¨ã„ã‚‹ãŸã‚)
+ */
 void SetModelViewTransform(const CCamera& mvp_trans);
-//! ƒsƒbƒN‘Oˆ—
-void PickPre(
-	    unsigned int size_buffer, unsigned int* select_buffer,
-		unsigned int point_x, unsigned int point_y,
-		unsigned int delX, unsigned int delY,
-		const View::CCamera& mvp_trans);
-//		int win_width=-1, int win_height=-1);
-
-//! ƒsƒbƒNŒãˆ—		
-std::vector<SSelectedObject> PickPost(
-		unsigned int* const select_buffer,
-		unsigned int point_x, unsigned int point_y,
-		const View::CCamera& mvp_trans);
-//		int win_width=-1, int win_height=-1 );
-
-
+  
+//! ãƒ”ãƒƒã‚¯å‰å‡¦ç†
+void PickPre(unsigned int size_buffer, unsigned int* select_buffer,
+             unsigned int point_x, unsigned int point_y,
+             unsigned int delX, unsigned int delY,
+             const View::CCamera& mvp_trans);
+  
+//! ãƒ”ãƒƒã‚¯å¾Œå‡¦ç†		
+std::vector<SSelectedObject> PickPost(unsigned int* const select_buffer,
+                                      unsigned int point_x, unsigned int point_y,
+                                      const View::CCamera& mvp_trans);
+  
+bool ReadPPM_SetTexture(const std::string& fname, 
+                        unsigned int& texName, 
+                        unsigned int& texWidth, unsigned int& texHeight);
+  
 //! Draw coordinate
 class CDrawerCoord : public CDrawer{
 public:
   CDrawerCoord(){}
-	CDrawerCoord(const CCamera& trans, unsigned int win_h );
-	virtual void Draw() const;
-
+  CDrawerCoord(const CCamera& trans, unsigned int win_h );
+  virtual void Draw() const;
+  
   // virutal functions which do nothing
-	virtual void DrawSelection(unsigned int idraw) const {}
-	virtual Com::CBoundingBox GetBoundingBox(double rot[]) const { return Com::CBoundingBox(); }
-	virtual void AddSelected(const int selec_flag[]){}
-	virtual void ClearSelected(){}
-
+  virtual void DrawSelection(unsigned int idraw) const {}
+  virtual Com::CBoundingBox GetBoundingBox(double rot[]) const { return Com::CBoundingBox(); }
+  virtual void AddSelected(const int selec_flag[]){}
+  virtual void ClearSelected(){}
+  
   // non-virtual functions
   void SetTrans(const CCamera& trans, int win_h = -1);
   void SetIsShown(bool is_show){ this->is_show = is_show; }
   bool GetIsShown() const { return is_show; }
 private:
   bool is_show;
-
-	std::vector<double> x_axis_coord;
-	std::vector<std::string> x_axis_name;
-
-	std::vector<double> y_axis_coord;
-	std::vector<std::string> y_axis_name;
-
-	unsigned int m_win_h;
-	double m_tex_scale;
-	double coord_len;
+  
+  std::vector<double> x_axis_coord;
+  std::vector<std::string> x_axis_name;
+  
+  std::vector<double> y_axis_coord;
+  std::vector<std::string> y_axis_name;
+  
+  unsigned int m_win_h;
+  double m_tex_scale;
+  double coord_len;
 };
-
+  
+  
 //! Draweing Rectangular Box for selection or specifying region
 class CDrawerRect : public CDrawer
 {
@@ -111,61 +113,62 @@ public:
     begin_x = 0;    begin_y = 0;
     this->m_imode = 0;
   }
-	CDrawerRect(double x, double y, unsigned int imode = 0);
+  CDrawerRect(double x, double y, unsigned int imode = 0);
   virtual void Draw() const;
   void SetInitialPositionMode(double x, double y, unsigned int imode){
     begin_x = x;    begin_y = y;
     this->m_imode = imode;
   }
-	void SetPosition(double x, double y);
+  void SetPosition(double x, double y);
   void GetCenterSize(double& cent_x, double& cent_y, double& size_x, double& size_y);
   void GetPosition(double& x0, double& y0, double& x1, double& y1){
     x0 = begin_x;   y0 = begin_y;
     x1 = end_x;   y1 = end_y;
   }
-
+  
   // vertual function
-	virtual void DrawSelection(unsigned int idraw) const {}
-	virtual Com::CBoundingBox GetBoundingBox(double rot[]) const { return Com::CBoundingBox(); }
-	virtual void AddSelected(const int selec_flag[]){}
-	virtual void ClearSelected(){}
-private :
-	double begin_x,begin_y;
-	double end_x, end_y;
-	unsigned int m_imode;
-};
-
+  virtual void DrawSelection(unsigned int idraw) const {}
+  virtual Com::CBoundingBox GetBoundingBox(double rot[]) const { return Com::CBoundingBox(); }
+  virtual void AddSelected(const int selec_flag[]){}
+  virtual void ClearSelected(){}
+  private :
+  double begin_x,begin_y;
+  double end_x, end_y;
+  unsigned int m_imode;
+};  
+  
+  
 //! Draw texture in the background
 class CDrawerImageTexture : public CDrawer
 {
 public:
-	CDrawerImageTexture(){
-		m_texName = 0;
-		m_texWidth = 0;
-		m_texHight = 0;
-		x_min=0;	x_max=1;
-		y_min=0;	y_max=1;
-	}
-    bool IsTexture(){ return m_texName!=0;}
-	bool ReadPPM(const std::string& fname);
-    void DeleteTexture();
-	bool SetImage(unsigned int w, unsigned int h, const std::vector<char>& aRGB);
-	virtual void Draw() const;
-
-	// ˆÈ‰º‚ÌvirtualŠÖ”‚ÍÀ‘•‚³‚ê‚È‚¢
-	virtual void DrawSelection(unsigned int idraw) const {}
-	virtual Com::CBoundingBox GetBoundingBox(double rot[]) const { 
-		return Com::CBoundingBox(x_min,x_max, y_min,y_max, -1,1); 
-	}
-	virtual void AddSelected(const int selec_flag[]){}
-	virtual void ClearSelected(){}
-private :
+  CDrawerImageTexture(){
+    m_texName = 0;
+    m_texWidth = 0;
+    m_texHight = 0;
+    x_min=0;	x_max=1;
+    y_min=0;	y_max=1;
+  }
+  bool IsTexture(){ return m_texName!=0;}
+  bool ReadPPM(const std::string& fname);
+  void DeleteTexture();
+  bool SetImage(unsigned int w, unsigned int h, const std::vector<char>& aRGB);
+  virtual void Draw() const;
+  
+  // ä»¥ä¸‹ã®virtualé–¢æ•°ã¯å®Ÿè£…ã•ã‚Œãªã„
+  virtual void DrawSelection(unsigned int idraw) const {}
+  virtual Com::CBoundingBox GetBoundingBox(double rot[]) const { 
+    return Com::CBoundingBox(x_min,x_max, y_min,y_max, -1,1); 
+  }
+  virtual void AddSelected(const int selec_flag[]){}
+  virtual void ClearSelected(){}
+  private :
   unsigned int m_texName;	// if 0 then no texture
-	unsigned int m_texWidth;	// should be power of 2
-	unsigned int m_texHight;	// should be power of 2
-	double x_min,x_max,  y_min,y_max;
-};
-
+  unsigned int m_texWidth;	// should be power of 2
+  unsigned int m_texHight;	// should be power of 2
+  double x_min,x_max,  y_min,y_max;
+};  
+  
 } // end namespace View
 } // end namespace Com
 

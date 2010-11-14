@@ -44,10 +44,12 @@ public:
 	virtual void ClearSelected(){}
 	virtual void Draw() const;
 	virtual bool Update(const Fem::Field::CFieldWorld& world);
+  void SetLineWidth(unsigned int iw){ this->line_width_ = iw; }
 private:
 	bool Set(unsigned int id_field, bool isnt_value_disp, const Fem::Field::CFieldWorld& world );
 private:
 	unsigned int m_nline;	// •Ó‚Ì”
+  unsigned int line_width_;
 	Com::View::CVertexArray* m_paVer;	// ’¸“_”z—ñ
 	unsigned int m_IdField;
 	bool isnt_value_disp;

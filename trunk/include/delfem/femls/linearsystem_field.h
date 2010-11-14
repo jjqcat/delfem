@@ -56,26 +56,26 @@ namespace Ls{
 class CLinearSystem_Field : public LsSol::ILinearSystem_Sol, public Eqn::ILinearSystem_Eqn
 {
 public:
-    CLinearSystem_Field(){}	//! default constructor
-    virtual ~CLinearSystem_Field(){ this->Clear(); }	//! destructor
+  CLinearSystem_Field(){}	//! default constructor
+  virtual ~CLinearSystem_Field(){ this->Clear(); }	//! destructor
 	
 	////////////////
-    virtual void Clear(){ m_ls.Clear(); m_aSegField.clear(); }
+  virtual void Clear(){ m_ls.Clear(); m_aSegField.clear(); }
 
 	////////////////////////////////
 	// function for marge element matrix
 
 	//! Get residual vector for node location (elseg_type) in field (id_field)
-    virtual MatVec::CVector_Blk& GetResidual(unsigned int id_field, Field::ELSEG_TYPE elseg_type, const Field::CFieldWorld& world);
-    virtual MatVec::CVector_Blk& GetUpdate(  unsigned int id_field, Field::ELSEG_TYPE elseg_type, const Field::CFieldWorld& world);
+  virtual MatVec::CVector_Blk& GetResidual(unsigned int id_field, Field::ELSEG_TYPE elseg_type, const Field::CFieldWorld& world);
+  virtual MatVec::CVector_Blk& GetUpdate(  unsigned int id_field, Field::ELSEG_TYPE elseg_type, const Field::CFieldWorld& world);
 	//! Get square sub-matrix from diagonal part of full linear system
-    virtual MatVec::CMatDia_BlkCrs& GetMatrix(
-        unsigned int id_field, Fem::Field::ELSEG_TYPE elseg_type, const Fem::Field::CFieldWorld& world);
+  virtual MatVec::CMatDia_BlkCrs& GetMatrix
+  (unsigned int id_field, Fem::Field::ELSEG_TYPE elseg_type, const Fem::Field::CFieldWorld& world);
 	//! Get non-square sub-matrix from off-diagonal part of full linear system
-    virtual MatVec::CMat_BlkCrs& GetMatrix(
-        unsigned int id_field_col, Field::ELSEG_TYPE elseg_type_col,
-		unsigned int id_field_row, Field::ELSEG_TYPE elseg_type_row,
-		const Field::CFieldWorld& world);
+  virtual MatVec::CMat_BlkCrs& GetMatrix
+  (unsigned int id_field_col, Field::ELSEG_TYPE elseg_type_col,
+   unsigned int id_field_row, Field::ELSEG_TYPE elseg_type_row,
+   const Field::CFieldWorld& world);
 	
 	////////////////////////////////
 	// function for marge
@@ -148,16 +148,16 @@ protected:
 protected:
 	int AddLinSysSeg( const CLinSysSeg_Field& seg );
 	int AddLinSysSeg_Field(unsigned int id_field, Fem::Field::ELSEG_TYPE es_type, const Fem::Field::CFieldWorld& world);
-    bool AddMat_NonDia(unsigned int ils_col, unsigned int ils_row, const Com::CIndexedArray& crs ){
-        return m_ls.AddMat_NonDia(ils_col,ils_row,crs);
-    }
-    bool AddMat_Dia(unsigned int ils, Com::CIndexedArray& crs ){
-        return m_ls.AddMat_Dia(ils,crs);
-    }
+  bool AddMat_NonDia(unsigned int ils_col, unsigned int ils_row, const Com::CIndexedArray& crs ){
+    return m_ls.AddMat_NonDia(ils_col,ils_row,crs);
+  }
+  bool AddMat_Dia(unsigned int ils, Com::CIndexedArray& crs ){
+    return m_ls.AddMat_Dia(ils,crs);
+  }  
 protected:
 	std::vector< CLinSysSeg_Field > m_aSegField;
 public:
-    LsSol::CLinearSystem m_ls;
+  LsSol::CLinearSystem m_ls;
 };
 
 

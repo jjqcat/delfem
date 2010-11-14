@@ -202,7 +202,7 @@ bool CBRep2D::CItrLoop::IsParent() const
 	assert( m_pBRep2D->m_BRep.IsID_UseLoop(m_IdUL) );
 	const CUseLoop& ul = m_pBRep2D->m_BRep.GetUseLoop(m_IdUL);
 	assert( ul.id == m_IdUL );
-	return (ul.id_ul_p == 0);
+	return (ul.id_ul_p == m_IdUL);
 }
 
 bool CBRep2D::CItrLoop::IsEdge_BothSideSameLoop() const
@@ -360,7 +360,7 @@ bool CBRep2D::CItrVertex::IsParent() const
 	unsigned int id_ul = he.id_ul;
 	assert( m_pBRep2D->m_BRep.IsID_UseLoop(id_ul) );
 	const CUseLoop& ul = m_pBRep2D->m_BRep.GetUseLoop(id_ul);
-	return (ul.id_ul_p == 0);
+	return (ul.id_ul_p == id_ul);
 }
 
 bool CBRep2D::CItrVertex::IsSameUseLoop(const CItrVertex& itrl) const
@@ -418,25 +418,25 @@ bool CBRep2D::GetIdLoop_Edge(unsigned int id_e, unsigned int& id_l_l, unsigned i
 		id_he0 = itr->second;
 	}
 	assert( m_BRep.IsID_HalfEdge(id_he0) );
-    const Cad::CHalfEdge& he0 = m_BRep.GetHalfEdge(id_he0);
+  const Cad::CHalfEdge& he0 = m_BRep.GetHalfEdge(id_he0);
 	const unsigned int id_he1 = he0.id_he_o;
-    const Cad::CHalfEdge& he1 = m_BRep.GetHalfEdge(id_he1);
-    unsigned int id_ul_l, id_ul_r;
-    if( he0.is_same_dir ){
-        assert( !he1.is_same_dir );
-        id_ul_l = he0.id_ul;
-        id_ul_r = he1.id_ul;
-    }
-    else{
-        assert(  he1.is_same_dir );
-        id_ul_l = he1.id_ul;
-        id_ul_r = he0.id_ul;
-    }
-    const Cad::CUseLoop& ul_l = m_BRep.GetUseLoop(id_ul_l);
-    const Cad::CUseLoop& ul_r = m_BRep.GetUseLoop(id_ul_r);
-    id_l_l = ul_l.id_l;
-    id_l_r = ul_r.id_l;
-    return true;
+  const Cad::CHalfEdge& he1 = m_BRep.GetHalfEdge(id_he1);
+  unsigned int id_ul_l, id_ul_r;
+  if( he0.is_same_dir ){
+    assert( !he1.is_same_dir );
+    id_ul_l = he0.id_ul;
+    id_ul_r = he1.id_ul;
+  }
+  else{
+    assert(  he1.is_same_dir );
+    id_ul_l = he1.id_ul;
+    id_ul_r = he0.id_ul;
+  }
+  const Cad::CUseLoop& ul_l = m_BRep.GetUseLoop(id_ul_l);
+  const Cad::CUseLoop& ul_r = m_BRep.GetUseLoop(id_ul_r);
+  id_l_l = ul_l.id_l;
+  id_l_r = ul_r.id_l;
+  return true;
 }
 
 CBRep2D::CItrLoop CBRep2D::GetItrLoop_SideEdge(unsigned int id_e, bool is_left) const
@@ -469,7 +469,7 @@ bool CBRep2D::AssertValid() const
 {
 	// Check Loop
 	for(std::map<unsigned int,unsigned int>::const_iterator itr=map_l2ul.begin();itr!=map_l2ul.end();itr++){
-        const unsigned int id_l = itr->first;
+    const unsigned int id_l = itr->first;
 		unsigned int id_ul_p = itr->second;
 		assert( m_BRep.IsID_UseLoop(id_ul_p) );
 		{
@@ -480,18 +480,14 @@ bool CBRep2D::AssertValid() const
 		assert( this->TypeUseLoop(id_ul_p) == 2 );
 		unsigned int id_ul = id_ul_p;
 		for(;;){
-			if( id_ul == 0 ) break;
+      assert( m_BRep.IsID_UseLoop(id_ul) );
 			const CUseLoop& ul = m_BRep.GetUseLoop(id_ul);
 			assert( ul.id == id_ul ); 
 			assert( ul.id_l == id_l );
-			if( id_ul == id_ul_p ){	// 親ループのid_ul_pは０
-				assert( ul.id_ul_p == 0 );
-			}
-			else{	// 子ループは親ループのIDを持つ
-				assert( ul.id_ul_p == id_ul_p );
-			}
-			// 次のループへ
+      assert( ul.id_ul_p == id_ul_p );
+			// goto next loop
 			id_ul = ul.id_ul_c;
+			if( id_ul == 0 ) break;      
 		}
 	}
 
@@ -774,6 +770,7 @@ std::vector< std::pair<unsigned int,bool> > CBRep2D::GetItrLoop_ConnectVertex(
 
 unsigned int CBRep2D::ConnectVertex(const CItrVertex& itrv1, const CItrVertex& itrv2, bool is_left_ladd)
 {
+//  std::cout << "CBRep2D::ConnectVertex" << std::endl;
 	const unsigned int id_uv1 = itrv1.GetIdUseVertex();
 	const unsigned int id_uv2 = itrv2.GetIdUseVertex();
 	if( !m_BRep.IsID_UseVertex(id_uv1) ){ return 0; }
@@ -940,14 +937,15 @@ unsigned int CBRep2D::ConnectVertex(const CItrVertex& itrv1, const CItrVertex& i
 		}
 		else{
 			unsigned int id_ul_p = map_l2ul.find(id_l)->second;
+//      std::cout << "split l1 ladd lp : " << id_ul1 << " " << id_ul_add << " " << id_ul_p << std::endl;
 			if( id_ul1 != id_ul_p ){	// 子ループの外側にループを追加する場合
 				if( is_left_ladd ){	// id_ul_addが子ループの外側のループになった場合
 					m_BRep.SwapUseLoop(id_ul_add,id_ul1);
+					m_BRep.SetLoopIDtoUseLoop(id_ul_add,id_l);  
 					m_BRep.AssertValid_Use();
-					m_BRep.SetLoopIDtoUseLoop(id_ul_add,id_l);
 					iflag = false;
 				}				
-				else{}	// id_ul1が子ループの外側になった場合*/
+				else{}	// id_ul1が子ループの外側になった場合
 			}
 			else{}	// ループを二分する場合
 		}
@@ -974,13 +972,13 @@ bool CBRep2D::SwapItrLoop(const CItrLoop& itrl, unsigned int id_l_to )
 	{	// 新しくできるループの親半ループ
 		id_ul_p_to = map_l2ul.find(id_l_to)->second;
 		const CUseLoop& ul = m_BRep.GetUseLoop(id_ul_p_to);
-		assert( ul.id_ul_p == 0 );
+		assert( ul.id_ul_p == id_ul_p_to );
 	}
 	const unsigned int id_ul_fr = itrl.GetIdUseLoop();
 	{
 		assert( this->m_BRep.IsID_UseLoop(id_ul_fr) );
 		const CUseLoop& ul = m_BRep.GetUseLoop(id_ul_fr);
-		assert( ul.id_ul_p != 0 );
+		assert( ul.id_ul_p != id_ul_fr );
 	}
 	m_BRep.MoveUseLoop(id_ul_fr,id_ul_p_to);
 	m_BRep.SetLoopIDtoUseLoop(id_ul_fr,id_l_to);

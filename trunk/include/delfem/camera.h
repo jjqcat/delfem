@@ -192,7 +192,7 @@ public:
 	double GetWindowAspect() const { return win_aspect; }	// get window aspect ratio
 
 	////////////////
-	// ‰ñ“]
+	// rotation
 	void RotMatrix33(double m[]) const {
 		if( rot_mode == ROT_2D ){
 			const double ct = cos(theta);
@@ -253,11 +253,12 @@ public:
 			rot_quat = tmp_quat;
 			rot_quat.Normalize();
 		}
-		else if( rot_mode == ROT_2DH ){
-			theta += (mov_end_x-mov_begin_x)*3.1415926/180.0*100.0;
-			phi -= (mov_end_y-mov_begin_y)*3.1415926/180.0*100.0;
-			if( phi > 0.0 ){ phi = 0.0; }
-			else if( phi < -90.0*3.1415926/180.0 ){ phi = -90.0*3.1415926/180.0; }
+    else if( rot_mode == ROT_2DH ){
+      const double tmp = 3.1415926/180.0;
+      theta += (mov_end_x-mov_begin_x)*tmp*100.0;
+      phi -= (mov_end_y-mov_begin_y)*tmp*100.0;
+      if( phi > +0.0*tmp ){ phi = +0.0*tmp; }
+      else if( phi < -180.0*tmp ){ phi = -180.0*tmp; }
 		}
 		else if( rot_mode == ROT_2D ){
 			{
@@ -296,11 +297,11 @@ public:
 
 		double obj_cnt_x=obj_center.x, obj_cnt_y=obj_center.y, obj_cnt_z=obj_center.z;
 
-        double ox =  hw*cos(theta)*(pos_x*inv_scale-win_center_x)+hh*sin(theta)*(pos_y*inv_scale-win_center_y)+obj_cnt_x;
-        double oy = -hw*sin(theta)*(pos_x*inv_scale-win_center_x)+hh*cos(theta)*(pos_y*inv_scale-win_center_y)+obj_cnt_y;
-        double oz = +obj_cnt_z;
+    double ox =  hw*cos(theta)*(pos_x*inv_scale-win_center_x)+hh*sin(theta)*(pos_y*inv_scale-win_center_y)+obj_cnt_x;
+    double oy = -hw*sin(theta)*(pos_x*inv_scale-win_center_x)+hh*cos(theta)*(pos_y*inv_scale-win_center_y)+obj_cnt_y;
+    double oz = +obj_cnt_z;
 
-        return Com::CVector3D(ox,oy,oz);
+    return Com::CVector3D(ox,oy,oz);
 	}
 
 

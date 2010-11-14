@@ -920,8 +920,8 @@ bool AddLinSys_Hyper3D_HEX100100_000010(
 	const double (*Gauss)[2] = LineGauss[num_integral];
 	double detjac, detwei;
 
-	const unsigned int nno_c = 8;	assert( nno_c == es_cu.GetSizeNoes() );
-	const unsigned int nno_b = 1;	assert( nno_b == es_bp.GetSizeNoes() );
+	const unsigned int nno_c = 8;	assert( nno_c == es_cu.Length() );
+	const unsigned int nno_b = 1;	assert( nno_b == es_bp.Length() );
 	const unsigned int ndim = 3;
 	const unsigned int nstdim = 6;	// 対称テンソルの次元
 
@@ -1136,8 +1136,8 @@ bool AddLinSys_Hyper3D_NonStatic_NewmarkBeta_HEX100100_000010(
 	const double (*Gauss)[2] = LineGauss[num_integral];
 	double detjac, detwei;
 
-	const unsigned int nno_c = 8;	assert( nno_c == es_cu.GetSizeNoes() );
-	const unsigned int nno_b = 1;	assert( nno_b == es_bp.GetSizeNoes() );
+	const unsigned int nno_c = 8;	assert( nno_c == es_cu.Length() );
+	const unsigned int nno_b = 1;	assert( nno_b == es_bp.Length() );
 	const unsigned int ndim = 3;
 	const unsigned int nstdim = 6;	// 対称テンソルの次元
 

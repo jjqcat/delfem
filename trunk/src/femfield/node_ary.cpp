@@ -56,6 +56,20 @@ CNodeAry::CNodeAry() : m_Size(0)
 	m_paValue = 0;
 }
 
+CNodeAry::CNodeAry(const CNodeAry& na){
+	m_str_name = na.m_str_name;
+	m_Size = na.m_Size;
+	m_DofSize = na.m_DofSize;
+  {
+    const unsigned int n = m_Size*m_DofSize;
+    m_paValue = new double [n];
+    for(unsigned int i=0;i<n;i++){ m_paValue[i] = na.m_paValue[i]; }
+  }
+	m_aSeg = na.m_aSeg;
+	m_aEaEs = na.m_aEaEs;
+}
+
+
 CNodeAry::~CNodeAry()
 {
 	std::cout << "Destruction of class CNodeAry" << std::endl;
@@ -541,3 +555,93 @@ int CNodeAry::DumpToFile_UpdatedValue(const std::string& file_name, long& offset
 	return 0;
 }
 */
+
+
+void CNodeAry::AddEaEs( std::pair<unsigned int, unsigned int> eaes ){
+  unsigned int ieaes = this->GetIndEaEs( eaes );
+  if( ieaes != m_aEaEs.size() ) return;
+  {
+    CEaEsInc eaesinc;
+    eaesinc.id_ea = eaes.first;
+    eaesinc.id_es = eaes.second;
+    m_aEaEs.push_back( eaesinc );
+  }
+}
+
+std::vector< std::pair<unsigned int, unsigned int> > CNodeAry::GetAryEaEs() const {
+  std::vector< std::pair<unsigned int, unsigned int> > aEaEs;
+  for(unsigned int ieaes=0;ieaes<m_aEaEs.size();ieaes++){
+    aEaEs.push_back( std::make_pair(m_aEaEs[ieaes].id_ea,m_aEaEs[ieaes].id_es) );
+  }
+  return aEaEs;
+}
+
+void CNodeAry::SetIncludeEaEs_InEaEs( std::pair<unsigned int, unsigned int> eaes_included,
+                           std::pair<unsigned int, unsigned int> eaes_container )
+{
+  unsigned int ieaes_included = this->GetIndEaEs( eaes_included );
+  if( ieaes_included == m_aEaEs.size() ) return;
+  unsigned int ieaes_container = this->GetIndEaEs( eaes_container );
+  if( ieaes_container == m_aEaEs.size() ) return;
+  //        std::cout << "SetInclude " << eaes_included.first << " " << eaes_included.second << "    in    ";
+  //        std::cout << eaes_container.first << " " << eaes_container.second << std::endl;
+  m_aEaEs[ieaes_container].aIndEaEs_Include.push_back(ieaes_included);
+}
+
+
+bool CNodeAry::IsIncludeEaEs_InEaEs( std::pair<unsigned int, unsigned int> eaes_inc,
+                          std::pair<unsigned int, unsigned int> eaes_in ) const
+{
+  unsigned int ieaes_inc = this->GetIndEaEs( eaes_inc );
+  if( ieaes_inc == m_aEaEs.size() ) return false;
+  unsigned int ieaes_in = this->GetIndEaEs( eaes_in );
+  if( ieaes_in == m_aEaEs.size() ) return false;
+  const std::vector<unsigned int>& inc = m_aEaEs[ieaes_in].aIndEaEs_Include;
+  for(unsigned int iieaes=0;iieaes<inc.size();iieaes++){
+    if( inc[iieaes] == ieaes_inc ){
+      return true;
+    }
+  }
+  return false;
+}
+
+std::vector< std::pair<unsigned int, unsigned int> > CNodeAry::GetAry_EaEs_Min() const
+{
+  std::vector< std::pair<unsigned int, unsigned int> > aEaEs;
+  std::vector<unsigned int> aflg;
+  aflg.resize(m_aEaEs.size(),1);
+  for(unsigned int ieaes=0;ieaes<m_aEaEs.size();ieaes++){
+    const std::vector<unsigned int>& inc = m_aEaEs[ieaes].aIndEaEs_Include;
+    for(unsigned int jjeaes=0;jjeaes<inc.size();jjeaes++){
+      unsigned int jeaes = inc[jjeaes];
+      assert( jeaes < m_aEaEs.size() );
+      aflg[jeaes] = 0;
+    }
+  }
+  for(unsigned int ieaes=0;ieaes<m_aEaEs.size();ieaes++){
+    if( aflg[ieaes] == 1 ){
+      aEaEs.push_back( std::make_pair(m_aEaEs[ieaes].id_ea,m_aEaEs[ieaes].id_es) );
+    }
+  }
+  return aEaEs;
+}
+
+unsigned int CNodeAry::IsContainEa_InEaEs(std::pair<unsigned int, unsigned int>eaes, unsigned int id_ea) const
+{
+  const unsigned int ieaes = this->GetIndEaEs( eaes );
+  if( ieaes == m_aEaEs.size() ) return 0;
+  if( m_aEaEs[ieaes].id_ea == id_ea ){
+    return m_aEaEs[ieaes].id_es;
+  }
+  const std::vector<unsigned int>& inc = m_aEaEs[ieaes].aIndEaEs_Include;
+  for(unsigned int jjeaes=0;jjeaes<inc.size();jjeaes++){
+    unsigned int jeaes = inc[jjeaes];
+    assert( jeaes < m_aEaEs.size() );
+    if( m_aEaEs[jeaes].id_ea == id_ea ){
+      return m_aEaEs[jeaes].id_es;
+    }
+  }
+  return 0;
+}
+
+

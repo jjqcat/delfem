@@ -131,7 +131,8 @@ public:
 		this->m_elen = 0.1;
 		this->m_esize = 1000;
 	}
-    virtual ~CMesher2D(){}
+  CMesher2D(const CMesher2D&);
+  virtual ~CMesher2D(){}
 
 	////////////////////////////////
 	
@@ -343,10 +344,10 @@ private:
 	double m_elen;
 	unsigned int m_esize;
 protected:
-	std::vector<int> m_ElemType;	// vertex(0) bar(1) tri(2) quad(3)	いつでも有効(なければ-1が返る)
-	std::vector<int> m_ElemLoc;		// index of elem_ary				いつでも有効(なければ-1が返る)　
-	std::vector< std::vector<unsigned int> > m_include_relation;	// どの要素配列がどの要素配列を含んでるか
-
+	std::vector<int> m_ElemType;	// vertex(0) bar(1) tri(2) quad(3)	always valid (return -1 if no corresponding ID)
+	std::vector<int> m_ElemLoc;		// index of elem_ary : always valid (return -1 if no corresponding ID)
+	std::vector< std::vector<unsigned int> > m_include_relation;	// which ea contains which ea
+  
 	std::vector<SVertex> m_aVertex;		// type(0)
 	std::vector<CBarAry> m_aBarAry;		// type(1)
 	std::vector<CTriAry2D> m_aTriAry;	// type(2)

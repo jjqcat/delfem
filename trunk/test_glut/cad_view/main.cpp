@@ -169,6 +169,8 @@ bool SetNewProblem()
 {
 	const unsigned int nprob = 12;
 	static unsigned int iprob = 0;
+  
+  std::cout << "SetNewProblem() " << iprob << std::endl;
 
 	Cad::CCadObj2D cad_2d;
 	if( iprob == 0 )
@@ -176,12 +178,11 @@ bool SetNewProblem()
 		unsigned int id_l0;
  		{	// Make model
 			std::vector<Com::CVector2D> vec_ary;
-			vec_ary.resize(4);
-			vec_ary[0] = Com::CVector2D(0.0,0.0);
-			vec_ary[1] = Com::CVector2D(1.0,0.0);
-			vec_ary[2] = Com::CVector2D(1.0,1.0);
-			vec_ary[3] = Com::CVector2D(0.0,1.0);
-			id_l0 = cad_2d.AddPolygon( vec_ary,0 );
+			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
+      vec_ary.push_back( Com::CVector2D(1.0,0.0) );
+      vec_ary.push_back( Com::CVector2D(1.0,1.0) );
+			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
+			id_l0 = cad_2d.AddPolygon( vec_ary,0 ).id_l_add;
 		}
 		const unsigned int id_v5 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.5,0.5));
 		const unsigned int id_v6 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.5,0.8));
@@ -192,11 +193,16 @@ bool SetNewProblem()
 		cad_2d.ConnectVertex_Line(id_v5,id_v7);	
 		cad_2d.ConnectVertex_Line(id_v5,id_v8);	
 		cad_2d.ConnectVertex_Line(id_v5,id_v9);
-		{
+    {
+      Cad::CCadObj2D cad_tmp(cad_2d);
+      cad_2d.Clear();
+      cad_2d = cad_tmp;
+    }
+		{ // export to the file
 			Com::CSerializer fout("hoge.txt",false);
 			cad_2d.Serialize(fout);
 		}
-		{
+		{ // import form the file
 			Com::CSerializer fin( "hoge.txt",true);
 			cad_2d.Serialize(fin);
 		}
@@ -208,20 +214,24 @@ bool SetNewProblem()
 	{
  		{	// Make model
 			std::vector<Com::CVector2D> vec_ary;
-			vec_ary.resize(6);
-			vec_ary[0] = Com::CVector2D(0.0,0.0);
-			vec_ary[1] = Com::CVector2D(2.0,0.0);
-			vec_ary[2] = Com::CVector2D(2.0,1.0);
-			vec_ary[3] = Com::CVector2D(1.0,1.0);
-			vec_ary[4] = Com::CVector2D(1.0,2.0);
-			vec_ary[5] = Com::CVector2D(0.0,2.0);
-			const unsigned int id_l0 = cad_2d.AddPolygon( vec_ary );
+			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
+			vec_ary.push_back( Com::CVector2D(2.0,0.0) );
+			vec_ary.push_back( Com::CVector2D(2.0,1.0) );
+			vec_ary.push_back( Com::CVector2D(1.0,1.0) );
+			vec_ary.push_back( Com::CVector2D(1.0,2.0) );
+			vec_ary.push_back( Com::CVector2D(0.0,2.0) );
+			const unsigned int id_l0 = cad_2d.AddPolygon( vec_ary ).id_l_add;
 		}
-		{	// ÉtÉ@ÉCÉãÇ…èëÇ´èoÇ∑
+    {
+      Cad::CCadObj2D cad_tmp(cad_2d);
+      cad_2d.Clear();
+      cad_2d = cad_tmp;
+    }
+		{	// export to the file
 			Com::CSerializer fout("hoge.txt",false);
 			cad_2d.Serialize(fout);
 		}
-		{	// ÉtÉ@ÉCÉãÇ©ÇÁì«Ç›çûÇﬁ
+		{	// import from the file
 			Com::CSerializer fin( "hoge.txt",true);
 			cad_2d.Serialize(fin);
 		}
@@ -239,25 +249,22 @@ bool SetNewProblem()
 			vec_ary[1] = Com::CVector2D(1.0,0.0);
 			vec_ary[2] = Com::CVector2D(1.0,0.4);
 			vec_ary[3] = Com::CVector2D(0.0,0.4);
-			id_l0 = cad_2d.AddPolygon( vec_ary );
+			id_l0 = cad_2d.AddPolygon( vec_ary ).id_l_add;
 		}
 //		cad_2d.SetCurve_Arc(1,true,-0.2);
 //		cad_2d.SetCurve_Arc(2,true, -0.5);
 		cad_2d.SetCurve_Arc(3,false, 0);
 //		cad_2d.SetCurve_Arc(4,true, -0.5);
-		{	// ÉtÉ@ÉCÉãÇ…èëÇ´èoÇ∑
-			Com::CSerializer fout("hoge.txt",false);
-			cad_2d.Serialize(fout);
-		}
-		{	// ÉtÉ@ÉCÉãÇ©ÇÁì«Ç›çûÇﬁ
-			Com::CSerializer fin( "hoge.txt",true);
-			cad_2d.Serialize(fin);
-		}
+    {
+      Cad::CCadObj2D cad_tmp(cad_2d);
+      cad_2d.Clear();
+      cad_2d = cad_tmp;
+    }
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
 		drawer_ary.InitTrans(mvp_trans);
 	}
-	else  if( iprob == 3 )	// AddPolygonÇégÇÌÇ∏Ç…å`ÇÇ¬Ç≠ÇÈ
+	else  if( iprob == 3 )	// AddPolygon√áÔ£ø√©g√á√å√á‚àè√á‚Ä¶√•`√áÔ£ø√á¬¨√á‚â†√á√à
 	{
 		const unsigned int id_v1 = cad_2d.AddVertex(Cad::NOT_SET,0,Com::CVector2D(0,0));
 		const unsigned int id_v2 = cad_2d.AddVertex(Cad::NOT_SET,0,Com::CVector2D(1,0));
@@ -271,8 +278,13 @@ bool SetNewProblem()
 		cad_2d.ConnectVertex_Line(id_v5,id_v7);
 		const unsigned int id_v6 = cad_2d.AddVertex(Cad::NOT_SET,0,Com::CVector2D(1.5,0.5));
 		cad_2d.ConnectVertex_Line(id_v5,id_v6);
-		cad_2d.ConnectVertex_Line(id_v4,id_v1);	// ÉãÅ[ÉvÇ™Ç≈Ç´ÇÈ
+		cad_2d.ConnectVertex_Line(id_v4,id_v1);	// √â√£√Ö[√âv√á‚Ñ¢√á‚âà√á¬¥√á√à
 //		cad_2d.ConnectVertex_Line(id_v2,id_v6);
+    {
+      Cad::CCadObj2D cad_tmp(cad_2d);
+      cad_2d.Clear();
+      cad_2d = cad_tmp;
+    }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
 		drawer_ary.InitTrans(mvp_trans);
@@ -286,7 +298,7 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(1.0,1.0) );
 			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
-			id_l0 = cad_2d.AddPolygon( vec_ary );
+			id_l0 = cad_2d.AddPolygon( vec_ary ).id_l_add;
 		}
 //		const unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.5,0.5));
 		const unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.5,0.2));
@@ -297,12 +309,17 @@ bool SetNewProblem()
 		cad_2d.ConnectVertex_Line(id_v3,id_v4);
 		cad_2d.ConnectVertex_Line(id_v4,id_v5);
 		cad_2d.ConnectVertex_Line(id_v5,id_v2);
+    {
+      Cad::CCadObj2D cad_tmp(cad_2d);
+      cad_2d.Clear();
+      cad_2d = cad_tmp;
+    }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
 		drawer_ary.InitTrans(mvp_trans);
 	}
 	else if( iprob == 5 )
-	{	// Ç–Ç¡Ç≠ÇËï‘Ç¡ÇΩÉãÅ[ÉvÇó^Ç¶ÇÈ
+	{	// √á‚Äì√á¬°√á‚â†√á√ã√Ø‚Äò√á¬°√áŒ©√â√£√Ö[√âv√áÔ£ø√≥^√á¬∂√á√à
 		unsigned int id_l0;
  		{	// Make model
 			std::vector<Com::CVector2D> vec_ary;
@@ -310,14 +327,19 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
 			vec_ary.push_back( Com::CVector2D(1.0,1.0) );
 			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
-			id_l0 = cad_2d.AddPolygon( vec_ary );
+			id_l0 = cad_2d.AddPolygon( vec_ary ).id_l_add;
 		}
+    {
+      Cad::CCadObj2D cad_tmp(cad_2d);
+      cad_2d.Clear();
+      cad_2d = cad_tmp;
+    }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
 		drawer_ary.InitTrans(mvp_trans);
 	}
 	else if( iprob == 6 )
-	{	// ÉãÅ[ÉvÇÃíÜÇ…ÉãÅ[Év
+	{	// √â√£√Ö[√âv√á√É√≠√ú√á‚Ä¶√â√£√Ö[√âv
 		unsigned int id_l0;
  		{	// Make model
 			std::vector<Com::CVector2D> vec_ary;
@@ -325,7 +347,7 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(1.0,1.0) );
 			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
-			id_l0 = cad_2d.AddPolygon( vec_ary );
+			id_l0 = cad_2d.AddPolygon( vec_ary ).id_l_add;
 		}
 		{
 			std::vector<Com::CVector2D> vec_ary;
@@ -341,15 +363,21 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(0.1,0.3) );
 			cad_2d.AddPolygon( vec_ary, id_l0 );
 		}
-		unsigned int id_e0 = cad_2d.ConnectVertex_Line(1,3);
+		unsigned int id_e0 = cad_2d.ConnectVertex_Line(1,3).id_e_add;
 		cad_2d.RemoveElement(Cad::EDGE,id_e0);
+    ////////////////
+    {
+      Cad::CCadObj2D cad_tmp(cad_2d);
+      cad_2d.Clear();
+      cad_2d = cad_tmp;
+    }    
 		////////////////
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
 		drawer_ary.InitTrans(mvp_trans);
 	}
 	else if( iprob == 7 )
-	{	// ÉãÅ[ÉvÇÃíÜÇ…ÉãÅ[Év
+	{	// √â√£√Ö[√âv√á√É√≠√ú√á‚Ä¶√â√£√Ö[√âv
 		unsigned int id_l0;
  		{	// Make model
 			std::vector<Com::CVector2D> vec_ary;
@@ -357,7 +385,7 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(1.0,1.0) );
 			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
-			id_l0 = cad_2d.AddPolygon( vec_ary );
+			id_l0 = cad_2d.AddPolygon( vec_ary ).id_l_add;
 		}
 		unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.9,0.7) );
 		unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.9,0.1) );
@@ -367,14 +395,19 @@ bool SetNewProblem()
 		cad_2d.ConnectVertex_Line(id_v3,id_v1);
 		////////////////
 		{
-			unsigned int id_e0 = cad_2d.ConnectVertex_Line(id_v2,2);
+			unsigned int id_e0 = cad_2d.ConnectVertex_Line(id_v2,2).id_e_add;
 			cad_2d.RemoveElement(Cad::EDGE,id_e0);
 		}
 		{
-			unsigned int id_e0 = cad_2d.ConnectVertex_Line(2,id_v2);
+			unsigned int id_e0 = cad_2d.ConnectVertex_Line(2,id_v2).id_e_add;
 			cad_2d.RemoveElement(Cad::EDGE,id_e0);
 		}
 		////////////////
+    {
+      Cad::CCadObj2D cad_tmp(cad_2d);
+      cad_2d.Clear();
+      cad_2d = cad_tmp;
+    }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
 		drawer_ary.InitTrans(mvp_trans);
@@ -392,22 +425,27 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(1.5, 1.0) );	// 6
 			vec_ary.push_back( Com::CVector2D(1.0, 1.0) );	// 7
 			vec_ary.push_back( Com::CVector2D(0.0, 1.0) );	// 8
-			unsigned int id_l0 = cad_2d.AddPolygon( vec_ary );
+			unsigned int id_l0 = cad_2d.AddPolygon( vec_ary ).id_l_add;
 			unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l0, Com::CVector2D(0.5,0.5) );
-			unsigned int id_e1 = cad_2d.ConnectVertex_Line(2,7);
-			unsigned int id_e2 = cad_2d.ConnectVertex_Line(3,6);
+			unsigned int id_e1 = cad_2d.ConnectVertex_Line(2,7).id_e_add;
+			unsigned int id_e2 = cad_2d.ConnectVertex_Line(3,6).id_e_add;
 			unsigned int id_v2 = cad_2d.AddVertex(Cad::EDGE,id_e1, Com::CVector2D(1.0,0.5) );
 			unsigned int id_v3 = cad_2d.AddVertex(Cad::EDGE,1,     Com::CVector2D(0.5,0.0) );
-			id_e3 = cad_2d.ConnectVertex_Line(id_v1,id_v2);
-			id_e4 = cad_2d.ConnectVertex_Line(id_v1,id_v3);
+			id_e3 = cad_2d.ConnectVertex_Line(id_v1,id_v2).id_e_add;
+			id_e4 = cad_2d.ConnectVertex_Line(id_v1,id_v3).id_e_add;
 		}
 		////////////////
+    {
+      Cad::CCadObj2D cad_tmp(cad_2d);
+      cad_2d.Clear();
+      cad_2d = cad_tmp;
+    }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
 		drawer_ary.InitTrans(mvp_trans);
 	}
 	else if( iprob == 9 )
-	{	// ÉãÅ[ÉvÇÃíÜÇ…ÉãÅ[Év
+	{	// √â√£√Ö[√âv√á√É√≠√ú√á‚Ä¶√â√£√Ö[√âv
 		unsigned int id_l0;
  		{	// Make model
 			std::vector<Com::CVector2D> vec_ary;
@@ -415,18 +453,23 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(1.0,1.0) );
 			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
-			id_l0 = cad_2d.AddPolygon( vec_ary );
+			id_l0 = cad_2d.AddPolygon( vec_ary ).id_l_add;
 		}
 		unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.2,0.7) );
 		unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.2,0.3) );
-		unsigned int id_e0 = cad_2d.ConnectVertex_Line(id_v1,id_v2);
+		unsigned int id_e0 = cad_2d.ConnectVertex_Line(id_v1,id_v2).id_e_add;
 		unsigned int id_v3 = cad_2d.AddVertex(Cad::EDGE,id_e0, Com::CVector2D(0.2,0.5) );
 		unsigned int id_v4 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.5,0.5) );
 		unsigned int id_v5 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.7,0.5) );
-		unsigned int id_e1 = cad_2d.ConnectVertex_Line(id_v3,id_v4);
-		unsigned int id_e2 = cad_2d.ConnectVertex_Line(id_v4,id_v5);
+		unsigned int id_e1 = cad_2d.ConnectVertex_Line(id_v3,id_v4).id_e_add;
+		unsigned int id_e2 = cad_2d.ConnectVertex_Line(id_v4,id_v5).id_e_add;
 		cad_2d.RemoveElement(Cad::EDGE,id_e1);
 		////////////////
+    {
+      Cad::CCadObj2D cad_tmp(cad_2d);
+      cad_2d.Clear();
+      cad_2d = cad_tmp;
+    }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
 		drawer_ary.InitTrans(mvp_trans);
@@ -436,27 +479,31 @@ bool SetNewProblem()
 		unsigned int id_l0;
  		{	// Make model
 			std::vector<Com::CVector2D> vec_ary;
-			vec_ary.resize(4);
-			vec_ary[0] = Com::CVector2D(0.0,0.0);
-			vec_ary[1] = Com::CVector2D(1.0,0.0);
-			vec_ary[2] = Com::CVector2D(1.0,1.0);
-			vec_ary[3] = Com::CVector2D(0.0,1.0);
-			id_l0 = cad_2d.AddPolygon( vec_ary );
+			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
+			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
+			vec_ary.push_back( Com::CVector2D(1.0,1.0) );
+			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
+			id_l0 = cad_2d.AddPolygon( vec_ary ).id_l_add;
 		}
 		unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,0,Com::CVector2D(1.1,0));
 		cad_2d.RemoveElement(Cad::VERTEX,id_v1);
 		////////////////
+    {
+      Cad::CCadObj2D cad_tmp(cad_2d);
+      cad_2d.Clear();
+      cad_2d = cad_tmp;
+    }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
 		drawer_ary.InitTrans(mvp_trans);
 	}
 	else if( iprob == 11 ){
-		{	// ê≥ï˚å`Ç…ãÈå`ÇÃåä
-            std::vector<Com::CVector2D> vec_ary;
-            vec_ary.push_back( Com::CVector2D(0.0,0.0) );
-            vec_ary.push_back( Com::CVector2D(1.0,0.0) );
-            vec_ary.push_back( Com::CVector2D(1.0,1.0) );
-            vec_ary.push_back( Com::CVector2D(0.0,1.0) );
+		{	// √™‚â•√ØÀö√•`√á‚Ä¶√£√à√•`√á√É√•√§
+      std::vector<Com::CVector2D> vec_ary;
+      vec_ary.push_back( Com::CVector2D(0.0,0.0) );
+      vec_ary.push_back( Com::CVector2D(1.0,0.0) );
+      vec_ary.push_back( Com::CVector2D(1.0,1.0) );
+      vec_ary.push_back( Com::CVector2D(0.0,1.0) );
 			cad_2d.AddPolygon( vec_ary );
 		}
 		{
@@ -476,6 +523,11 @@ bool SetNewProblem()
 		}
 		cad_2d.RemoveElement(Cad::VERTEX,1);
 		////////////////
+    {
+      Cad::CCadObj2D cad_tmp(cad_2d);
+      cad_2d.Clear();
+      cad_2d = cad_tmp;
+    }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
 		drawer_ary.InitTrans(mvp_trans);
@@ -497,7 +549,7 @@ void myGlutKeyboard(unsigned char key, int x, int y)
   switch (key) {
   case 'q':
   case 'Q':
-  case '\033':  /* '\033' ÇÕ ESC ÇÃ ASCII ÉRÅ[Éh */
+  case '\033':  /* '\033' √á√ï ESC √á√É ASCII √âR√Ö[√âh */
 	  exit(0);
 	  break;
   case ' ':
@@ -525,7 +577,6 @@ int main(int argc,char* argv[])
 	::glutKeyboardFunc(myGlutKeyboard);
 	::glutIdleFunc(myGlutIdle);
 
-	std::cout << "ÉXÉyÅ[ÉXÉLÅ[Ç≈ñ‚ëËÇ™êÿÇËë÷ÇÌÇËÇ‹Ç∑" << std::endl;
 	SetNewProblem();
 
 	// Enter main loop

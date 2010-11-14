@@ -87,7 +87,8 @@ public:
 	}
 	void GetIdCad_fromIdEA(unsigned int id_ea, unsigned int& id_part_cad, Cad::CAD_ELEM_TYPE& itype_part_cad ) const{
 		for(unsigned int iid=0;iid<m_aIdAry.size();iid++){
-			if( m_aIdAry[iid].id_ea == id_ea ){
+//      std::cout << iid << " " << id_ea << " " << m_aIdAry[iid].id_ea << " " << m_aIdAry[iid].id_part_cad << " " << m_aIdAry[iid].itype_part_cad << std::endl;
+			if( m_aIdAry[iid].id_ea == id_ea ){        
 				id_part_cad    = m_aIdAry[iid].id_part_cad;
 				itype_part_cad = m_aIdAry[iid].itype_part_cad;
 				return;
@@ -116,7 +117,10 @@ private:
 class CFieldWorld{
 public:
 	CFieldWorld();
+  CFieldWorld(const CFieldWorld& world);
 	~CFieldWorld();
+  
+  CFieldWorld& operator = (const CFieldWorld& world);
 	
 	// import mesh into FEM world
 	unsigned int AddMesh(const Msh::IMesh& mesh);
@@ -129,6 +133,7 @@ public:
 	CIDConvEAMshCad GetIDConverter(unsigned int id_field_base) const {
     std::map<unsigned int,CIDConvEAMshCad>::const_iterator itr = m_map_field_conv.find(id_field_base);
     if( itr == m_map_field_conv.end() ){
+      std::cout << "There is no base field Empty Conv " << std::endl;
       CIDConvEAMshCad conv;
       return conv;
     }
@@ -136,16 +141,7 @@ public:
   }
 
 	void Clear();	// Delate all field, elem_ary, node_ary
-
-	bool UpdateMeshCoord(    const unsigned int id_base, const Msh::IMesh& mesh);
-	bool UpdateConnectivity( const unsigned int id_base, const Msh::IMesh& mesh );
-	bool UpdateConnectivity_CustomBaseField(const unsigned int id_base,
-		const std::vector<unsigned int>& aIdEA_Inc, 
-		const std::vector< std::vector<int> >& aLnods,
-		const std::vector<unsigned int>& mapVal2Co);
-	bool UpdateConnectivity_HingeField_Tri(unsigned int id_field, unsigned int id_field_base);
-	bool UpdateConnectivity_EdgeField_Tri( unsigned int id_field, unsigned int id_field_base);
-
+  
 	////////////////////////////////////////////////////////////////
 	// functionas for element array
 	
@@ -189,15 +185,30 @@ public:
 	unsigned int GetPartialField(unsigned int id_field, unsigned int IdEA );
 	//! Get partial field consists of IDs of element array:aIdEA
 	unsigned int GetPartialField(unsigned int id_field, std::vector<unsigned int> aIdEA);
+  
+  // update field
+	bool UpdateMeshCoord(    const unsigned int id_base, const Msh::IMesh& mesh);
+	bool UpdateConnectivity( const unsigned int id_base, const Msh::IMesh& mesh );
+	bool UpdateConnectivity_CustomBaseField(const unsigned int id_base,
+                                          const std::vector<unsigned int>& aIdEA_Inc, 
+                                          const std::vector< std::vector<int> >& aLnods,
+                                          const std::vector<unsigned int>& mapVal2Co);
+	bool UpdateConnectivity_HingeField_Tri(unsigned int id_field, unsigned int id_field_base);
+	bool UpdateConnectivity_EdgeField_Tri( unsigned int id_field, unsigned int id_field_base);
+    
+  // set value to field
 	void FieldValueExec(double time);
 	void FieldValueDependExec();
+  
+  // Delete Field and referenced EA and NA. the EAs and NAs that is referenced from Field in use are not deleted
+  void DeleteField( const std::vector<unsigned int>& aIdFieldDel );
 
 private:
 	Com::CObjSet<CElemAry*> m_apEA;		//!< set of element array
 	Com::CObjSet<CNodeAry*> m_apNA;		//!< set of node array
 	Com::CObjSet<CField*> m_apField;	//!< set of field
 
-    std::map<unsigned int,CIDConvEAMshCad> m_map_field_conv;
+  std::map<unsigned int,CIDConvEAMshCad> m_map_field_conv;
 };
 
 }	// end namespace Field

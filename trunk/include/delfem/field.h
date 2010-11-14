@@ -116,13 +116,13 @@ public:
     unsigned int id_ns_co;
 		unsigned int id_na_va;
     bool is_part_va;
-		unsigned int id_ns_va;	//!< 値セグメント
-		unsigned int id_ns_ve;	//!< 速度セグメント
-    unsigned int id_ns_ac;	//!< 加速度セグメント
+		unsigned int id_ns_va;	//!< value
+		unsigned int id_ns_ve;	//!< velocity
+    unsigned int id_ns_ac;	//!< acceleration
   public:
 		CNodeSegInNodeAry() 
 			: id_na_co(0), id_ns_co(0), 
-			id_na_va(0), id_ns_va(0){}
+			id_na_va(0), id_ns_va(0), id_ns_ve(0), id_ns_ac(0){}
 		CNodeSegInNodeAry
     (unsigned int id_na_co, bool is_part_co, unsigned int id_ns_co, 			
      unsigned int id_na_va, bool is_part_va, 
@@ -159,7 +159,7 @@ public:
 			eval.SetExp(math_exp);
 			return eval.IsKeyUsed("t");
 		}
-        bool GetValue(double cur_t, double& value) const;
+    bool GetValue(double cur_t, double& value) const;
 		const std::string GetString() const{
 			if( itype == 1 ){
 				char buff[16];
@@ -182,6 +182,7 @@ public:
    const std::vector<CElemInterpolation>& aEI, 
    const CNodeSegInNodeAry& nsna_c, const CNodeSegInNodeAry& nsna_b, 
    CFieldWorld& world );
+  CField(const CField& field);
 	CField(){};	//! default constructor
 
 	//////////////// 
@@ -248,7 +249,7 @@ public:
 	int GetLayer(unsigned int id_ea) const;
 
 	////////////////////////////////
-	// 値を設定する関数
+	// 値を設定する関数 (Will be moved to another class)
 
 	//! セーブされた値を全自由度にセットする
 	bool ExecuteValue(double time, CFieldWorld& world);

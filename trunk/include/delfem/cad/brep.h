@@ -40,18 +40,18 @@ namespace Cad{
 class CUseLoop{
 public:
 	CUseLoop(const CUseLoop& rhs)
-		: id(rhs.id), id_l(rhs.id_l), id_he(rhs.id_he), id_ul_c(rhs.id_ul_c), id_ul_p(rhs.id_ul_p){}
-    CUseLoop(const unsigned int id,
-        const unsigned int id_he, const unsigned int id_ul_c, const unsigned int id_ul_p)
-		: id(id), id_l(0), id_he(id_he), id_ul_c(id_ul_c), id_ul_p(id_ul_p){}
+  : id(rhs.id), id_l(rhs.id_l), id_he(rhs.id_he), id_ul_c(rhs.id_ul_c), id_ul_p(rhs.id_ul_p){}
+  CUseLoop(const unsigned int id,
+           const unsigned int id_he, const unsigned int id_ul_c, const unsigned int id_ul_p)
+  : id(id), id_l(0), id_he(id_he), id_ul_c(id_ul_c), id_ul_p(id_ul_p){}
 public:
-    unsigned int id;    //!< ID
-	//ここからは幾何要素ID
-    unsigned int id_l;	//!< 外側のループの場合は０
+  unsigned int id;    //!< ID
+	//ここからは幾何要素ID(brep.cppやbrep2d.cppでは参照されないはず？)
+  unsigned int id_l;	//!< 外側のループの場合は０
 	//ここから位相要素ID
-    unsigned int id_he;     //!< HalfEdgeのID
-    unsigned int id_ul_c;	//!< 子ループ、id_ul_c=0の場合はリストの終わり
-    unsigned int id_ul_p;	//!< 親ループ。id_lはid_ul_pを持っている。id_ul_p==0の場合は自分が親
+  unsigned int id_he;   //!< HalfEdgeのID
+  unsigned int id_ul_c;	//!< 子ループ、id_ul_c=0の場合はリストの終わり
+  unsigned int id_ul_p;	//!< 親ループ。id_lはid_ul_pを持っている．id_ul_p==idの場合は自分が親，id_ul_p==0の場合は外側のループ
 };
 
 //! 位相HalfEdgeクラス
@@ -63,39 +63,39 @@ public:
 		id_he_f(rhs.id_he_f), id_he_b(rhs.id_he_b), id_he_o(rhs.id_he_o),
 		id_ul(rhs.id_ul),
 		id_e(rhs.id_e), is_same_dir(rhs.is_same_dir){}
-    CHalfEdge(const unsigned int id,
-        const unsigned int id_uv,
-        const unsigned int id_he_f, const unsigned int id_he_b, const unsigned int id_he_o,
-        const unsigned int id_ul )
+  CHalfEdge(const unsigned int id,
+            const unsigned int id_uv,
+            const unsigned int id_he_f, const unsigned int id_he_b, const unsigned int id_he_o,
+            const unsigned int id_ul )
 		: id(id), 
 		id_uv(id_uv), 
 		id_he_f(id_he_f), id_he_b(id_he_b), id_he_o(id_he_o), 
 		id_ul(id_ul), 
 		id_e(0), is_same_dir(true){}
 public:
-    unsigned int id;        //!< ID
-    unsigned int id_uv;     //!< UseVertexのID
-    unsigned int id_he_f;   //!< 前のHalfEdgeのID
-    unsigned int id_he_b;   //!< 後ろのHalfEdgeのID
-    unsigned int id_he_o;	//!< UVを囲むHEの場合は自分のID
-    unsigned int id_ul;     //!< UseLoopのID
+  unsigned int id;        //!< ID
+  unsigned int id_uv;     //!< UseVertexのID
+  unsigned int id_he_f;   //!< 前のHalfEdgeのID
+  unsigned int id_he_b;   //!< 後ろのHalfEdgeのID
+  unsigned int id_he_o;	//!< UVを囲むHEの場合は自分のID
+  unsigned int id_ul;     //!< UseLoopのID
 	//ここからは幾何要素ID
-    unsigned int id_e;		//!< 幾何辺のID.UVを囲むHEの場合は０
-    bool is_same_dir;       //!< 幾何辺が同じ向きを向いているかどうか
+  unsigned int id_e;		//!< 幾何辺のID.UVを囲むHEの場合は０
+  bool is_same_dir;       //!< 幾何辺が同じ向きを向いているかどうか
 };
 
 //! 位相頂点クラス
 class CUseVertex{
 public:
-    CUseVertex(const unsigned int id, const unsigned int id_he)
+  CUseVertex(const unsigned int id, const unsigned int id_he)
 		: id(id), id_he(id_he), id_v(0){}	
 	CUseVertex(const CUseVertex& rhs)
 		: id(rhs.id), id_he(rhs.id_he), id_v(rhs.id_v){}	
 public:
-    unsigned int id;    //!< ID
-    unsigned int id_he; //!< HalfEdgeのID
+  unsigned int id;    //!< ID
+  unsigned int id_he; //!< HalfEdgeのID
 	//ここからは幾何要素ID
-    unsigned int id_v;  //!< 幾何頂点のID
+  unsigned int id_v;  //!< 幾何頂点のID
 };
 
 //! B-repを用いた位相情報格納クラス
@@ -124,19 +124,19 @@ public:
 	////////////////////////////////
 	// オイラー操作
 
-    //! 点と点を繋げてループとエッジを作る
+  //! 点と点を繋げてループとエッジを作る
 	bool MEVVL(unsigned int& id_he_add1, unsigned int& id_he_add2,
-		unsigned int& id_uv_add1, unsigned int& id_uv_add2, unsigned int& id_ul_add );
+             unsigned int& id_uv_add1, unsigned int& id_uv_add2, unsigned int& id_ul_add );
 	//! ループを２つに分ける
 	bool MEL(unsigned int& id_he_add1, unsigned int& id_he_add2, unsigned int& id_ul_add,
-		const unsigned int id_he1, const unsigned int id_he2);
+           const unsigned int id_he1, const unsigned int id_he2);
 	/*!
 	@brief 辺を消去して２つのループを１つにする 半辺he_remの反対側の半辺が接する半ループを消去する
 	*/
 	bool KEL(const unsigned int id_he_rem1);
 	//! id_heの起点から、線分を伸ばす
 	bool MEV(unsigned int& id_he_add1,unsigned int& id_he_add2, unsigned int& id_uv_add, 
-		const unsigned int id_he);
+           const unsigned int id_he);
 	//! id_heの起点を消去して２つの辺を１つにする。
 	bool KVE( unsigned int& id_he_rem1 );
 	/*!
@@ -145,40 +145,39 @@ public:
 	出力ではheの前にhe_add1,heの向かいにhe_add2,he_add2の後ろにhe2
 	*/
 	bool MVE( unsigned int& id_he_add1, unsigned int& id_he_add2, unsigned int& id_uv_add, 
-		const unsigned int id_he);
+           const unsigned int id_he);
 	/*!
 	@brief he1の起点uv1とhe2の起点uv2を結んで、２つのループをつなげる
 	he1は[uv1-uv2]、he2は[uv2-uv1]
 	*/
 	bool MEKL(unsigned int& id_he_add1, unsigned int& id_he_add2,  
-		const unsigned int id_he1, const unsigned int id_he2 );
+            const unsigned int id_he1, const unsigned int id_he2 );
 	//! ループをつなげる
-    bool KEML(unsigned int& id_ul_add1,
-              const unsigned int& id_he1 );
+  bool KEML(unsigned int& id_ul_add1,
+            const unsigned int& id_he1 );
 	/*!
 	@brief ループと浮遊点をつなげる,he1がLoop上のEdgeでhe2が浮遊点Edge
 	he2は[uv2-uv1], he_add1は[uv1-uv2]のHalfEdgeとなる
 	*/
 	bool MEKL_OneFloatingVertex(unsigned int& id_he_add1,
-		const unsigned int id_he1, const unsigned int id_he2 );
+                              const unsigned int id_he1, const unsigned int id_he2 );
 	/*!
 	@brief ループと浮遊点をつなげる,he1,he2が浮遊点Edge
 	he1は[uv1-uv2],he2は[uv2-uv1]のHalfEdgeとなる
 	*/
-	bool MEKL_TwoFloatingVertex(
-		const unsigned int id_he1, const unsigned int id_he2 );
+	bool MEKL_TwoFloatingVertex( const unsigned int id_he1, const unsigned int id_he2 );
 	/*! 
 	@brief 片方が端点であるEdgeを削除する。
 	he1の起点uv1は他の辺につながっていない端点である
 	*/
 	bool KEML_OneFloatingVertex(unsigned int& id_ul_add, 
-		const unsigned int id_he1);
+                              const unsigned int id_he1);
 	//! 両方が端点であるEdgeを削除する。
 	bool KEML_TwoFloatingVertex(unsigned int& id_ul_add,
-		const unsigned int id_he1);
+                              const unsigned int id_he1);
 	//! 浮遊点を作る
 	bool MVEL(unsigned int& id_uv_add, unsigned int& id_he_add, unsigned int& id_ul_add, 
-		const unsigned int id_ul_p);
+            const unsigned int id_ul_p);
 	//! 浮遊点を消す
 	bool KVEL(const unsigned int id_uv_rem);
 
@@ -192,9 +191,9 @@ private:
 
 //private:	// そのうちprivateにする予定(残りはSerializ)
 public:
-    CObjSetCad<CUseLoop>   m_UseLoopSet;   //!< UseLoopのIDで管理された集合
-    CObjSetCad<CHalfEdge>  m_HalfEdgeSet;  //!< HalfEdgeのIDで管理された集合
-    CObjSetCad<CUseVertex> m_UseVertexSet; //!< UseVertexのIDで管理された集合
+  CObjSetCad<CUseLoop>   m_UseLoopSet;   //!< UseLoopのIDで管理された集合
+  CObjSetCad<CHalfEdge>  m_HalfEdgeSet;  //!< HalfEdgeのIDで管理された集合
+  CObjSetCad<CUseVertex> m_UseVertexSet; //!< UseVertexのIDで管理された集合
 };
 
 //! @}

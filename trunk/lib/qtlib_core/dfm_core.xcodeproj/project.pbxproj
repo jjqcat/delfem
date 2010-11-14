@@ -54,7 +54,7 @@
 		9ECEE7EFAFFC740C891EEBD7 /* eqn_st_venant.cpp in Build Sources */ = {isa = PBXBuildFile; fileRef = 0DBE7747D99CAE944E7BBA45 /* eqn_st_venant.cpp */; settings = {ATTRIBUTES = (); }; };
 		A11E9E5F16F877993E0C6B60 /* eqnsys_fluid.cpp in Build Sources */ = {isa = PBXBuildFile; fileRef = 6704EA4027BCCED0EF5A4979 /* eqnsys_fluid.cpp */; settings = {ATTRIBUTES = (); }; };
 		A845EF096262B0A480F721D7 /* meshkernel3d.cpp in Build Sources */ = {isa = PBXBuildFile; fileRef = 8F5E9299CC8824B45637427E /* meshkernel3d.cpp */; settings = {ATTRIBUTES = (); }; };
-		A9E8AEAF120B095A00467628 /* libdfm_core.dylib in Project Copy */ = {isa = PBXBuildFile; fileRef = A9E8AEAD120B095A00467628 /* libdfm_core.dylib */; };
+		A916B711127F3CBD00EFA01C /* libdfm_core.dylib in Project Copy */ = {isa = PBXBuildFile; fileRef = A916B70F127F3CBD00EFA01C /* libdfm_core.dylib */; };
 		AA8724A860F15D35A947A31B /* zsolver_mat_iter.cpp in Build Sources */ = {isa = PBXBuildFile; fileRef = 99B59B520E7E54EAE50841DE /* zsolver_mat_iter.cpp */; settings = {ATTRIBUTES = (); }; };
 		AADBD468E6415C0011D4E3DC /* meshkernel2d.cpp in Build Sources */ = {isa = PBXBuildFile; fileRef = 4A90B639BB8071DB93726CA7 /* meshkernel2d.cpp */; settings = {ATTRIBUTES = (); }; };
 		AD387EBB97C84B3546E1BA39 /* cad_elem2d.cpp in Build Sources */ = {isa = PBXBuildFile; fileRef = 33D3743D18A17D7A0648CABE /* cad_elem2d.cpp */; settings = {ATTRIBUTES = (); }; };
@@ -90,7 +90,7 @@
 			dstPath = /Users/nobuyuki/develop/DelFEM/lib;
 			dstSubfolderSpec = 0;
 			files = (
-				A9E8AEAF120B095A00467628 /* libdfm_core.dylib in Project Copy */,
+				A916B711127F3CBD00EFA01C /* libdfm_core.dylib in Project Copy */,
 			);
 			name = "Project Copy";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -211,7 +211,7 @@
 		A0197D190F2561D14CBFE952 /* eqn_linear_solid2d.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = eqn_linear_solid2d.h; path = ../../include/delfem/femeqn/eqn_linear_solid2d.h; sourceTree = "<group>"; };
 		A3BB3D91CDBBE51CA4A07773 /* eqnsys.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = eqnsys.h; path = ../../include/delfem/eqnsys.h; sourceTree = "<group>"; };
 		A9029F1E10D113C2EF7C2A23 /* mesh_primitive.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mesh_primitive.h; path = ../../include/delfem/mesh_primitive.h; sourceTree = "<group>"; };
-		A9E8AEAD120B095A00467628 /* libdfm_core.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libdfm_core.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		A916B70F127F3CBD00EFA01C /* libdfm_core.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libdfm_core.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA43494FF4C24F26EC9122F1 /* eqn_advection_diffusion.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = eqn_advection_diffusion.cpp; path = ../../src/femeqn/eqn_advection_diffusion.cpp; sourceTree = "<group>"; };
 		B22BCE9BF0AB0635583B72EC /* zvector_blk.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = zvector_blk.h; path = ../../include/delfem/matvec/zvector_blk.h; sourceTree = "<group>"; };
 		B292DA0DEBCA8C4032173688 /* zmatdiafrac_blkcrs.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = zmatdiafrac_blkcrs.cpp; path = ../../src/matvec/zmatdiafrac_blkcrs.cpp; sourceTree = "<group>"; };
@@ -286,7 +286,7 @@
 				883D7615C4D2DE3FA1218F12 /* Headers */,
 				7CABE3C80E79AD2B307756D2 /* Sources [qmake] */,
 				ED1E82605DD74B483AF3C982 /* External Frameworks and Libraries */,
-				A9E8AEAE120B095A00467628 /* Products */,
+				A916B710127F3CBD00EFA01C /* Products */,
 			);
 			name = dfm_core;
 			sourceTree = "<group>";
@@ -503,10 +503,10 @@
 			name = delfem;
 			sourceTree = "<group>";
 		};
-		A9E8AEAE120B095A00467628 /* Products */ = {
+		A916B710127F3CBD00EFA01C /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A9E8AEAD120B095A00467628 /* libdfm_core.dylib */,
+				A916B70F127F3CBD00EFA01C /* libdfm_core.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -662,7 +662,7 @@
 /* Begin PBXNativeTarget section */
 		24AC2C6EA67F34D80BB0C1D4 /* libdfm_core */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A9E8AEC4120B099900467628 /* Build configuration list for PBXNativeTarget "libdfm_core" */;
+			buildConfigurationList = A916B71E127F3CD100EFA01C /* Build configuration list for PBXNativeTarget "libdfm_core" */;
 			buildPhases = (
 				D7BA7D76DAB5DD13389D6332 /* Qt Qmake */,
 				A0A52A2ADF7A1E2A99738674 /* Qt Preprocessors */,
@@ -677,7 +677,7 @@
 			name = libdfm_core;
 			productInstallPath = ../;
 			productName = libdfm_core;
-			productReference = A9E8AEAD120B095A00467628 /* libdfm_core.dylib */;
+			productReference = A916B70F127F3CBD00EFA01C /* libdfm_core.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 /* End PBXNativeTarget section */
@@ -687,9 +687,16 @@
 			isa = PBXProject;
 			buildConfigurationList = 2A951308CDB28F104D0A4BD2 /* Build configuration list for PBXProject "dfm_core" */;
 			compatibilityVersion = "Xcode 2.4";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
 			mainGroup = 05596AB53D8D521C69802C27 /* dfm_core */;
-			productRefGroup = A9E8AEAE120B095A00467628 /* Products */;
+			productRefGroup = A916B710127F3CBD00EFA01C /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -814,15 +821,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
-				GCC_AUTO_VECTORIZATION = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_OPTIMIZATION_LEVEL = 3;
-				GCC_STRICT_ALIASING = YES;
-				OTHER_CFLAGS = NDEBUG;
 			};
 			name = Release;
 		};
-		A9E8AEBE120B095B00467628 /* Debug */ = {
+		A916B716127F3CBD00EFA01C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = i386;
@@ -864,7 +867,6 @@
 					"-Wall",
 					"-W",
 					"-fPIC",
-					"-DNDEBUG",
 					"-DQT_OPENGL_LIB",
 					"-DQT_GUI_LIB",
 					"-DQT_CORE_LIB",
@@ -876,7 +878,6 @@
 					"-Wall",
 					"-W",
 					"-fPIC",
-					"-DNDEBUG",
 					"-DQT_OPENGL_LIB",
 					"-DQT_GUI_LIB",
 					"-DQT_CORE_LIB",
@@ -898,7 +899,7 @@
 			};
 			name = Debug;
 		};
-		A9E8AEBF120B095B00467628 /* Release */ = {
+		A916B717127F3CBD00EFA01C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = i386;
@@ -939,7 +940,6 @@
 					"-Wall",
 					"-W",
 					"-fPIC",
-					"-DNDEBUG",
 					"-DQT_OPENGL_LIB",
 					"-DQT_GUI_LIB",
 					"-DQT_CORE_LIB",
@@ -951,7 +951,6 @@
 					"-Wall",
 					"-W",
 					"-fPIC",
-					"-DNDEBUG",
 					"-DQT_OPENGL_LIB",
 					"-DQT_GUI_LIB",
 					"-DQT_CORE_LIB",
@@ -973,7 +972,7 @@
 			};
 			name = Release;
 		};
-		A9E8AEC0120B095B00467628 /* Default */ = {
+		A916B718127F3CBD00EFA01C /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = i386;
@@ -1012,7 +1011,6 @@
 					"-Wall",
 					"-W",
 					"-fPIC",
-					"-DNDEBUG",
 					"-DQT_OPENGL_LIB",
 					"-DQT_GUI_LIB",
 					"-DQT_CORE_LIB",
@@ -1024,7 +1022,6 @@
 					"-Wall",
 					"-W",
 					"-fPIC",
-					"-DNDEBUG",
 					"-DQT_OPENGL_LIB",
 					"-DQT_GUI_LIB",
 					"-DQT_CORE_LIB",
@@ -1058,12 +1055,12 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A9E8AEC4120B099900467628 /* Build configuration list for PBXNativeTarget "libdfm_core" */ = {
+		A916B71E127F3CD100EFA01C /* Build configuration list for PBXNativeTarget "libdfm_core" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A9E8AEBE120B095B00467628 /* Debug */,
-				A9E8AEBF120B095B00467628 /* Release */,
-				A9E8AEC0120B095B00467628 /* Default */,
+				A916B716127F3CBD00EFA01C /* Debug */,
+				A916B717127F3CBD00EFA01C /* Release */,
+				A916B718127F3CBD00EFA01C /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;

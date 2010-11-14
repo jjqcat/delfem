@@ -46,13 +46,13 @@ using namespace Fem::Ls;
 using namespace MatVec;
 
 ////////////////////////////////////////////////////////////////
-// eqnsys_solid.cpp : ’e«‘Ì•û’ö®‚Ì—v‘f„«ì¬•”‚ÌÀ‘•
+// eqnsys_solid.cpp : Ã­eÃªÂ´Ã«ÃƒÃ¯ËšÃ­Ë†Ã©Ã†Ã‡ÃƒÃ³vÃ«fÃ§Ã‘ÃªÂ´Ã§ÃÃªÂ¨Ã¯Ã®Ã‡ÃƒÃ©Â¿Ã«Ã¯
 ////////////////////////////////////////////////////////////////
 
 
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
-// ‚R‚c‚Ì•û’ö®
+// Ã‡RÃ‡cÃ‡ÃƒÃ¯ËšÃ­Ë†Ã©Ã†
 
 CEqn_Solid3D_Linear::CEqn_Solid3D_Linear(unsigned int id_field, Fem::Field::CFieldWorld& world) 
 : m_IsGeomNonlin(false), m_IsSaveStiffMat(false), m_IsStationary(false)
@@ -84,18 +84,18 @@ double CEqn_Solid3D_Linear::MakeLinearSystem(const Fem::Field::CFieldWorld& worl
 {	
 	if( pLS==0 || pPrec==0 ) this->InitializeLinearSystem(world);
 
-	// ˜A—§ˆêŸ•û’ö®‚ğì‚é
-	pLS->InitializeMarge();	// ˜A—§ˆêŸ•û’ö®‚ğ‰Šú‰»‚·‚é
+	// Ã²AÃ³ÃŸÃ ÃÃ©Ã¼Ã¯ËšÃ­Ë†Ã©Ã†Ã‡ï£¿Ã§ÃÃ‡Ãˆ
+	pLS->InitializeMarge();	// Ã²AÃ³ÃŸÃ ÃÃ©Ã¼Ã¯ËšÃ­Ë†Ã©Ã†Ã‡ï£¿Ã¨Ã¢Ã¤Ë™Ã¢ÂªÃ‡âˆ‘Ã‡Ãˆ
 	if( this->m_IsGeomNonlin ){
 		assert( !this->m_IsSaveStiffMat );
 		if( this->m_IsStationary ){
-			// Ã“ISt.Venant-Kichhoff‘Ì
+			// ÃªâˆšÃ¬ISt.Venant-KichhoffÃ«Ãƒ
 			Fem::Eqn::AddLinSys_StVenant3D_Static(
 				*pLS,
 				m_lambda, m_myu, m_rho,   m_g_x, m_g_y, m_g_z,
 				world, m_IdFieldDisp);
 		}
-		else{ // “®“ISt.Vennat-Kirchhoff‘Ì
+		else{ // Ã¬Ã†Ã¬ISt.Vennat-KirchhoffÃ«Ãƒ
 			Fem::Eqn::AddLinSys_StVenant3D_NonStatic_NewmarkBeta(
 				m_dt, m_gamma_newmark, m_beta_newmark,
 				*pLS,
@@ -107,14 +107,14 @@ double CEqn_Solid3D_Linear::MakeLinearSystem(const Fem::Field::CFieldWorld& worl
 	else{
 		if( this->m_IsStationary ){
 			if( this->m_IsSaveStiffMat ){		
-				// Ã“IüŒ`’e«‘Ì(„«s—ñ•Û‘¶)
+				// ÃªâˆšÃ¬IÃªÂ¸Ã¥`Ã­eÃªÂ´Ã«Ãƒ(Ã§Ã‘ÃªÂ´Ã§sÃ³Ã’Ã¯â‚¬Ã«âˆ‚)
 				Fem::Eqn::AddLinSys_LinearSolid3D_Static_SaveStiffMat(
 					*((CLinearSystem_Save*)pLS),
 					m_lambda, m_myu, m_rho,   m_g_x, m_g_y, m_g_z,
 					world,
 					m_IdFieldDisp);
 			}
-			else{ // Ã“IüŒ`’e«‘Ì
+			else{ // ÃªâˆšÃ¬IÃªÂ¸Ã¥`Ã­eÃªÂ´Ã«Ãƒ
 				Fem::Eqn::AddLinSys_LinearSolid3D_Static(
 					*pLS,
 					m_lambda, m_myu, m_rho,   m_g_x, m_g_y, m_g_z,
@@ -122,7 +122,7 @@ double CEqn_Solid3D_Linear::MakeLinearSystem(const Fem::Field::CFieldWorld& worl
 					m_IdFieldDisp);
 			}
 		}
-		else{ // “®“IüŒ`’e«‘Ì
+		else{ // Ã¬Ã†Ã¬IÃªÂ¸Ã¥`Ã­eÃªÂ´Ã«Ãƒ
 			assert( !this->m_IsSaveStiffMat );
 			Fem::Eqn::AddLinSys_LinearSolid3D_NonStatic_NewmarkBeta(
 				m_dt, m_gamma_newmark, m_beta_newmark,
@@ -134,7 +134,7 @@ double CEqn_Solid3D_Linear::MakeLinearSystem(const Fem::Field::CFieldWorld& worl
 	}
 	const double norm_res = pLS->FinalizeMarge();
 
-	// ‘Oˆ—s—ñ‚ğì‚é
+	// Ã«OÃ¨Ã Ã³Ã¹Ã§sÃ³Ã’Ã‡ï£¿Ã§ÃÃ‡Ãˆ
 	pPrec->SetValue( (*pLS).m_ls );
 
 	return norm_res;
@@ -144,28 +144,28 @@ bool CEqn_Solid3D_Linear::InitializeLinearSystem(const Fem::Field::CFieldWorld& 
 {
 	if( pLS!=0 || pPrec!=0 ) ClearLinearSystemPreconditioner();
 
-	// ˜A—§ˆêŸ•û’ö®ƒNƒ‰ƒX‚Ìì¬
+	// Ã²AÃ³ÃŸÃ ÃÃ©Ã¼Ã¯ËšÃ­Ë†Ã©Ã†Ã‰NÃ‰Ã¢Ã‰XÃ‡ÃƒÃ§ÃÃªÂ¨
 	if( this->m_IsGeomNonlin ){ assert( !this->m_IsSaveStiffMat ); }
 	 
 	if( this->m_IsSaveStiffMat ){ pLS = new CLinearSystem_Save; }
 	else{ pLS = new CLinearSystem_Field; }
 
-	// ˜A—§ˆêŸ•û’ö®ƒNƒ‰ƒX‚Ìİ’è
-	pLS->AddPattern_Field(m_IdFieldDisp,world);	// val_field‚©‚ç‚Å‚«‚é‘S‘Ì„«s—ñ‚ğ’Ç‰Á‚·‚é
+	// Ã²AÃ³ÃŸÃ ÃÃ©Ã¼Ã¯ËšÃ­Ë†Ã©Ã†Ã‰NÃ‰Ã¢Ã‰XÃ‡ÃƒÃªâ€ºÃ­Ã‹
+	pLS->AddPattern_Field(m_IdFieldDisp,world);	// val_fieldÃ‡Â©Ã‡ÃÃ‡â‰ˆÃ‡Â´Ã‡ÃˆÃ«SÃ«ÃƒÃ§Ã‘ÃªÂ´Ã§sÃ³Ã’Ã‡ï£¿Ã­Â«Ã¢Â¡Ã‡âˆ‘Ã‡Ãˆ
 	for(unsigned int idf=0;idf<m_aIdFixField.size();idf++){
 		const unsigned int id_field = m_aIdFixField[idf].first; 
 		const int idof = m_aIdFixField[idf].second;
 		if( idof == -1 ){
-			pLS->SetFixedBoundaryCondition_Field( id_field, 0, world ); // bc0_field‚ğŒÅ’è‹«ŠEğŒ‚Éİ’è	
-			pLS->SetFixedBoundaryCondition_Field( id_field, 1, world ); // bc0_field‚ğŒÅ’è‹«ŠEğŒ‚Éİ’è	
-			pLS->SetFixedBoundaryCondition_Field( id_field, 2, world ); // bc0_field‚ğŒÅ’è‹«ŠEğŒ‚Éİ’è
+			pLS->SetFixedBoundaryCondition_Field( id_field, 0, world ); // bc0_fieldÃ‡ï£¿Ã¥â‰ˆÃ­Ã‹Ã£Â´Ã¤EÃ¨ï£¿Ã¥Ã¨Ã‡â€¦Ãªâ€ºÃ­Ã‹	
+			pLS->SetFixedBoundaryCondition_Field( id_field, 1, world ); // bc0_fieldÃ‡ï£¿Ã¥â‰ˆÃ­Ã‹Ã£Â´Ã¤EÃ¨ï£¿Ã¥Ã¨Ã‡â€¦Ãªâ€ºÃ­Ã‹	
+			pLS->SetFixedBoundaryCondition_Field( id_field, 2, world ); // bc0_fieldÃ‡ï£¿Ã¥â‰ˆÃ­Ã‹Ã£Â´Ã¤EÃ¨ï£¿Ã¥Ã¨Ã‡â€¦Ãªâ€ºÃ­Ã‹
 		}
 		else{
-			pLS->SetFixedBoundaryCondition_Field( id_field, idof, world ); // bc0_field‚ğŒÅ’è‹«ŠEğŒ‚Éİ’è	
+			pLS->SetFixedBoundaryCondition_Field( id_field, idof, world ); // bc0_fieldÃ‡ï£¿Ã¥â‰ˆÃ­Ã‹Ã£Â´Ã¤EÃ¨ï£¿Ã¥Ã¨Ã‡â€¦Ãªâ€ºÃ­Ã‹	
 		}
 	}
 		
-	// ‘Oˆ—ƒNƒ‰ƒX‚Ìì¬
+	// Ã«OÃ¨Ã Ã³Ã¹Ã‰NÃ‰Ã¢Ã‰XÃ‡ÃƒÃ§ÃÃªÂ¨
 	assert( pPrec == 0 );
     pPrec = new LsSol::CPreconditioner_ILU( (*pLS).m_ls, 1 );
 
@@ -183,12 +183,12 @@ bool CEqn_Solid3D_Linear::Solve(Fem::Field::CFieldWorld& world)
 //			std::cout << iitr << std::endl;
 			double norm_res = this->MakeLinearSystem(world,iitr==0);
 			if( iitr==0 ){
-				if( norm_res < 1.0e-20 ) break;	// ‰Šúc·‚ª¬‚³‚¯‚ê‚Î”²‚¯‚é
+				if( norm_res < 1.0e-20 ) break;	// Ã¨Ã¢Ã¤Ë™Ã©cÃ§âˆ‘Ã‡â„¢Ã¨Â¨Ã‡â‰¥Ã‡Ã˜Ã‡ÃÃ‡Å’Ã®â‰¤Ã‡Ã˜Ã‡Ãˆ
 				ini_norm_res = norm_res;
 			}
 			if( norm_res < ini_norm_res * 1.0e-6 ) break;
 //			std::cout << iitr << " " << norm_res << " " << norm_res / ini_norm_res << std::endl;
-			{	// s—ñ‚ğ‰ğ‚­
+			{	// Ã§sÃ³Ã’Ã‡ï£¿Ã¢ï£¿Ã‡â‰ 
 				double conv_ratio = 1.0e-6;
 				unsigned int max_iter = 1000;
 				// Solve with Preconditioned Conjugate Gradient
@@ -217,7 +217,7 @@ bool CEqn_Solid3D_Linear::Solve(Fem::Field::CFieldWorld& world)
 
 		if( this->m_IsSaveStiffMat ){ pLS->MakeResidual(world); }
 
-		{	// s—ñ‚ğ‰ğ‚­
+		{	// Ã§sÃ³Ã’Ã‡ï£¿Ã¢ï£¿Ã‡â‰ 
 			double conv_ratio = 1.0e-6;
 			unsigned int max_iter = 1000;
 			// Solve with Preconditioned Conjugate Gradient
@@ -228,7 +228,7 @@ bool CEqn_Solid3D_Linear::Solve(Fem::Field::CFieldWorld& world)
 //			std::cout << max_iter << " " << conv_ratio << std::endl;
 			this->m_aItrNormRes.push_back( std::make_pair(max_iter,conv_ratio) );
 		}
-		// ‰ğ‚ğXV‚·‚é
+		// Ã¢ï£¿Ã‡ï£¿Ã§XÃªVÃ‡âˆ‘Ã‡Ãˆ
 		if( this->m_IsStationary ){
 			if( this->m_IsSaveStiffMat ){ 
 				((Fem::Ls::CLinearSystem_Save*)pLS)->UpdateValueOfField(m_IdFieldDisp,world,VALUE); 
@@ -247,7 +247,7 @@ bool CEqn_Solid3D_Linear::Solve(Fem::Field::CFieldWorld& world)
 }
 
 bool CEqn_Solid3D_Linear::SetDomain_Field(unsigned int id_field_base, Fem::Field::CFieldWorld& world){
-	{	// “ü—ÍƒtƒB[ƒ‹ƒh‚ÌÀ•Wß“_ƒZƒOƒƒ“ƒg‚Ìdof‚ª3‚©‚Ç‚¤‚©ƒ`ƒFƒbƒN‚·‚é
+	{	// Ã¬Â¸Ã³Ã•Ã‰tÃ‰BÃ…[Ã‰Ã£Ã‰hÃ‡ÃƒÃ§Â¿Ã¯WÃªï¬‚Ã¬_Ã‰ZÃ‰OÃ‰Ã…Ã‰Ã¬Ã‰gÃ‡ÃƒdofÃ‡â„¢3Ã‡Â©Ã‡Â«Ã‡Â§Ã‡Â©Ã‰`Ã‰FÃ‰bÃ‰NÃ‡âˆ‘Ã‡Ãˆ
 //		unsigned int id_field_base = world.GetFieldBaseID();
 		assert( world.IsIdField(id_field_base) );
 		const CField& field_base = world.GetField(id_field_base);
@@ -332,7 +332,7 @@ unsigned int CEqn_Solid3D_Linear::AddFixElemAry(
 
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
-// ‚Q‚c‚Ì•û’ö®
+// Ã‡QÃ‡cÃ‡ÃƒÃ¯ËšÃ­Ë†Ã©Ã†
 
 
 
@@ -340,7 +340,7 @@ unsigned int CEqn_Solid3D_Linear::AddFixElemAry(
 bool CEqn_Solid2D::AddLinSys(Fem::Ls::CLinearSystem_Field& ls, const Fem::Field::CFieldWorld& world )
 {
 	if( this->m_IsGeomNonlin ){
-		// Ã“ISt.Venant-Kirchhoff‘Ì
+		// ÃªâˆšÃ¬ISt.Venant-KirchhoffÃ«Ãƒ
 		return Fem::Eqn::AddLinSys_StVenant2D_Static(
 			ls,
 			m_lambda, m_myu, m_rho,   m_g_x, m_g_y,
@@ -349,7 +349,7 @@ bool CEqn_Solid2D::AddLinSys(Fem::Ls::CLinearSystem_Field& ls, const Fem::Field:
 	}
 	else{
 		if( !world.IsIdField(m_IdFieldTemperature) ){
-			// Ã“IüŒ`’e«‘Ì
+			// ÃªâˆšÃ¬IÃªÂ¸Ã¥`Ã­eÃªÂ´Ã«Ãƒ
 			return Fem::Eqn::AddLinSys_LinearSolid2D_Static(
 				ls,
 				m_lambda, m_myu, m_rho,   m_g_x, m_g_y,
@@ -357,7 +357,7 @@ bool CEqn_Solid2D::AddLinSys(Fem::Ls::CLinearSystem_Field& ls, const Fem::Field:
 				m_id_ea);
 		}
 		else{ 
-			// Ã“IüŒ`’e«‘Ì(”M‰—Í)
+			// ÃªâˆšÃ¬IÃªÂ¸Ã¥`Ã­eÃªÂ´Ã«Ãƒ(Ã®MÃ¢Ã»Ã³Ã•)
 			return Fem::Eqn::AddLinSys_LinearSolidThermalStress2D_Static(
 				ls,
 				m_lambda, m_myu, m_rho,   m_g_x, m_g_y, 0.02,
@@ -368,12 +368,12 @@ bool CEqn_Solid2D::AddLinSys(Fem::Ls::CLinearSystem_Field& ls, const Fem::Field:
 	return false;
 }
 
-// ˜A—§ˆêŸ•û’ö®ƒ}[ƒWƒƒ\ƒbƒh
+// Ã²AÃ³ÃŸÃ ÃÃ©Ã¼Ã¯ËšÃ­Ë†Ã©Ã†Ã‰}Ã…[Ã‰WÃ‰Ã…Ã‰\Ã‰bÃ‰h
 bool CEqn_Solid2D::AddLinSys_NewmarkBetaAPrime( double dt, double gamma, double beta, bool is_initial, 
 	Fem::Ls::CLinearSystem_Field& ls, const Fem::Field::CFieldWorld& world )
 {
 	if( this->m_IsGeomNonlin ){
-		// “®“ISt.Venant-Kirchhoff‘Ì
+		// Ã¬Ã†Ã¬ISt.Venant-KirchhoffÃ«Ãƒ
 		return Fem::Eqn::AddLinSys_StVenant2D_NonStatic_NewmarkBeta(
 			dt, gamma, beta, ls,
 			m_lambda, m_myu, m_rho,   m_g_x, m_g_y,
@@ -383,7 +383,7 @@ bool CEqn_Solid2D::AddLinSys_NewmarkBetaAPrime( double dt, double gamma, double 
 	}
 	else{
 		if( !world.IsIdField(m_IdFieldTemperature) ){
-			// “®“IüŒ`’e«‘Ì
+			// Ã¬Ã†Ã¬IÃªÂ¸Ã¥`Ã­eÃªÂ´Ã«Ãƒ
 			return Fem::Eqn::AddLinSys_LinearSolid2D_NonStatic_NewmarkBeta(
 				dt, gamma, beta, ls,
 				m_lambda, m_myu, m_rho,   m_g_x, m_g_y,
@@ -392,7 +392,7 @@ bool CEqn_Solid2D::AddLinSys_NewmarkBetaAPrime( double dt, double gamma, double 
 				m_id_ea);
 		}
 		else{
-			// “®“IüŒ`’e«‘Ì
+			// Ã¬Ã†Ã¬IÃªÂ¸Ã¥`Ã­eÃªÂ´Ã«Ãƒ
 			return Fem::Eqn::AddLinSys_LinearSolidThermalStress2D_NonStatic_NewmarkBeta(
 				dt, gamma, beta, ls,
 				m_lambda, m_myu, m_rho, m_g_x, m_g_y, 0.02,
@@ -405,13 +405,13 @@ bool CEqn_Solid2D::AddLinSys_NewmarkBetaAPrime( double dt, double gamma, double 
 	return false;
 }
 
-// ˜A—§ˆêŸ•û’ö®ƒ}[ƒWƒƒ\ƒbƒh
+// Ã²AÃ³ÃŸÃ ÃÃ©Ã¼Ã¯ËšÃ­Ë†Ã©Ã†Ã‰}Ã…[Ã‰WÃ‰Ã…Ã‰\Ã‰bÃ‰h
 bool CEqn_Solid2D::AddLinSys_NewmarkBetaAPrime_Save(
 	Fem::Ls::CLinearSystem_SaveDiaM_NewmarkBeta& ls, const Fem::Field::CFieldWorld& world )
 {
 	assert( !this->m_IsGeomNonlin );
 	assert( !world.IsIdField(m_IdFieldTemperature) );
-	// “®“IüŒ`’e«‘Ì
+	// Ã¬Ã†Ã¬IÃªÂ¸Ã¥`Ã­eÃªÂ´Ã«Ãƒ
 	std::cout << "gravi " << m_g_x << " " << m_g_y << std::endl;
 	return Fem::Eqn::AddLinSys_LinearSolid2D_NonStatic_Save_NewmarkBeta(
 		ls,
@@ -467,15 +467,15 @@ double CEqnSystem_Solid2D::MakeLinearSystem(const Fem::Field::CFieldWorld& world
 {	
 //	std::cout << "CEqnSystem_Solid2D::MakeLinearSystem" << std::endl;
 	if( pLS==0 ){ this->InitializeLinearSystem(world); }
-	// ˜A—§ˆêŸ•û’ö®‚ğì‚é
+	// Ã²AÃ³ÃŸÃ ÃÃ©Ã¼Ã¯ËšÃ­Ë†Ã©Ã†Ã‡ï£¿Ã§ÃÃ‡Ãˆ
 	assert( pLS != 0 );
-	pLS->InitializeMarge();	// ˜A—§ˆêŸ•û’ö®‚ğ‰Šú‰»‚·‚é
-	{	// ˜A—§•û’ö®‚Éƒ}[ƒW
+	pLS->InitializeMarge();	// Ã²AÃ³ÃŸÃ ÃÃ©Ã¼Ã¯ËšÃ­Ë†Ã©Ã†Ã‡ï£¿Ã¨Ã¢Ã¤Ë™Ã¢ÂªÃ‡âˆ‘Ã‡Ãˆ
+	{	// Ã²AÃ³ÃŸÃ¯ËšÃ­Ë†Ã©Ã†Ã‡â€¦Ã‰}Ã…[Ã‰W
 		bool is_nonlin;
 		this->EqnationProperty(is_nonlin); 
 		if( this->m_IsSaveStiffMat ){
 //			std::cout << "Save Stiff Mat " << std::endl;
-			assert( !is_nonlin ); // s—ñ•Û‘¶‚ª‚Å‚«‚é‚Ì‚ÍüŒ`•û’ö®‚Ì‚Æ‚«‚Ì‚İ
+			assert( !is_nonlin ); // Ã§sÃ³Ã’Ã¯â‚¬Ã«âˆ‚Ã‡â„¢Ã‡â‰ˆÃ‡Â´Ã‡ÃˆÃ‡ÃƒÃ‡Ã•ÃªÂ¸Ã¥`Ã¯ËšÃ­Ë†Ã©Ã†Ã‡ÃƒÃ‡âˆ†Ã‡Â´Ã‡ÃƒÃ‡â€º
 			if( m_IsStationary ){
 				for(unsigned int ieqn=0;ieqn<m_aEqn.size();ieqn++){
 					m_aEqn[ieqn].AddLinSys_Save( *(CLinearSystem_Save*)pLS, world);
@@ -506,7 +506,7 @@ double CEqnSystem_Solid2D::MakeLinearSystem(const Fem::Field::CFieldWorld& world
 		}
 	}
 /*
-	{	// ‰×d‹«ŠEğŒ‚ğ‘g‚İ“ü‚ê‚é
+	{	// Ã¢â—ŠÃ¨dÃ£Â´Ã¤EÃ¨ï£¿Ã¥Ã¨Ã‡ï£¿Ã«gÃ‡â€ºÃ¬Â¸Ã‡ÃÃ‡Ãˆ
 		const Fem::Field::CField& field_disp = world.GetField(m_id_val);
 		unsigned int id_na_val = field_disp.GetNodeSegInNodeAry(CORNER).id_na_va;
 		unsigned int id_na_co = field_disp.GetNodeSegInNodeAry(CORNER).id_na_co;
@@ -518,7 +518,7 @@ double CEqnSystem_Solid2D::MakeLinearSystem(const Fem::Field::CFieldWorld& world
 			std::vector<unsigned int> aIdES = ea.GetAry_SegID();
 			unsigned int id_es_va = 0;
 			unsigned int id_es_co = 0;
-			for(unsigned int iies=0;iies<aIdES.size();iies++){	// id_na_val‚ğ‚Âid_es‚ğŒŸõ
+			for(unsigned int iies=0;iies<aIdES.size();iies++){	// id_na_valÃ‡ï£¿Ã©Ã¹Ã‡Â¬id_esÃ‡ï£¿Ã¥Ã¼Ã§Ä±
 				unsigned int id_es0 = aIdES[iies];
 				if( ea.GetSeg(id_es0).GetIdNA() == id_na_val ){ 
 					id_es_va = id_es0;
@@ -532,7 +532,7 @@ double CEqnSystem_Solid2D::MakeLinearSystem(const Fem::Field::CFieldWorld& world
 			{
 				const CElemAry::CElemSeg& es_co = ea.GetSeg(id_es_co);
 				unsigned int nnoes = es_co.GetSizeNoes();
-				if( nnoes != 2 ) continue;	// •Ó—v‘f‚Å‚È‚¯‚ê‚Î‚È‚ç‚È‚¢
+				if( nnoes != 2 ) continue;	// Ã¯â€Ã³vÃ«fÃ‡â‰ˆÃ‡Â»Ã‡Ã˜Ã‡ÃÃ‡Å’Ã‡Â»Ã‡ÃÃ‡Â»Ã‡Â¢
 				unsigned int noes_co[2];
 				const CNodeAry::CNodeSeg& ns_co = field_disp.GetNodeSeg(CORNER,false,world);
 				for(unsigned int ielem=0;ielem<ea.Size();ielem++){
@@ -550,7 +550,7 @@ double CEqnSystem_Solid2D::MakeLinearSystem(const Fem::Field::CFieldWorld& world
 				const CElemAry::CElemSeg& es_va = ea.GetSeg(id_es_va);
 				const CElemAry::CElemSeg& es_co = ea.GetSeg(id_es_va);
 				unsigned int nnoes = es_va.GetSizeNoes();
-				if( nnoes != 2 ) continue;	// •Ó—v‘f‚Å‚È‚¯‚ê‚Î‚È‚ç‚È‚¢
+				if( nnoes != 2 ) continue;	// Ã¯â€Ã³vÃ«fÃ‡â‰ˆÃ‡Â»Ã‡Ã˜Ã‡ÃÃ‡Å’Ã‡Â»Ã‡ÃÃ‡Â»Ã‡Â¢
 				unsigned int noes_co[2];
 				const CNodeAry::CNodeSeg& ns_co = field_disp.GetNodeSeg(CORNER,false,world);
 				unsigned int noes_va[2];
@@ -578,7 +578,7 @@ double CEqnSystem_Solid2D::MakeLinearSystem(const Fem::Field::CFieldWorld& world
 bool CEqnSystem_Solid2D::MakePreconditioner(){
 //	std::cout << "Value Preconditioner" << std::endl;
 	if( pPrec==0 ){ this->InitializePreconditioner(); }
-	// ‘Oˆ—s—ñ‚ğì‚é
+	// Ã«OÃ¨Ã Ã³Ã¹Ã§sÃ³Ã’Ã‡ï£¿Ã§ÃÃ‡Ãˆ
 	pPrec->SetValue( (*pLS).m_ls );
 	this->m_is_cleared_value_prec = false;
 	return true;
@@ -589,28 +589,28 @@ bool CEqnSystem_Solid2D::InitializeLinearSystem(const Fem::Field::CFieldWorld& w
 //	std::cout << "Initialize LinearSystem" << std::endl;
 	if( pLS  !=0 ) this->ClearLinearSystem();
 	assert( pLS == 0 );
-	// ˜A—§ˆêŸ•û’ö®ƒNƒ‰ƒX‚Ìì¬
+	// Ã²AÃ³ÃŸÃ ÃÃ©Ã¼Ã¯ËšÃ­Ë†Ã©Ã†Ã‰NÃ‰Ã¢Ã‰XÃ‡ÃƒÃ§ÃÃªÂ¨
 	if( this->m_IsSaveStiffMat ){
 		bool is_nonlin;
 		this->EqnationProperty(is_nonlin); 
-		assert(!is_nonlin ); // ”ñüŒ`•û’ö®‚Ís—ñ•Û‘¶‚Å‚«‚È‚¢
+		assert(!is_nonlin ); // Ã®Ã’ÃªÂ¸Ã¥`Ã¯ËšÃ­Ë†Ã©Ã†Ã‡Ã•Ã§sÃ³Ã’Ã¯â‚¬Ã«âˆ‚Ã‡â‰ˆÃ‡Â´Ã‡Â»Ã‡Â¢
 		if( m_IsStationary ){ pLS = new CLinearSystem_Save; }
-		else{ pLS = new CLinearSystem_SaveDiaM_NewmarkBeta; } // “®“I•û’ö®‚Ìê‡‚Ìs—ñ•Û‘¶‚ÍÀ‘•‚µ‚Ä‚¢‚È‚¢
+		else{ pLS = new CLinearSystem_SaveDiaM_NewmarkBeta; } // Ã¬Ã†Ã¬IÃ¯ËšÃ­Ë†Ã©Ã†Ã‡ÃƒÃ¨ÃÃ§Ã¡Ã‡ÃƒÃ§sÃ³Ã’Ã¯â‚¬Ã«âˆ‚Ã‡Ã•Ã©Â¿Ã«Ã¯Ã‡ÂµÃ‡Æ’Ã‡Â¢Ã‡Â»Ã‡Â¢
 	}
 	else{ pLS = new CLinearSystem_Field; }
 
-	// ˜A—§ˆêŸ•û’ö®ƒNƒ‰ƒX‚Ìİ’è
-	pLS->AddPattern_Field(m_IdFieldDisp,world);	// val_field‚©‚ç‚Å‚«‚é‘S‘Ì„«s—ñ‚ğ’Ç‰Á‚·‚é
+	// Ã²AÃ³ÃŸÃ ÃÃ©Ã¼Ã¯ËšÃ­Ë†Ã©Ã†Ã‰NÃ‰Ã¢Ã‰XÃ‡ÃƒÃªâ€ºÃ­Ã‹
+	pLS->AddPattern_Field(m_IdFieldDisp,world);	// val_fieldÃ‡Â©Ã‡ÃÃ‡â‰ˆÃ‡Â´Ã‡ÃˆÃ«SÃ«ÃƒÃ§Ã‘ÃªÂ´Ã§sÃ³Ã’Ã‡ï£¿Ã­Â«Ã¢Â¡Ã‡âˆ‘Ã‡Ãˆ
 	for(unsigned int idf=0;idf<m_aIdFixField.size();idf++){
 		const unsigned int id_field = m_aIdFixField[idf].first; 
 		const int idof = m_aIdFixField[idf].second; 
 		if( idof == -1 ){
-			pLS->SetFixedBoundaryCondition_Field( id_field, 0, world ); // bc0_field‚ğŒÅ’è‹«ŠEğŒ‚Éİ’è	
-			pLS->SetFixedBoundaryCondition_Field( id_field, 1, world ); // bc0_field‚ğŒÅ’è‹«ŠEğŒ‚Éİ’è	
+			pLS->SetFixedBoundaryCondition_Field( id_field, 0, world ); // bc0_fieldÃ‡ï£¿Ã¥â‰ˆÃ­Ã‹Ã£Â´Ã¤EÃ¨ï£¿Ã¥Ã¨Ã‡â€¦Ãªâ€ºÃ­Ã‹	
+			pLS->SetFixedBoundaryCondition_Field( id_field, 1, world ); // bc0_fieldÃ‡ï£¿Ã¥â‰ˆÃ­Ã‹Ã£Â´Ã¤EÃ¨ï£¿Ã¥Ã¨Ã‡â€¦Ãªâ€ºÃ­Ã‹	
 		}
 		else{
 			assert( idof < 2 );
-			pLS->SetFixedBoundaryCondition_Field( id_field, idof, world ); // bc0_field‚ğŒÅ’è‹«ŠEğŒ‚Éİ’è	
+			pLS->SetFixedBoundaryCondition_Field( id_field, idof, world ); // bc0_fieldÃ‡ï£¿Ã¥â‰ˆÃ­Ã‹Ã£Â´Ã¤EÃ¨ï£¿Ã¥Ã¨Ã‡â€¦Ãªâ€ºÃ­Ã‹	
 		}
 	}
 	return true;
@@ -619,7 +619,7 @@ bool CEqnSystem_Solid2D::InitializeLinearSystem(const Fem::Field::CFieldWorld& w
 bool CEqnSystem_Solid2D::InitializePreconditioner()
 {		
 //	std::cout << "Initialize Preconditioner" << std::endl;
-	// ‘Oˆ—ƒNƒ‰ƒX‚Ìì¬
+	// Ã«OÃ¨Ã Ã³Ã¹Ã‰NÃ‰Ã¢Ã‰XÃ‡ÃƒÃ§ÃÃªÂ¨
 	if( pPrec!=0 ) this->ClearPreconditioner();
 	assert( pPrec == 0 );
     pPrec = new LsSol::CPreconditioner_ILU( (*pLS).m_ls, 1 );
@@ -658,7 +658,7 @@ bool CEqnSystem_Solid2D::Solve(Fem::Field::CFieldWorld& world)
 	bool is_nonlin;
 	this->EqnationProperty(is_nonlin); 
 	this->m_aItrNormRes.clear();
-	if( is_nonlin ){	// ”ñüŒ`‚Ìê‡‚ÍNewton”½•œ‚ğ‚µ‚È‚¯‚ê‚Î‚¢‚¯‚È‚¢‚Ì‚Å•ª‚¯‚é
+	if( is_nonlin ){	// Ã®Ã’ÃªÂ¸Ã¥`Ã‡ÃƒÃ¨ÃÃ§Ã¡Ã‡Ã•NewtonÃ®Î©Ã¯ÃºÃ‡ï£¿Ã‡ÂµÃ‡Â»Ã‡Ã˜Ã‡ÃÃ‡Å’Ã‡Â¢Ã‡Ã˜Ã‡Â»Ã‡Â¢Ã‡ÃƒÃ‡â‰ˆÃ¯â„¢Ã‡Ã˜Ã‡Ãˆ
 		assert( !this->m_IsSaveStiffMat );
 		if( pLS   == 0 ){ this->InitializeLinearSystem(world); }
 		if( pPrec == 0 ){ this->InitializePreconditioner();    }
@@ -672,7 +672,7 @@ bool CEqnSystem_Solid2D::Solve(Fem::Field::CFieldWorld& world)
 			}
 			if( norm_res < ini_norm_res * 1.0e-6 ) break;
 //			std::cout << iitr << " " << norm_res << " " << ini_norm_res << " " << norm_res / ini_norm_res << std::endl;
-			{	// s—ñ‚ğ‰ğ‚­
+			{	// Ã§sÃ³Ã’Ã‡ï£¿Ã¢ï£¿Ã‡â‰ 
 				double conv_ratio = 1.0e-6;
 				unsigned int max_iter = 1000;
                 LsSol::CLinearSystemPreconditioner lsp( (*pLS).m_ls, *pPrec );
@@ -715,7 +715,7 @@ bool CEqnSystem_Solid2D::Solve(Fem::Field::CFieldWorld& world)
 		}
 		assert( this->m_is_cleared_value_prec == false );
 
-		{	// s—ñ‚ğ‰ğ‚­
+		{	// Ã§sÃ³Ã’Ã‡ï£¿Ã¢ï£¿Ã‡â‰ 
 			double conv_ratio = 1.0e-6;
 			unsigned int max_iter = 1000;
             LsSol::CLinearSystemPreconditioner lsp( (*pLS).m_ls, *pPrec );
@@ -727,7 +727,7 @@ bool CEqnSystem_Solid2D::Solve(Fem::Field::CFieldWorld& world)
 			this->m_aItrNormRes.push_back( std::make_pair(max_iter,conv_ratio) );
 		}
 
-		// ‰ğ‚ğXV‚·‚é
+		// Ã¢ï£¿Ã‡ï£¿Ã§XÃªVÃ‡âˆ‘Ã‡Ãˆ
 		if( m_IsStationary ){
 			pLS->UpdateValueOfField(m_IdFieldDisp,world,VALUE); 
 		}
@@ -750,7 +750,7 @@ bool CEqnSystem_Solid2D::UpdateDomain_Field(unsigned int id_base, Fem::Field::CF
 		Fem::Field::VECTOR2,VALUE|VELOCITY|ACCELERATION,CORNER);
     assert( world.IsIdField(m_IdFieldDisp) );
 
-	{	// “¯‚¶—v‘f”z—ñID‚ğ‚Â•û’ö®‚ª‚ ‚Á‚½‚çC‚»‚ê‚ğg‚¤D‚È‚¯‚ê‚ÎV‹K‚É’Ç‰Á
+	{	// Ã¬Ã˜Ã‡âˆ‚Ã³vÃ«fÃ®zÃ³Ã’IDÃ‡ï£¿Ã©Ã¹Ã‡Â¬Ã¯ËšÃ­Ë†Ã©Ã†Ã‡â„¢Ã‡ Ã‡Â¡Ã‡Î©Ã‡ÃÃ…CÃ‡ÂªÃ‡ÃÃ‡ï£¿Ã©gÃ‡Â§Ã…DÃ‡Â»Ã‡Ã˜Ã‡ÃÃ‡Å’ÃªVÃ£KÃ‡â€¦Ã­Â«Ã¢Â¡
 		std::vector<CEqn_Solid2D> aEqn_old = m_aEqn;
 		m_aEqn.clear();
 		const CField& field = world.GetField(m_IdFieldDisp);
@@ -793,7 +793,7 @@ bool CEqnSystem_Solid2D::UpdateDomain_Field(unsigned int id_base, Fem::Field::CF
 /*
 bool CEqnSystem_Solid2D::SetDomain_Field(unsigned int id_field_base, Fem::Field::CFieldWorld& world)
 {
-	{	// “ü—ÍƒtƒB[ƒ‹ƒh‚ÌÀ•Wß“_ƒZƒOƒƒ“ƒg‚Ìdof‚ª2‚©‚Ç‚¤‚©ƒ`ƒFƒbƒN‚·‚é
+	{	// Ã¬Â¸Ã³Ã•Ã‰tÃ‰BÃ…[Ã‰Ã£Ã‰hÃ‡ÃƒÃ§Â¿Ã¯WÃªï¬‚Ã¬_Ã‰ZÃ‰OÃ‰Ã…Ã‰Ã¬Ã‰gÃ‡ÃƒdofÃ‡â„¢2Ã‡Â©Ã‡Â«Ã‡Â§Ã‡Â©Ã‰`Ã‰FÃ‰bÃ‰NÃ‡âˆ‘Ã‡Ãˆ
 //		unsigned int id_field_base = world.GetFieldBaseID();
 		assert( world.IsIdField(id_field_base) );
 		const CField& field_base = world.GetField(id_field_base);
@@ -822,7 +822,7 @@ bool CEqnSystem_Solid2D::SetDomain_Field(unsigned int id_field_base, Fem::Field:
 bool CEqnSystem_Solid2D::SetDomain_FieldEA(unsigned int id_field_base, unsigned int id_ea, 
                                            Fem::Field::CFieldWorld& world)
 {
-	{	// “ü—ÍƒtƒB[ƒ‹ƒh‚ÌÀ•Wß“_ƒZƒOƒƒ“ƒg‚Ìdof‚ª2‚©‚Ç‚¤‚©ƒ`ƒFƒbƒN‚·‚é
+	{	// Ã¬Â¸Ã³Ã•Ã‰tÃ‰BÃ…[Ã‰Ã£Ã‰hÃ‡ÃƒÃ§Â¿Ã¯WÃªï¬‚Ã¬_Ã‰ZÃ‰OÃ‰Ã…Ã‰Ã¬Ã‰gÃ‡ÃƒdofÃ‡â„¢2Ã‡Â©Ã‡Â«Ã‡Â§Ã‡Â©Ã‰`Ã‰FÃ‰bÃ‰NÃ‡âˆ‘Ã‡Ãˆ
 //		unsigned int id_field_base = world.GetFieldBaseID();
 		assert( world.IsIdField(id_field_base) );
 		const CField& field_base = world.GetField(id_field_base);
@@ -852,7 +852,7 @@ bool CEqnSystem_Solid2D::SetDomain_FieldEA(unsigned int id_field_base, unsigned 
 bool CEqnSystem_Solid2D::ToplogicalChangeCad_InsertLoop(Fem::Field::CFieldWorld& world, 
 	unsigned int id_l_back, unsigned id_l_ins)
 {
-	{	// “ü—ÍƒtƒB[ƒ‹ƒh‚ÌÀ•Wß“_ƒZƒOƒƒ“ƒg‚Ìdof‚ª2‚©‚Ç‚¤‚©ƒ`ƒFƒbƒN‚·‚é
+	{	// Ã¬Â¸Ã³Ã•Ã‰tÃ‰BÃ…[Ã‰Ã£Ã‰hÃ‡ÃƒÃ§Â¿Ã¯WÃªï¬‚Ã¬_Ã‰ZÃ‰OÃ‰Ã…Ã‰Ã¬Ã‰gÃ‡ÃƒdofÃ‡â„¢2Ã‡Â©Ã‡Â«Ã‡Â§Ã‡Â©Ã‰`Ã‰FÃ‰bÃ‰NÃ‡âˆ‘Ã‡Ãˆ
 		unsigned int id_field_base = world.GetFieldBaseID();
 		assert( world.IsIdField(id_field_base) );
 		const CField& field_base = world.GetField(id_field_base);
@@ -979,10 +979,10 @@ void CEqnSystem_Solid2D::SetSaveStiffMat( bool is_save )
 }
 
 
-// ƒXƒJƒ‰[‚Ì‰—Í‘Š“–’l‚ğ’Ç‰Á‚·‚éD‚»‚Ì‚¤‚¿ƒ‚[ƒh‚ğ‚Â‚¯‚é
-// mode = 0 : ƒ~[ƒ[ƒX
-// mode = 1 : Å‘å‰—Í
-// Šô‰½Šw“I‚È”ñüŒ`«‚ğl—¶‚·‚é‚©‚Ç‚¤‚©‚ÍCEqnObj‚ğŒ©‚ÄŒˆ‚ß‚é‚æ‚¤‚É‚·‚é
+// Ã‰XÃ‰JÃ‰Ã¢Ã…[Ã‡ÃƒÃ¢Ã»Ã³Ã•Ã«Ã¤Ã¬Ã±Ã­lÃ‡ï£¿Ã­Â«Ã¢Â¡Ã‡âˆ‘Ã‡ÃˆÃ…DÃ‡ÂªÃ‡ÃƒÃ‡Â§Ã‡Ã¸Ã‰Ã‡Ã…[Ã‰hÃ‡ï£¿Ã‡Â¬Ã‡Ã˜Ã‡Ãˆ
+// mode = 0 : Ã‰~Ã…[Ã‰[Ã‰X
+// mode = 1 : Ã§â‰ˆÃ«Ã‚Ã¢Ã»Ã³Ã•
+// Ã¤Ã™Ã¢Î©Ã¤wÃ¬IÃ‡Â»Ã®Ã’ÃªÂ¸Ã¥`ÃªÂ´Ã‡ï£¿Ã§lÃ³âˆ‚Ã‡âˆ‘Ã‡ÃˆÃ‡Â©Ã‡Â«Ã‡Â§Ã‡Â©Ã‡Ã•Ã…CEqnObjÃ‡ï£¿Ã¥Â©Ã‡Æ’Ã¥Ã Ã‡ï¬‚Ã‡ÃˆÃ‡ÃŠÃ‡Â§Ã‡â€¦Ã‡âˆ‘Ã‡Ãˆ
 bool CEqnSystem_Solid2D::SetEquivStressValue(unsigned int id_field_str, Fem::Field::CFieldWorld& world)
 {	
 	if( !world.IsIdField(id_field_str) ) return false;
@@ -1043,14 +1043,14 @@ bool CEqnSystem_Solid2D::SetEquivStressValue(unsigned int id_field_str, Fem::Fie
 		CNodeAry& na_b_va = world.GetNA(id_na_b_va);
 		CNodeAry::CNodeSeg& ns_b_va = na_b_va.GetSeg(id_ns_b_va);
 
-        const unsigned int nnoes_c = es_c_co.GetSizeNoes();
-        assert( nnoes_c < 64 );
+    const unsigned int nnoes_c = es_c_co.Length();
+    assert( nnoes_c < 64 );
 		unsigned int noes[64];
-      const CEqn_Solid2D& eqn = this->GetEquation(id_ea);
+    const CEqn_Solid2D& eqn = this->GetEquation(id_ea);
 		for(unsigned int ielem=0;ielem<ea.Size();ielem++){
 			////////////////
 			double coord[16][3];
-			// À•W(coord)‚Æ’l(value)‚ğì‚é
+			// Ã§Â¿Ã¯W(coord)Ã‡âˆ†Ã­l(value)Ã‡ï£¿Ã§ÃÃ‡Ãˆ
 			es_c_co.GetNodes(ielem,noes);
 			for(unsigned int inoes=0;inoes<nnoes;inoes++){
 				unsigned int ipoi0 = noes[inoes];
@@ -1058,7 +1058,7 @@ bool CEqnSystem_Solid2D::SetEquivStressValue(unsigned int id_field_str, Fem::Fie
 				ns_c_co.GetValue(ipoi0,coord[inoes]);
 			}
 			////////////////
-			double disp[16][3];	// ß“_•ÏˆÊ
+			double disp[16][3];	// Ãªï¬‚Ã¬_Ã¯Å“Ã Â 
 			es_c_va.GetNodes(ielem,noes);
 			for(unsigned int inoes=0;inoes<nnoes;inoes++){
 				unsigned int ipoi0 = noes[inoes];
@@ -1068,7 +1068,7 @@ bool CEqnSystem_Solid2D::SetEquivStressValue(unsigned int id_field_str, Fem::Fie
 				}
 			}
 			////////////////
-			double dudx[2][2];	// •ÏŒ`Œù”z
+			double dudx[2][2];	// Ã¯Å“Ã¥`Ã¥Ë˜Ã®z
 			if( type_from == TRI11 ){
 				double dldx[3][2];
 				double const_term[3];
@@ -1081,14 +1081,14 @@ bool CEqnSystem_Solid2D::SetEquivStressValue(unsigned int id_field_str, Fem::Fie
 					dudx[1][1] += disp[knoes][1]*dldx[knoes][1];
 				}
 			}
-			double strain[2][2];	// ˜c
-			if( eqn.IsGeometricalNonlinear() ){ // Šô‰½Šw“I”ñüŒ`‚ ‚è
+			double strain[2][2];	// Ã²c
+			if( eqn.IsGeometricalNonlinear() ){ // Ã¤Ã™Ã¢Î©Ã¤wÃ¬IÃ®Ã’ÃªÂ¸Ã¥`Ã‡ Ã‡Ã‹
 				strain[0][0] = 0.5*(dudx[0][0]+dudx[0][0]+dudx[0][0]*dudx[0][0]+dudx[1][0]*dudx[1][0]);
 				strain[0][1] = 0.5*(dudx[0][1]+dudx[1][0]+dudx[0][0]*dudx[0][1]+dudx[1][1]*dudx[1][0]);
 				strain[1][0] = 0.5*(dudx[1][0]+dudx[0][1]+dudx[0][1]*dudx[0][0]+dudx[1][0]*dudx[1][1]);
 				strain[1][1] = 0.5*(dudx[1][1]+dudx[1][1]+dudx[0][1]*dudx[0][1]+dudx[1][1]*dudx[1][1]);
 			}
-			else { // Šô‰½Šw“I”ñüŒ`‚È‚µ
+			else { // Ã¤Ã™Ã¢Î©Ã¤wÃ¬IÃ®Ã’ÃªÂ¸Ã¥`Ã‡Â»Ã‡Âµ
 				strain[0][0] = 0.5*(dudx[0][0]+dudx[0][0]);
 				strain[0][1] = 0.5*(dudx[0][1]+dudx[1][0]);
 				strain[1][0] = 0.5*(dudx[1][0]+dudx[0][1]);
@@ -1133,10 +1133,10 @@ bool CEqnSystem_Solid2D::SetEquivStressValue(unsigned int id_field_str, Fem::Fie
 	return true;
 }
 
-// ƒXƒJƒ‰[‚Ì‰—Í‘Š“–’l‚ğ’Ç‰Á‚·‚éD‚»‚Ì‚¤‚¿ƒ‚[ƒh‚ğ‚Â‚¯‚é
-// mode = 0 : ƒ~[ƒ[ƒX
-// mode = 1 : Å‘å‰—Í
-// Šô‰½Šw“I‚È”ñüŒ`«‚ğl—¶‚·‚é‚©‚Ç‚¤‚©‚ÍCEqnObj‚ğŒ©‚ÄŒˆ‚ß‚é‚æ‚¤‚É‚·‚é
+// Ã‰XÃ‰JÃ‰Ã¢Ã…[Ã‡ÃƒÃ¢Ã»Ã³Ã•Ã«Ã¤Ã¬Ã±Ã­lÃ‡ï£¿Ã­Â«Ã¢Â¡Ã‡âˆ‘Ã‡ÃˆÃ…DÃ‡ÂªÃ‡ÃƒÃ‡Â§Ã‡Ã¸Ã‰Ã‡Ã…[Ã‰hÃ‡ï£¿Ã‡Â¬Ã‡Ã˜Ã‡Ãˆ
+// mode = 0 : Ã‰~Ã…[Ã‰[Ã‰X
+// mode = 1 : Ã§â‰ˆÃ«Ã‚Ã¢Ã»Ã³Ã•
+// Ã¤Ã™Ã¢Î©Ã¤wÃ¬IÃ‡Â»Ã®Ã’ÃªÂ¸Ã¥`ÃªÂ´Ã‡ï£¿Ã§lÃ³âˆ‚Ã‡âˆ‘Ã‡ÃˆÃ‡Â©Ã‡Â«Ã‡Â§Ã‡Â©Ã‡Ã•Ã…CEqnObjÃ‡ï£¿Ã¥Â©Ã‡Æ’Ã¥Ã Ã‡ï¬‚Ã‡ÃˆÃ‡ÃŠÃ‡Â§Ã‡â€¦Ã‡âˆ‘Ã‡Ãˆ
 bool CEqnSystem_Solid2D::SetStressValue(unsigned int id_field_str, Fem::Field::CFieldWorld& world)
 {	
 	if( !world.IsIdField(id_field_str) ) return false;
@@ -1196,14 +1196,14 @@ bool CEqnSystem_Solid2D::SetStressValue(unsigned int id_field_str, Fem::Field::C
 		CNodeAry& na_b_va = world.GetNA(id_na_b_va);
 		CNodeAry::CNodeSeg& ns_b_va = na_b_va.GetSeg(id_ns_b_va);
 
-        const unsigned int nnoes_c = es_c_co.GetSizeNoes();
-        assert( nnoes_c < 64 );
+    const unsigned int nnoes_c = es_c_co.Length();
+    assert( nnoes_c < 64 );
 		unsigned int noes[64];
 
 		for(unsigned int ielem=0;ielem<ea.Size();ielem++){
 			////////////////
 			double coord[16][3];
-			// À•W(coord)‚Æ’l(value)‚ğì‚é
+			// Ã§Â¿Ã¯W(coord)Ã‡âˆ†Ã­l(value)Ã‡ï£¿Ã§ÃÃ‡Ãˆ
 			es_c_co.GetNodes(ielem,noes);
 			for(unsigned int inoes=0;inoes<nnoes;inoes++){
 				unsigned int ipoi0 = noes[inoes];
@@ -1211,7 +1211,7 @@ bool CEqnSystem_Solid2D::SetStressValue(unsigned int id_field_str, Fem::Field::C
 				ns_c_co.GetValue(ipoi0,coord[inoes]);
 			}
 			////////////////
-			double disp[16][3];	// ß“_•ÏˆÊ
+			double disp[16][3];	// Ãªï¬‚Ã¬_Ã¯Å“Ã Â 
 			es_c_va.GetNodes(ielem,noes);
 			for(unsigned int inoes=0;inoes<nnoes;inoes++){
 				unsigned int ipoi0 = noes[inoes];
@@ -1221,7 +1221,7 @@ bool CEqnSystem_Solid2D::SetStressValue(unsigned int id_field_str, Fem::Field::C
 				}
 			}
 			////////////////
-			double dudx[2][2];	// •ÏŒ`Œù”z
+			double dudx[2][2];	// Ã¯Å“Ã¥`Ã¥Ë˜Ã®z
 			if( type_from == TRI11 ){
 				double dldx[3][2];
 				double const_term[3];
@@ -1235,14 +1235,14 @@ bool CEqnSystem_Solid2D::SetStressValue(unsigned int id_field_str, Fem::Field::C
 				}
 			}
          const CEqn_Solid2D& eqn = this->GetEquation(id_ea);
-			double strain[2][2];	// ˜c
-			if( eqn.IsGeometricalNonlinear() ){ // Šô‰½Šw“I”ñüŒ`‚ ‚è(GL˜c‚İ)
+			double strain[2][2];	// Ã²c
+			if( eqn.IsGeometricalNonlinear() ){ // Ã¤Ã™Ã¢Î©Ã¤wÃ¬IÃ®Ã’ÃªÂ¸Ã¥`Ã‡ Ã‡Ã‹(GLÃ²cÃ‡â€º)
 				strain[0][0] = 0.5*(dudx[0][0]+dudx[0][0]+dudx[0][0]*dudx[0][0]+dudx[1][0]*dudx[1][0]);
 				strain[0][1] = 0.5*(dudx[0][1]+dudx[1][0]+dudx[0][0]*dudx[0][1]+dudx[1][1]*dudx[1][0]);
 				strain[1][0] = 0.5*(dudx[1][0]+dudx[0][1]+dudx[0][1]*dudx[0][0]+dudx[1][0]*dudx[1][1]);
 				strain[1][1] = 0.5*(dudx[1][1]+dudx[1][1]+dudx[0][1]*dudx[0][1]+dudx[1][1]*dudx[1][1]);
 			}
-			else{ // Šô‰½Šw“I”ñüŒ`‚È‚µ(üŒ`˜c‚İ)
+			else{ // Ã¤Ã™Ã¢Î©Ã¤wÃ¬IÃ®Ã’ÃªÂ¸Ã¥`Ã‡Â»Ã‡Âµ(ÃªÂ¸Ã¥`Ã²cÃ‡â€º)
 				strain[0][0] = 0.5*(dudx[0][0]+dudx[0][0]);
 				strain[0][1] = 0.5*(dudx[0][1]+dudx[1][0]);
 				strain[1][0] = 0.5*(dudx[1][0]+dudx[0][1]);

@@ -614,87 +614,90 @@ void CDrawer_Cad2D::ShowEffected(const Cad::ICad2D& cad_2d,
 
 void CDrawer_Cad2D::Draw() const
 {
-	// ライティングの指定
 	::glEnable(GL_DEPTH_TEST);
-	::glDisable(GL_LIGHTING);
-    ::glDisable(GL_TEXTURE_2D);
+	const bool is_lighting = ::glIsEnabled(GL_LIGHTING);
+  const bool is_texture  = ::glIsEnabled(GL_TEXTURE_2D);  
+  ::glDisable(GL_LIGHTING);
+  ::glDisable(GL_TEXTURE_2D);
 	::glDisable(GL_CULL_FACE);	// とりあえずややこしいからCullFaceはやめとく
 
 	const unsigned int ndim = this->m_vertex_ary.NDim();
 
 	////////////////////////////////////////////////////////////////
 	// モデルの描画
-    {
-        ////////////////
-        ::glPointSize(m_pointsize);
-        ::glBegin(GL_POINTS);
-        for(unsigned int iver=0;iver<this->m_aIndexVertex.size();iver++){
-            if( !this->m_aIndexVertex[iver].is_show ) continue;
-			const double height = this->m_aIndexVertex[iver].height;
-            if( this->m_aIndexVertex[iver].is_selected ){ ::glColor3d(1.0,1.0,0.0); }
-            else{ ::glColor3d(0.0,0.0,0.0);	}
-            unsigned int ipo0 = this->m_aIndexVertex[iver].id_v;
-            ::glVertex3d( m_vertex_ary.pVertexArray[ipo0*ndim+0], 
-				m_vertex_ary.pVertexArray[ipo0*ndim+1], 
-				height );
-        }
-        ::glEnd();
+  {
+    ////////////////
+    ::glPointSize(m_pointsize);
+    ::glBegin(GL_POINTS);
+    for(unsigned int iver=0;iver<this->m_aIndexVertex.size();iver++){
+      if( !this->m_aIndexVertex[iver].is_show ) continue;
+      const double height = this->m_aIndexVertex[iver].height;
+      if( this->m_aIndexVertex[iver].is_selected ){ ::glColor3d(1.0,1.0,0.0); }
+      else{ ::glColor3d(0.0,0.0,0.0);	}
+      unsigned int ipo0 = this->m_aIndexVertex[iver].id_v;
+      ::glVertex3d(m_vertex_ary.pVertexArray[ipo0*ndim+0], 
+                   m_vertex_ary.pVertexArray[ipo0*ndim+1], 
+                   height );
     }
+    ::glEnd();      
+  }  
 	::glEnableClientState(GL_VERTEX_ARRAY);
 	::glVertexPointer(ndim,GL_DOUBLE,0,m_vertex_ary.pVertexArray);
 	for(unsigned int idp=0;idp<m_apIndexAry.size();idp++){
-        const CDrawPart* part = m_apIndexAry[idp];
+    const CDrawPart* part = m_apIndexAry[idp];
 		const double height = part->height;
 		const double xdisp = part->xdisp;
 		const double ydisp = part->ydisp;
-        if(      part->itype == Cad::EDGE )	// 辺の描画
-        {
-            if( !part->is_show ) continue;
-            ::glLineWidth(m_linewidth);
-            if( this->m_is_anti_aliasing ){ // アンチエリアシングの導入
-                ::glEnable(GL_LINE_SMOOTH);
-                ::glEnable(GL_BLEND);
-                ::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                ::glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
-            }
+    if(      part->itype == Cad::EDGE )	// 辺の描画
+    {
+      if( !part->is_show ) continue;
+      ::glLineWidth(m_linewidth);
+      if( this->m_is_anti_aliasing ){ // アンチエリアシングの導入
+        ::glEnable(GL_LINE_SMOOTH);
+        ::glEnable(GL_BLEND);
+        ::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        ::glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
+      }
 			if( part->is_selected ){ ::glColor3d(1.0,1.0,0.0); }
 			else{ ::glColor3d(0.0,0.0,0.0); }
 			::glTranslated(0.0,0.0, height);
 			part->DrawElements();
 			::glTranslated(0.0,0.0,-height);
-            ::glDisable(GL_LINE_SMOOTH);
-            ::glDisable(GL_BLEND);
+      ::glDisable(GL_LINE_SMOOTH);
+      ::glDisable(GL_BLEND);
 		}
-        else if( part->itype == Cad::LOOP ) // ループの描画
-        {
-            ::glDisable(GL_BLEND);
-            if( part->is_selected ){
+    else if( part->itype == Cad::LOOP ) // ループの描画
+    {
+      ::glDisable(GL_BLEND);
+      if( part->is_selected ){
 				::glEnable(GL_POLYGON_STIPPLE);
 				::glPolygonStipple((const GLubyte*)m_mask);
-                ::glColor3d(1.0,1.0,0.0);
-                ::glTranslated(0.0,0.0,+height+0.001);
+        ::glColor3d(1.0,1.0,0.0);
+        ::glTranslated(0.0,0.0,+height+0.001);
 				part->DrawElements();
-                ::glTranslated(0.0,0.0,-height-0.001);
+        ::glTranslated(0.0,0.0,-height-0.001);
 				::glDisable(GL_POLYGON_STIPPLE);
 			}
-            if( !part->is_show ) continue;
-            ::glColor3dv(part->color);
+      if( !part->is_show ) continue;
+      ::glColor3dv(part->color);
 			::glTranslated(+xdisp,+ydisp,+height);
 			part->DrawElements();
 			::glTranslated(-xdisp,-ydisp,-height);
 		}
 	}
-    ::glDisableClientState(GL_VERTEX_ARRAY);
-
+  ::glDisableClientState(GL_VERTEX_ARRAY);
+  if( is_lighting ){ ::glEnable(GL_LIGHTING); }
+  if( is_texture  ){ ::glEnable(GL_TEXTURE_2D); }
 	return;
 }
 
 void CDrawer_Cad2D::DrawSelection(unsigned int idraw) const
 {
-    ////////////////
-    ::glDisable(GL_BLEND);
-    ::glDisable(GL_LINE_SMOOTH);
-    ::glDisable(GL_TEXTURE_2D);
+  ////////////////
+  ::glDisable(GL_BLEND);
+  ::glDisable(GL_LINE_SMOOTH);
+  const bool is_texture = ::glIsEnabled(GL_TEXTURE_2D);
+  ::glDisable(GL_TEXTURE_2D);
 	const unsigned int ndim = this->m_vertex_ary.NDim();
 	::glPushName(idraw);
 	// モデルの描画
@@ -733,6 +736,8 @@ void CDrawer_Cad2D::DrawSelection(unsigned int idraw) const
 	}
 	
 	::glPopName();
+  
+  if( is_texture ){ ::glEnable(GL_TEXTURE_2D); }
 
 	return;
 }

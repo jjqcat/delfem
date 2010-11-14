@@ -43,7 +43,24 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 using namespace MatVec;
 
-void COrdering_Blk::MakeOrdering_RCM(const MatVec::CMatDia_BlkCrs& mat){
+void COrdering_Blk::SetOrdering(const std::vector<int>& ord)
+{
+  m_nblk = ord.size();
+  if( this->m_pOrder != 0 ) delete[] m_pOrder;
+  if( this->m_pInvOrder != 0 ) delete[] m_pInvOrder;  
+  this->m_pOrder = new int [m_nblk];
+  this->m_pInvOrder = new int [m_nblk];
+  for(unsigned int iblk=0;iblk<m_nblk;iblk++){ m_pOrder[iblk] = ord[iblk]; }
+  for(unsigned int iblk=0;iblk<m_nblk;iblk++){ m_pInvOrder[iblk] = -1;  }    
+  for(unsigned int iblk=0;iblk<m_nblk;iblk++){
+    unsigned int i1 = m_pOrder[iblk];
+    assert( m_pInvOrder[i1] == -1 );
+    m_pInvOrder[i1] = iblk;
+  }
+}
+
+void COrdering_Blk::MakeOrdering_RCM(const MatVec::CMatDia_BlkCrs& mat)
+{
 	const unsigned int nblk = mat.NBlkMatCol();
 	this->m_nblk = nblk;
 	if( this->m_pOrder != 0 ) delete[] m_pOrder;
@@ -74,15 +91,15 @@ void COrdering_Blk::MakeOrdering_RCM(const MatVec::CMatDia_BlkCrs& mat){
 			unsigned int ndeg;
 			mat.GetPtrIndPSuP(iblk0,ndeg);
 			nxt_map.insert( std::make_pair(ndeg,iblk0) );
-//			nxt_map.insert( std::make_pair(100-ndeg,iblk0) );
-//			nxt_map.insert( std::make_pair(inxt,iblk0) );
+      //			nxt_map.insert( std::make_pair(100-ndeg,iblk0) );
+      //			nxt_map.insert( std::make_pair(inxt,iblk0) );
 		}
 		aNext.clear();
 		std::multimap<unsigned int,unsigned int>::iterator itr;
 		for(itr=nxt_map.begin();itr!=nxt_map.end();itr++){
 			unsigned int iblk0 = itr->second;
 			{	// iblk0Çìoò^
-                assert( aLevel[iblk0] == (int)cur_level );
+        assert( aLevel[iblk0] == (int)cur_level );
 				m_pOrder[iblk0] = iblk_cur;
 				iblk_cur++;
 			}
@@ -93,9 +110,9 @@ void COrdering_Blk::MakeOrdering_RCM(const MatVec::CMatDia_BlkCrs& mat){
 				for(unsigned int ipsup=0;ipsup<npsup;ipsup++){
 					const unsigned int jblk0 = psup[ipsup];
 					if( aLevel[jblk0] != -1 ){
-                        assert( aLevel[jblk0] == (int)cur_level
-                             || aLevel[jblk0] == (int)cur_level+1
-                             || aLevel[jblk0] == (int)cur_level-1 );
+            assert( aLevel[jblk0] == (int)cur_level
+                   || aLevel[jblk0] == (int)cur_level+1
+                   || aLevel[jblk0] == (int)cur_level-1 );
 						continue;
 					}
 					aLevel[jblk0] = cur_level+1;
@@ -103,7 +120,7 @@ void COrdering_Blk::MakeOrdering_RCM(const MatVec::CMatDia_BlkCrs& mat){
 				}
 			}
 		}
-		cur_level++;
+		cur_level++;    
 	}
 	for(unsigned int iblk=0;iblk<nblk;iblk++){ 
 		m_pOrder[iblk] = nblk-1 - m_pOrder[iblk]; 
@@ -120,9 +137,9 @@ void MatVec::COrdering_Blk::OrderingVector_NewToOld(CVector_Blk& vec_to, const C
 	const unsigned int nblk = this->m_nblk;
 	assert( vec_to.NBlk() == nblk );
 	assert( vec_from.NBlk() == nblk );
-    assert( vec_to.Len() >= 0 );
+  assert( vec_to.Len() >= 0 );
 	const unsigned int nlen = vec_to.Len();
-    assert( vec_from.Len() == vec_to.Len() );
+  assert( vec_from.Len() == vec_to.Len() );
 	for(unsigned int iblk=0;iblk<nblk;iblk++){	// old
 		const unsigned int jblk0 = this->OldToNew(iblk);	// new 
 		for(unsigned int ilen=0;ilen<nlen;ilen++){
@@ -136,9 +153,9 @@ void COrdering_Blk::OrderingVector_OldToNew(CVector_Blk& vec_to, const CVector_B
 	const unsigned int nblk = this->m_nblk;
 	assert( vec_to.NBlk() == nblk );
 	assert( vec_from.NBlk() == nblk );
-    assert( vec_to.Len() >= 0 );
+  assert( vec_to.Len() >= 0 );
 	const unsigned int nlen = vec_to.Len();
-    assert( vec_from.Len() == vec_to.Len() );
+  assert( vec_from.Len() == vec_to.Len() );
 	for(unsigned int iblk=0;iblk<nblk;iblk++){	// new
 		const unsigned int jblk0 = this->NewToOld(iblk);	// old
 		for(unsigned int ilen=0;ilen<nlen;ilen++){
@@ -181,7 +198,7 @@ void MatVec::COrdering_Blk::MakeOrdering_RCM2(const CMatDia_BlkCrs& mat)
 		iblk_cur++;
 		for(ipsup=0;ipsup<npsup;ipsup++){
 			const unsigned int jblk0 = psup[ipsup];
-            if( aLevel[jblk0] == (int)cur_level || aLevel[jblk0] == (int)cur_level+1 ) continue;
+      if( aLevel[jblk0] == (int)cur_level || aLevel[jblk0] == (int)cur_level+1 ) continue;
 			assert( jblk0 > iblk );
 			aNextCand.push_back(jblk0);
 			aLevel[jblk0] = cur_level+1;
@@ -191,7 +208,7 @@ void MatVec::COrdering_Blk::MakeOrdering_RCM2(const CMatDia_BlkCrs& mat)
 	for(;;){
 		if( aNextCand.empty() ){
 			if( iblk_cur != nblk ){
-				std::cout << "Error!-->ñ¢é¿ëï(ÉOÉâÉtÇ…ìáÇ™Ç†ÇÈèÍçá)" << std::endl;
+				std::cout << "Error!-->not implemented(there is isolated island in the graph)" << std::endl;
 				assert(0);
 			}
 			break;
@@ -199,7 +216,7 @@ void MatVec::COrdering_Blk::MakeOrdering_RCM2(const CMatDia_BlkCrs& mat)
 		aNext.clear();
 		for(unsigned int inxt=0;inxt<aNextCand.size();inxt++){
 			unsigned int iblk0 = aNextCand[inxt];
-            assert( aLevel[iblk0] == (int)cur_level );
+      assert( aLevel[iblk0] == (int)cur_level );
 			unsigned int npsup;
 			const unsigned int* psup = mat.GetPtrIndPSuP(iblk0,npsup);
 			unsigned int ipsup;
@@ -207,7 +224,7 @@ void MatVec::COrdering_Blk::MakeOrdering_RCM2(const CMatDia_BlkCrs& mat)
 				const unsigned int jblk0 = psup[ipsup];
 				if( jblk0 < iblk0 ){
 					const int jlev0 = aLevel[jblk0];
-                    if( jlev0 == (int)cur_level || jlev0 == -1 ){ break; }
+          if( jlev0 == (int)cur_level || jlev0 == -1 ){ break; }
 				}
 			}
 			if( ipsup != npsup ){
@@ -220,7 +237,7 @@ void MatVec::COrdering_Blk::MakeOrdering_RCM2(const CMatDia_BlkCrs& mat)
 		for(unsigned int inxt=0;inxt<aNext.size();inxt++){
 			unsigned int iblk0 = aNext[inxt];
 			{	// iblk0Çìoò^
-                assert( aLevel[iblk0] == (int)cur_level );
+        assert( aLevel[iblk0] == (int)cur_level );
 				m_pOrder[iblk_cur] = iblk0;
 				iblk_cur++;
 			}

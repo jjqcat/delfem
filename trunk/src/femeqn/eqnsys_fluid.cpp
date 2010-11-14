@@ -172,14 +172,14 @@ double CEqnSystem_Fluid2D::MakeLinearSystem(const Fem::Field::CFieldWorld& world
         assert( world.IsIdField(this->m_id_force) );
         const Fem::Field::CField& ff = world.GetField(this->m_id_force);
         const Fem::Field::CNodeAry::CNodeSeg& nsf_v = ff.GetNodeSeg(Fem::Field::CORNER,true, world,Fem::Field::VELOCITY);
-        const unsigned int nno = nsf_v.GetNnode();
-        assert( nsf_v.GetLength() == 2 );
+        const unsigned int nno = nsf_v.Size();
+        assert( nsf_v.Length() == 2 );
         ////////////////
         assert( world.IsIdField(this->m_id_velo) );
         const Fem::Field::CField& fv = world.GetField(this->m_id_velo);
         const Fem::Field::CNodeAry::CNodeSeg& nsv_v = fv.GetNodeSeg(Fem::Field::CORNER,true, world,Fem::Field::VELOCITY);
-        assert( nsv_v.GetNnode() == nno );
-        assert( nsv_v.GetLength() == 2 );
+        assert( nsv_v.Size() == nno );
+        assert( nsv_v.Length() == 2 );
         ////////////////
         MatVec::CVector_Blk& vec_res = pLS->GetResidual(this->m_id_velo,Fem::Field::CORNER,world);
         assert( vec_res.NBlk() == nno );
@@ -436,7 +436,7 @@ bool CEqnSystem_Fluid2D::InitializeLinearSystem(const Fem::Field::CFieldWorld& w
     else{   // —¬‘¬-ˆ³—Í‚ðŒ‹‡‚³‚¹‚é
         assert( this->m_IsntInterpolationBubble );
         pPrec = new LsSol::CPreconditioner_ILU;
-        (*(LsSol::CPreconditioner_ILU*)pPrec).SetOrdering(false);
+//        (*(LsSol::CPreconditioner_ILU*)pPrec).SetOrdering(false);
         (*(LsSol::CPreconditioner_ILU*)pPrec).SetFillInLevel(0);
 //		(*(CPreconditioner_ILU*)pPrec).SetOrdering(false);
 //		(*(CPreconditioner_ILU*)pPrec).SetFillInLevel(0);

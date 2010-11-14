@@ -71,9 +71,15 @@ public:
 	void SetColor(unsigned int id_es_v, unsigned int id_ns_v, const Fem::Field::CFieldWorld& world,
 		const std::auto_ptr<CColorMap>& color_map);
   
-  void EnableLighting(bool is_lighting){ this->is_lighting = is_lighting; }
+  void EnableNormal(bool is_lighting);
+  void EnableUVMap(bool is_uv_map);
+  void SetTexCenter(double cent_x, double cent_y){
+    this->tex_cent_x = cent_x;
+    this->tex_cent_y = cent_y;    
+  }
 protected:
 	bool Set(unsigned int id_field, const Fem::Field::CFieldWorld& world, bool isnt_value_disp, unsigned int id_field_color);
+  void MakeNormal();
 protected:
 	std::vector<CIndexArrayElem*> m_apIndexArrayElem;
 	Com::View::CVertexArray m_vertex_ary;
@@ -84,15 +90,20 @@ protected:
 
 	////////////////
 	// color
+  float* pColorArray;	//!< array of color ( rgb for each node )
 	unsigned int id_field_val;
-	std::auto_ptr<CColorMap> color_map;
-	float* pColorArray;	//!< array of color ( rgb for each node )
+	std::auto_ptr<CColorMap> color_map; // use this function to calc rgb from field_val 
 	bool is_draw_color_legend;	//!< draw legent if true
+
   
   ////////////////
   // Lighting
-  bool is_lighting;
   double* pNormalArray;
+  
+  ////////////////
+  // uv map
+  double* pUVArray;  
+  double tex_cent_x, tex_cent_y;
 };
 
 }	// View

@@ -195,10 +195,10 @@ bool CDrawerVector::Update_VECTOR(const Fem::Field::CFieldWorld& world)
 				const int ilayer = field.GetLayer(id_ea);
 				const double height = (ilayer+0.01-ilayer_min)/(1+ilayer_max-ilayer_min);
 				const CElemAry::CElemSeg& es = field.GetElemSeg(id_ea,CORNER,true,world);
-				const unsigned int nnoes = es.GetSizeNoes();
+				const unsigned int nnoes = es.Length();
 				assert( nnoes < 16 );
 				unsigned int noes[16];
-				for(unsigned int ielem=0;ielem<es.GetSizeElem();ielem++){
+				for(unsigned int ielem=0;ielem<es.Size();ielem++){
 					es.GetNodes(ielem,noes);
 					for(unsigned int inoes=0;inoes<nnoes;inoes++){
 						const unsigned int ipo0 = noes[inoes];
@@ -223,7 +223,7 @@ bool CDrawerVector::Update_VECTOR(const Fem::Field::CFieldWorld& world)
 		}
 		assert( na_val.IsSegID(id_ns_v) );
 		const Fem::Field::CNodeAry::CNodeSeg& ns_val = na_val.GetSeg(id_ns_v);
-		assert( ndim_co == ns_val.GetLength() );
+		assert( ndim_co == ns_val.Length() );
 		if( world.IsIdNA(nsna_b.id_na_co) ){
 //			std::cout << "bubble with coord" << std::endl;
 			const Fem::Field::CNodeAry& na_co = world.GetNA(nsna_b.id_na_co);
@@ -265,7 +265,7 @@ bool CDrawerVector::Update_VECTOR(const Fem::Field::CFieldWorld& world)
 					double coord_cnt[3];
 					{	// gravity center
 						for(unsigned int idim=0;idim<ndim_co0;idim++){ coord_cnt[idim] = 0.0; }
-						const unsigned int nnoes = es_c_co.GetSizeNoes();
+						const unsigned int nnoes = es_c_co.Length();
 						es_c_co.GetNodes(ielem,noes);
 						double coord[3];
 						for(unsigned int inoes=0;inoes<nnoes;inoes++){
@@ -407,7 +407,7 @@ bool CDrawerVector::Update_SSTR2(const Fem::Field::CFieldWorld& world)
 		}
 		assert( na_val.IsSegID(id_ns_v) );
 		const Fem::Field::CNodeAry::CNodeSeg& ns_val = na_val.GetSeg(id_ns_v);
-		assert( ns_val.GetLength() == ndim_co*(ndim_co+1)/2 );
+		assert( ns_val.Length() == ndim_co*(ndim_co+1)/2 );
 		{
 			unsigned int id_na_c_co = field.GetNodeSegInNodeAry(CORNER).id_na_co;
 			unsigned int id_ns_c_co = field.GetNodeSegInNodeAry(CORNER).id_ns_co;
@@ -431,7 +431,7 @@ bool CDrawerVector::Update_SSTR2(const Fem::Field::CFieldWorld& world)
 					double coord_cnt[3];
 					{	// get gravity center
 						for(unsigned int idim=0;idim<ndim_co;idim++){ coord_cnt[idim] = 0.0; }
-						const unsigned int nnoes = es_c_co.GetSizeNoes();
+						const unsigned int nnoes = es_c_co.Length();
 						es_c_co.GetNodes(ielem,noes);
 						double coord[3];
 						for(unsigned int inoes=0;inoes<nnoes;inoes++){
@@ -442,7 +442,7 @@ bool CDrawerVector::Update_SSTR2(const Fem::Field::CFieldWorld& world)
 						}
 						for(unsigned int idim=0;idim<ndim_co;idim++){ coord_cnt[idim] /= nnoes; }
 					}
-					double value[6];	assert( ns_val.GetLength() <= 6 );
+					double value[6];	assert( ns_val.Length() <= 6 );
 					{	// get tensor value
 						es_b_va.GetNodes(ielem,noes);
 						unsigned int ipoi0 = noes[0];

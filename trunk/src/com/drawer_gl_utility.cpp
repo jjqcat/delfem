@@ -183,19 +183,21 @@ std::vector<SSelectedObject> Com::View::PickPost(
 	return aSelecObj;
 }
 
+
+
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
 
 void Com::View::SetProjectionTransform(const Com::View::CCamera& mvp_trans)
 {
-//	::glMatrixMode(GL_PROJECTION);
-	if( mvp_trans.IsPers() ){	// “§‹“Š‰e•ÏŠ·
+  //	::glMatrixMode(GL_PROJECTION);
+	if( mvp_trans.IsPers() ){	// é€è¦–æŠ•å½±å¤‰æ›
 		double fov_y,aspect,clip_near,clip_far;
 		mvp_trans.GetPerspective(fov_y,aspect,clip_near,clip_far);
 		::gluPerspective(fov_y,aspect,clip_near,clip_far);
 	}
-	else{	// ³‹K“Š‰e•ÏŠ·
+	else{	// æ­£è¦æŠ•å½±å¤‰æ›
 		const double inv_scale = 1.0/mvp_trans.GetScale();
 		const double asp = mvp_trans.GetWindowAspect();
 		const double h_h = mvp_trans.GetHalfViewHeight()*inv_scale;
@@ -211,14 +213,14 @@ void Com::View::SetModelViewTransform(const View::CCamera& mvp_trans)
 		double x,y,z;
 		mvp_trans.GetCenterPosition(x,y,z);
 		::glTranslated( x, y, z );
-//    std::cout << x << " " << y << " " << z << std::endl;
+    //    std::cout << x << " " << y << " " << z << std::endl;
 	}
-/*	{	// •¨‘Ì‚Ì’†S‚ğŒ´“_‚É‚·‚é
-		double x,y,z;
-		mvp_trans.GetObjectCenter(x,y,z);
-		::glTranslated( +x, +y, +z );
-    std::cout << x << " " << y << " " << z << std::endl;    
-	}	*/
+  /*	{	// ç‰©ä½“ã®ä¸­å¿ƒã‚’åŸç‚¹ã«ã™ã‚‹
+   double x,y,z;
+   mvp_trans.GetObjectCenter(x,y,z);
+   ::glTranslated( +x, +y, +z );
+   std::cout << x << " " << y << " " << z << std::endl;    
+   }	*/
 	{	// rotate
 		double rot[16];
 		mvp_trans.RotMatrix44Trans(rot);
@@ -228,10 +230,102 @@ void Com::View::SetModelViewTransform(const View::CCamera& mvp_trans)
 		double x,y,z;
 		mvp_trans.GetObjectCenter(x,y,z);
 		::glTranslated( -x, -y, -z );
-//    std::cout << x << " " << y << " " << z << std::endl;        
+    //    std::cout << x << " " << y << " " << z << std::endl;        
 	}	  
 }
- 
+
+
+
+bool Com::View::ReadPPM_SetTexture(const std::string& fname, 
+                                   unsigned int& texName, 
+                                   unsigned int& texWidth, unsigned int& texHeight)
+{
+  std::cout << "ReadPPM " << std::endl;
+  FILE* fp = fopen(fname.c_str(),"r");
+  if( fp == NULL ){ 
+    std::cout << "Read PPM Fail" << std::endl;
+    return false; 
+  }
+  
+  int w, h;
+  std::vector<char> aRGB;
+  {
+    const unsigned int buffSize = 256;
+    char buff[buffSize];
+    fgets(buff,buffSize,fp);
+    fgets(buff,buffSize,fp);
+    sscanf(buff,"%d%d",&w,&h);			
+    fgets(buff,buffSize,fp);  // read 255
+  }
+  std::cout << "tex size : " << w << " " << h << std::endl;
+  assert( w >= 0 && h >=0 );
+  aRGB.resize(w*h*3);
+  const unsigned int buffSize = (unsigned int)(4*3*w*1.2);	// Ã‡Ã¸Ã‡Ã‚Ã‡Â¡Ã‡âˆ†Ã³]Ã¯â„¢Ã±â„Ã‡â€¦Ã‡âˆ†Ã‡Â¡Ã‡Æ’Ã‡Â®Ã‡â‰ 
+  char* buff = new char [buffSize];
+  unsigned int icnt = 0;
+  while (icnt<w*h*3) {
+    fgets(buff,buffSize,fp);
+    char* pCur = buff;
+    char* pNxt;
+    for(;;){
+      if(      pCur[0] == ' ' ){ assert(0); }
+      if(      pCur[1] == ' ' || pCur[1] == '\n' ){ pCur[1]='\0'; pNxt=pCur+2; }
+      else if( pCur[2] == ' ' || pCur[2] == '\n' ){ pCur[2]='\0'; pNxt=pCur+3; }
+      else if( pCur[3] == ' ' || pCur[3] == '\n' ){ pCur[3]='\0'; pNxt=pCur+4; }
+      else{ assert(0); }
+      unsigned int val = atoi(pCur);
+      unsigned int ih = icnt/(w*3);
+      unsigned int iw = icnt-ih*w*3;
+      aRGB[(h-ih-1)*w*3+iw] = val;
+      icnt++;
+      if( pNxt[0] == '\n' || pNxt[0] == '\0') break;
+      pCur = pNxt;
+    }
+  }
+  delete[] buff;
+  //	this->SetImage(w,h,aRGB);
+  
+  std::cout << "width height : " << w << " " << h << std::endl;
+  
+  ////////////////
+  
+  GLubyte* inputRGB = new GLubyte [w*h*3];
+  for(unsigned int i=0;i<w*h*3;i++){ inputRGB[i] = aRGB[i]; }
+
+  texWidth = 1;    
+  for(;;){
+    if( w <= texWidth ) break;
+    texWidth *= 2;
+  }    
+  ////
+  texHeight = 1;    
+  for(;;){
+    if( w <= texHeight ) break;
+    texHeight *= 2;
+  }          
+  
+  GLubyte* scaledRGB;
+  if( w == texWidth && h == texHeight ){
+    scaledRGB = inputRGB;
+  }
+  else{
+    scaledRGB = new GLubyte [texWidth*texHeight*3];
+    gluScaleImage( GL_RGB, w, h, GL_UNSIGNED_BYTE, inputRGB,
+                  texWidth, texHeight, GL_UNSIGNED_BYTE, scaledRGB );
+    delete [] inputRGB;
+  }
+  
+  glEnable(GL_TEXTURE_2D);
+  glGenTextures(1 , &texName);
+  glBindTexture(GL_TEXTURE_2D , texName);
+  glTexImage2D(GL_TEXTURE_2D , 0 , 3 , texWidth, texHeight,
+               0 , GL_RGB , GL_UNSIGNED_BYTE , scaledRGB );
+  delete[] scaledRGB;
+  
+//  std::cout << m_texName << std::endl;
+  
+  return true;
+}
 
 
 ////////////////////////////////////////////////////////////////
@@ -246,12 +340,12 @@ CDrawerCoord::CDrawerCoord(const CCamera& trans, unsigned int win_h)
 void CDrawerCoord::SetTrans(const CCamera& trans, int win_h)
 {
 	this->sutable_rot_mode = 1;
-
+  
 	double hh, hw, hd;
 	trans.GetOrtho(hw,hh,hd);
 	double ox,oy,oz;
 	trans.GetCenterPosition(ox,oy,oz);
-
+  
 	if( win_h == 0 ){
 		x_axis_coord.clear();
 		x_axis_name.clear();
@@ -259,13 +353,13 @@ void CDrawerCoord::SetTrans(const CCamera& trans, int win_h)
 		y_axis_name.clear();
 		return ;
 	}
-
+  
 	if( win_h != -1 ){
 		m_win_h = win_h;
 	}
 	
 	m_tex_scale = (double)hh/m_win_h;
-
+  
 	{
 		coord_len = fabs(-ox+hw);
 		coord_len = (coord_len>fabs(-ox-hw)) ? coord_len : fabs(-ox-hw);
@@ -273,7 +367,7 @@ void CDrawerCoord::SetTrans(const CCamera& trans, int win_h)
 		coord_len = (coord_len>fabs(-oy-hh)) ? coord_len : fabs(-oy-hh);
 		coord_len *= 1.5;
 	}
-
+  
 	double div;
 	{
 		double len = (hh+hw)*0.5;
@@ -481,7 +575,7 @@ bool CDrawerImageTexture::ReadPPM(const std::string& fname)
 	}
 	assert( w >= 0 && h >=0 );
 	aRGB.resize(w*h*3);
-	const unsigned int buffSize = (unsigned int)(4*3*w*1.2);	// ‚¿‚å‚Á‚Æ—]•ª–Ú‚É‚Æ‚Á‚Ä‚¨‚­
+	const unsigned int buffSize = (unsigned int)(4*3*w*1.2);	// ã¡ã‚‡ã£ã¨ä½™åˆ†ç›®ã«ã¨ã£ã¦ãŠã
 	char* buff = new char [buffSize];
 	for(unsigned int ih=0;ih<(unsigned int)h;ih++){
 		fgets(buff,buffSize,fp);
@@ -514,7 +608,7 @@ void CDrawerImageTexture::DeleteTexture()
 	m_texName = 0;
 }
 
-// ‚Q‚Ì‚×‚«æ‚É‡‚í‚¹‚é‚½‚ß‚ÉC‘Î”‚Ì­”“_Ø‚èÌ‚Ä‚½‚à‚Ì‚ğ•Ô‚·
+// ï¼’ã®ã¹ãä¹—ã«åˆã‚ã›ã‚‹ãŸã‚ã«ï¼Œå¯¾æ•°ã®å°‘æ•°ç‚¹åˆ‡ã‚Šæ¨ã¦ãŸã‚‚ã®ã‚’è¿”ã™
 static unsigned int TextureCuttOffSize(unsigned int v)
 {	
 	if(      v <   2 ){ return    0; }
@@ -576,7 +670,7 @@ bool CDrawerImageTexture::SetImage(unsigned int w, unsigned int h, const std::ve
 void CDrawerImageTexture::Draw() const
 {
     if( m_texName == 0 ) return;
-	// ƒeƒNƒXƒ`ƒƒƒ}ƒbƒv‚Ì•û–@‚ğİ’è
+	// ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒãƒƒãƒ—ã®æ–¹æ³•ã‚’è¨­å®š
 	::glColor3d(1.0, 1.0, 1.0);
 	glEnable(GL_TEXTURE_2D);
 //	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

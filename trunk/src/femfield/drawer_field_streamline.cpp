@@ -334,7 +334,7 @@ void Fem::Field::View::MakeStreamLine(
 	double sq_max_tot = 0;
 	unsigned int ino_max = 0;
 	{
-		for(unsigned int ino=0;ino<ns_v.GetNnode();ino++){
+		for(unsigned int ino=0;ino<ns_v.Size();ino++){
 			double velo[2];
 			ns_v.GetValue(ino,velo);
 			if( velo[0]*velo[0]+velo[1]*velo[1] > sq_max_tot ){
@@ -394,8 +394,8 @@ void Fem::Field::View::MakeStreamLine(
 	for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 		unsigned int id_ea = aIdEA[iiea];
 		const Fem::Field::CElemAry::CElemSeg& es_v = fv.GetElemSeg(id_ea,CORNER,true,world);
-        assert( aMaskElem[id_ea].size() == es_v.GetSizeElem() );
-		for(unsigned int ielem=0;ielem<es_v.GetSizeElem();ielem++){
+    assert( aMaskElem[id_ea].size() == es_v.Size() );
+		for(unsigned int ielem=0;ielem<es_v.Size();ielem++){
 			unsigned int noes[3];
 			es_v.GetNodes(ielem,noes);
 			const double ratio = 0.003;
@@ -425,11 +425,11 @@ void Fem::Field::View::MakeStreamLine(
 	}
 	////////////////////////////////
 	std::vector<unsigned int> aMaskNode;
-	aMaskNode.resize( ns_v.GetNnode(), 0 );
+	aMaskNode.resize( ns_v.Size(), 0 );
 	for(;;){
 		double sq_max = 0;
 		int ino_max = -1;
-		for(unsigned int ino=0;ino<ns_v.GetNnode();ino++){
+		for(unsigned int ino=0;ino<ns_v.Size();ino++){
 			if( aMaskNode[ino] != 0 ) continue;
 			double ve[2], co[2];
 			ns_v.GetValue(ino,ve);

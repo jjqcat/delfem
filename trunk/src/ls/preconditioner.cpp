@@ -48,8 +48,9 @@ void LsSol::CPreconditioner_ILU::Clear()
 		if( m_Matrix_Dia[i] != 0 ) delete m_Matrix_Dia[i];
 	}
 	m_Matrix_Dia.clear();
-    ////////////////
-    m_alev_input.clear();
+  ////////////////
+  m_alev_input.clear();  
+  m_is_ordering = false;
 }
 	
 // symbolic factorization
@@ -57,29 +58,31 @@ void LsSol::CPreconditioner_ILU::SetLinearSystem(const CLinearSystem& ls)
 {
 //    std::cout << "0 prec : set linsys " << std::endl;
 	if( m_is_ordering ){
+    /*
 		clock_t start,mid,end;
 		start = clock();
 		const unsigned int nlss = ls.GetNLinSysSeg();
 		assert( nlss == 1 );
-        assert( m_alev_input.size() == 0 || (m_alev_input.size() == 1 && m_alev_input[0].second == -1 ) );
-        unsigned int lev = 0;
-        if( m_alev_input.size() == 1 ){
-            assert( m_alev_input[0].second == -1 );
-            lev = m_alev_input[0].first;
-        }
+    assert( m_alev_input.size() == 0 || (m_alev_input.size() == 1 && m_alev_input[0].second == -1 ) );
+    unsigned int lev = 0;
+    if( m_alev_input.size() == 1 ){
+      assert( m_alev_input[0].second == -1 );
+      lev = m_alev_input[0].first;
+    }
 		m_order.MakeOrdering_AMD( ls.GetMatrix(0) );
 //		m_order.MakeOrdering_RCM2( ls.GetMatrix(0) );
 //		m_order.MakeOrdering_RCM( ls.GetMatrix(0) );
 		mid = clock();
+		end = clock();
+     printf("Ordering:%.4f  Pattern:%.4f\n",(double)(mid-start)/CLOCKS_PER_SEC,(double)(end-mid)/CLOCKS_PER_SEC);     
+     */
 		m_Matrix_NonDia.resize(1);
 		m_Matrix_NonDia[0].push_back(0);
-        m_Matrix_Dia.push_back( new MatVec::CMatDiaFrac_BlkCrs(0,ls.GetMatrix(0),m_order) );
-		end = clock();
+    m_Matrix_Dia.push_back( new MatVec::CMatDiaFrac_BlkCrs(0,ls.GetMatrix(0),m_order) );    
 		const unsigned int nblk = ls.GetMatrix(0).NBlkMatCol();
-	    const unsigned int nlen = ls.GetMatrix(0).LenBlkCol();
+    const unsigned int nlen = ls.GetMatrix(0).LenBlkCol();
 		m_vec.Initialize(nblk,nlen);
 //		std::cout << ls.GetMatrix(0).NBlkMatCol() << " " << ls.GetMatrix(0).NCrs() << " " << m_Matrix_Dia[0]->NCrs() << std::endl;
-		printf("Ordering:%.4f  Pattern:%.4f\n",(double)(mid-start)/CLOCKS_PER_SEC,(double)(end-mid)/CLOCKS_PER_SEC);
 		return;
 	}
 

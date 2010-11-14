@@ -59,11 +59,14 @@ using namespace Fem::Field::View;
 using namespace Fem::Field;
 
 CDrawerEdge::CDrawerEdge(){
+  this->line_width_ = 1;
 	m_paVer = 0;
 	m_nline = 0;
 }
 
-CDrawerEdge::CDrawerEdge(unsigned int id_field, bool isnt_value_disp, const Fem::Field::CFieldWorld& world){
+CDrawerEdge::CDrawerEdge(unsigned int id_field, bool isnt_value_disp, const Fem::Field::CFieldWorld& world)
+{
+  this->line_width_ = 1;  
 	m_paVer = 0;
 	m_nline = 0;
 	this->Set(id_field, isnt_value_disp, world);
@@ -89,7 +92,7 @@ bool CDrawerEdge::Update(const Fem::Field::CFieldWorld& world)
 		assert( id_na_c_co != 0 );
 		const Fem::Field::CNodeAry& na_c_co = world.GetNA(id_na_c_co);
 		const Fem::Field::CNodeAry::CNodeSeg& ns_c_co = na_c_co.GetSeg(id_ns_c_co);
-		const unsigned int ndim_field = ns_c_co.GetLength();
+		const unsigned int ndim_field = ns_c_co.Length();
 		unsigned int ndim_draw;
 		if( isnt_value_disp ){ 
 			ndim_draw = ndim_field;
@@ -152,7 +155,7 @@ bool CDrawerEdge::Update(const Fem::Field::CFieldWorld& world)
 				}
 			}
 			else{
-				assert( ndim_field == ns_c_va.GetLength() );
+				assert( ndim_field == ns_c_va.Length() );
 				double coord[3], value[3];
 				for(unsigned int iedge=0;iedge<nedge;iedge++){
 					const unsigned int ipoin_va0 = m_EdgeAry[iedge*2  ];	// “_‚O
@@ -236,14 +239,15 @@ bool CDrawerEdge::Set(unsigned int id_field, bool isnt_value_disp, const Fem::Fi
 	return true;
 }
 
-void CDrawerEdge::Draw() const{
+void CDrawerEdge::Draw() const
+{
 	if( m_nline == 0 ) return;
 	assert( m_paVer != 0 );
   const bool is_texture = glIsEnabled(GL_TEXTURE_2D); ::glDisable(GL_TEXTURE_2D);
   const bool is_lighting = glIsEnabled(GL_LIGHTING);  ::glDisable(GL_LIGHTING);
   
-		::glColor3d(0.0,0.0,0.0);
-	::glLineWidth(1);
+  ::glColor3d(0.0,0.0,0.0);
+	::glLineWidth(line_width_);
 	::glEnableClientState(GL_VERTEX_ARRAY);
 	::glVertexPointer(m_paVer->NDim(),GL_DOUBLE,0,m_paVer->pVertexArray);
    if( m_paVer->NDim() == 2 ){ ::glTranslated(0,0,+0.01); }

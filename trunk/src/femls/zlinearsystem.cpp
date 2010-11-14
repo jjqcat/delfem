@@ -919,7 +919,7 @@ bool CZLinearSystem_GeneralEigen::SetVector_fromField(int iv1,
 		const CNodeAry& na = world.GetNA(id_na);
 		const CNodeAry::CNodeSeg& ns = field.GetNodeSeg(CORNER,true,world,fdt);
 		const unsigned int nblk = na.Size();
-		const unsigned int nlen = ns.GetLength();
+		const unsigned int nlen = ns.Length();
 		assert( nlen == 2 );
 		double* val = new double [nlen];
 		for(unsigned int iblk=0;iblk<nblk;iblk++){

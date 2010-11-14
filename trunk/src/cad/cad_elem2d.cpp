@@ -271,7 +271,7 @@ bool Cad::CEdge2D::IsCrossEdge(const CEdge2D& e1) const
 {
 	const Com::CVector2D& po_s1 = e1.po_s;
 	const Com::CVector2D& po_e1 = e1.po_e;
-	if( this->itype == 0 && e1.itype == 0 ){	// ’¼ü“¯Žm‚ÌŒð·
+	if( this->itype == 0 && e1.itype == 0 ){	// intersection between lines
 		return ( CEdge2D::NumCross_LineSeg_LineSeg(po_s,po_e, po_s1,po_e1) != 0 );
 	}
 	else if( this->itype == 0 && e1.itype == 1 ){
@@ -386,15 +386,15 @@ bool Cad::CEdge2D::IsCrossEdge_ShareOnePoint(const CEdge2D& e1, bool is_share_s0
 {
 	const Com::CVector2D& po_s1 = e1.po_s;
 	const Com::CVector2D& po_e1 = e1.po_e;
-    if(  is_share_s0 &&  is_share_s1 ){ assert( Com::SquareLength(po_s,po_s1) < 1.0e-20 ); }
+  if(  is_share_s0 &&  is_share_s1 ){ assert( Com::SquareLength(po_s,po_s1) < 1.0e-20 ); }
 	if(  is_share_s0 && !is_share_s1 ){ assert( Com::SquareLength(po_s,po_e1) < 1.0e-20 ); }
 	if( !is_share_s0 &&  is_share_s1 ){ assert( Com::SquareLength(po_e,po_s1) < 1.0e-20 ); }
 	if( !is_share_s0 && !is_share_s1 ){ assert( Com::SquareLength(po_e,po_e1) < 1.0e-20 ); }
 	////////////////////////////////
-	if( this->itype == 0 && e1.itype == 0 ){	// ’¼ü“¯Žm‚ÌŒð·
+	if( this->itype == 0 && e1.itype == 0 ){	// line-line intersection
 		return false;
 	}
-	else if( this->itype == 0 && e1.itype == 1 ){	// ’¼ü‚Æ‰~ŒÊ‚ÌŒð·
+	else if( this->itype == 0 && e1.itype == 1 ){	// line-arc intersection
 		Com::CVector2D po_c1;
 		double radius1;
 		e1.GetCenterRadius(po_c1,radius1);
@@ -649,6 +649,80 @@ bool Cad::CEdge2D::IsCrossEdge_ShareBothPoints(const CEdge2D& e1, bool is_share_
 	return false;
 }
 
+bool Cad::CEdge2D::GetNearestIntersectionPoint_AgainstHalfLine(Com::CVector2D& sec, const Com::CVector2D& org, const Com::CVector2D& dir) const
+{
+	const Com::CVector2D dir1 = dir*( 1.0/sqrt( Com::SquareLength(dir) ) );
+	double lenlong = 0;
+	{	// BoundingBox‚Æ‚ÌŠ±Âƒ`ƒFƒbƒN
+		double min_x,max_x, min_y,max_y;
+		this->GetBoundingBox(min_x,max_x, min_y,max_y);
+		Com::CVector2D po_d = org + dir1;
+		double area1 = Com::TriArea(org,po_d, Com::CVector2D(min_x,min_y) );
+		double area2 = Com::TriArea(org,po_d, Com::CVector2D(min_x,max_y) );
+		double area3 = Com::TriArea(org,po_d, Com::CVector2D(max_x,min_y) );
+		double area4 = Com::TriArea(org,po_d, Com::CVector2D(max_x,max_y) );
+		if( area1<0 && area2<0 && area3<0 && area4<0 ) return false;
+		if( area1>0 && area2>0 && area3>0 && area4>0 ) return false;
+		const double len0 = sqrt( Com::Length(org, Com::CVector2D(0.5*(min_x+max_x),0.5*(min_y+max_y)) ));
+		const double len1 = max_x - min_x;
+		const double len2 = max_y - min_y;
+		lenlong = 2*(len0+len1+len2);
+	}
+	const Com::CVector2D end = org + dir1*lenlong;
+  if(      itype == 0 ){
+    const double area1 = Com::TriArea(po_s,po_e,org);
+    const double area2 = Com::TriArea(po_s,po_e,end);    
+    if( (area1>0) == (area2>0) ) return false;
+    const double area3 = Com::TriArea(org,end,po_s);
+    const double area4 = Com::TriArea(org,end,po_e); 
+    if( (area3>0) == (area4>0) ) return false;
+    double t = area1/(area1-area2);
+    sec = org + (end-org)*t;
+    return true;
+	}
+	else if( itype == 1 ){    
+		Com::CVector2D po_c1;
+		double radius1;
+		this->GetCenterRadius(po_c1,radius1);
+		////////////////
+		double t0,t1;
+		if( !CEdge2D::IsCross_Line_Circle(po_c1,radius1,  org,end, t0,t1) ) return false;
+		const Com::CVector2D p0 = org + (end-org)*t0;
+		const Com::CVector2D p1 = org + (end-org)*t1;
+    const bool is_sec0 = 0 < t0 && t0 < 1 && this->IsDirectionArc(p0);
+    const bool is_sec1 = 0 < t1 && t1 < 1 && this->IsDirectionArc(p1);
+    if(  is_sec0 && !is_sec1 ){ sec=p0; return true; }
+    if( !is_sec0 &&  is_sec1 ){ sec=p1; return true; }
+    if(  is_sec0 &&  is_sec1 ){ sec = ( t0 < t1 ) ? p0 : p1; return true; }
+    return false;
+	}
+	else if( itype == 2 ){
+    std::cout << "Error!--> Sorry I didn't have time to implement" << std::endl;
+    assert(0);
+    abort();
+		const std::vector<double>& relcomsh = aRelCoMesh;
+		const unsigned int ndiv = relcomsh.size()/2+1;
+		const Com::CVector2D& h0 = po_e-po_s;
+		const Com::CVector2D v0(-h0.y,h0.x);
+		unsigned int icnt = 0;
+		for(unsigned int idiv=0;idiv<ndiv;idiv++){
+			Com::CVector2D poi0;
+			if( idiv == 0 ){ poi0 = po_s; }
+			else{ poi0 = po_s + h0*relcomsh[(idiv-1)*2+0] + v0*relcomsh[(idiv-1)*2+1]; }
+			Com::CVector2D poi1;
+			if( idiv == ndiv-1 ){ poi1 = po_e; }
+			else{ poi1 = po_s + h0*relcomsh[idiv*2+0]     + v0*relcomsh[idiv*2+1]; }
+			int res = NumCross_LineSeg_LineSeg(org,end,poi0,poi1);
+			if( res == -1 ) return -1;
+			icnt += res;
+		}
+		return icnt;
+	}
+	assert(0);
+	return false;  
+}
+
+
 // •Ó‚Æ”¼’¼ü‚ÌŒð·‰ñ”‚ð“¾‚é
 // —Ìˆæ‚Ì“à‘¤orŠO‘¤”»’è‚ÉŽg‚í‚ê‚é
 int Cad::CEdge2D::NumIntersect_AgainstHalfLine(const Com::CVector2D& po_b, const Com::CVector2D& dir0) const 
@@ -671,7 +745,7 @@ int Cad::CEdge2D::NumIntersect_AgainstHalfLine(const Com::CVector2D& po_b, const
 		lenlong = 2*(len0+len1+len2);
 	}
 	const Com::CVector2D po_d = po_b + dir1*lenlong;
-    if(      itype == 0 ){
+  if(      itype == 0 ){
 		return NumCross_LineSeg_LineSeg(po_s,po_e,po_b,po_d);
 	}
 	else if( itype == 1 ){
@@ -903,17 +977,32 @@ int Cad::CEdge2D::NumCross_LineSeg_LineSeg(const Com::CVector2D& po_s0, const Co
 	}
 	const double area1 = Com::TriArea(po_s0,po_e0,po_s1);
 	const double area2 = Com::TriArea(po_s0,po_e0,po_e1);
-//	std::cout << area1 << " " << area2 << " " << area3 << " " << area4 << std::endl;
-	if( fabs(area1) < fabs(area2)*0.000000001 ) return -1;
-	if( fabs(area2) < fabs(area1)*0.000000001 ) return -1;
-	if( area1 * area2 > 0.0 ) return 0;
-	////////////////
 	const double area3 = Com::TriArea(po_s1,po_e1,po_s0);
-	const double area4 = Com::TriArea(po_s1,po_e1,po_e0);
-	if( fabs(area3) < fabs(area4)*0.000000001 ) return -1;
-	if( fabs(area4) < fabs(area3)*0.000000001 ) return -1;
-	if( area3 * area4 > 0.0 ) return 0;
-	return 1;
+	const double area4 = Com::TriArea(po_s1,po_e1,po_e0);  
+//	std::cout << area1 << " " << area2 << " " << area3 << " " << area4 << std::endl;
+  const double a12 = area1*area2;
+  const double a34 = area3*area4;
+  if( fabs(a12) > fabs(a34) ){
+    if( a12 > 0 ){
+      if( fabs(area1) > fabs(area2)*0.000000001 && fabs(area1) > fabs(area2)*0.000000001 ){ return 0; }
+      return -1;
+    }
+    if( a34 > 0 ){
+      if( fabs(area3) > fabs(area4)*0.000000001 && fabs(area3) > fabs(area4)*0.000000001 ){ return 0; }
+      return -1;
+    }
+  }
+  else{
+    if( a34 > 0 ){
+      if( fabs(area3) > fabs(area4)*0.000000001 && fabs(area3) > fabs(area4)*0.000000001 ){ return 0; }
+      return -1;
+    }
+    else if( a12 > 0 ){
+      if( fabs(area1) > fabs(area2)*0.000000001 && fabs(area1) > fabs(area2)*0.000000001 ){ return 0; }
+      return -1;
+    }    
+  }
+  return 1;
 }
 
 bool Cad::CEdge2D::IsCross_Circle_Circle(

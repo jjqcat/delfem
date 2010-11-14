@@ -184,6 +184,19 @@ const SElemInfo ElemInfoAry[7] = {
 	}
 };
 
+CElemAry::CElemAry(const CElemAry& ea){
+  m_nElem = ea.m_nElem;
+  m_ElemType = ea.m_ElemType;
+  npoel = ea.npoel;
+  {
+    const unsigned int n = m_nElem*npoel;
+    m_pLnods = new int [n];
+    for(unsigned int i=0;i<n;i++){ m_pLnods[i] = ea.m_pLnods[i]; }
+  }
+  m_aSeg = ea.m_aSeg;
+}
+
+
 // FEM用の行列パターンを作る（非対角ブロック行列用）
 bool CElemAry::MakePattern_FEM(
 	const unsigned int& id_es0, const unsigned int& id_es1, Com::CIndexedArray& crs ) const{
@@ -298,16 +311,9 @@ CElemAry* CElemAry::MakeBoundElemAry(
 	}
 	delete[] elsuel;
 
-	std::vector<CElemSeg> es_ary;
-	{
-		const CElemSeg& es = this->GetSeg(id_es_corner);
-		es_ary.push_back( CElemSeg(0,es.GetIdNA(),CORNER) );
-	}
-
+  unsigned int id_na = this->GetSeg(id_es_corner).GetIdNA();
 	CElemAry* ea_b = new CElemAry(nelem_b,elem_type_b);
-	const std::vector<int> aIdES_add = ea_b->AddSegment(es_ary,lnods_b);
-	assert( aIdES_add.size() == 1 );
-	id_es_add = aIdES_add[0];
+	id_es_add = ea_b->AddSegment(ea_b->GetFreeSegID(),CElemSeg(id_na,CORNER),lnods_b);
 	return ea_b;
 }
 
@@ -889,24 +895,28 @@ bool CElemAry::MakePointSurPoint(
 }
 
 
-int CElemAry::AddSegment(const CElemSeg& es, 
-						 const std::vector<int>& lnods ){
-	std::vector<CElemSeg> aEs;
-	aEs.push_back(es);
+int CElemAry::AddSegment
+(unsigned int id, 
+ const CElemAry::CElemSeg& es, 
+ const std::vector<int>& lnods )
+{
+	std::vector< std::pair<unsigned int,CElemSeg> > aEs;
+	aEs.push_back( std::make_pair(id,es) );
 	const std::vector<int>& res = this->AddSegment( aEs, lnods );
 	assert( res.size() == 1 );
 	return res[0];
 }
 
-std::vector<int> CElemAry::AddSegment(const std::vector<CElemSeg>& es_ary_in, 
-									  const std::vector<int>& lnods )
+std::vector<int> CElemAry::AddSegment
+(const std::vector< std::pair<unsigned int,CElemSeg> >& es_ary_in, 
+ const std::vector<int>& lnods )
 {
-	std::vector<CElemSeg> es_ary = es_ary_in;
+	std::vector< std::pair<unsigned int,CElemSeg> > es_ary = es_ary_in;
 
 	unsigned int npoel_add=0;
 	for(unsigned int ies=0;ies<es_ary.size();ies++){
-		es_ary[ies].m_nnoes = CElemSeg::GetLength(es_ary[ies].GetElSegType(),this->ElemType());
-		npoel_add += es_ary[ies].m_nnoes;
+		es_ary[ies].second.m_nnoes = CElemSeg::GetLength(es_ary[ies].second.GetElSegType(),this->ElemType());
+		npoel_add += es_ary[ies].second.m_nnoes;
 	}
 	assert( lnods.size() == npoel_add*Size() );
 	const unsigned int npoel_new = npoel+npoel_add;
@@ -927,14 +937,14 @@ std::vector<int> CElemAry::AddSegment(const std::vector<CElemSeg>& es_ary_in,
 	{	// 要素セグメント情報の追加
 		// beginを作る
 		for(unsigned int ies=0;ies<es_ary.size();ies++){
-			es_ary[ies].begin = npoel;
-			npoel += es_ary[ies].m_nnoes;
+			es_ary[ies].second.begin = npoel;
+			npoel += es_ary[ies].second.m_nnoes;
 		}
 		assert( npoel == npoel_new );
 		// 要素セグメントの最大の節点番号を作る
 		for(unsigned int ies=0;ies<es_ary.size();ies++){
-			unsigned int inoel_s = es_ary[ies].begin;
-			unsigned int inoel_e = inoel_s + es_ary[ies].m_nnoes;
+			unsigned int inoel_s = es_ary[ies].second.begin;
+			unsigned int inoel_e = inoel_s + es_ary[ies].second.m_nnoes;
 			unsigned int max_noes = 0;
 			for(unsigned int ielem=0;ielem<m_nElem;ielem++){
 				for(unsigned int inoel=inoel_s;inoel<inoel_e;inoel++){
@@ -942,11 +952,11 @@ std::vector<int> CElemAry::AddSegment(const std::vector<CElemSeg>& es_ary_in,
 						? (unsigned int)abs(m_pLnods[ielem*npoel+inoel]) : max_noes;
 				}
 			}
-			es_ary[ies].max_noes = max_noes;
+			es_ary[ies].second.max_noes = max_noes;
 		}
 		// 要素セグメントの追加
 		for(unsigned int ies=0;ies<es_ary.size();ies++){
-			const int add_es_id = m_aSeg.AddObj( std::make_pair(es_ary[ies].m_id,es_ary[ies]) );
+			const int add_es_id = m_aSeg.AddObj( std::make_pair(es_ary[ies].first,es_ary[ies].second) );
 			add_es_id_ary.push_back(add_es_id);
 		}
 	}
@@ -1034,7 +1044,7 @@ int CElemAry::InitializeFromFile(const std::string& file_name, long& offset)
 	
 	std::string str_elem_type;
 	int nseg;
-	std::vector<CElemSeg> tmp_es_ary;			
+	std::vector< std::pair<unsigned int,CElemSeg> > tmp_es_ary;			
 	int tmp_nelem, tmp_nnoel;
 	std::vector<unsigned int> tmp_lnods;
 	{
@@ -1101,8 +1111,8 @@ int CElemAry::InitializeFromFile(const std::string& file_name, long& offset)
 				else if( strncmp(tmp_type_name,"EDGE"  ,4)==0 ){ tmp_type = EDGE;   }
 				else if( strncmp(tmp_type_name,"BUBBLE",6)==0 ){ tmp_type = BUBBLE; }
 				else{ assert(0); }
-				CElemSeg tmp_es(tmp_id,tmp_id_na,tmp_type);
-				tmp_es_ary.push_back(tmp_es);
+				CElemSeg tmp_es(tmp_id_na,tmp_type);
+				tmp_es_ary.push_back( std::make_pair(tmp_id,tmp_es) );
 				if( iseg >= nseg-1 ) break;
 				fgets(stmp1,buff_size,fp);
 			}
@@ -1167,15 +1177,15 @@ int CElemAry::InitializeFromFile(const std::string& file_name, long& offset)
 			// len と beignを作る
 			unsigned int ipoel_cnt = 0;
 			for(unsigned int ies=0;ies<tmp_es_ary.size();ies++){
-				tmp_es_ary[ies].begin = ipoel_cnt;
-				tmp_es_ary[ies].m_nnoes = CElemSeg::GetLength(tmp_es_ary[ies].GetElSegType(),this->ElemType());
-				ipoel_cnt += tmp_es_ary[ies].m_nnoes;
+				tmp_es_ary[ies].second.begin = ipoel_cnt;
+				tmp_es_ary[ies].second.m_nnoes = CElemSeg::GetLength(tmp_es_ary[ies].second.GetElSegType(),this->ElemType());
+				ipoel_cnt += tmp_es_ary[ies].second.m_nnoes;
 			}
 			// 要素セグメントの最大の節点番号を作る
 			assert( ipoel_cnt == npoel );
 			for(unsigned int ies=0;ies<tmp_es_ary.size();ies++){
-				unsigned int inoel_s = tmp_es_ary[ies].begin;
-				unsigned int inoel_e = inoel_s + tmp_es_ary[ies].m_nnoes;
+				unsigned int inoel_s = tmp_es_ary[ies].second.begin;
+				unsigned int inoel_e = inoel_s + tmp_es_ary[ies].second.m_nnoes;
 				unsigned int max_noes = 0;
 				for(unsigned int ielem=0;ielem<m_nElem;ielem++){
 					for(unsigned int inoel=inoel_s;inoel<inoel_e;inoel++){
@@ -1183,11 +1193,11 @@ int CElemAry::InitializeFromFile(const std::string& file_name, long& offset)
 							? (unsigned int)abs(m_pLnods[ielem*npoel+inoel]) : max_noes;
 					}
 				}
-				tmp_es_ary[ies].max_noes = max_noes;
+				tmp_es_ary[ies].second.max_noes = max_noes;
 			}
 			// 要素セグメントの追加
 			for(unsigned int ies=0;ies<tmp_es_ary.size();ies++){
-				m_aSeg.AddObj( std::make_pair(tmp_es_ary[ies].m_id, tmp_es_ary[ies]) );
+				m_aSeg.AddObj( std::make_pair(tmp_es_ary[ies].first, tmp_es_ary[ies].second) );
 			}
 		}
 	}
@@ -1196,6 +1206,8 @@ int CElemAry::InitializeFromFile(const std::string& file_name, long& offset)
 
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
+
+
 /*
 CElemAry_Rect::CElemAry_Rect(double len_x, double len_y, unsigned int div_x, unsigned int div_y)
 : m_len_x(len_x), m_len_y(len_y), m_div_x(div_x), m_div_y(div_y)

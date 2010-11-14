@@ -113,7 +113,7 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(2.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(2.0,2.0) );
 			vec_ary.push_back( Com::CVector2D(0.0,2.0) );
-			const unsigned int id_l = cad_2d.AddPolygon(vec_ary);
+			const unsigned int id_l = cad_2d.AddPolygon(vec_ary).id_l_add;
 			id_v = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.5,0.05) );
 		}
 		// ƒƒbƒVƒ…‚ğì‚é
