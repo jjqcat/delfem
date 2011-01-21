@@ -224,7 +224,7 @@ public:
 	vectorコンテナでデータを受け渡しするのは，安全だけど低速
 	ポインターを渡してデータの受け渡しを実装する予定
 	*/
-    virtual MSH_TYPE GetConnectivity(unsigned int id_msh,std::vector<int>& lnods) const;
+  virtual MSH_TYPE GetConnectivity(unsigned int id_msh,std::vector<int>& lnods) const;
 
 	bool GetClipedMesh(
 		std::vector< std::vector<int> >& lnods_tri, 

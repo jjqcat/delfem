@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A94452A812E899DA0099ECA5 /* field_value_setter.h in Headers */ = {isa = PBXBuildFile; fileRef = A94452A712E899DA0099ECA5 /* field_value_setter.h */; };
+		A94452B312E8A0D00099ECA5 /* field_value_setter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A94452B112E8A0D00099ECA5 /* field_value_setter.cpp */; };
+		A944563C12E8FC930099ECA5 /* glut_utility.h in Headers */ = {isa = PBXBuildFile; fileRef = A944563B12E8FC930099ECA5 /* glut_utility.h */; };
 		A9EDB2DC11A8ABFF0003AC93 /* brep.h in Headers */ = {isa = PBXBuildFile; fileRef = A9EDB27911A8ABFF0003AC93 /* brep.h */; };
 		A9EDB2DD11A8ABFF0003AC93 /* brep2d.h in Headers */ = {isa = PBXBuildFile; fileRef = A9EDB27A11A8ABFF0003AC93 /* brep2d.h */; };
 		A9EDB2DE11A8ABFF0003AC93 /* cad_elem2d.h in Headers */ = {isa = PBXBuildFile; fileRef = A9EDB27B11A8ABFF0003AC93 /* cad_elem2d.h */; };
@@ -174,6 +177,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		A94452A712E899DA0099ECA5 /* field_value_setter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = field_value_setter.h; path = ../../include/delfem/field_value_setter.h; sourceTree = SOURCE_ROOT; };
+		A94452B112E8A0D00099ECA5 /* field_value_setter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = field_value_setter.cpp; sourceTree = "<group>"; };
+		A944563B12E8FC930099ECA5 /* glut_utility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glut_utility.h; path = ../../include/delfem/glut_utility.h; sourceTree = SOURCE_ROOT; };
 		A9EDB27911A8ABFF0003AC93 /* brep.h */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.c.h; path = brep.h; sourceTree = "<group>"; };
 		A9EDB27A11A8ABFF0003AC93 /* brep2d.h */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.c.h; path = brep2d.h; sourceTree = "<group>"; };
 		A9EDB27B11A8ABFF0003AC93 /* cad_elem2d.h */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.c.h; path = cad_elem2d.h; sourceTree = "<group>"; };
@@ -434,6 +440,8 @@
 				A9EDB2D911A8ABFF0003AC93 /* uglyfont.h */,
 				A9EDB2DA11A8ABFF0003AC93 /* vector2d.h */,
 				A9EDB2DB11A8ABFF0003AC93 /* vector3d.h */,
+				A94452A712E899DA0099ECA5 /* field_value_setter.h */,
+				A944563B12E8FC930099ECA5 /* glut_utility.h */,
 			);
 			name = Header;
 			sourceTree = "<group>";
@@ -604,6 +612,7 @@
 		A9EDB35711A8AC2C0003AC93 /* femfield */ = {
 			isa = PBXGroup;
 			children = (
+				A94452B112E8A0D00099ECA5 /* field_value_setter.cpp */,
 				A9EDB35811A8AC2C0003AC93 /* drawer_field.cpp */,
 				A9EDB35911A8AC2C0003AC93 /* drawer_field_edge.cpp */,
 				A9EDB35A11A8AC2C0003AC93 /* drawer_field_face.cpp */,
@@ -800,6 +809,8 @@
 				A9EDB33611A8ABFF0003AC93 /* uglyfont.h in Headers */,
 				A9EDB33711A8ABFF0003AC93 /* vector2d.h in Headers */,
 				A9EDB33811A8ABFF0003AC93 /* vector3d.h in Headers */,
+				A94452A812E899DA0099ECA5 /* field_value_setter.h in Headers */,
+				A944563C12E8FC930099ECA5 /* glut_utility.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -923,6 +934,7 @@
 				A9EDB3CD11A8AC2D0003AC93 /* linearsystem_rigid.cpp in Sources */,
 				A9EDB3CE11A8AC2D0003AC93 /* linearsystem_rigidfield.cpp in Sources */,
 				A9EDB3CF11A8AC2D0003AC93 /* rigidbody.cpp in Sources */,
+				A94452B312E8A0D00099ECA5 /* field_value_setter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

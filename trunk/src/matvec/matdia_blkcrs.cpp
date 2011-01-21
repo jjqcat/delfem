@@ -356,22 +356,23 @@ bool CMatDia_BlkCrs::AddPattern(const Com::CIndexedArray& crs)
 		}
 		if( max_val>NBlkMatRow() ) return false;
 	}
-    {   // 対角に要素があっちゃいけないことにする．
-        const unsigned int nblk = crs.size;
-        for(unsigned int iblk=0;iblk<nblk;iblk++){
-            for(unsigned int icrs=crs.index[iblk];icrs<crs.index[iblk+1];icrs++){
-                const unsigned int jblk0 = crs.array[icrs];
-                assert( iblk != jblk0 );
-            }
-        }
+  {   // 対角に要素があっちゃいけないことにする．
+    const unsigned int nblk = crs.size;
+    for(unsigned int iblk=0;iblk<nblk;iblk++){
+      for(unsigned int icrs=crs.index[iblk];icrs<crs.index[iblk+1];icrs++){
+        const unsigned int jblk0 = crs.array[icrs];
+        assert( iblk != jblk0 );
+      }
     }
+  }
+  
 
 	// 入力行列が０だったら何もしなくてよい
 	if( crs.array.size() == 0 ) return true;
 
-    assert( m_valDia_Blk != 0); // 行列のサイズが与えられているとする
+  assert( m_valDia_Blk != 0); // 行列のサイズが与えられているとする
 
-    ////////////////
+  ////////////////
 
 	if( m_ncrs_Blk == 0 ){	// 何も要素が入っていない行列にパターンを追加する
 		CMatDia_BlkCrs::DeletePattern();
@@ -397,15 +398,15 @@ bool CMatDia_BlkCrs::AddPattern(const Com::CIndexedArray& crs)
 	}
 
     ////////////////////////////////////////////////////////////////
-
+  
 	bool is_included = true; 
 	{	// この要素が行列に含まれているかどうか調べる
 		int* tmp_buffer = new int [this->NBlkMatRow()];
 		for(unsigned int iblk=0;iblk<this->NBlkMatRow();iblk++){
 			tmp_buffer[iblk] = 0;
 		}
-//		const unsigned int ncrs_size = crs.size;
-        for(unsigned int iblk=0;iblk<crs.size;iblk++){
+    //		const unsigned int ncrs_size = crs.size;
+    for(unsigned int iblk=0;iblk<crs.size;iblk++){
 			// 既に要素が入っている場所にフラグを立てる
 			for(unsigned int icrs=m_colInd_Blk[iblk];icrs<m_colInd_Blk[iblk+1];icrs++){
 				unsigned int jnode = m_rowPtr_Blk[icrs];
@@ -436,9 +437,8 @@ bool CMatDia_BlkCrs::AddPattern(const Com::CIndexedArray& crs)
 	tmp_row_ptr.reserve(crs.size+this->NCrs());
 	{	// とりあえずこのtmp_row_ptrを作ってから、コピーする
 		int* tmp_buffer = new int [this->NBlkMatRow()];
-		for(unsigned int iblk=0;iblk>NBlkMatRow();iblk++){ tmp_buffer[iblk] = 0; }
+		for(unsigned int iblk=0;iblk<NBlkMatRow();iblk++){ tmp_buffer[iblk] = 0; }
 		for(unsigned int iblk=0;iblk<NBlkMatCol();iblk++){
-//			unsigned int icrs_i = tmp_row_ptr.size();
 			for(unsigned int icrs=m_colInd_Blk[iblk];icrs<m_colInd_Blk[iblk+1];icrs++){
 				unsigned int jblk = m_rowPtr_Blk[icrs];
 				assert( jblk < this->NBlkMatRow() );
@@ -453,7 +453,7 @@ bool CMatDia_BlkCrs::AddPattern(const Com::CIndexedArray& crs)
 					assert( icrs < crs.array.size() );
 					unsigned int jblk = crs.array[icrs];
 					assert( jblk < this->NBlkMatRow() );
-                    if( tmp_buffer[jblk] != (int)iblk+1 ){
+          if( tmp_buffer[jblk] != (int)iblk+1 ){
 						tmp_row_ptr.push_back(jblk);
 						tmp_buffer[jblk] = iblk+1;
 					}
@@ -490,7 +490,6 @@ bool CMatDia_BlkCrs::AddPattern(const Com::CIndexedArray& crs)
 			}
 		}
 	}
-
 	/*
 	for(unsigned int iblk=0;iblk<NBlkMatCol();iblk++){
 		std::cout << iblk << "-->";

@@ -65,16 +65,16 @@ public:
 	//! 選択を解除する
 	virtual void ClearSelected() = 0;
 
-    virtual void SetAntiAliasing(bool is_aa){
-        this->m_is_anti_aliasing = is_aa;
-    }
+  virtual void SetAntiAliasing(bool is_aa){
+    this->m_is_anti_aliasing = is_aa;
+  }
 
 	// return suitable rotation mode ( 0:2D, 1:2DH, 2:3D )
 	virtual unsigned int GetSutableRotMode(){ return sutable_rot_mode; }
 protected:
 	bool is_show;
 	unsigned int sutable_rot_mode;	// 1:2D  2:2DH  3:3D
-    bool m_is_anti_aliasing;  // アンチエリアシングするかどうか．デフォでfalse
+  bool m_is_anti_aliasing;  // アンチエリアシングするかどうか．デフォでfalse
 };
 
 class CCamera;
@@ -129,10 +129,12 @@ public:
 		: npoin(np), ndim(nd)
 	{
 		pVertexArray = new double [npoin*ndim];
+    pUVArray = 0;
 	}
-	CVertexArray() : pVertexArray(0), npoin(0), ndim(0){}
+	CVertexArray() : pVertexArray(0), npoin(0), ndim(0), pUVArray(0){}
 	virtual ~CVertexArray(){
 		if( pVertexArray != 0 ){ delete[] pVertexArray; }
+    if( pUVArray     != 0 ){ delete[] pUVArray;     }
 	}
 	void SetSize(unsigned int npoin, unsigned int ndim){
 		if( this->npoin == npoin && ndim == ndim ) return;
@@ -140,14 +142,31 @@ public:
 		this->npoin = npoin;
 		this->ndim = ndim;
 		pVertexArray = new double [npoin*ndim];
-	}
+    if(pUVArray != 0){
+      delete[] pUVArray;
+      pUVArray = new double [npoin*2];
+    }
+  }
   // rot == 0 : return object axis bounding box
   // rot != 0 : return rotated axis bounding box (rot is 3x3 matrix)
 	Com::CBoundingBox GetBoundingBox( double rot[] ) const;
 	inline unsigned int NDim() const { return ndim; }
 	inline unsigned int NPoin() const { return npoin; }
+  void EnableUVMap(bool is_uv_map){
+    if( (pUVArray!=0) == is_uv_map ){ return; }
+    if( is_uv_map ){
+      const unsigned int nno = NPoin();
+      pUVArray = new double [nno*2];
+      for(unsigned int i=0;i<nno*2;i++){ pUVArray[i] = 0; }
+    }
+    else{
+      delete pUVArray;
+      pUVArray = 0;
+    }
+  }
 public:
 	double* pVertexArray;
+  double* pUVArray;  
 private:
 	unsigned int npoin;
 	unsigned int ndim;

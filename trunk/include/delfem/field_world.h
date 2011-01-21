@@ -188,6 +188,8 @@ public:
   
   // update field
 	bool UpdateMeshCoord(    const unsigned int id_base, const Msh::IMesh& mesh);
+	bool UpdateMeshCoord(    const unsigned int id_base, const unsigned int id_field_disp, const Msh::IMesh& mesh);  
+  ////
 	bool UpdateConnectivity( const unsigned int id_base, const Msh::IMesh& mesh );
 	bool UpdateConnectivity_CustomBaseField(const unsigned int id_base,
                                           const std::vector<unsigned int>& aIdEA_Inc, 
@@ -197,8 +199,8 @@ public:
 	bool UpdateConnectivity_EdgeField_Tri( unsigned int id_field, unsigned int id_field_base);
     
   // set value to field
-	void FieldValueExec(double time);
-	void FieldValueDependExec();
+//	void FieldValueExec(double time);
+//	void FieldValueDependExec();
   
   // Delete Field and referenced EA and NA. the EAs and NAs that is referenced from Field in use are not deleted
   void DeleteField( const std::vector<unsigned int>& aIdFieldDel );

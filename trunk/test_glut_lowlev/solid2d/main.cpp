@@ -234,8 +234,8 @@ void Solve(){
 		unsigned int id_na = field.GetNodeSegInNodeAry(CORNER).id_na_va;
 		Fem::Field::CNodeAry& na = world.GetNA(id_na);		
 		Fem::Field::CNodeAry::CNodeSeg& ns_v = field.GetNodeSeg(CORNER,true,world,VELOCITY);
-		unsigned int nblk = ns_v.GetNnode();		
-		unsigned int len = ns_v.GetLength();
+		unsigned int nblk = ns_v.Size();		
+		unsigned int len = ns_v.Length();
 		velo_pre.Initialize(nblk,len);
 		na.GetValueFromNodeSegment(id_ns_v,velo_pre);
 	}	

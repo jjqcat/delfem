@@ -18,20 +18,22 @@
 #  include <GL/glut.h>
 #endif
 
-#include "delfem/camera.h"		// カメラクラスCCamera
-#include "delfem/drawer_gl_utility.h"	// GLのための便利関数群
+#include "delfem/camera.h"
+#include "delfem/drawer_gl_utility.h"
+#include "delfem/glut_utility.h"
 
-#include "delfem/cad_obj2d.h"		// ２次元形状クラスCCadObj2D
-#include "delfem/mesher2d.h"		// ２次元メッシュクラスCMesher2D
+#include "delfem/cad_obj2d.h" // CCadObj2D
+#include "delfem/mesher2d.h"  // CMesher2D
 
-#include "delfem/field.h"	// 有限要素法離散場クラスCField
-#include "delfem/field_world.h"		// 有限要素法離散場管理クラスCFieldWorld
-#include "delfem/drawer_field.h"	// 有限要素法離散場可視化クラス
-#include "delfem/drawer_field_face.h"	// 有限要素法離散場可視化クラス
-#include "delfem/drawer_field_edge.h"	// 有限要素法離散場可視化クラス
-#include "delfem/drawer_field_vector.h"	// 有限要素法離散場可視化クラス
+#include "delfem/field.h"	// 
+#include "delfem/field_world.h"		// 
+#include "delfem/field_value_setter.h"
+#include "delfem/drawer_field.h"
+#include "delfem/drawer_field_face.h"
+#include "delfem/drawer_field_edge.h"
+#include "delfem/drawer_field_vector.h"
 
-#include "delfem/eqnsys_scalar.h"	// 有限要素法スカラー型方程式クラス
+#include "delfem/eqnsys_scalar.h"
 
 using namespace Fem::Field;
 using namespace Fem::Ls;
@@ -40,68 +42,11 @@ Fem::Field::CFieldWorld world;
 Fem::Eqn::CEqnSystem_Scalar2D eqn_scalar;
 double dt = 0.001;
 View::CDrawerArrayField drawer_ary;
+std::vector<Fem::Field::CFieldValueSetter> field_value_setter_ary;
 Com::View::CCamera camera;
 double mov_begin_x, mov_begin_y;
 unsigned int id_base;
 
-void RenderBitmapString(float x, float y, void *font,char *string)
-{
-  char *c;
-  ::glRasterPos2f(x, y);
-  for (c=string; *c != '\0'; c++) {
-	  ::glutBitmapCharacter(font, *c);
-  }
-}
-
-
-void ShowFPS()
-{
-	int* font=(int*)GLUT_BITMAP_8_BY_13;
-	static char s_fps[32];
-	{
-		static int frame, timebase;
-		int time;
-		frame++;
-		time=glutGet(GLUT_ELAPSED_TIME);
-		if (time - timebase > 500) {
-			sprintf(s_fps,"FPS:%4.2f",frame*1000.0/(time-timebase));
-			timebase = time;
-			frame = 0;
-		}
-	}
-	char s_tmp[32];
-
-	GLint viewport[4];
-	::glGetIntegerv(GL_VIEWPORT,viewport);
-	const int win_w = viewport[2];
-	const int win_h = viewport[3];
-
-	::glMatrixMode(GL_PROJECTION);
-	::glPushMatrix();
-	::glLoadIdentity();
-	::gluOrtho2D(0, win_w, 0, win_h);
-	::glMatrixMode(GL_MODELVIEW);
-	::glPushMatrix();
-	::glLoadIdentity();
-	::glScalef(1, -1, 1);
-	::glTranslatef(0, -win_h, 0);
-//	::glDisable(GL_LIGHTING);
-	::glDisable(GL_DEPTH_TEST);
-	::glColor3d(1.0, 0.0, 0.0);
-	strcpy(s_tmp,"DelFEM demo");
-	RenderBitmapString(10,15, (void*)font, s_tmp);
-	::glColor3d(0.0, 0.0, 1.0);
-	strcpy(s_tmp,"Press \"space\" key!");
-	RenderBitmapString(120,15, (void*)font, s_tmp);
-	::glColor3d(0.0, 0.0, 0.0);
-	RenderBitmapString(10,30, (void*)font, s_fps);
-//	::glEnable(GL_LIGHTING);
-	::glEnable(GL_DEPTH_TEST);
-	::glPopMatrix();
-	::glMatrixMode(GL_PROJECTION);
-	::glPopMatrix();
-	::glMatrixMode(GL_MODELVIEW);
-}
 
 bool SetNewProblem()
 {
@@ -123,10 +68,10 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(1.0,1.0) );
 			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
 			const unsigned int id_l = cad_2d.AddPolygon( vec_ary ).id_l_add;
-			const unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.7,0.5));
-			const unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.7,0.9));
-			const unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.8,0.9));
-			const unsigned int id_v4 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.8,0.5));
+			const unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.7,0.5)).id_v_add;
+			const unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.7,0.9)).id_v_add;
+			const unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.8,0.9)).id_v_add;
+			const unsigned int id_v4 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.8,0.5)).id_v_add;
 			cad_2d.ConnectVertex_Line(id_v1,id_v2);
 			cad_2d.ConnectVertex_Line(id_v2,id_v3);
 			cad_2d.ConnectVertex_Line(id_v3,id_v4);
@@ -146,22 +91,18 @@ bool SetNewProblem()
 		eqn_scalar.SetCapacity(30.0);
 		eqn_scalar.SetAdvection(0);
 
-		id_val_bc0 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(2,Cad::LOOP),world);
-		{
-			CField& field = world.GetField(id_val_bc0);
-//			field.SetValue("cos(2*PI*t+0.1)",0,world,true);
-			field.SetValue("floor(1+0.8*cos(2*PI*t+0.1))",0,Fem::Field::VALUE,world,true);
-		}
+    id_val_bc0 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(2,Cad::LOOP),world);
 		id_val_bc1 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(1,Cad::EDGE),world);
-		{
-			CField& field = world.GetField(id_val_bc1);
-			field.SetValue(1.0,0,Fem::Field::VALUE,world,false);
-		}
 		id_val_bc2 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(3,Cad::EDGE),world);
-		{
-			CField& field = world.GetField(id_val_bc2);
-			field.SetValue(-1.0,0,Fem::Field::VALUE,world,false);
-		}
+    
+    field_value_setter_ary.clear();
+    {
+      Fem::Field::CFieldValueSetter fvs(id_val_bc0,world);
+      fvs.SetMathExp("floor(1+0.8*cos(2*PI*t+0.1))",0,Fem::Field::VALUE,world);
+      field_value_setter_ary.push_back(fvs);
+    }
+    Fem::Field::SetFieldValue_Constant(id_val_bc1,0,Fem::Field::VALUE,world,+1.0);
+    Fem::Field::SetFieldValue_Constant(id_val_bc2,0,Fem::Field::VALUE,world,-1.0);    
 
 		// 描画オブジェクトの登録
 		const unsigned int id_field_val = eqn_scalar.GetIdField_Value();
@@ -194,14 +135,13 @@ bool SetNewProblem()
 	else if( iprob == 7 ){
 		const unsigned int id_field_velo = world.MakeField_FieldElemDim(id_base,2,Fem::Field::VECTOR2,VELOCITY);
 		std::cout << "Velo : " << id_field_velo << std::endl;
-		{	// 流速場の設定
-			CField& field = world.GetField(id_field_velo);
-			field.SetValue(" (y-0.5)", 0,Fem::Field::VELOCITY,world,false);
-			field.SetValue("-(x-0.5)" ,1,Fem::Field::VELOCITY,world,false);
-		}
+    Fem::Field::SetFieldValue_MathExp(id_field_velo,0,Fem::Field::VELOCITY,world," (y-0.5)",0);    
+    Fem::Field::SetFieldValue_MathExp(id_field_velo,1,Fem::Field::VELOCITY,world,"-(x-0.5)",0);    
+    field_value_setter_ary.clear();
 		{	// 固定境界条件の設定
-			CField& field = world.GetField(id_val_bc0);
-			field.SetValue("floor(1+0.8*cos(3*t))",0,Fem::Field::VALUE,world,true);
+      Fem::Field::CFieldValueSetter fvs(id_val_bc0,world);
+      fvs.SetMathExp("floor(1+0.8*cos(3*t))",0,Fem::Field::VALUE,world);
+      field_value_setter_ary.push_back(fvs);      
 		}
 		{	// 周囲の固定境界条件の設定
 			const CIDConvEAMshCad conv = world.GetIDConverter(id_base);
@@ -211,9 +151,9 @@ bool SetNewProblem()
 			m_aIDEA.push_back(conv.GetIdEA_fromCad(3,Cad::EDGE));
 			m_aIDEA.push_back(conv.GetIdEA_fromCad(4,Cad::EDGE));
 			id_val_bc1 = eqn_scalar.AddFixElemAry(m_aIDEA,world);
-			CField& field = world.GetField(id_val_bc1);
-			field.SetValue(-1.0,0,Fem::Field::VALUE,world,false);
-		}
+    }
+    Fem::Field::SetFieldValue_Constant(id_val_bc1,0,Fem::Field::VALUE,world,-1.0);
+    
 		eqn_scalar.SetSaveStiffMat(false);
 		eqn_scalar.SetStationary(false);
 		eqn_scalar.SetAxialSymmetry(false);
@@ -245,8 +185,8 @@ bool SetNewProblem()
 				vec_ary.push_back( Com::CVector2D(0.0,1.0) );
 				cad_2d.AddPolygon( vec_ary );
 			}
-			const unsigned int id_v1 = cad_2d.AddVertex(Cad::EDGE,1,Com::CVector2D(0.5,0.0));
-			const unsigned int id_v2 = cad_2d.AddVertex(Cad::EDGE,3,Com::CVector2D(0.5,1.0));
+			const unsigned int id_v1 = cad_2d.AddVertex(Cad::EDGE,1,Com::CVector2D(0.5,0.0)).id_v_add;
+			const unsigned int id_v2 = cad_2d.AddVertex(Cad::EDGE,3,Com::CVector2D(0.5,1.0)).id_v_add;
 			cad_2d.ConnectVertex_Line(id_v1,id_v2);
 		}
 		// メッシュを作る
@@ -265,16 +205,14 @@ bool SetNewProblem()
 		eqn_scalar.SetAdvection(false);
 		// 境界条件の設定
 		id_val_bc0 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(2,Cad::EDGE),world);
+    field_value_setter_ary.clear();
 		{
-			CField& field = world.GetField(id_val_bc0);
-			field.SetValue("cos(2*PI*t+0.1)",0,Fem::Field::VALUE,world,true);
-//			field.SetValue("floor(1+0.8*cos(2*PI*t+0.1))",0,world,true);
+      Fem::Field::CFieldValueSetter fvs(id_val_bc0,world);
+      fvs.SetMathExp("cos(2*PI*t+0.1)",0,Fem::Field::VALUE,world);
+      field_value_setter_ary.push_back(fvs);            
 		}
 		id_val_bc1 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(3,Cad::EDGE),world);
-		{
-			CField& field = world.GetField(id_val_bc1);
-			field.SetValue(1.0,0,Fem::Field::VALUE,world,false);
-		}
+    Fem::Field::SetFieldValue_Constant(id_val_bc1,0,Fem::Field::VALUE,world,+1.0);    
 
 		// 描画オブジェクトの登録
 		drawer_ary.Clear();
@@ -302,10 +240,10 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(1.0,1.0) );
 			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
 			const unsigned int id_l = cad_2d.AddPolygon( vec_ary ).id_l_add;
-			const unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.3,0.2));
-			const unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.7,0.2));
-			const unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.7,0.8));
-			const unsigned int id_v4 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.3,0.8));
+			const unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.3,0.2)).id_v_add;
+			const unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.7,0.2)).id_v_add;
+			const unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.7,0.8)).id_v_add;
+			const unsigned int id_v4 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.3,0.8)).id_v_add;
 			cad_2d.ConnectVertex_Line(id_v1,id_v2);
 			cad_2d.ConnectVertex_Line(id_v2,id_v3);
 			cad_2d.ConnectVertex_Line(id_v3,id_v4);
@@ -329,15 +267,14 @@ bool SetNewProblem()
 		}
 
 		id_val_bc0 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(3,Cad::EDGE),world);
+    field_value_setter_ary.clear();
 		{
-			CField& field = world.GetField(id_val_bc0);
-			field.SetValue("cos(2*PI*t+0.1)",0,Fem::Field::VALUE,world,true);
+      Fem::Field::CFieldValueSetter fvs(id_val_bc0,world);
+      fvs.SetMathExp("cos(2*PI*t+0.1)",0,Fem::Field::VALUE,world);
+      field_value_setter_ary.push_back(fvs);            
 		}
 		id_val_bc1 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(6,Cad::EDGE),world);
-		{
-			CField& field = world.GetField(id_val_bc1);
-			field.SetValue(1.0,0,Fem::Field::VALUE,world,false);
-		}
+    Fem::Field::SetFieldValue_Constant(id_val_bc1,0,Fem::Field::VALUE,world,+1.0);    
 
 		// 描画オブジェクトの登録
 		drawer_ary.Clear();
@@ -357,7 +294,7 @@ bool SetNewProblem()
 		eqn_scalar.SetSaveStiffMat(true);
 	}
 	else if( iprob == 19 ){
-        Cad::CCadObj2D cad_2d;
+    Cad::CCadObj2D cad_2d;
 		{
 			std::vector<Com::CVector2D> vec_ary;
 			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
@@ -383,16 +320,10 @@ bool SetNewProblem()
 		eqn_scalar.SetSource(0);
 
 		const unsigned int id_field_val = eqn_scalar.GetIdField_Value();
-		{
-			CField& field = world.GetField(id_field_val);
-			field.SetValue(500.0,0,Fem::Field::VALUE,world,false);
-		}
+    Fem::Field::SetFieldValue_Constant(id_field_val,0,Fem::Field::VALUE,world,500.0);    
 
 		id_val_bc1 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(2,Cad::EDGE),world);
-		{
-			CField& field = world.GetField(id_val_bc1);
-			field.SetValue(0,0,Fem::Field::VALUE,world,false);
-		}
+    Fem::Field::SetFieldValue_Constant(id_val_bc1,0,Fem::Field::VALUE,world,+0.0);    
 
 		// 描画オブジェクトの登録
 		drawer_ary.Clear();
@@ -442,7 +373,9 @@ void myGlutDisplay(void)
 
 	if( is_animation ){
 		cur_time += dt;
-		world.FieldValueExec(cur_time);
+    for(unsigned int iset=0;iset<field_value_setter_ary.size();iset++){
+      field_value_setter_ary[iset].ExecuteValue(cur_time,world);
+    }    
 		eqn_scalar.Solve(world);
 		if( eqn_scalar.GetAry_ItrNormRes().size() > 0 ){
 			std::cout << "Iter : " << eqn_scalar.GetAry_ItrNormRes()[0].first << " ";

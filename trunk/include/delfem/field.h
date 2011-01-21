@@ -197,9 +197,7 @@ public:
 	//! フィールドの種類を得る
 	FIELD_TYPE GetFieldType() const { return m_field_type; }
 	unsigned int GetFieldDerivativeType() const { return m_field_derivative_type; }
-	//! 名前の取得
-	std::string GetName() const {return m_name; }
-
+  
 	// TODO:ここは高次補間では要書き換え(PartialかどうかはELSEG_TYPEごとに違う)
 	//! 部分場かどうかを調べる
 	bool IsPartial() const { return this->m_na_c.is_part_va; }
@@ -242,15 +240,14 @@ public:
 	bool IsTimeDependent() const;
 	//! 最大値最小値を取得
 	void GetMinMaxValue(double& min, double& max, const CFieldWorld& world, 
-		unsigned int idof=0, const int fdt=VALUE) const;
-	void SetName(const std::string&  name){ m_name = name; }
+                      unsigned int idof=0, const int fdt=VALUE) const;
 	// 場の追加
 	bool SetValueType( Field::FIELD_TYPE field_type, const int fdt, CFieldWorld& world);
 	int GetLayer(unsigned int id_ea) const;
 
 	////////////////////////////////
 	// 値を設定する関数 (Will be moved to another class)
-
+/*
 	//! セーブされた値を全自由度にセットする
 	bool ExecuteValue(double time, CFieldWorld& world);
 	//! 定数をセーブ＆セットする
@@ -263,7 +260,7 @@ public:
 	void SetVelocity(unsigned int id_field, CFieldWorld& world);
 	//! 勾配をセットする
 	bool SetGradient(unsigned int id_field, CFieldWorld& world, bool is_save);
-	
+*/	
 	// TODO: 一度この関数を呼んだら，次に呼んだ時は高速に処理されるように，ハッシュを構築する
 	// TODO: 座標やコネクティビティの変更があった場合は，ハッシュを削除する
 	bool FindVelocityAtPoint(double velo[], 
@@ -308,8 +305,7 @@ private:
 
 	FIELD_TYPE m_field_type;
 	unsigned int m_field_derivative_type;
-	std::string m_name;	// 場は名前を持っている（その名前で数式を評価するつもり）
-
+  
 	std::vector<unsigned int> m_map_val2co;
 
 	////////////////

@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <math.h>
 
 #include "delfem/field_world.h"
+#include "delfem/field_value_setter.h"
 
 #include "delfem/femls/linearsystem_field.h"
 #include "delfem/femls/linearsystem_fieldsave.h"
@@ -317,9 +318,9 @@ unsigned int CEqn_Solid3D_Linear::AddFixElemAry(
 		CField& field = world.GetField(id_field);
 		unsigned int nlen_val = field.GetNLenValue();
 		for(unsigned int ilen=0;ilen<nlen_val;ilen++){
-			field.SetValue(0.0,ilen,Fem::Field::VALUE,       world,false);
-			field.SetValue(0.0,ilen,Fem::Field::VELOCITY,    world,false);
-			field.SetValue(0.0,ilen,Fem::Field::ACCELERATION,world,false);
+      Fem::Field::SetFieldValue_Constant(id_field,ilen,Fem::Field::VALUE,       world,0);
+      Fem::Field::SetFieldValue_Constant(id_field,ilen,Fem::Field::VELOCITY,    world,0);
+      Fem::Field::SetFieldValue_Constant(id_field,ilen,Fem::Field::ACCELERATION,world,0);
 		}
 	}
 	m_aIdFixField.push_back( std::make_pair(id_field,idof) );
@@ -1335,9 +1336,9 @@ unsigned int CEqnSystem_Solid2D::AddFixElemAry(
 		CField& field = world.GetField(id_field);
 		unsigned int nlen_val = field.GetNLenValue();
 		for(unsigned int ilen=0;ilen<nlen_val;ilen++){
-			field.SetValue(0.0,ilen,Fem::Field::VALUE,       world,false);
-			field.SetValue(0.0,ilen,Fem::Field::VELOCITY,    world,false);
-			field.SetValue(0.0,ilen,Fem::Field::ACCELERATION,world,false);
+      Fem::Field::SetFieldValue_Constant(id_field,ilen,Fem::Field::VALUE,       world,0);
+      Fem::Field::SetFieldValue_Constant(id_field,ilen,Fem::Field::VELOCITY,    world,0);
+      Fem::Field::SetFieldValue_Constant(id_field,ilen,Fem::Field::ACCELERATION,world,0);
 		}
 	}
 	m_aIdFixField.push_back( std::make_pair(id_field,idof) );

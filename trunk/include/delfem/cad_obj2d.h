@@ -103,6 +103,16 @@ public:
     bool is_left_l_add;
   };
   
+  class CResAddVertex{
+  public:
+    CResAddVertex(){
+      id_v_add = 0;
+      id_e_add = 0;
+    }
+  public:
+    unsigned int id_v_add;
+    unsigned int id_e_add;
+  };
   class CResAddPolygon{
   public:
     CResAddPolygon(){
@@ -140,8 +150,8 @@ public:
     return std::auto_ptr<Cad::ICad2D::CItrLoop>( new CItrLoop(this,id_l) );	// インスタンスを生成
 	}
 	//! ID:id_lのループを構成する頂点や辺をめぐるイテレータを返す関数
-    virtual std::auto_ptr<Cad::ICad2D::CItrVertex> GetItrVertex(unsigned int id_v) const{
-      return std::auto_ptr<Cad::ICad2D::CItrVertex>( new CItrVertex(this,id_v) );	// インスタンスを生成
+  virtual std::auto_ptr<Cad::ICad2D::CItrVertex> GetItrVertex(unsigned int id_v) const{
+    return std::auto_ptr<Cad::ICad2D::CItrVertex>( new CItrVertex(this,id_v) );	// インスタンスを生成
 	}
   
 	virtual bool IsElemID(Cad::CAD_ELEM_TYPE,unsigned int id) const;
@@ -177,18 +187,19 @@ public:
 	// return edge with vertex id(id_vs, id_ve) and vertex coord
 	const CEdge2D& GetEdge(unsigned int id_e) const;  
 	/*!
-	@brief 辺の形状タイプを返す
-    @retval 0 線分
-    @retval 1 円弧
-    @retval 2 メッシュ
+	@brief Get Geometric Type of the Curve
+    @retval 0 Line
+    @retval 1 Arc
+    @retval 2 Polyline
 	*/
 	virtual int GetEdgeCurveType(const unsigned int& id_e) const;
 	//! ID:id_eの辺の情報を得る
 	virtual bool GetCurve_Arc(unsigned int id_e, bool& is_left_side, double& dist) const;
 	virtual bool GetCurve_Polyline(unsigned int id_e, std::vector<double>& aRelCoMesh) const;
-  virtual bool GetCurve_Polyline(unsigned int id_e, std::vector<Com::CVector2D>& aCo, double elen = -1) const;    
+  
+  virtual bool GetCurveAsPolyline(unsigned int id_e, std::vector<Com::CVector2D>& aCo, double elen = -1) const;    
   //! ID:id_eの辺をndiv個に分割したものを得る. 但し始点，終点はそれぞれps,peとする
-  virtual bool GetCurve_Polyline(unsigned int id_e, std::vector<Com::CVector2D>& aCo,
+  virtual bool GetCurveAsPolyline(unsigned int id_e, std::vector<Com::CVector2D>& aCo,
                                  unsigned int ndiv, const Com::CVector2D& ps, const Com::CVector2D& pe) const;
 	//! @}
 
@@ -232,7 +243,7 @@ public:
 	@retval ０ 失敗した場合
 	@remarks itype == Cad::NOT_SETだったら，形状の外側に頂点を追加
 	*/
-	unsigned int AddVertex(Cad::CAD_ELEM_TYPE itype, unsigned int id, const Com::CVector2D& vec);
+	CResAddVertex AddVertex(Cad::CAD_ELEM_TYPE itype, unsigned int id, const Com::CVector2D& vec);
 	
 	/*!
 	@brief 要素を消去する関数
@@ -264,7 +275,7 @@ public:
 	////////////////////////////////////////////////
 	// IO routines
 	
-	bool WriteToFile_dxf(const std::string& file_name) const;
+	virtual bool WriteToFile_dxf(const std::string& file_name, double scale) const;
 	bool Serialize( Com::CSerializer& serialize );		
 protected:
 	// return edge with vertex id(id_vs, id_ve) and vertex coord  

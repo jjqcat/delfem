@@ -24,6 +24,7 @@
 
 #include "delfem/camera.h"
 #include "delfem/drawer_gl_utility.h"
+#include "delfem/glut_utility.h"
 #include "delfem/serialize.h"
 #include "delfem/cad_obj2d.h"
 #include "delfem/drawer_cad.h"
@@ -33,63 +34,6 @@ double mov_begin_x, mov_begin_y;
 int press_button;
 Com::View::CDrawerArray drawer_ary;
 
-void RenderBitmapString(float x, float y, void *font,char *string)
-{
-  char *c;
-  ::glRasterPos2f(x, y);
-  for (c=string; *c != '\0'; c++) {
-	  ::glutBitmapCharacter(font, *c);
-  }
-}
-
-void ShowFPS()
-{
-	int* font=(int*)GLUT_BITMAP_8_BY_13;
-	static char s_fps[32];
-	{
-		static int frame, timebase;
-		int time;
-		frame++;
-		time=glutGet(GLUT_ELAPSED_TIME);
-		if (time - timebase > 500) {
-			sprintf(s_fps,"FPS:%4.2f",frame*1000.0/(time-timebase));
-			timebase = time;
-			frame = 0;
-		}
-	}
-	char s_tmp[32];
-
-	GLint viewport[4];
-	::glGetIntegerv(GL_VIEWPORT,viewport);
-	const int win_w = viewport[2];
-	const int win_h = viewport[3];
-
-	::glMatrixMode(GL_PROJECTION);
-	::glPushMatrix();
-	::glLoadIdentity();
-	::gluOrtho2D(0, win_w, 0, win_h);
-	::glMatrixMode(GL_MODELVIEW);
-	::glPushMatrix();
-	::glLoadIdentity();
-	::glScalef(1, -1, 1);
-	::glTranslatef(0, -win_h, 0);
-//	::glDisable(GL_LIGHTING);
-	::glDisable(GL_DEPTH_TEST);
-	::glColor3d(1.0, 0.0, 0.0);
-	strcpy(s_tmp,"DelFEM demo");
-	RenderBitmapString(10,15, (void*)font, s_tmp);
-	::glColor3d(0.0, 0.0, 1.0);
-	strcpy(s_tmp,"Press \"space\" key!");
-	RenderBitmapString(120,15, (void*)font, s_tmp);
-	::glColor3d(0.0, 0.0, 0.0);
-	RenderBitmapString(10,30, (void*)font, s_fps);
-//	::glEnable(GL_LIGHTING);
-	::glEnable(GL_DEPTH_TEST);
-	::glPopMatrix();
-	::glMatrixMode(GL_PROJECTION);
-	::glPopMatrix();
-	::glMatrixMode(GL_MODELVIEW);
-}
 
 void myGlutResize(int w, int h)
 {
@@ -184,11 +128,11 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
 			id_l0 = cad_2d.AddPolygon( vec_ary,0 ).id_l_add;
 		}
-		const unsigned int id_v5 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.5,0.5));
-		const unsigned int id_v6 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.5,0.8));
-		const unsigned int id_v7 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.8,0.5));
-		const unsigned int id_v8 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.5,0.2));
-		const unsigned int id_v9 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.2,0.5));
+		const unsigned int id_v5 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.5,0.5)).id_v_add;
+		const unsigned int id_v6 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.5,0.8)).id_v_add;
+		const unsigned int id_v7 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.8,0.5)).id_v_add;
+		const unsigned int id_v8 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.5,0.2)).id_v_add;
+		const unsigned int id_v9 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.2,0.5)).id_v_add;
 		cad_2d.ConnectVertex_Line(id_v5,id_v6);	
 		cad_2d.ConnectVertex_Line(id_v5,id_v7);	
 		cad_2d.ConnectVertex_Line(id_v5,id_v8);	
@@ -244,11 +188,10 @@ bool SetNewProblem()
 		unsigned int id_l0;
  		{	// Make model
 			std::vector<Com::CVector2D> vec_ary;
-			vec_ary.resize(4);
-			vec_ary[0] = Com::CVector2D(0.0,0.0);
-			vec_ary[1] = Com::CVector2D(1.0,0.0);
-			vec_ary[2] = Com::CVector2D(1.0,0.4);
-			vec_ary[3] = Com::CVector2D(0.0,0.4);
+			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
+			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
+      vec_ary.push_back( Com::CVector2D(1.0,0.4) );
+      vec_ary.push_back( Com::CVector2D(0.0,0.4) );
 			id_l0 = cad_2d.AddPolygon( vec_ary ).id_l_add;
 		}
 //		cad_2d.SetCurve_Arc(1,true,-0.2);
@@ -266,17 +209,17 @@ bool SetNewProblem()
 	}
 	else  if( iprob == 3 )	// AddPolygonÇégÇÌÇ∏Ç…å`ÇÇ¬Ç≠ÇÈ
 	{
-		const unsigned int id_v1 = cad_2d.AddVertex(Cad::NOT_SET,0,Com::CVector2D(0,0));
-		const unsigned int id_v2 = cad_2d.AddVertex(Cad::NOT_SET,0,Com::CVector2D(1,0));
+		const unsigned int id_v1 = cad_2d.AddVertex(Cad::NOT_SET,0,Com::CVector2D(0,0)).id_v_add;
+		const unsigned int id_v2 = cad_2d.AddVertex(Cad::NOT_SET,0,Com::CVector2D(1,0)).id_v_add;
 		cad_2d.ConnectVertex_Line(id_v1,id_v2);
-		const unsigned int id_v3 = cad_2d.AddVertex(Cad::NOT_SET,0,Com::CVector2D(1,1));
+		const unsigned int id_v3 = cad_2d.AddVertex(Cad::NOT_SET,0,Com::CVector2D(1,1)).id_v_add;
 		cad_2d.ConnectVertex_Line(id_v2,id_v3);
-		const unsigned int id_v4 = cad_2d.AddVertex(Cad::NOT_SET,0,Com::CVector2D(0,1));
+		const unsigned int id_v4 = cad_2d.AddVertex(Cad::NOT_SET,0,Com::CVector2D(0,1)).id_v_add;
 		cad_2d.ConnectVertex_Line(id_v4,id_v3);
-		const unsigned int id_v5 = cad_2d.AddVertex(Cad::EDGE,2,Com::CVector2D(1,0.5));
-		const unsigned int id_v7 = cad_2d.AddVertex(Cad::NOT_SET,0,Com::CVector2D(0.5,0.5));
+		const unsigned int id_v5 = cad_2d.AddVertex(Cad::EDGE,2,Com::CVector2D(1,0.5)).id_v_add;
+		const unsigned int id_v7 = cad_2d.AddVertex(Cad::NOT_SET,0,Com::CVector2D(0.5,0.5)).id_v_add;
 		cad_2d.ConnectVertex_Line(id_v5,id_v7);
-		const unsigned int id_v6 = cad_2d.AddVertex(Cad::NOT_SET,0,Com::CVector2D(1.5,0.5));
+		const unsigned int id_v6 = cad_2d.AddVertex(Cad::NOT_SET,0,Com::CVector2D(1.5,0.5)).id_v_add;
 		cad_2d.ConnectVertex_Line(id_v5,id_v6);
 		cad_2d.ConnectVertex_Line(id_v4,id_v1);	// ÉãÅ[ÉvÇ™Ç≈Ç´ÇÈ
 //		cad_2d.ConnectVertex_Line(id_v2,id_v6);
@@ -301,10 +244,10 @@ bool SetNewProblem()
 			id_l0 = cad_2d.AddPolygon( vec_ary ).id_l_add;
 		}
 //		const unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.5,0.5));
-		const unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.5,0.2));
-		const unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.8,0.5));
-		const unsigned int id_v4 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.5,0.8));
-		const unsigned int id_v5 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.2,0.5));
+		const unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.5,0.2)).id_v_add;
+		const unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.8,0.5)).id_v_add;
+		const unsigned int id_v4 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.5,0.8)).id_v_add;
+		const unsigned int id_v5 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.2,0.5)).id_v_add;
 		cad_2d.ConnectVertex_Line(id_v2,id_v3);
 		cad_2d.ConnectVertex_Line(id_v3,id_v4);
 		cad_2d.ConnectVertex_Line(id_v4,id_v5);
@@ -387,9 +330,9 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
 			id_l0 = cad_2d.AddPolygon( vec_ary ).id_l_add;
 		}
-		unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.9,0.7) );
-		unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.9,0.1) );
-		unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.3,0.1) );
+		unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.9,0.7) ).id_v_add;
+		unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.9,0.1) ).id_v_add;
+		unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.3,0.1) ).id_v_add;
 		cad_2d.ConnectVertex_Line(id_v1,id_v2);
 		cad_2d.ConnectVertex_Line(id_v2,id_v3);
 		cad_2d.ConnectVertex_Line(id_v3,id_v1);
@@ -426,11 +369,11 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(1.0, 1.0) );	// 7
 			vec_ary.push_back( Com::CVector2D(0.0, 1.0) );	// 8
 			unsigned int id_l0 = cad_2d.AddPolygon( vec_ary ).id_l_add;
-			unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l0, Com::CVector2D(0.5,0.5) );
+			unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l0, Com::CVector2D(0.5,0.5) ).id_v_add;
 			unsigned int id_e1 = cad_2d.ConnectVertex_Line(2,7).id_e_add;
 			unsigned int id_e2 = cad_2d.ConnectVertex_Line(3,6).id_e_add;
-			unsigned int id_v2 = cad_2d.AddVertex(Cad::EDGE,id_e1, Com::CVector2D(1.0,0.5) );
-			unsigned int id_v3 = cad_2d.AddVertex(Cad::EDGE,1,     Com::CVector2D(0.5,0.0) );
+			unsigned int id_v2 = cad_2d.AddVertex(Cad::EDGE,id_e1, Com::CVector2D(1.0,0.5) ).id_v_add;
+			unsigned int id_v3 = cad_2d.AddVertex(Cad::EDGE,1,     Com::CVector2D(0.5,0.0) ).id_v_add;
 			id_e3 = cad_2d.ConnectVertex_Line(id_v1,id_v2).id_e_add;
 			id_e4 = cad_2d.ConnectVertex_Line(id_v1,id_v3).id_e_add;
 		}
@@ -455,12 +398,12 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
 			id_l0 = cad_2d.AddPolygon( vec_ary ).id_l_add;
 		}
-		unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.2,0.7) );
-		unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.2,0.3) );
+		unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.2,0.7) ).id_v_add;
+		unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.2,0.3) ).id_v_add;
 		unsigned int id_e0 = cad_2d.ConnectVertex_Line(id_v1,id_v2).id_e_add;
-		unsigned int id_v3 = cad_2d.AddVertex(Cad::EDGE,id_e0, Com::CVector2D(0.2,0.5) );
-		unsigned int id_v4 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.5,0.5) );
-		unsigned int id_v5 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.7,0.5) );
+		unsigned int id_v3 = cad_2d.AddVertex(Cad::EDGE,id_e0, Com::CVector2D(0.2,0.5) ).id_v_add;
+		unsigned int id_v4 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.5,0.5) ).id_v_add;
+		unsigned int id_v5 = cad_2d.AddVertex(Cad::LOOP,id_l0,Com::CVector2D(0.7,0.5) ).id_v_add;
 		unsigned int id_e1 = cad_2d.ConnectVertex_Line(id_v3,id_v4).id_e_add;
 		unsigned int id_e2 = cad_2d.ConnectVertex_Line(id_v4,id_v5).id_e_add;
 		cad_2d.RemoveElement(Cad::EDGE,id_e1);
@@ -485,7 +428,7 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
 			id_l0 = cad_2d.AddPolygon( vec_ary ).id_l_add;
 		}
-		unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,0,Com::CVector2D(1.1,0));
+		unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,0,Com::CVector2D(1.1,0)).id_v_add;
 		cad_2d.RemoveElement(Cad::VERTEX,id_v1);
 		////////////////
     {

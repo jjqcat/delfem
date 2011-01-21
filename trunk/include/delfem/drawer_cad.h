@@ -50,16 +50,18 @@ class CDrawer_Cad2D : public Com::View::CDrawer
 {
 public : 
 	/*!
-	@brief コンストラクタ
-	@param[in] cad ＣＡＤの形状
-    @param[in] imode 表示モード{0:面を描画する,1:面を描画しない(セレクションでは面を描画)}(デフォルトで0)
-    @remaks 面を描画しないモードに設定してもセレクションはされるので，ピックは可能
+   @brief コンストラクタ
+   @param[in] cad ＣＡＤの形状
+   @param[in] imode 表示モード{0:面を描画する,1:面を描画しない(セレクションでは面を描画)}(デフォルトで0)
+   @remaks 面を描画しないモードに設定してもセレクションはされるので，ピックは可能
 	*/
-    CDrawer_Cad2D(const Cad::ICad2D& cad)
-    {    
+  CDrawer_Cad2D(const Cad::ICad2D& cad)
+  {    
+    tex_scale = 1;
+    tex_cent_x=0, tex_cent_y=0;    
 		this->m_is_anti_aliasing = false;
-        m_linewidth = 3;
-        m_pointsize = 5;
+    m_linewidth = 3;
+    m_pointsize = 5;
 		// 2ptのチェック柄を作る
 		for(unsigned int j=0;j<4;j++){
 			unsigned int i;
@@ -68,40 +70,51 @@ public :
 			for(i=0; i<8 ;i++) m_mask[j*32+16+i] = 0x33;
 			for(i=0; i<8 ;i++) m_mask[j*32+24+i] = 0xcc;
 		}	
-        this->UpdateCAD_TopologyGeometry(cad);
-	}
-    CDrawer_Cad2D(){
+    this->UpdateCAD_TopologyGeometry(cad);
+	}  
+  CDrawer_Cad2D(){
+    tex_scale = 1;  
+    tex_cent_x=0, tex_cent_y=0;        
 		this->m_is_anti_aliasing = false;
-        m_linewidth = 3;
-        m_pointsize = 5;
-        // 2ptのチェック柄を作る
-        for(unsigned int j=0;j<4;j++){
-            unsigned int i;
-            for(i=0; i<8 ;i++) m_mask[j*32   +i] = 0x33;
-            for(i=0; i<8 ;i++) m_mask[j*32+ 8+i] = 0xcc;
-            for(i=0; i<8 ;i++) m_mask[j*32+16+i] = 0x33;
-            for(i=0; i<8 ;i++) m_mask[j*32+24+i] = 0xcc;
-        }
+    m_linewidth = 3;
+    m_pointsize = 5;
+    // 2ptのチェック柄を作る
+    for(unsigned int j=0;j<4;j++){
+      unsigned int i;
+      for(i=0; i<8 ;i++) m_mask[j*32   +i] = 0x33;
+      for(i=0; i<8 ;i++) m_mask[j*32+ 8+i] = 0xcc;
+      for(i=0; i<8 ;i++) m_mask[j*32+16+i] = 0x33;
+      for(i=0; i<8 ;i++) m_mask[j*32+24+i] = 0xcc;
     }
+  }
 	virtual ~CDrawer_Cad2D(){
 		for(unsigned int i=0;i<m_apIndexAry.size();i++){ delete m_apIndexAry[i]; }
 	}
 	// virtual関数
 
-    //! 幾何形状を更新する(トポロジーの変化は存在しないとして)
-    void UpdateCAD_Geometry(const Cad::ICad2D&);
-    //! トポロジーと幾何を更新する
-    bool UpdateCAD_TopologyGeometry(const Cad::ICad2D&);
+  //! 幾何形状を更新する(トポロジーの変化は存在しないとして)
+  void UpdateCAD_Geometry(const Cad::ICad2D&);
+  //! トポロジーと幾何を更新する
+  bool UpdateCAD_TopologyGeometry(const Cad::ICad2D&);
 
 	//! @{
 	//! 描画
 	virtual void Draw() const;
 	//! ピッキングのための描画をする
 	virtual void DrawSelection(unsigned int idraw) const;
-    //! 線の太さを設定
-    void SetLineWidth(unsigned int linewidth){ m_linewidth = linewidth; }
-    //! 点の大きさを設定
-    void SetPointSize(unsigned int pointsize){ m_pointsize = pointsize; }
+  //! 線の太さを設定
+  void SetLineWidth(unsigned int linewidth){ m_linewidth = linewidth; }
+  //! 点の大きさを設定
+  void SetPointSize(unsigned int pointsize){ m_pointsize = pointsize; }
+  void SetTextureScale(double tex_scale);
+  void SetTexCenter(double cent_x, double cent_y){
+    this->tex_cent_x = cent_x;
+    this->tex_cent_y = cent_y;    
+  }  
+  void GetTexCenter(double& cent_x, double& cent_y){
+    cent_x = this->tex_cent_x;
+    cent_y = this->tex_cent_y;
+  }    
 	//! バウンディング・ボックスを得る
 	virtual Com::CBoundingBox GetBoundingBox( double rot[] ) const {
 		return m_vertex_ary.GetBoundingBox(	rot );
@@ -115,12 +128,13 @@ public :
     //! @}
 
 	void GetCadPartID(const int selec_flag[], Cad::CAD_ELEM_TYPE& part_type, unsigned int& part_id);
-    void HideEffected(const Cad::ICad2D& cad_2d, Cad::CAD_ELEM_TYPE part_type, unsigned int part_id);
-    void ShowEffected(const Cad::ICad2D& cad_2d, Cad::CAD_ELEM_TYPE part_type, unsigned int part_id);
-    void SetIsShow(bool is_show, Cad::CAD_ELEM_TYPE part_type, unsigned int part_id);
-    void SetIsShow(bool is_show, Cad::CAD_ELEM_TYPE part_type, const std::vector<unsigned int>& aIdPart );
-    void SetRigidDisp(unsigned int id_l, double xdisp, double ydisp);
+  void HideEffected(const Cad::ICad2D& cad_2d, Cad::CAD_ELEM_TYPE part_type, unsigned int part_id);
+  void ShowEffected(const Cad::ICad2D& cad_2d, Cad::CAD_ELEM_TYPE part_type, unsigned int part_id);
+  void SetIsShow(bool is_show, Cad::CAD_ELEM_TYPE part_type, unsigned int part_id);
+  void SetIsShow(bool is_show, Cad::CAD_ELEM_TYPE part_type, const std::vector<unsigned int>& aIdPart );
+  void SetRigidDisp(unsigned int id_l, double xdisp, double ydisp);
 //    void Show(Cad::CAD_ELEM_TYPE part_type, unsigned int part_id);
+  void EnableUVMap(bool is_uv_map);
 private:	
 	////////////////
 	class CDrawPart{
@@ -128,7 +142,7 @@ private:
 		CDrawPart(){
 			nelem = 0; npoel = 0; pIndexArray = 0; 
 			is_selected = false; itype = Cad::VERTEX; is_show=true;
-            color[0]=0; color[1]=0; color[2]=0;
+      color[0]=0; color[1]=0; color[2]=0;
 			height = 0;
 			xdisp=0; ydisp=0;
 		}
@@ -148,15 +162,15 @@ private:
 	public:
 		bool is_show;
 		bool is_selected;
-        double color[3];
-        ////////////////
+    float color[3];
+    ////////////////
 		Cad::CAD_ELEM_TYPE itype;
 		unsigned int id_cad;
-        unsigned int id_msh;
-        ////////////////
+    unsigned int id_msh;
+    ////////////////
 		unsigned int nelem;
 		unsigned int npoel;
-        unsigned int* pIndexArray;
+    unsigned int* pIndexArray;
 		////////////////
 		double height;
 		double xdisp, ydisp;
@@ -174,13 +188,14 @@ private:
 		double height;
 	};	
 private:
-    bool is_front_and_back;	//!< 両面書くかを指定
-    unsigned char m_mask[128];	//!< 選択領域をドットで見せるのためのマスク
-    std::vector<CDrawPart*> m_apIndexAry;				//! 辺や面など
-    std::vector<CDrawPart_CadVertex> m_aIndexVertex;	//! 頂点
-    Com::View::CVertexArray m_vertex_ary;	//! 点配列
-    unsigned int m_linewidth;   //!< 線の太さ
-    unsigned int m_pointsize;   //!< 点の大きさ
+  unsigned char m_mask[128];	//!< 選択領域をドットで見せるのためのマスク
+  std::vector<CDrawPart*> m_apIndexAry;				//! 辺や面など
+  std::vector<CDrawPart_CadVertex> m_aIndexVertex;	//! 頂点
+  Com::View::CVertexArray m_vertex_ary;	//! vertex array
+  unsigned int m_linewidth;   //!< the width of the line
+  unsigned int m_pointsize;   //!< the size of vertices
+  double tex_cent_x, tex_cent_y;
+  double tex_scale;
 };
 
 

@@ -19,6 +19,7 @@
 #endif
 
 #include "delfem/camera.h"
+#include "delfem/glut_utility.h"  // FPS()
 
 #include "delfem/cad_obj2d.h"
 #include "delfem/mesher2d.h"
@@ -26,6 +27,7 @@
 #include "delfem/femls/zlinearsystem.h"
 #include "delfem/femls/zsolver_ls_iter.h"
 #include "delfem/field_world.h"
+#include "delfem/field_value_setter.h"
 #include "delfem/drawer_field.h"
 #include "delfem/drawer_field_face.h"
 #include "delfem/drawer_field_edge.h"
@@ -41,86 +43,30 @@ View::CDrawerArrayField drawer_ary;
 Com::View::CCamera camera;
 double mov_begin_x, mov_begin_y;
 
-void RenderBitmapString(float x, float y, void *font,char *string)
-{
-  char *c;
-  ::glRasterPos2f(x, y);
-  for (c=string; *c != '\0'; c++) {
-	  ::glutBitmapCharacter(font, *c);
-  }
-}
-
-
-void ShowFPS()
-{
-	int* font=(int*)GLUT_BITMAP_8_BY_13;
-	static char s_fps[32];
-	{
-		static int frame, timebase;
-		int time;
-		frame++;
-		time=glutGet(GLUT_ELAPSED_TIME);
-		if (time - timebase > 500) {
-			sprintf(s_fps,"FPS:%4.2f",frame*1000.0/(time-timebase));
-			timebase = time;
-			frame = 0;
-		}
-	}
-	char s_tmp[32];
-
-	GLint viewport[4];
-	::glGetIntegerv(GL_VIEWPORT,viewport);
-	const int win_w = viewport[2];
-	const int win_h = viewport[3];
-
-	::glMatrixMode(GL_PROJECTION);
-	::glPushMatrix();
-	::glLoadIdentity();
-	::gluOrtho2D(0, win_w, 0, win_h);
-	::glMatrixMode(GL_MODELVIEW);
-	::glPushMatrix();
-	::glLoadIdentity();
-	::glScalef(1, -1, 1);
-	::glTranslatef(0, -win_h, 0);
-	::glDisable(GL_LIGHTING);
-//	::glDisable(GL_DEPTH_TEST);
-	::glColor3d(1.0, 0.0, 0.0);
-	strcpy(s_tmp,"DelFEM demo");
-	RenderBitmapString(10,15, (void*)font, s_tmp);
-	::glColor3d(0.0, 0.0, 0.0);
-	RenderBitmapString(10,30, (void*)font, s_fps);
-//	::glEnable(GL_LIGHTING);
-	::glEnable(GL_DEPTH_TEST);
-	::glPopMatrix();
-	::glMatrixMode(GL_PROJECTION);
-	::glPopMatrix();
-	::glMatrixMode(GL_MODELVIEW);
-}
-
 bool SetNewProblem()
 {
 	const unsigned int nprob = 1;
 	static unsigned int iprob = 0;
 	
-	if( iprob == 0 )	// ‚QŸŒ³–â‘è‚Ìİ’è
+	if( iprob == 0 )	// Ã‡QÃ©Ã¼Ã¥â‰¥Ã±â€šÃ«Ã‹Ã‡ÃƒÃªâ€ºÃ­Ã‹
 	{
 		////////////////
 		Cad::CCadObj2D cad_2d;
 		unsigned int id_v;
- 		{	// Œ`‚ğì‚é
+ 		{	// Ã¥`Ã‡ï£¿Ã§ÃÃ‡Ãˆ
 			std::vector<Com::CVector2D> vec_ary;
 			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(2.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(2.0,2.0) );
 			vec_ary.push_back( Com::CVector2D(0.0,2.0) );
 			const unsigned int id_l = cad_2d.AddPolygon(vec_ary).id_l_add;
-			id_v = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.5,0.05) );
+			id_v = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.5,0.05) ).id_v_add;
 		}
-		// ƒƒbƒVƒ…‚ğì‚é
+		// Ã‰Ã…Ã‰bÃ‰VÃ‰Ã–Ã‡ï£¿Ã§ÃÃ‡Ãˆ
 		world.Clear();
 		const unsigned int id_base = world.AddMesh( Msh::CMesher2D(cad_2d,0.04) );
 		Fem::Field::CIDConvEAMshCad conv = world.GetIDConverter(id_base);
-		// •û’ö®‚Ìİ’è
+		// Ã¯ËšÃ­Ë†Ã©Ã†Ã‡ÃƒÃªâ€ºÃ­Ã‹
 		const unsigned int id_field_val = world.MakeField_FieldElemDim(id_base,2,ZSCALAR,VALUE,CORNER);
 //		unsigned int id_field_bc0 = world.GetPartialField(id_field_val,conv.GetIdEA_fromCad(2,1));
 		unsigned int id_field_bc1;
@@ -131,9 +77,8 @@ bool SetNewProblem()
 			aEA.push_back( conv.GetIdEA_fromCad(3,Cad::EDGE) );
 			aEA.push_back( conv.GetIdEA_fromCad(4,Cad::EDGE) );
 			id_field_bc1 = world.GetPartialField(id_field_val,aEA);
-			CField& field = world.GetField(id_field_bc1);
-			field.SetValue(1,0,Fem::Field::VALUE,world,false);
 		}
+    Fem::Field::SetFieldValue_Constant(id_field_bc1,0,Fem::Field::VALUE,world,0);
 
 		CZLinearSystem ls;
 		CZPreconditioner_ILU prec;
@@ -176,12 +121,12 @@ bool SetNewProblem()
 		}
 		ls.UpdateValueOfField(id_field_val,world,VALUE);
 
-		// •`‰æƒIƒuƒWƒFƒNƒg‚Ì“o˜^
+		// Ã¯`Ã¢ÃŠÃ‰IÃ‰uÃ‰WÃ‰FÃ‰NÃ‰gÃ‡ÃƒÃ¬oÃ²^
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_val,true,world, id_field_val,-0.05,0.05) );
 //		drawer_ary.PushBack( new View::CDrawerFaceContour(id_field_val,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_val,true,world) );
-		drawer_ary.InitTrans(camera);	// ‹üÀ•W•ÏŠ·s—ñ‚Ì‰Šú‰»
+		drawer_ary.InitTrans(camera);	// Ã©Ã£ÃªÂ¸Ã§Â¿Ã¯WÃ¯Å“Ã¤âˆ‘Ã§sÃ³Ã’Ã‡ÃƒÃ¨Ã¢Ã¤Ë™Ã¢Âª
 	}
 	iprob++;
 	if( iprob == nprob ) iprob=0;
@@ -199,12 +144,12 @@ void SetProjectionTransform()
 {
 	::glMatrixMode(GL_PROJECTION);
 	::glLoadIdentity();
-	if( camera.IsPers() ){	// “§‹“Š‰e•ÏŠ·
+	if( camera.IsPers() ){	// Ã¬ÃŸÃ©Ã£Ã¬Ã¤Ã¢eÃ¯Å“Ã¤âˆ‘
 		double fov_y,aspect,clip_near,clip_far;
 		camera.GetPerspective(fov_y,aspect,clip_near,clip_far);
 		::gluPerspective(fov_y,aspect,clip_near,clip_far);
 	}
-	else{	// ³‹K“Š‰e•ÏŠ·
+	else{	// Ãªâ‰¥Ã£KÃ¬Ã¤Ã¢eÃ¯Å“Ã¤âˆ‘
 		const double inv_scale = 1.0/camera.GetScale();
 		const double asp = camera.GetWindowAspect();
 		const double h_h = camera.GetHalfViewHeight()*inv_scale;
@@ -217,24 +162,24 @@ void SetModelViewTransform()
 {
 	::glMatrixMode(GL_MODELVIEW);
 	::glLoadIdentity();
-	{	// •¨‘Ì‚ğ•½tˆÚ“®‚³‚¹‚é
+	{	// Ã¯Â®Ã«ÃƒÃ‡ï£¿Ã¯Î©Ã§tÃ â„Ã¬Ã†Ã‡â‰¥Ã‡Ï€Ã‡Ãˆ
 		double x,y,z;
 		camera.GetCenterPosition(x,y,z);
 		::glTranslatef( x, y, z );
 	}
-	{	// •¨‘Ì‚ğ‰ñ“]‚³‚¹‚é
+	{	// Ã¯Â®Ã«ÃƒÃ‡ï£¿Ã¢Ã’Ã¬]Ã‡â‰¥Ã‡Ï€Ã‡Ãˆ
 		double rot[16];
 		camera.RotMatrix44Trans(rot);
 		::glMultMatrixd(rot);
 	}
-	{	// •¨‘Ì‚Ì’†S‚ğŒ´“_‚É‚·‚é
+	{	// Ã¯Â®Ã«ÃƒÃ‡ÃƒÃ­ÃœÃªSÃ‡ï£¿Ã¥Â¥Ã¬_Ã‡â€¦Ã‡âˆ‘Ã‡Ãˆ
 		double x,y,z;
 		camera.GetObjectCenter(x,y,z);
 		::glTranslatef( -x, -y, -z );
 	}
 }
 
-// ƒŠƒTƒCƒY‚ÌƒR[ƒ‹ƒoƒbƒNŠÖ”
+// Ã‰Ã¤Ã‰TÃ‰CÃ‰YÃ©Ã»Ã‡ÃƒÃ‰RÃ…[Ã‰Ã£Ã‰oÃ‰bÃ‰NÃ¤Ã·ÃªÃ®
 void myGlutResize(int w, int h)
 {
 	camera.SetWindowAspect((double)w/h);
@@ -243,7 +188,7 @@ void myGlutResize(int w, int h)
 	::glutPostRedisplay();
 }
 
-// •`‰æ‚ÌƒR[ƒ‹ƒoƒbƒNŠÖ”
+// Ã¯`Ã¢ÃŠÃ©Ã»Ã‡ÃƒÃ‰RÃ…[Ã‰Ã£Ã‰oÃ‰bÃ‰NÃ¤Ã·ÃªÃ®
 void myGlutDisplay(void)
 {
 //	::glClearColor(0.2, 0.7, 0.7 ,1.0);
@@ -361,14 +306,14 @@ int main(int argc,char* argv[])
 
 	SetNewProblem();
 
-	// glut‚Ì‰Šúİ’è
+	// glutÃ‡ÃƒÃ¨Ã¢Ã¤Ë™Ãªâ€ºÃ­Ã‹
 	glutInitWindowPosition(200,200);
 	glutInitWindowSize(250, 250);
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGBA|GLUT_DEPTH);
 	glutCreateWindow("FEM View");
 
-	// ƒR[ƒ‹ƒoƒbƒNŠÖ”‚Ìİ’è
+	// Ã‰RÃ…[Ã‰Ã£Ã‰oÃ‰bÃ‰NÃ¤Ã·ÃªÃ®Ã‡ÃƒÃªâ€ºÃ­Ã‹
 	glutDisplayFunc(myGlutDisplay);
 	glutReshapeFunc(myGlutResize);
 	glutMotionFunc(myGlutMotion);
@@ -377,7 +322,7 @@ int main(int argc,char* argv[])
 	glutSpecialFunc(myGlutSpecial);
 	glutIdleFunc(myGlutIdle);
 
-	// ƒƒCƒ“ƒ‹[ƒv
+	// Ã‰Ã…Ã‰CÃ‰Ã¬Ã‰Ã£Ã…[Ã‰v
 	glutMainLoop();
 	return 0;
 }

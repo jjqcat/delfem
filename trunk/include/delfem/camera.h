@@ -61,7 +61,9 @@ public:
 		obj_center.SetZero();
 		
 		rot_mode = ROT_2D;
-		theta = 0.0;  phi = -60.0*3.1415926/180.0;  rot_quat.SetUnit();
+		theta = 0;
+    phi = -60.0*3.1415926/180.0;  
+    rot_quat.SetUnit();
 		
 		is_pers = false;
 		fov_y = 30.0 * 3.1415926 / 180.0; 
@@ -78,7 +80,8 @@ public:
 		obj_center.SetZero();
 
 		rot_mode = rotation_mode;		
-		theta = 0.0;  phi = -60.0*3.1415926/180.0;  rot_quat.SetUnit();
+		theta = 0.0;  
+    phi = -60.0*3.1415926/180.0;  rot_quat.SetUnit();
 		
 		is_pers = false;
 		fov_y = 30.0 * 3.1415926 / 180.0; 
@@ -277,7 +280,7 @@ public:
 		}
 	}
 	
-    Com::CVector3D ProjectionOnPlane(
+  Com::CVector3D ProjectionOnPlane(
 		const double pos_x,   const double pos_y,
 		double plane_x=0, double plane_y=0, double plane_z=0,
 		double norm_x=0,  double norm_y=0,  double norm_z=1 ) const
@@ -290,19 +293,35 @@ public:
 		assert( fabs(norm_y) < 1.0e-10 );
 		assert( fabs(norm_z-1.0) < 1.0e-10 );
 
-//		assert( this->rot_mode == ROT_2D );
+		assert( this->rot_mode == ROT_2D );
 
 		const double hw = half_view_height*win_aspect;
 		const double hh = half_view_height;
 
-		double obj_cnt_x=obj_center.x, obj_cnt_y=obj_center.y, obj_cnt_z=obj_center.z;
+		const double obj_cnt_x=obj_center.x, obj_cnt_y=obj_center.y, obj_cnt_z=obj_center.z;
 
-    double ox =  hw*cos(theta)*(pos_x*inv_scale-win_center_x)+hh*sin(theta)*(pos_y*inv_scale-win_center_y)+obj_cnt_x;
-    double oy = -hw*sin(theta)*(pos_x*inv_scale-win_center_x)+hh*cos(theta)*(pos_y*inv_scale-win_center_y)+obj_cnt_y;
-    double oz = +obj_cnt_z;
+    const double ox =  hw*cos(theta)*(pos_x*inv_scale-win_center_x)+hh*sin(theta)*(pos_y*inv_scale-win_center_y)+obj_cnt_x;
+    const double oy = -hw*sin(theta)*(pos_x*inv_scale-win_center_x)+hh*cos(theta)*(pos_y*inv_scale-win_center_y)+obj_cnt_y;
+    const double oz = +obj_cnt_z;
 
     return Com::CVector3D(ox,oy,oz);
 	}
+  void SetRotation2DH(double theta, double phi){
+    this->theta = theta;
+    this->phi = phi;
+  }
+  void SetWindowCenter(double winx, double winy){
+    this->win_center_x = winx; 
+    this->win_center_y = winy;   
+  }
+  /*
+  void SetBryantAngle(double phi, double theta, double psi){
+    rot_quat = Com::CQuaternion();
+    rot_quat *= CQuaternion( CVector3D(phi,0,0) );
+    rot_quat *= CQuaternion( CVector3D(0,theta,0) );
+    rot_quat *= CQuaternion( CVector3D(0,0,psi) );
+  }
+   */
 
 
 private:

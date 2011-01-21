@@ -801,7 +801,7 @@ bool CMesher2D::Tessalate_Edge(
 	CBarAry& ref_bar_ary = m_aBarAry[ibarary0];
     ////////////////
     std::vector<Com::CVector2D> aCo;
-    cad_2d.GetCurve_Polyline(id_e,aCo,-1);
+    cad_2d.GetCurveAsPolyline(id_e,aCo,-1);
     ////////////////
     const unsigned int ndiv = aCo.size()+1;
     std::vector<unsigned int> ipo_ary;
@@ -879,7 +879,7 @@ bool CMesher2D::MakeMesh_Edge(
 	}
 	CBarAry& ref_bar_ary = m_aBarAry[ibarary0];
     std::vector<Com::CVector2D> aCo;
-    cad_2d.GetCurve_Polyline(id_e,aCo,len);
+    cad_2d.GetCurveAsPolyline(id_e,aCo,len);
     ////////////////
     const unsigned int ndiv = aCo.size()+1;
     std::vector<unsigned int> ipo_ary;

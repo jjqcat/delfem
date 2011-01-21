@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8DD76F650486A84900D96B5E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* main.cpp */; settings = {ATTRIBUTES = (); }; };
 		8DD76F6A0486A84900D96B5E /* helmholtz2d.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = C6859E8B029090EE04C91782 /* helmholtz2d.1 */; };
+		A94457E512E96ABB0099ECA5 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A94457E412E96ABB0099ECA5 /* main.cpp */; };
 		A9C5FACA1188D9320064BFDD /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9C5FAC91188D9320064BFDD /* GLUT.framework */; };
 		A9C5FACC1188D93C0064BFDD /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9C5FACB1188D93C0064BFDD /* OpenGL.framework */; };
 		A9EDB4CD11A8AE150003AC93 /* libdfm_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A9EDB4CC11A8AE0B0003AC93 /* libdfm_core.a */; };
@@ -45,8 +45,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		08FB7796FE84155DC02AAC07 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		8DD76F6C0486A84900D96B5E /* helmholtz2d */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = helmholtz2d; sourceTree = BUILT_PRODUCTS_DIR; };
+		A94457E412E96ABB0099ECA5 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		A9C5FAC01188D90A0064BFDD /* dfm_core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = dfm_core.xcodeproj; path = ../../lib/xcodelib_core/dfm_core.xcodeproj; sourceTree = SOURCE_ROOT; };
 		A9C5FAC91188D9320064BFDD /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = /System/Library/Frameworks/GLUT.framework; sourceTree = "<absolute>"; };
 		A9C5FACB1188D93C0064BFDD /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
@@ -83,7 +83,7 @@
 		08FB7795FE84155DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				08FB7796FE84155DC02AAC07 /* main.cpp */,
+				A94457E412E96ABB0099ECA5 /* main.cpp */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -179,7 +179,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8DD76F650486A84900D96B5E /* main.cpp in Sources */,
+				A94457E512E96ABB0099ECA5 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -40,7 +40,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 namespace Fem{
 namespace Field{
 
-//! 要素セグメントの種類
+//! type of element segment
 enum ELSEG_TYPE{ 
 	CORNER=1,	//!< corner node
 	EDGE=2,		//!< edge node
@@ -49,7 +49,7 @@ enum ELSEG_TYPE{
 
 // this integet index will be used in "elem_ary.cpp". Please don't change without consideration.
 // ここだけは別のヘッダファイルに移したほうがいいかも．このIndexだけ欲しいクラス(drawer_field.hとか)のために
-//! 要素の種類
+//! type of element
 enum ELEM_TYPE{	
 	ELEM_TYPE_NOT_SET=0,
 	POINT=1,	//!< point element
@@ -80,16 +80,8 @@ public:
 		unsigned int Length() const { return m_nnoes; }	//!< return the node size per elem seg  ( will be renamed to Length() );
 		unsigned int Size() const { return nelem; }	  //!< get the number of elements ( will be renamed to Size() )
 		unsigned int GetIdNA() const { return m_id_na; }	    //!< この要素セグメントが参照する節点配列IDを得る
-//		unsigned int GetID() const { return m_id; }	          //!< 要素セグメントIDを得る<- そのうち廃止(ObjSegに含まれる情報と重複)
 		ELSEG_TYPE GetElSegType() const { return m_elseg_type; }	//!< 要素セグメントタイプ(Fem::Field::CORNER,Fem::Field::BUBBLE,Fem::Field::EDGE)を得る
 
-		/*
-		// 辺は向きを持っているのでコネクティビティが符号を持つようにしたい
-		void GetNodes(const unsigned int& ielem, int* noes ) const {
-			for(unsigned int inoes=0;inoes<m_nnoes;inoes++){ 
-				noes[inoes] = pLnods[ielem*npoel+begin+inoes]; 
-			}
-		}*/
 		//! 節点番号を取得
 		void GetNodes(const unsigned int& ielem, unsigned int* noes ) const {
 			for(unsigned int inoes=0;inoes<m_nnoes;inoes++){ 
@@ -154,28 +146,27 @@ public:
 			else{ assert(0); }      
 			return 0;
     }
-	private: // 初期化で必要な関数
-//		unsigned int m_id;	// <- そのうち廃止(ObjSegに含まれる情報と重複)
+	private: // variable given at construction
 		unsigned int m_id_na; // <- 復活、ないと大変なことになった。
 		enum ELSEG_TYPE m_elseg_type;
 		// int id_es_corner <- そのうち追加予定
-	private: // 初期化にいらない変数
+	private: // 
 		unsigned int max_noes;	// このElementSegmentに属する節点番号の最大のもの
 		unsigned int begin;		// m_aLnodsのどこから始まるか (<npoel)
 		unsigned int m_nnoes;		// ElementSegmentの長さ
-	private: // CElemAryによって随時与えられる変数
-		mutable int* pLnods;
+	private: // variable given by CElemAry (CELemAry is friend class)
+		mutable unsigned int* pLnods;
 		mutable unsigned int npoel;
 		mutable unsigned int nelem;
 	};
 public:
-	//! デフォルト・コンストラクタ
+	//! default constructor
 	CElemAry(){
 		m_nElem = 0; npoel = 0; m_pLnods = 0;
 	}
   CElemAry(const CElemAry& ea);
 	/*! 
-	@brief コンストラクタ
+	@brief constructor
 	@param [in] nelem 要素数
 	@param [in] elem_type 要素の種類(TRIとかHEXとか)
 	*/
@@ -262,8 +253,7 @@ protected:
   unsigned int m_nElem;	//!< number of elements
   ELEM_TYPE m_ElemType;	//!< type of element
 	unsigned int npoel;		//!< the total number of nodes including in one elemement
-	// コネクティビティはunsigned intにすべきでは？（混合要素への対応のため？）
-	int * m_pLnods;			//!< connectivity
+	unsigned int * m_pLnods;			//!< connectivity
 	Com::CObjSet<CElemSeg> m_aSeg;	//!< the set of elem segment
 };
 

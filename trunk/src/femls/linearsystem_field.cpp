@@ -88,10 +88,10 @@ bool CLinearSystem_Field::AddPattern_Field(const unsigned int id_field, const CF
 	const int ils_b = AddLinSysSeg_Field(id_field,BUBBLE,world);
 	const int ils_e = AddLinSysSeg_Field(id_field,EDGE,  world);
 	const int ils_c = AddLinSysSeg_Field(id_field,CORNER,world);
-	std::cout << "AddPattern_Field : " << ils_c << std::endl;
+//	std::cout << "AddPattern_Field : " << ils_c << " " << ils_b << " " << ils_e << std::endl;
 	////////////////////////////////
 	const std::vector<unsigned int> aIdEA = field.GetAry_IdElemAry();
-    assert( aIdEA.size() > 0 );
+  assert( aIdEA.size() > 0 );
 	for(unsigned int iiea=0;iiea<aIdEA.size();iiea++)
 	{
 		const unsigned int id_ea = aIdEA[iiea];
@@ -102,11 +102,11 @@ bool CLinearSystem_Field::AddPattern_Field(const unsigned int id_field, const CF
 			const unsigned int id_es_c = field.GetIdElemSeg(id_ea,CORNER,true,world);
 			assert( ea.IsSegID(id_es_c) );
 			const unsigned int ils0 = ils_c;
-            {
-                Com::CIndexedArray crs;
-                ea.MakePattern_FEM(id_es_c,crs);
-			    this->AddMat_Dia(ils0, crs );			// cc行列を作る
-            }
+      {
+        Com::CIndexedArray crs;
+        ea.MakePattern_FEM(id_es_c,crs);
+        this->AddMat_Dia(ils0, crs );			// cc行列を作る        
+      }
 			if( field.GetIdElemSeg(id_ea,BUBBLE,true,world) != 0 ){	// CORNER-BUBBLE
 				const unsigned int id_es_b = field.GetIdElemSeg(id_ea,BUBBLE,true,world);	assert( ea.IsSegID(id_es_b) );
 				const unsigned int ils1 = ils_b;
@@ -135,11 +135,11 @@ bool CLinearSystem_Field::AddPattern_Field(const unsigned int id_field, const CF
 			const unsigned int id_es_e = field.GetIdElemSeg(id_ea,EDGE,true,world);
 			assert( ea.IsSegID(id_es_e) );
 			const unsigned int ils0 = ils_e;
-            {
-                Com::CIndexedArray crs;
-                ea.MakePattern_FEM(id_es_e,crs);
-			    this->AddMat_Dia(ils0, crs );			// cc行列を作る
-            }
+      {
+        Com::CIndexedArray crs;
+        ea.MakePattern_FEM(id_es_e,crs);
+        this->AddMat_Dia(ils0, crs );			// cc行列を作る
+      }
 			if( field.GetIdElemSeg(id_ea,BUBBLE,true,world) != 0 ){	// EDGE-BUBBLE
 				const unsigned int id_es_b = field.GetIdElemSeg(id_ea,BUBBLE,true,world);	assert( ea.IsSegID(id_es_b) );
 				const unsigned int ils1 = ils_b;
@@ -156,12 +156,12 @@ bool CLinearSystem_Field::AddPattern_Field(const unsigned int id_field, const CF
 		if( field.GetIdElemSeg(id_ea,BUBBLE,true,world) != 0 ){
 			const unsigned int id_es_b = field.GetIdElemSeg(id_ea,BUBBLE,true,world);
 			assert( ea.IsSegID(id_es_b) );
-			const unsigned int ils0 = ils_b;
-            {
-                Com::CIndexedArray crs;
-                ea.MakePattern_FEM(id_es_b,crs);
-			    this->AddMat_Dia(ils0, crs );			// bb行列を作る
-            }
+			const unsigned int ils0 = ils_b;			
+      {
+        Com::CIndexedArray crs;
+        ea.MakePattern_FEM(id_es_b,crs);
+        this->AddMat_Dia(ils0, crs );			// bb行列を作る
+      }
 		}
 	}
 	return true;
@@ -302,7 +302,7 @@ bool CLinearSystem_Field::AddPattern_Field(
 		// CORNER1-CORNER1
 		{
 			Com::CIndexedArray crs;
-			ea1.MakePattern_FEM(id_es_c1,crs);
+      ea1.MakePattern_FEM(id_es_c1,crs);
 			this->AddMat_Dia(ils_c, crs );			// cc行列を作る
 		}
 		const int ils2_c = this->FindIndexArray_Seg(id_field2,CORNER,world);
@@ -513,9 +513,9 @@ bool CLinearSystem_Field::SetFixedBoundaryCondition_Field(
 	unsigned int id_field_parent = field.GetIDFieldParent();
 	if( id_field_parent == 0 ){ id_field_parent = id_field; }
 	{
-		const int ils0 = this->FindIndexArray_Seg(id_field_parent,CORNER,world);
-        if( ils0 >=0 && ils0 < (int)this->GetNLynSysSeg() ){
-            MatVec::CBCFlag& bc_flag = m_ls.GetBCFlag(ils0);//*m_BCFlag[ils0];
+    const int ils0 = this->FindIndexArray_Seg(id_field_parent,CORNER,world);
+    if( ils0 >=0 && ils0 < (int)this->GetNLynSysSeg() ){
+      MatVec::CBCFlag& bc_flag = m_ls.GetBCFlag(ils0);//*m_BCFlag[ils0];
 			const CLinSysSeg_Field& ls0 = this->m_aSegField[ils0];
 			if( ls0.id_field == id_field_parent ){
 				field.BoundaryCondition(CORNER,idofns,bc_flag,world);
@@ -531,9 +531,9 @@ bool CLinearSystem_Field::SetFixedBoundaryCondition_Field(
 		}
 	}
 	{
-		const int ils0 = this->FindIndexArray_Seg(id_field_parent,EDGE,world);
-        if( ils0 >= 0 && ils0 < (int)m_aSegField.size() ){
-            MatVec::CBCFlag& bc_flag = m_ls.GetBCFlag(ils0);//*m_ls.m_BCFlag[ils0];
+    const int ils0 = this->FindIndexArray_Seg(id_field_parent,EDGE,world);
+    if( ils0 >= 0 && ils0 < (int)m_aSegField.size() ){
+      MatVec::CBCFlag& bc_flag = m_ls.GetBCFlag(ils0);//*m_ls.m_BCFlag[ils0];
 			const CLinSysSeg_Field& ls0 = this->m_aSegField[ils0];
 			assert( ls0.id_field== id_field_parent );
 			field.BoundaryCondition(EDGE,idofns,bc_flag,world);
@@ -556,31 +556,30 @@ bool CLinearSystem_Field::SetFixedBoundaryCondition_Field( unsigned int id_field
 	if( !world.IsIdField(id_field) ) return false;
 	const CField& field = world.GetField(id_field);
 	unsigned int id_field_parent = field.GetIDFieldParent();
-	if( id_field_parent == 0 ) id_field_parent = id_field;
-
+  if( id_field_parent == 0 ) id_field_parent = id_field;
 	{
-		int ils0 = this->FindIndexArray_Seg(id_field_parent,CORNER,world);
-        if( ils0 >= 0 && ils0 < (int)m_aSegField.size() ){
+    int ils0 = this->FindIndexArray_Seg(id_field,CORNER,world);
+    if( ils0 >= 0 && ils0 < (int)m_aSegField.size() ){
 			const CLinSysSeg_Field& ls0 = this->m_aSegField[ils0];
-            MatVec::CBCFlag& bc_flag = m_ls.GetBCFlag(ils0);//*m_ls.m_BCFlag[ils0];
-			if( ls0.id_field== id_field_parent ){
+      MatVec::CBCFlag& bc_flag = m_ls.GetBCFlag(ils0);//*m_ls.m_BCFlag[ils0];
+			if( ls0.id_field == id_field_parent ){
 				field.BoundaryCondition(CORNER,bc_flag,world);
 			}
-			else{   // 結合された場の場合
+			else{   // combined field
 				assert( ls0.id_field2 == id_field_parent );
 				unsigned int id_field1 = ls0.id_field;
 				assert( world.IsIdField(id_field1) );
 				const CField& field1 = world.GetField(id_field1);
 				const unsigned int len1 = field1.GetNLenValue();
-                assert( bc_flag.LenBlk() == (int)len1 + (int)field.GetNLenValue() );
+        assert( bc_flag.LenBlk() == (int)len1 + (int)field.GetNLenValue() );
 				field.BoundaryCondition(CORNER,bc_flag,world,len1);
 			}
 		}
 	}
 	{
 		int ils0 = this->FindIndexArray_Seg(id_field_parent,EDGE,world);
-        if( ils0 >= 0 && ils0 < (int)m_aSegField.size() ){
-            MatVec::CBCFlag& bc_flag = m_ls.GetBCFlag(ils0);//*m_ls.m_BCFlag[ils0];
+    if( ils0 >= 0 && ils0 < (int)m_aSegField.size() ){            
+      MatVec::CBCFlag& bc_flag = m_ls.GetBCFlag(ils0);//*m_ls.m_BCFlag[ils0];
 			const CLinSysSeg_Field& ls0 = this->m_aSegField[ils0];
 			assert( ls0.id_field== id_field_parent );
 			field.BoundaryCondition(EDGE,bc_flag,world);
@@ -588,9 +587,9 @@ bool CLinearSystem_Field::SetFixedBoundaryCondition_Field( unsigned int id_field
 	}
 	{
 		int ils0 = this->FindIndexArray_Seg(id_field_parent,BUBBLE,world);
-        if( ils0 >= 0 && ils0 < (int)m_aSegField.size() ){
-            MatVec::CBCFlag& bc_flag = m_ls.GetBCFlag(ils0);//*m_ls.m_BCFlag[ils0];
-			const CLinSysSeg_Field& ls0 = this->m_aSegField[ils0];
+    if( ils0 >= 0 && ils0 < (int)m_aSegField.size() ){
+      MatVec::CBCFlag& bc_flag = m_ls.GetBCFlag(ils0);//*m_ls.m_BCFlag[ils0];
+      const CLinSysSeg_Field& ls0 = this->m_aSegField[ils0];
 			assert( ls0.id_field== id_field_parent );
 			field.BoundaryCondition(BUBBLE,bc_flag,world);
 		}
@@ -998,13 +997,11 @@ int CLinearSystem_Field::FindIndexArray_Seg( unsigned int id_field, const ELSEG_
 {	
 	if( !world.IsIdField(id_field) ) return -1;
 	const CField& field = world.GetField(id_field);
-	unsigned int id_field_parent;
-	{
-		if( field.GetIDFieldParent() == 0 ){ id_field_parent = id_field; }
-		else{ id_field_parent = field.GetIDFieldParent(); }
-	}
-	for(unsigned int ils=0;ils<m_aSegField.size();ils++){
-		if( m_aSegField[ils].id_field==id_field_parent && m_aSegField[ils].node_config==type ){
+  unsigned int id_field_parent = field.GetIDFieldParent();
+  if( id_field_parent == 0 ){ id_field_parent = id_field; }  
+  ////
+  for(unsigned int ils=0;ils<m_aSegField.size();ils++){
+    if( m_aSegField[ils].id_field ==id_field_parent && m_aSegField[ils].node_config==type ){
 			return ils;
 		}
 		if( m_aSegField[ils].id_field2==id_field_parent && m_aSegField[ils].node_config==type ){
