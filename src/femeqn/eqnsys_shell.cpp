@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <time.h>
 
 #include "delfem/field_world.h"
+#include "delfem/field_value_setter.h"
 
 #include "delfem/matvec/matdia_blkcrs.h"
 #include "delfem/matvec/vector_blk.h"
@@ -439,19 +440,19 @@ unsigned int CEqnSystem_DKT::AddFixElemAry(
 	for(unsigned int iid_ea=0;iid_ea<aIdEA.size();iid_ea++){
 		if( !world.IsIdEA( aIdEA[iid_ea] ) ) return 0;
 	}
-	const unsigned int id_disp = world.GetPartialField(m_id_disp, aIdEA );
-	if( id_disp == 0 ) return 0;
-	assert( world.IsIdField(id_disp) );
+	const unsigned int id_field = world.GetPartialField(m_id_disp, aIdEA );
+	if( id_field == 0 ) return 0;
+	assert( world.IsIdField(id_field) );
 	{
-		CField& field = world.GetField(id_disp);
+		CField& field = world.GetField(id_field);
 		unsigned int nlen_val = field.GetNLenValue();
 		for(unsigned int ilen=0;ilen<nlen_val;ilen++){
-			field.SetValue(0.0,ilen,Fem::Field::VALUE,       world,false);
-			field.SetValue(0.0,ilen,Fem::Field::VELOCITY,    world,false);
-			field.SetValue(0.0,ilen,Fem::Field::ACCELERATION,world,false);
+      Fem::Field::SetFieldValue_Constant(id_field,ilen,Fem::Field::VALUE,       world,0);
+      Fem::Field::SetFieldValue_Constant(id_field,ilen,Fem::Field::VELOCITY,    world,0);
+      Fem::Field::SetFieldValue_Constant(id_field,ilen,Fem::Field::ACCELERATION,world,0);
 		}
 	}
-	m_aIdFixField.push_back( std::make_pair(id_disp,idof) );
+	m_aIdFixField.push_back( std::make_pair(id_field,idof) );
 	this->ClearLinearSystem();
-	return id_disp;
+	return id_field;
 }

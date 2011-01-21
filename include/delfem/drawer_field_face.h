@@ -26,6 +26,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(DRAWER_FIELD_FACE_H)
 #define DRAWER_FIELD_FACE_H
 
+#include <memory>
+
 #include "delfem/drawer_field.h"
 
 namespace Fem{
@@ -72,11 +74,16 @@ public:
 		const std::auto_ptr<CColorMap>& color_map);
   
   void EnableNormal(bool is_lighting);
-  void EnableUVMap(bool is_uv_map);
+  void EnableUVMap(bool is_uv_map, const Fem::Field::CFieldWorld& world);
   void SetTexCenter(double cent_x, double cent_y){
     this->tex_cent_x = cent_x;
     this->tex_cent_y = cent_y;    
   }
+  void GetTexCenter(double& cent_x, double& cent_y){
+    cent_x = this->tex_cent_x;
+    cent_y = this->tex_cent_y;
+  }  
+  void SetTexScale(double scale, const Fem::Field::CFieldWorld& world);
 protected:
 	bool Set(unsigned int id_field, const Fem::Field::CFieldWorld& world, bool isnt_value_disp, unsigned int id_field_color);
   void MakeNormal();
@@ -104,6 +111,7 @@ protected:
   // uv map
   double* pUVArray;  
   double tex_cent_x, tex_cent_y;
+  double tex_scale;
 };
 
 }	// View

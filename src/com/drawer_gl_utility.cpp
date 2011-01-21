@@ -45,6 +45,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <assert.h>
 #include <sstream>
 #include <iostream>
+#include <fstream>
 #include <cstring>	// strlen
 #include <stdio.h>	// sprintf
 #include <cstdlib>	// atoi
@@ -325,6 +326,38 @@ bool Com::View::ReadPPM_SetTexture(const std::string& fname,
 //  std::cout << m_texName << std::endl;
   
   return true;
+}
+
+
+bool WritePPM_ScreenImage(const  std::string& fname)
+{
+  int viewport[4];
+  glGetIntegerv( GL_VIEWPORT, viewport);
+  void* image = malloc(3 * viewport[2] * viewport[3]);
+  glPixelStorei(GL_PACK_ALIGNMENT, 1);
+  glReadPixels(0, 0, viewport[2], viewport[3], GL_RGB, GL_UNSIGNED_BYTE, image);  
+  unsigned int width = viewport[2];
+  unsigned int height = viewport[3];
+  std::ofstream fout;
+  //  //  fname << "out";
+  fout.open(fname.c_str(),std::ios::out);
+  fout << "P3\n";
+  fout << width << " " << height << "\n";
+  fout << "255\n";
+  //  fout << "255\n";
+  //  fout << "255\n";
+  char* img = (char*)image;  
+  for(unsigned int ih=0;ih<height;ih++){    
+    for(unsigned int iw=0;iw<width;iw++){    
+      unsigned int i = (height-1-ih)*width+iw;
+      int r = (unsigned char)img[i*3+0];
+      int g = (unsigned char)img[i*3+1];
+      int b = (unsigned char)img[i*3+2];
+      fout << r << " " << g << " " << b << "\n";
+      //    std::cout << i << " " << r << " "<< g << " "<< b << std::endl;
+    }
+  }
+  fout.close();  
 }
 
 

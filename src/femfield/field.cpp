@@ -92,7 +92,6 @@ CField::CField(const CField& rhs)
   
 	m_field_type = rhs.m_field_type;
 	m_field_derivative_type = rhs.m_field_derivative_type;
-	m_name = rhs.m_name;  
 	m_map_val2co = rhs.m_map_val2co;
   
 	////////////////
@@ -661,7 +660,7 @@ bool CField::SetValueType( FIELD_TYPE field_type, const int fdt, CFieldWorld& wo
 }
 
 
-
+/*
 
 void CField::SetValueRandom(CFieldWorld& world) const
 {
@@ -701,8 +700,9 @@ void CField::SetValueRandom(CFieldWorld& world) const
 			ns_val.SetValue(inode,0,rand()*2.0/(1.0+RAND_MAX)-1.0);
 		}
 	}
-}
+}*/
 
+/*
 // 数式をセットする
 bool CField::SetValue(std::string str_exp, unsigned int idofns, FIELD_DERIVATION_TYPE fdt,
 					  CFieldWorld& world, bool is_save)
@@ -747,8 +747,9 @@ bool CField::SetValue(std::string str_exp, unsigned int idofns, FIELD_DERIVATION
 		}
 	}
 	return true;
-}
+}*/
 
+/*
 // 値をセットする
 void CField::SetValue(double val, unsigned int idofns, FIELD_DERIVATION_TYPE fdt,
 					  CFieldWorld& world, bool is_save)
@@ -804,8 +805,9 @@ void CField::SetValue(double val, unsigned int idofns, FIELD_DERIVATION_TYPE fdt
 			}
 		}
 	}
-}
+}*/
 
+/*
 void CField::SetVelocity(unsigned int id_field, CFieldWorld& world){
 	if( !world.IsIdField(id_field) ){
 		assert(0);
@@ -854,7 +856,7 @@ void CField::SetVelocity(unsigned int id_field, CFieldWorld& world){
 			}
 		}
 	}
-}
+}*/
 
 //! 時間依存かどうか調べる
 bool CField::IsTimeDependent() const
@@ -865,7 +867,7 @@ bool CField::IsTimeDependent() const
 	}
 	return false;
 }
-
+/*
 bool CField::ExecuteValue(double time, CFieldWorld& world)
 {
 	if( m_DofSize == 0 ){ // BASE field
@@ -957,19 +959,19 @@ bool CField::SetValue(double time, unsigned int idofns, FIELD_DERIVATION_TYPE fd
 				}
 			}
 		}
-/*		if( m_na_e.id_na_va != 0 ){
-			assert( world.IsIdNA(m_na_e.id_na_va) );
-			CNodeAry& na = world.GetNA(m_na_e.id_na_va);
-			const CNodeAry::CNodeSeg& ns_val = na.GetSeg(m_na_e.id_ns_va);
-			for(unsigned int iei=0;iei<m_aElemIntp.size();iei++){
-				unsigned int id_ea = m_aElemIntp[iei].id_ea;
-				assert( world.IsIdEA(id_ea) );
-				const CElemAry& ea = world.GetEA(id_ea);
-				assert( ea.IsSegID( m_aElemIntp[iei].id_es_e_va ) );
-				na.SetValueToNodeSegment(ea,m_aElemIntp[iei].id_es_e_va,
-					m_na_e.id_ns_va,idofns,const_val);
-			}
-		}*/
+//		if( m_na_e.id_na_va != 0 ){
+//			assert( world.IsIdNA(m_na_e.id_na_va) );
+//			CNodeAry& na = world.GetNA(m_na_e.id_na_va);
+//			const CNodeAry::CNodeSeg& ns_val = na.GetSeg(m_na_e.id_ns_va);
+//			for(unsigned int iei=0;iei<m_aElemIntp.size();iei++){
+//				unsigned int id_ea = m_aElemIntp[iei].id_ea;
+//				assert( world.IsIdEA(id_ea) );
+//				const CElemAry& ea = world.GetEA(id_ea);
+//				assert( ea.IsSegID( m_aElemIntp[iei].id_es_e_va ) );
+//				na.SetValueToNodeSegment(ea,m_aElemIntp[iei].id_es_e_va,
+//					m_na_e.id_ns_va,idofns,const_val);
+//			}
+//		}
 		if( m_na_b.id_na_va != 0 ){
 			assert( world.IsIdNA(m_na_b.id_na_va) );
 			CNodeAry& na = world.GetNA(m_na_b.id_na_va);
@@ -1160,7 +1162,7 @@ bool CField::SetValue(double time, unsigned int idofns, FIELD_DERIVATION_TYPE fd
 		}
 	}
 	return true;
-}
+}*/
 	
 // elem_aryに含まれる節点全てidofblk番目の自由度を固定する
 bool Fem::Field::CField::SetBCFlagToES(MatVec::CBCFlag& bc_flag, 
@@ -1387,7 +1389,7 @@ bool CField::FindVelocityAtPoint(double velo[],
 	r2 = 0;
 	return false;
 }
-
+/*
 // 勾配をセットする
 bool Fem::Field::CField::SetGradient(unsigned int id_field, Field::CFieldWorld& world, bool is_save)
 {
@@ -1475,15 +1477,15 @@ bool Fem::Field::CField::SetGradientValue(unsigned int id_field, CFieldWorld& wo
 				assert( ipoi0 < na_c_co.Size() );
 				ns_c_co.GetValue(ipoi0,coord[inoes]);
 			}
-/*			if( id_es_c_va == id_es_c_co ){	
-				for(unsigned int inoes=0;inoes<nnoes;inoes++){
-					unsigned int ipoi0 = noes[inoes];
-					assert( ipoi0 < na_c_va.Size() );
-					na_c_va.GetValueFromNode(ipoi0,id_ns_c_va,0,val);
-					value[inoes] = val;
-				}
-			}
-			else{*/
+//			if( id_es_c_va == id_es_c_co ){	
+//				for(unsigned int inoes=0;inoes<nnoes;inoes++){
+//					unsigned int ipoi0 = noes[inoes];
+//					assert( ipoi0 < na_c_va.Size() );
+//					na_c_va.GetValueFromNode(ipoi0,id_ns_c_va,0,val);
+//					value[inoes] = val;
+//				}
+//			}
+//			else{
 				es_c_va.GetNodes(ielem,noes);
 				for(unsigned int inoes=0;inoes<nnoes;inoes++){
 					unsigned int ipoi0 = noes[inoes];
@@ -1547,7 +1549,7 @@ bool Fem::Field::CField::SetGradientValue(unsigned int id_field, CFieldWorld& wo
 		}
 	}
 	return true;
-}
+}*/
 
 
 // MicroAVS inpファイルへの書き出し

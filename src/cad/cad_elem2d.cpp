@@ -697,9 +697,6 @@ bool Cad::CEdge2D::GetNearestIntersectionPoint_AgainstHalfLine(Com::CVector2D& s
     return false;
 	}
 	else if( itype == 2 ){
-    std::cout << "Error!--> Sorry I didn't have time to implement" << std::endl;
-    assert(0);
-    abort();
 		const std::vector<double>& relcomsh = aRelCoMesh;
 		const unsigned int ndiv = relcomsh.size()/2+1;
 		const Com::CVector2D& h0 = po_e-po_s;
@@ -712,11 +709,17 @@ bool Cad::CEdge2D::GetNearestIntersectionPoint_AgainstHalfLine(Com::CVector2D& s
 			Com::CVector2D poi1;
 			if( idiv == ndiv-1 ){ poi1 = po_e; }
 			else{ poi1 = po_s + h0*relcomsh[idiv*2+0]     + v0*relcomsh[idiv*2+1]; }
-			int res = NumCross_LineSeg_LineSeg(org,end,poi0,poi1);
-			if( res == -1 ) return -1;
-			icnt += res;
+      const double area1 = Com::TriArea(poi0,poi1,org);
+      const double area2 = Com::TriArea(poi0,poi1,end);    
+      if( (area1>0) == (area2>0) ) continue;
+      const double area3 = Com::TriArea(org,end,poi0);
+      const double area4 = Com::TriArea(org,end,poi1); 
+      if( (area3>0) == (area4>0) ) continue;
+      double t = area1/(area1-area2);
+      sec = org + (end-org)*t;      
+      return false;
 		}
-		return icnt;
+		return true;
 	}
 	assert(0);
 	return false;  

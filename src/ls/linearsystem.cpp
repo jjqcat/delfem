@@ -424,25 +424,25 @@ bool LsSol::CLinearSystem::AddMat_Dia(unsigned int ils, const Com::CIndexedArray
 	{
 		const unsigned int nnode = m_aSeg[ils].nnode;
 		const int len = m_aSeg[ils].len;
-        const std::vector<unsigned int>& aLen = m_aSeg[ils].aLen;
+    const std::vector<unsigned int>& aLen = m_aSeg[ils].aLen;
 		if( m_Matrix_Dia[ils] == 0 ){
-            if( len == -1 ){
-                assert( aLen.size() == nnode );
-                m_Matrix_Dia[ils] = new MatVec::CMatDia_BlkCrs();
-                m_Matrix_Dia[ils]->Initialize(nnode,aLen);
-            }
-            else{
-                assert( len > 0 );
-                m_Matrix_Dia[ils] = new MatVec::CMatDia_BlkCrs(nnode,len);
-            }
+      if( len == -1 ){
+        assert( aLen.size() == nnode );
+        m_Matrix_Dia[ils] = new MatVec::CMatDia_BlkCrs();
+        m_Matrix_Dia[ils]->Initialize(nnode,aLen);
+      }
+      else{
+        assert( len > 0 );
+        m_Matrix_Dia[ils] = new MatVec::CMatDia_BlkCrs(nnode,len);
+      }
 		}
-        else{
+    else{
 			assert( m_Matrix_Dia[ils]->NBlkMatCol() ==  nnode );
 			assert( m_Matrix_Dia[ils]->LenBlkCol()  ==  len );
-            assert( m_Matrix_Dia[ils]->NBlkMatRow() ==  nnode );
+      assert( m_Matrix_Dia[ils]->NBlkMatRow() ==  nnode );
 			assert( m_Matrix_Dia[ils]->LenBlkRow()  ==  len );
-        }
     }
+  }
 	m_Matrix_Dia[ils]->AddPattern(crs);
 	return true;
 }

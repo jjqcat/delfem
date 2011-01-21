@@ -29,12 +29,12 @@
 
 #include "delfem/camera.h"	// camera parameter class
 
-#include "delfem/cad_obj2d.h"	// ２次元モデルクラスCCadObj2D
-#include "delfem/mesher2d.h"	// ２次元メッシュクラスCMesher2D
+#include "delfem/cad_obj2d.h"	// Cad::CCadObj2D
+#include "delfem/mesher2d.h"	// Mesh::CMesher2D
 
-#include "delfem/field_world.h"		// 有限要素法離散場管理クラスCFieldWorld
-#include "delfem/field.h"			// 有限要素法離散場クラスCField 
-#include "delfem/drawer_field.h"	// 有限要素法離散場可視化クラス
+#include "delfem/field.h" // Fem::Field::CField
+#include "delfem/field_value_setter.h"
+#include "delfem/field_world.h"	// Fem::Field::CFieldWorld
 #include "delfem/drawer_field_face.h"
 #include "delfem/drawer_field_edge.h"
 #include "delfem/drawer_field_vector.h"
@@ -124,6 +124,7 @@ double dt = 0.8;
 unsigned int id_base;
 Fem::Field::CFieldWorld world;
 Fem::Eqn::CEqnSystem_Fluid2D fluid;
+Fem::Field::CFieldValueSetter field_value_setter;
 double mov_begin_x, mov_begin_y;
 bool is_animation = true;
 
@@ -212,7 +213,8 @@ void myGlutDisplay(void)
 	if( is_animation )
 	{
 		cur_time += dt;
-		world.FieldValueExec(cur_time);
+    field_value_setter.ExecuteValue(cur_time,world);
+//		world.FieldValueExec(cur_time);
 		fluid.Solve(world);
 		if( fluid.GetAry_ItrNormRes().size() > 0 ){
 //			std::cout << "Iter : " << fluid.GetAry_ItrNormRes()[0].first << " ";
@@ -278,11 +280,8 @@ void SetNewProblem()
 
 		unsigned int id_field_velo  = fluid.GetIdField_Velo();
 		unsigned int id_field_bc0 = fluid.AddFixElemAry(conv.GetIdEA_fromCad(3,Cad::EDGE),world);
-		{
-			Fem::Field::CField& bc0_field_velo = world.GetField(id_field_bc0);
-			bc0_field_velo.SetValue("0.5*sin(0.05*t)", 0,Fem::Field::VELOCITY, world,true);
-//			bc0_field_velo.SetVelocity("0.1", 0, world,true);
-		}
+    field_value_setter = Fem::Field::CFieldValueSetter(id_field_bc0,world);
+    field_value_setter.SetMathExp("0.5*sin(0.05*t)", 0,Fem::Field::VELOCITY, world);
 		unsigned int id_field_bc1;
 		{
 			std::vector<unsigned int> id_ea_bc1;
@@ -321,7 +320,7 @@ void SetNewProblem()
 		fluid.SetMyu(0.00001);
 		fluid.SetNavierStokes();
 	}
-	else if( iprob == 4 )	// キャビティーフロー問題，バブル補間，定常ストークス流れ
+	else if( iprob == 4 )	// cavity flow，bubble interpolation，constant storks
 	{
 		fluid.Clear();
 		fluid.SetInterpolationBubble();
@@ -337,11 +336,8 @@ void SetNewProblem()
 		unsigned int id_field_velo  = fluid.GetIdField_Velo();
         std::cout << "velo : " << id_field_velo << std::endl;
 		unsigned int id_field_bc0 = fluid.AddFixElemAry(conv.GetIdEA_fromCad(3,Cad::EDGE),world);
-		{
-			Fem::Field::CField& bc0_field_velo = world.GetField(id_field_bc0);
-			bc0_field_velo.SetValue("0.5*sin(0.1*t)", 0,Fem::Field::VELOCITY, world,true);
-//			bc0_field_velo.SetVelocity("0.1", 0, world,true);
-		}
+    field_value_setter = Fem::Field::CFieldValueSetter(id_field_bc0,world);
+    field_value_setter.SetMathExp("0.5*sin(0.05*t)", 0,Fem::Field::VELOCITY, world);
 		unsigned int id_field_bc1;
 		{
 			std::vector<unsigned int> id_ea_bc1;
@@ -357,7 +353,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_press,true,world, id_field_press) );
 		drawer_ary.InitTrans( camera );
 	}
-	else if( iprob == 5 )	// L字形
+	else if( iprob == 5 ) // l shaped flow
 	{
 		Cad::CCadObj2D cad_2d;
  		{	// 形を作る
@@ -385,11 +381,8 @@ void SetNewProblem()
 
 		unsigned int id_field_velo  = fluid.GetIdField_Velo();
 		unsigned int id_field_bc0 = fluid.AddFixElemAry(conv.GetIdEA_fromCad(2,Cad::EDGE),world);
-		{
-			Fem::Field::CField& bc0_field_velo = world.GetField(id_field_bc0);
-			bc0_field_velo.SetValue("0.1*sin(0.1*t)", 0,Fem::Field::VELOCITY, world,true);
-//			bc0_field_velo.SetVelocity("0.1", 0, world,true);
-		}
+    field_value_setter = Fem::Field::CFieldValueSetter(id_field_bc0,world);
+    field_value_setter.SetMathExp("0.1*sin(0.1*t)", 0,Fem::Field::VELOCITY, world);    
 		unsigned int id_field_bc1;
 		{
 			std::vector<unsigned int> id_ea_bc1;
@@ -431,8 +424,8 @@ void SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(1.0,1.0) );
 			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
 			cad_2d.AddPolygon( vec_ary );
-			const unsigned int id_v1 = cad_2d.AddVertex(Cad::EDGE,1,Com::CVector2D(0.5,0.0));
-			const unsigned int id_v2 = cad_2d.AddVertex(Cad::EDGE,3,Com::CVector2D(0.5,1.0));
+			const unsigned int id_v1 = cad_2d.AddVertex(Cad::EDGE,1,Com::CVector2D(0.5,0.0)).id_v_add;
+			const unsigned int id_v2 = cad_2d.AddVertex(Cad::EDGE,3,Com::CVector2D(0.5,1.0)).id_v_add;
 			cad_2d.ConnectVertex_Line(id_v1,id_v2);
 		}
 
@@ -446,10 +439,8 @@ void SetNewProblem()
 		unsigned int id_field_velo  = fluid.GetIdField_Velo();
 
 		unsigned int id_field_bc1 = fluid.AddFixElemAry( conv.GetIdEA_fromCad(3,Cad::EDGE) ,world);
-		{
-			Fem::Field::CField& field = world.GetField(id_field_bc1);
-			field.SetValue("0.3*sin(0.5*t)", 1,Fem::Field::VELOCITY, world,true);
-		}
+    field_value_setter = Fem::Field::CFieldValueSetter(id_field_bc1,world);
+    field_value_setter.SetMathExp("0.3*sin(0.5*t)", 1,Fem::Field::VELOCITY, world);        
 		unsigned int id_field_bc2 = fluid.AddFixElemAry( conv.GetIdEA_fromCad(5,Cad::EDGE) ,world);
 
 		fluid.SetRho(0.1);
@@ -472,7 +463,7 @@ void SetNewProblem()
 	else if( iprob == 9 ){
 		fluid.SetNavierStokes();
 	}
-	else if( iprob == 10 ){	// カルマン渦列
+	else if( iprob == 10 ){	// Karman vortex sheet problem
 		Cad::CCadObj2D cad_2d;
 		{	// define shape (hole in rectangle)
 			std::vector<Com::CVector2D> vec_ary;
@@ -481,10 +472,10 @@ void SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(2.0,0.6) );
 			vec_ary.push_back( Com::CVector2D(0.0,0.6) );
 			const unsigned int id_l = cad_2d.AddPolygon( vec_ary ).id_l_add;
-			const unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.2,0.2));
-			const unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.3,0.2));
-			const unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.3,0.4));
-			const unsigned int id_v4 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.2,0.4));
+			const unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.2,0.2)).id_v_add;
+			const unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.3,0.2)).id_v_add;
+			const unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.3,0.4)).id_v_add;
+			const unsigned int id_v4 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.2,0.4)).id_v_add;
 			cad_2d.ConnectVertex_Line(id_v1,id_v2);
 			cad_2d.ConnectVertex_Line(id_v2,id_v3);
 			cad_2d.ConnectVertex_Line(id_v3,id_v4);
@@ -502,10 +493,8 @@ void SetNewProblem()
 		unsigned int id_field_velo  = fluid.GetIdField_Velo();
 
 		unsigned int id_field_bc1 = fluid.AddFixElemAry( conv.GetIdEA_fromCad(4,Cad::EDGE) ,world);
-		{
-			Fem::Field::CField& field = world.GetField(id_field_bc1);
-			field.SetValue(0.1,0,Fem::Field::VELOCITY,world,true);
-		}
+    field_value_setter = Fem::Field::CFieldValueSetter();
+    Fem::Field::SetFieldValue_Constant(id_field_bc1,0,Fem::Field::VELOCITY,world,0.1);
 		{
 			std::vector<unsigned int> aIdEAFixVelo;
 			aIdEAFixVelo.push_back( conv.GetIdEA_fromCad(1,Cad::EDGE) );
@@ -535,7 +524,7 @@ void SetNewProblem()
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerStreamline(id_field_velo,world) );
 		drawer_ary.InitTrans( camera );
 	}
-	else if( iprob == 11 )	// 上下で分離している問題
+	else if( iprob == 11 )	// two element array problem
 	{
 		Cad::CCadObj2D cad_2d;
  		{	// 形を作る
@@ -560,10 +549,8 @@ void SetNewProblem()
 		unsigned int id_field_press = fluid.GetIdField_Press();
 		unsigned int id_field_velo  = fluid.GetIdField_Velo();
 		unsigned int id_field_bc0 = fluid.AddFixElemAry(conv.GetIdEA_fromCad(2,Cad::EDGE),world);
-		{
-			Fem::Field::CField& bc0_field_velo = world.GetField(id_field_bc0);
-			bc0_field_velo.SetValue("0.1*sin(0.1*t)", 0,Fem::Field::VELOCITY, world,true);
-		}
+    field_value_setter = Fem::Field::CFieldValueSetter(id_field_bc0,world);
+    field_value_setter.SetMathExp("0.1*sin(0.1*t)", 0,Fem::Field::VELOCITY, world);            
 		unsigned int id_field_bc1;
 		{
 			std::vector<unsigned int> id_ea_bc1;
@@ -589,9 +576,9 @@ void SetNewProblem()
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerStreamline(id_field_velo,world) );
 		drawer_ary.InitTrans( camera );
 	}
-    else if( iprob == 12 ){ // バックステップ流れ
+  else if( iprob == 12 ){ // back-step flow
 		Cad::CCadObj2D cad_2d;
- 		{	// 形を作る
+ 		{	// define shape
 			std::vector<Com::CVector2D> vec_ary;
 			vec_ary.push_back( Com::CVector2D( 0.0, 0.0) );
 			vec_ary.push_back( Com::CVector2D( 1.4, 0.0) );
@@ -616,10 +603,8 @@ void SetNewProblem()
 		unsigned int id_field_press = fluid.GetIdField_Press();
 		unsigned int id_field_velo  = fluid.GetIdField_Velo();
 		unsigned int id_field_bc0 = fluid.AddFixElemAry(conv.GetIdEA_fromCad(6,Cad::EDGE),world);
-		{
-			Fem::Field::CField& bc0_field_velo = world.GetField(id_field_bc0);
-			bc0_field_velo.SetValue("0.2", 0,Fem::Field::VELOCITY, world,true);
-		}
+    field_value_setter = Fem::Field::CFieldValueSetter();
+    Fem::Field::SetFieldValue_Constant(id_field_bc0,0,Fem::Field::VELOCITY, world, 0.2);
 		unsigned int id_field_bc1;
 		{
 			std::vector<unsigned int> id_ea_bc1;
@@ -631,6 +616,7 @@ void SetNewProblem()
 			id_ea_bc1.push_back( conv.GetIdEA_fromCad(8,Cad::EDGE) );
 			id_field_bc1 = fluid.AddFixElemAry(id_ea_bc1,world);
 		}
+    field_value_setter = Fem::Field::CFieldValueSetter();    
 		fluid.SetRho(5);
 		fluid.SetMyu(0.0002);
 		fluid.SetIsStationary(false);
@@ -652,7 +638,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_press,true,world,id_field_press) );
 		drawer_ary.InitTrans( camera );
 	}
-	if( iprob == 13 ){ // 流体の中に力が働いている領域
+	if( iprob == 13 ){ // buoyant problem
 		Cad::CCadObj2D cad_2d;
  		{	// 形を作る
 			std::vector<Com::CVector2D> vec_ary;
@@ -688,6 +674,7 @@ void SetNewProblem()
 			id_ea_bc.push_back( conv.GetIdEA_fromCad(4,Cad::EDGE) );
 			id_field_bc0 = fluid.AddFixElemAry(id_ea_bc,world);
 		}
+    field_value_setter = Fem::Field::CFieldValueSetter();    
 		fluid.SetRho(5);
 		fluid.SetMyu(0.005);
 		fluid.SetIsStationary(false);
@@ -720,16 +707,16 @@ void SetNewProblem()
 			vec_ary.push_back( Com::CVector2D( 2.0,1.0) );
 			vec_ary.push_back( Com::CVector2D( 0.0,1.0) );
 			id_l = cad_2d.AddPolygon( vec_ary ).id_l_add;
-			unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.5,0.5) );
+			unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.5,0.5) ).id_v_add;
 			id_e1 = cad_2d.ConnectVertex_Line(2,id_v1).id_e_add;
-			unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(1.0,0.3) );
-			unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(1.0,0.9) );
+			unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(1.0,0.3) ).id_v_add;
+			unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(1.0,0.9) ).id_v_add;
 			id_e2 = cad_2d.ConnectVertex_Line(id_v2,id_v3).id_e_add;
-			unsigned int id_v4 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(1.5,0.4) );
-			unsigned int id_v5 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(1.5,0.1) );
-			unsigned int id_v6 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(1.5,0.7) );
-			unsigned int id_v7 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(1.2,0.4) );
-			unsigned int id_v8 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(1.8,0.4) );
+			unsigned int id_v4 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(1.5,0.4) ).id_v_add;
+			unsigned int id_v5 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(1.5,0.1) ).id_v_add;
+			unsigned int id_v6 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(1.5,0.7) ).id_v_add;
+			unsigned int id_v7 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(1.2,0.4) ).id_v_add;
+			unsigned int id_v8 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(1.8,0.4) ).id_v_add;
 			id_e3 = cad_2d.ConnectVertex_Line(id_v4,id_v5).id_e_add;
 			id_e4 = cad_2d.ConnectVertex_Line(id_v4,id_v6).id_e_add;
 			id_e5 = cad_2d.ConnectVertex_Line(id_v4,id_v7).id_e_add;
@@ -782,10 +769,8 @@ void SetNewProblem()
 			id_field_bc0 = fluid.AddFixElemAry(id_ea_bc,world);
 		}
 		unsigned int id_field_bc1 = fluid.AddFixElemAry(conv.GetIdEA_fromCad(5,Cad::EDGE),world);
-		{
-			Fem::Field::CField& bc0_field_velo = world.GetField(id_field_bc1);
-			bc0_field_velo.SetValue("0.1*sin(t*PI*0.1+0.01)", 0,Fem::Field::VELOCITY, world,true);
-		}
+    field_value_setter = Fem::Field::CFieldValueSetter(id_field_bc1,world);
+    field_value_setter.SetMathExp("0.1*sin(t*PI*0.1+0.01)", 0,Fem::Field::VELOCITY, world);            
 
 		dt = 0.8;
 		fluid.SetRho(10);

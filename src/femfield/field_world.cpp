@@ -78,7 +78,7 @@ CFieldWorld::CFieldWorld(const CFieldWorld& world)
       const unsigned int id_field = aIdField[iifd];
       const CField& fd = world.GetField(id_field);
       CField* pField = new CField(fd);
-      std::cout << "copy" << pField->IsNodeSeg(CORNER,false,world) << std::endl;
+//      std::cout << "copy" << pField->IsNodeSeg(CORNER,false,world) << std::endl;
       this->m_apField.AddObj(std::make_pair(id_field,pField));
     }        
   }  
@@ -116,7 +116,6 @@ CFieldWorld& CFieldWorld::operator = (const CFieldWorld& world)
       const unsigned int id_field = aIdField[iifd];
       const CField& fd = world.GetField(id_field);
       CField* pField = new CField(fd);
-      std::cout << "copy" << pField->IsNodeSeg(CORNER,false,world) << std::endl;
       this->m_apField.AddObj(std::make_pair(id_field,pField));
     }        
   }  
@@ -173,22 +172,22 @@ void CFieldWorld::Clear()
 
 bool CFieldWorld::UpdateMeshCoord(const unsigned int id_base, const Msh::IMesh& mesh)
 {
-    assert( this->IsIdField(id_base) );
-    if( !this->IsIdField(id_base) ) return false;
+  assert( this->IsIdField(id_base) );
+  if( !this->IsIdField(id_base) ) return false;
 	CField& field_base = this->GetField(id_base);
 	const unsigned int ndim = field_base.GetNDimCoord();
-    assert( ndim == mesh.GetDimention() );
-    if( ndim != mesh.GetDimention() ) return false;
+  assert( ndim == mesh.GetDimention() );
+  if( ndim != mesh.GetDimention() ) return false;
 
 	unsigned int id_na_co = field_base.GetNodeSegInNodeAry(CORNER).id_na_co;
 	Field::CNodeAry& na = this->GetNA( id_na_co );
 	Field::CNodeAry::CNodeSeg& ns_coord = field_base.GetNodeSeg(CORNER,false,*this,VALUE);
 
 	std::vector<double> coord;
-    mesh.GetCoord(coord);
+  mesh.GetCoord(coord);
 
-    assert( coord.size() == ndim*na.Size() );
-    if( coord.size() != ndim*na.Size() ) return false;
+  assert( coord.size() == ndim*na.Size() );
+  if( coord.size() != ndim*na.Size() ) return false;
 		
 	if( ndim == 2 ){
 		for(unsigned int inode=0;inode<na.Size();inode++){
@@ -211,6 +210,54 @@ bool CFieldWorld::UpdateMeshCoord(const unsigned int id_base, const Msh::IMesh& 
 	
 	return true;
 }
+
+bool CFieldWorld::UpdateMeshCoord(const unsigned int id_base, const unsigned int id_field_disp, 
+                                  const Msh::IMesh& mesh)
+{
+  assert( this->IsIdField(id_field_disp) );
+  if( !this->IsIdField(id_field_disp) ) return false;
+	CField& disp = this->GetField(id_field_disp);
+	const unsigned int ndim = disp.GetNDimCoord();
+  assert( ndim == mesh.GetDimention() );
+  if( ndim != mesh.GetDimention() ) return false;
+  
+	Field::CNodeAry::CNodeSeg& ns_c = disp.GetNodeSeg(CORNER,false,*this,VALUE);
+	Field::CNodeAry::CNodeSeg& ns_u = disp.GetNodeSeg(CORNER,true, *this,VALUE);
+  assert( ns_c.Size() == ns_u.Size() );  
+  
+	std::vector<double> coord;
+  mesh.GetCoord(coord);
+  
+  assert( coord.size() == ndim*ns_c.Size() );
+  if( coord.size() != ndim*ns_c.Size() ) return false;  
+  
+	if( ndim == 2 ){
+		for(unsigned int inode=0;inode<ns_c.Size();inode++){
+      double co0[2]; ns_c.GetValue(inode,co0);
+			double co1_x = coord[inode*2+0];
+			ns_c.SetValue(inode, 0, co1_x );
+      ns_u.AddValue(inode, 0, co0[0]-co1_x);
+			double co1_y = coord[inode*2+1];
+			ns_c.SetValue(inode, 1, co1_y );
+      ns_u.AddValue(inode, 1, co0[1]-co1_y);
+		}
+	}
+	else if( ndim == 3 ){ 
+		for(unsigned int inode=0;inode<ns_c.Size();inode++){
+      double co0[3]; ns_c.GetValue(inode,co0);  
+			double co1_x = coord[inode*3+0];
+			ns_c.SetValue(inode, 0, co1_x );
+      ns_u.AddValue(inode, 0, co0[0]-co1_x);      
+			double co1_y = coord[inode*3+1];
+			ns_c.SetValue(inode, 1, co1_y );
+      ns_u.AddValue(inode, 1, co0[1]-co1_y);            
+			double co1_z = coord[inode*3+2];
+			ns_c.SetValue(inode, 2, co1_z );
+      ns_u.AddValue(inode, 2, co0[2]-co1_z);            
+		}
+	}  
+}
+
 
 bool CFieldWorld::UpdateConnectivity( const unsigned int id_base, const Msh::IMesh& mesh )
 {
@@ -1239,6 +1286,7 @@ unsigned int CFieldWorld::GetPartialField(unsigned int id_field_val,
 	return id_field;
 }
 
+/*
 void CFieldWorld::FieldValueExec(double time){
 	const std::vector<unsigned int>& id_field_ary = this->m_apField.GetAry_ObjID();
 	for(unsigned int iid=0;iid<id_field_ary.size();iid++){
@@ -1249,8 +1297,8 @@ void CFieldWorld::FieldValueExec(double time){
 		}
 	}
 }
-
-
+*/
+/*
 void CFieldWorld::FieldValueDependExec(){
 	const std::vector<unsigned int>& id_field_ary = this->m_apField.GetAry_ObjID();
 	for(unsigned int iid=0;iid<id_field_ary.size();iid++){
@@ -1261,6 +1309,7 @@ void CFieldWorld::FieldValueDependExec(){
 		}
 	}
 }
+ */
 
 void InsertIdToSetSet(std::map<unsigned int, std::set<unsigned int> >& mapset, unsigned int iv1, unsigned int iv2){
   if( iv1 == 0 || iv2  == 0 ) return;

@@ -190,7 +190,7 @@ CElemAry::CElemAry(const CElemAry& ea){
   npoel = ea.npoel;
   {
     const unsigned int n = m_nElem*npoel;
-    m_pLnods = new int [n];
+    m_pLnods = new unsigned int [n];
     for(unsigned int i=0;i<n;i++){ m_pLnods[i] = ea.m_pLnods[i]; }
   }
   m_aSeg = ea.m_aSeg;
@@ -231,7 +231,7 @@ bool CElemAry::MakePattern_FEM(
 		const CElemSeg& es = m_aSeg.GetObj(id_es);
 		if( es.max_noes >= crs.size ){	crs.size = es.max_noes; }
 	}
-    Com::CIndexedArray elsup;
+  Com::CIndexedArray elsup;
 	if( !this->MakePointSurElem( id_es, elsup) ) goto FAILURE;
 	if( !this->MakePointSurPoint(id_es, elsup, true, crs) ) goto FAILURE;
 	crs.Sort();
@@ -845,7 +845,7 @@ bool CElemAry::MakePointSurPoint(
 			for(unsigned int jnoel=jnoel_s;jnoel<jnoel_e;jnoel++){
 				const unsigned int jpoin0 = m_pLnods[jelem0*npoel+jnoel];
 				assert( jpoin0 < npoin_j );
-                if( lpoin[jpoin0] != (int)ipoin ){
+        if( lpoin[jpoin0] != (int)ipoin ){
 					lpoin[jpoin0] = ipoin;
 					icoun0++;
 				}
@@ -868,7 +868,7 @@ bool CElemAry::MakePointSurPoint(
 			for(unsigned int jnoel=jnoel_s;jnoel<jnoel_e;jnoel++){
 				const unsigned int jpoin0 = m_pLnods[jelem0*npoel+jnoel];
 				assert( jpoin0 < npoin_j );
-                if( lpoin[jpoin0] != (int)ipoin ){
+        if( lpoin[jpoin0] != (int)ipoin ){
 					lpoin[jpoin0] = ipoin;
 					psup.array[icoun0] = jpoin0;
 					icoun0++;
@@ -881,7 +881,7 @@ bool CElemAry::MakePointSurPoint(
 		psup.index[ipoin+1] = icoun0;
 	}
 	delete[] lpoin;
-
+  
 /*
 	for(unsigned int ipoin=0;ipoin<npoin_i;ipoin++){
 		std::cout << ipoin << "--> ";
@@ -920,7 +920,7 @@ std::vector<int> CElemAry::AddSegment
 	}
 	assert( lnods.size() == npoel_add*Size() );
 	const unsigned int npoel_new = npoel+npoel_add;
-	int* lnods_new = new int [npoel_new*Size()];
+	unsigned int* lnods_new = new unsigned int [npoel_new*Size()];
 	for(unsigned int ielem=0;ielem<m_nElem;ielem++){
 		for(unsigned int inoel=0;inoel<npoel;inoel++){
 			lnods_new[ielem*npoel_new+inoel] = m_pLnods[ielem*npoel+inoel];
@@ -1159,7 +1159,7 @@ int CElemAry::InitializeFromFile(const std::string& file_name, long& offset)
 		this->m_nElem = tmp_nelem;
 		this->npoel = tmp_nnoel;
 		if( this->m_pLnods != 0 ){ delete[] this->m_pLnods; }
-		this->m_pLnods = new int [m_nElem*npoel];
+		this->m_pLnods = new unsigned int [m_nElem*npoel];
 		for(unsigned int i=0;i<m_nElem*npoel;i++){ this->m_pLnods[i] = tmp_lnods[i]; }
 		if(      str_elem_type == "LINE" ){ m_ElemType = LINE; }
 		else if( str_elem_type == "TRI"  ){ m_ElemType = TRI;  }

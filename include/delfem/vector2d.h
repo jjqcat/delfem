@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 /*! @file
-@brief ‚QŸŒ³ƒxƒNƒgƒ‹ƒNƒ‰ƒX(Com::CVector2D)‚ÌÀ‘•
+@brief two-dimensional vector class (Com::CVector2D)
 @author Nobuyuki Umetani
 */
 
@@ -118,11 +118,11 @@ inline CVector2D operator*(const CVector2D& v0, double c)
 
 ////////////////////////////////////////////////////////////////
 
-//! ‚RŠpŒ`‚Ì–ÊÏ
+//! Area of the Triangle
 inline double TriArea(const CVector2D& v1, const CVector2D& v2, const CVector2D& v3){
 	return 0.5*( (v2.x-v1.x)*(v3.y-v1.y) - (v3.x-v1.x)*(v2.y-v1.y) );
 }
-//! ‚RŠpŒ`‚Ì–ÊÏ
+//! Area of the Triangle (3 indexes and vertex array)
 inline double TriArea(const int iv1, const int iv2, const int iv3, 
 				   const std::vector<CVector2D>& point ){
 	return TriArea(point[iv1],point[iv2],point[iv3]);

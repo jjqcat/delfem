@@ -28,12 +28,15 @@
 #endif
 
 #include "delfem/camera.h"
+#include "delfem/glut_utility.h"
 
 #include "delfem/cad_obj2d.h"
 #include "delfem/mesh3d.h"
 
 #include "delfem/field.h"
 #include "delfem/field_world.h"
+#include "delfem/field_value_setter.h"
+
 #include "delfem/drawer_field.h"
 #include "delfem/drawer_field_face.h"
 #include "delfem/drawer_field_edge.h"
@@ -48,64 +51,6 @@ Com::View::CCamera camera;
 double mov_begin_x, mov_begin_y;
 bool is_animation = true;
 
-void RenderBitmapString(float x, float y, void *font,char *string)
-{
-  char *c;
-  ::glRasterPos2f(x, y);
-  for (c=string; *c != '\0'; c++) {
-	  ::glutBitmapCharacter(font, *c);
-  }
-}
-
-
-void ShowFPS()
-{
-	int* font = (int*)GLUT_BITMAP_8_BY_13;
-	static char s_fps[30];
-	{
-		static int frame, timebase;
-		int time;
-		frame++;
-		time=glutGet(GLUT_ELAPSED_TIME);
-		if (time - timebase > 500) {
-			sprintf(s_fps,"FPS:%4.2f",frame*1000.0/(time-timebase));
-			timebase = time;
-			frame = 0;
-		}
-	}
-	char s_tmp[30];
-
-	GLint viewport[4];
-	::glGetIntegerv(GL_VIEWPORT,viewport);
-	const int win_w = viewport[2];
-	const int win_h = viewport[3];
-
-	::glMatrixMode(GL_PROJECTION);
-	::glPushMatrix();
-	::glLoadIdentity();
-	::gluOrtho2D(0, win_w, 0, win_h);
-	::glMatrixMode(GL_MODELVIEW);
-	::glPushMatrix();
-	::glLoadIdentity();
-	::glScalef(1, -1, 1);
-	::glTranslatef(0, -win_h, 0);
-	::glDisable(GL_LIGHTING);
-//	::glDisable(GL_DEPTH_TEST);
-	::glColor3d(1.0, 0.0, 0.0);
-	strcpy(s_tmp,"DelFEM demo");
-	RenderBitmapString(10,15, (void*)font, s_tmp);
-	::glColor3d(0.0, 0.0, 1.0);
-	strcpy(s_tmp,"Press \"space\" key!");
-	RenderBitmapString(120,15, (void*)font, s_tmp);
-	::glColor3d(0.0, 0.0, 0.0);
-	RenderBitmapString(10,30, (void*)font, s_fps);
-//	::glEnable(GL_LIGHTING);
-	::glEnable(GL_DEPTH_TEST);
-	::glPopMatrix();
-	::glMatrixMode(GL_PROJECTION);
-	::glPopMatrix();
-	::glMatrixMode(GL_MODELVIEW);
-}
 
 void myGlutResize(int w, int h)
 {
@@ -216,6 +161,7 @@ void myGlutIdle(){
 
 Fem::Field::CFieldWorld world;
 Fem::Field::View::CDrawerArrayField drawer_ary;
+Fem::Field::CFieldValueSetter field_value_setter;
 double cur_time = 0.0;
 double dt = 0.05;
 Fem::Eqn::CEqnSystem_Solid2D solid;
@@ -238,15 +184,16 @@ void myGlutDisplay(void)
 
 	if( is_animation ){
 		cur_time += dt;
-		world.FieldValueExec(cur_time);
-		solid.Solve(world);
+//		world.FieldValueExec(cur_time);
+    field_value_setter.ExecuteValue(cur_time,world);
+		solid.Solve(world);    
 		if( id_field_equiv_stress != 0 ){ solid.SetEquivStressValue(id_field_equiv_stress,world); }
 		if( id_field_stress       != 0 ){ solid.SetStressValue(     id_field_stress,      world); }
 		if( solid.GetAry_ItrNormRes().size() > 0 ){
 			std::cout << "Iter : " << solid.GetAry_ItrNormRes()[0].first << " ";
 			std::cout << "Res : " << solid.GetAry_ItrNormRes()[0].second << std::endl;
 		}
-		world.FieldValueDependExec();
+//		world.FieldValueDependExec();
 		drawer_ary.Update(world);
 	}
 
@@ -295,10 +242,9 @@ void SetNewProblem()
 
 		unsigned int id_field_bc0 = solid.AddFixElemAry(conv.GetIdEA_fromCad(2,Cad::EDGE),world);
 		unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(4,Cad::EDGE),world);
-		{
-			CField& bc1_field = world.GetField(id_field_bc0);
-			bc1_field.SetValue("sin(t*PI*2*0.1)", 1,Fem::Field::VALUE, world,true);	// bc1_field‚ÌyÀ•W‚É’PU“®‚ğ’Ç‰Á
-		}
+    
+    field_value_setter = CFieldValueSetter(id_field_bc0,world);
+    field_value_setter.SetMathExp("sin(t*PI*2*0.1)", 1,Fem::Field::VALUE, world);	// oscilate bc1_field y axis
 
 		// Setting Visualiziation
 		drawer_ary.Clear();
@@ -393,10 +339,9 @@ void SetNewProblem()
 
 		// set temparature field
 		id_field_temp = world.MakeField_FieldElemDim(id_field_disp,2,SCALAR,VALUE,CORNER);
-		{
-			CField& field = world.GetField(id_field_temp);
-			field.SetValue("sin(6.28*y)*sin(x)*sin(t)", 0,Fem::Field::VALUE, world,true);
-		}
+    field_value_setter = CFieldValueSetter(id_field_temp,world);
+    field_value_setter.SetMathExp("sin(6.28*y)*sin(x)*sin(t)", 0,Fem::Field::VALUE, world);	// oscilate bc1_field y axis
+    
 		solid.SetThermalStress(id_field_temp);
 		solid.ClearFixElemAry(3,world);
 
@@ -428,10 +373,10 @@ void SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(1.0,1.0) );
 			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
 			const unsigned int id_l = cad_2d.AddPolygon( vec_ary ).id_l_add;
-			const unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.3,0.2));
-			const unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.7,0.2));
-			const unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.7,0.8));
-			const unsigned int id_v4 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.3,0.8));
+			const unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.3,0.2)).id_v_add;
+			const unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.7,0.2)).id_v_add;
+			const unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.7,0.8)).id_v_add;
+			const unsigned int id_v4 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.3,0.8)).id_v_add;
 			cad_2d.ConnectVertex_Line(id_v1,id_v2);
 			cad_2d.ConnectVertex_Line(id_v2,id_v3);
 			cad_2d.ConnectVertex_Line(id_v3,id_v4);
@@ -450,12 +395,10 @@ void SetNewProblem()
 		solid.SetGravitation(0.0,0.0);	// set gravitation
 
 		unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(3,Cad::EDGE),world);
-		{
-			CField& field = world.GetField(id_field_bc1);
-			field.SetValue("0.3*sin(1.5*t)", 0,Fem::Field::VALUE, world,true);
-			field.SetValue("0.1*(cos(t)+1)", 1,Fem::Field::VALUE, world,true);
-		}
-		unsigned int id_field_bc2 = solid.AddFixElemAry(conv.GetIdEA_fromCad(1,Cad::EDGE),world);
+		unsigned int id_field_bc2 = solid.AddFixElemAry(conv.GetIdEA_fromCad(1,Cad::EDGE),world);    
+    field_value_setter = CFieldValueSetter(id_field_bc1,world);
+    field_value_setter.SetMathExp("0.3*sin(1.5*t)", 0,Fem::Field::VALUE, world);	// oscilate bc1_field x axis
+    field_value_setter.SetMathExp("0.1*(cos(t)+1)", 1,Fem::Field::VALUE, world);	// oscilate bc1_field y axis
 
 		// set visualization
 		drawer_ary.Clear();
@@ -492,8 +435,8 @@ void SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(1.0,1.0) );
 			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
 			cad_2d.AddPolygon( vec_ary );
-			const unsigned int id_v1 = cad_2d.AddVertex(Cad::EDGE,1,Com::CVector2D(0.5,0.0));
-			const unsigned int id_v2 = cad_2d.AddVertex(Cad::EDGE,3,Com::CVector2D(0.5,1.0));
+			const unsigned int id_v1 = cad_2d.AddVertex(Cad::EDGE,1,Com::CVector2D(0.5,0.0)).id_v_add;
+			const unsigned int id_v2 = cad_2d.AddVertex(Cad::EDGE,3,Com::CVector2D(0.5,1.0)).id_v_add;
 			cad_2d.ConnectVertex_Line(id_v1,id_v2);	
 		}
 
@@ -511,13 +454,11 @@ void SetNewProblem()
 		solid.SetGravitation(0.0,0.0);
 
 		unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(3,Cad::EDGE),world);
-		{
-			CField& field = world.GetField(id_field_bc1);
-			field.SetValue("0.3*sin(1.5*t)",     0,Fem::Field::VALUE, world,true);
-			field.SetValue("0.1*(cos(t)+1)+0.1", 1,Fem::Field::VALUE, world,true);
-		}
-		unsigned int id_field_bc2 = solid.AddFixElemAry(conv.GetIdEA_fromCad(5,Cad::EDGE),world);
-
+		unsigned int id_field_bc2 = solid.AddFixElemAry(conv.GetIdEA_fromCad(5,Cad::EDGE),world);    
+    field_value_setter = CFieldValueSetter(id_field_bc1,world);
+    field_value_setter.SetMathExp("0.3*sin(1.5*t)",     0,Fem::Field::VALUE, world);	// oscilate bc1_field x axis
+    field_value_setter.SetMathExp("0.1*(cos(t)+1)+0.1", 1,Fem::Field::VALUE, world);	// oscilate bc1_field y axis
+    
 		// set up visualization
 		drawer_ary.Clear();
 		id_field_disp = solid.GetIdField_Disp();
@@ -556,12 +497,12 @@ void SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(2.0,0.5) );
 			vec_ary.push_back( Com::CVector2D(0.0,0.5) );
 			cad_2d.AddPolygon( vec_ary );
-			const unsigned int id_v5 = cad_2d.AddVertex(Cad::EDGE,1,Com::CVector2D(1.5,0.0));
-			const unsigned int id_v3 = cad_2d.AddVertex(Cad::EDGE,1,Com::CVector2D(1.0,0.0));
-			const unsigned int id_v1 = cad_2d.AddVertex(Cad::EDGE,1,Com::CVector2D(0.5,0.0));
-			const unsigned int id_v2 = cad_2d.AddVertex(Cad::EDGE,3,Com::CVector2D(0.5,0.5));
-			const unsigned int id_v4 = cad_2d.AddVertex(Cad::EDGE,3,Com::CVector2D(1.0,0.5));
-			const unsigned int id_v6 = cad_2d.AddVertex(Cad::EDGE,3,Com::CVector2D(1.5,0.5));
+			const unsigned int id_v5 = cad_2d.AddVertex(Cad::EDGE,1,Com::CVector2D(1.5,0.0)).id_v_add;
+			const unsigned int id_v3 = cad_2d.AddVertex(Cad::EDGE,1,Com::CVector2D(1.0,0.0)).id_v_add;
+			const unsigned int id_v1 = cad_2d.AddVertex(Cad::EDGE,1,Com::CVector2D(0.5,0.0)).id_v_add;
+			const unsigned int id_v2 = cad_2d.AddVertex(Cad::EDGE,3,Com::CVector2D(0.5,0.5)).id_v_add;
+			const unsigned int id_v4 = cad_2d.AddVertex(Cad::EDGE,3,Com::CVector2D(1.0,0.5)).id_v_add;
+			const unsigned int id_v6 = cad_2d.AddVertex(Cad::EDGE,3,Com::CVector2D(1.5,0.5)).id_v_add;
 			cad_2d.ConnectVertex_Line(id_v1,id_v2);
 			cad_2d.ConnectVertex_Line(id_v3,id_v4);
 			cad_2d.ConnectVertex_Line(id_v5,id_v6);
@@ -591,10 +532,8 @@ void SetNewProblem()
 			solid.SetEquation(eqn);
 		}
 		unsigned int id_field_temp = world.MakeField_FieldElemAry(id_base, conv.GetIdEA_fromCad(3,Cad::LOOP), SCALAR,VALUE,CORNER);
-		{	// set boundary value
-			CField& field = world.GetField(id_field_temp);
-			field.SetValue("0.1*sin(3.14*4*y)*sin(2*t)", 0,Fem::Field::VALUE, world,true);
-		}
+    field_value_setter = CFieldValueSetter(id_field_temp,world);
+    field_value_setter.SetMathExp("0.1*sin(3.14*4*y)*sin(2*t)", 0,Fem::Field::VALUE, world);
 		{	// linear elastic material concidering thrmal-solid
 			Fem::Eqn::CEqn_Solid2D eqn = solid.GetEquation(conv.GetIdEA_fromCad(3,Cad::LOOP));
 			eqn.SetThermalStress(id_field_temp);
@@ -620,10 +559,8 @@ void SetNewProblem()
 	{
 		solid.SetRho(0.0001);
 		solid.SetStationary(false);
-		{	// set displacement y sin oscilation
-			CField& field = world.GetField(id_field_disp_fix0);
-			field.SetValue("0.5*cos(2*t)", 1,Fem::Field::VALUE, world,true);
-		}
+    field_value_setter = CFieldValueSetter(id_field_disp_fix0,world);
+    field_value_setter.SetMathExp("0.5*cos(2*t)", 1,Fem::Field::VALUE, world);    
 	}
 	else if( iprob == 24 ){
 		Cad::CCadObj2D cad_2d;
@@ -634,8 +571,8 @@ void SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(2.0,1.0) );
 			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
 			cad_2d.AddPolygon( vec_ary );
-			const unsigned int id_v1 = cad_2d.AddVertex(Cad::EDGE,1,Com::CVector2D(1.0,0.0));
-			const unsigned int id_v2 = cad_2d.AddVertex(Cad::EDGE,3,Com::CVector2D(1.0,1.0));
+			const unsigned int id_v1 = cad_2d.AddVertex(Cad::EDGE,1,Com::CVector2D(1.0,0.0)).id_v_add;
+			const unsigned int id_v2 = cad_2d.AddVertex(Cad::EDGE,3,Com::CVector2D(1.0,1.0)).id_v_add;
 			cad_2d.ConnectVertex_Line(id_v1,id_v2);	
 		}
 
@@ -666,11 +603,9 @@ void SetNewProblem()
 
 //		id_field_disp_fix0 = solid.AddFixElemAry(conv.GetIdEA_fromCad(2,1),world);
 		const unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(4,Cad::EDGE),world);
-		{
-			CField& field = world.GetField(id_field_bc1);
-			field.SetValue("0.3*sin(1.5*t)",     0,Fem::Field::VALUE, world,true);
-			field.SetValue("0.1*(cos(t)+1)+0.1", 1,Fem::Field::VALUE, world,true);
-		}
+    field_value_setter = CFieldValueSetter(id_field_bc1,world);
+    field_value_setter.SetMathExp("0.3*sin(1.5*t)",     0,Fem::Field::VALUE, world);	// oscilate bc1_field x axis
+    field_value_setter.SetMathExp("0.1*(cos(t)+1)+0.1", 1,Fem::Field::VALUE, world);	// oscilate bc1_field y axis    
 
 		// set up visualization
 		drawer_ary.Clear();
@@ -692,13 +627,13 @@ void SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(1.0,1.0) );
 			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
 			id_l = cad_2d.AddPolygon( vec_ary ).id_l_add;
-			unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.2,0.5) );
+			unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.2,0.5) ).id_v_add;
 			id_e1 = cad_2d.ConnectVertex_Line(2,id_v1).id_e_add;
-			unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.5,0.2) );
-			unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.5,0.5) );
-			unsigned int id_v4 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.5,0.8) );
-			unsigned int id_v5 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.8,0.5) );
-			unsigned int id_v6 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.3,0.5) );
+			unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.5,0.2) ).id_v_add;
+			unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.5,0.5) ).id_v_add;
+			unsigned int id_v4 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.5,0.8) ).id_v_add;
+			unsigned int id_v5 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.8,0.5) ).id_v_add;
+			unsigned int id_v6 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.3,0.5) ).id_v_add;
 			id_e2 = cad_2d.ConnectVertex_Line(id_v2,id_v3).id_e_add;
 			id_e3 = cad_2d.ConnectVertex_Line(id_v3,id_v4).id_e_add;
 			id_e4 = cad_2d.ConnectVertex_Line(id_v3,id_v5).id_e_add;
@@ -740,12 +675,10 @@ void SetNewProblem()
 
 		unsigned int id_field_bc0 = solid.AddFixElemAry(conv.GetIdEA_fromCad(3,Cad::EDGE),world);
 		unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(5,Cad::EDGE),world);
-		{
-			CField& bc1_field = world.GetField(id_field_bc0);
-			bc1_field.SetValue("0.1*sin(t*PI*2*0.1)",     0,Fem::Field::VALUE, world,true);	// add harmonic oscilation to bc1_field x axis
-			bc1_field.SetValue("0.1*(1-cos(t*PI*2*0.1))", 1,Fem::Field::VALUE, world,true);	// add harmonic oscilation to bc1_field y axis
-		}
-
+    field_value_setter = CFieldValueSetter(id_field_bc0,world);
+    field_value_setter.SetMathExp("0.1*sin(t*PI*2*0.1)",    0,Fem::Field::VALUE, world);	// oscilate bc1_field x axis
+    field_value_setter.SetMathExp("0.1*(1-cos(t*PI*2*0.1))",1,Fem::Field::VALUE, world);	// oscilate bc1_field y axis
+    
 		// set visualization
 		drawer_ary.Clear();
 		id_field_disp = solid.GetIdField_Disp();
@@ -766,8 +699,8 @@ void SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(5.0,2.0) );
 			vec_ary.push_back( Com::CVector2D(0.0,2.0) );
 			id_l = cad_2d.AddPolygon( vec_ary ).id_l_add;
-			unsigned int id_v1 = cad_2d.AddVertex(Cad::EDGE,3,Com::CVector2D(2.5,2.0));
-			unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(2.5,1.0));
+			unsigned int id_v1 = cad_2d.AddVertex(Cad::EDGE,3,   Com::CVector2D(2.5,2.0)).id_v_add;
+			unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(2.5,1.0)).id_v_add;
 			id_e = cad_2d.ConnectVertex_Line(id_v1,id_v2).id_e_add;
 		}
 		Msh::CMesher2D mesh_2d(cad_2d,0.2);
@@ -802,11 +735,9 @@ void SetNewProblem()
 
 		unsigned int id_field_bc0 = solid.AddFixElemAry(conv.GetIdEA_fromCad(2,Cad::EDGE),world);
 		unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(4,Cad::EDGE),world);
-		{
-			CField& bc1_field = world.GetField(id_field_bc0);
-			bc1_field.SetValue("0.5*(1-cos(t*PI*2*0.1))", 0,Fem::Field::VALUE, world,true);	// add harmonic oscilation to bc1_field x axis
-			bc1_field.SetValue("0.2*sin(t*PI*2*0.1)",     1,Fem::Field::VALUE, world,true);	// add harmonic oscilation to bc1_field y axis
-		}
+    field_value_setter = CFieldValueSetter(id_field_bc0,world);
+    field_value_setter.SetMathExp("0.5*(1-cos(t*PI*2*0.1))", 0,Fem::Field::VALUE, world);	// oscilate bc1_field x axis
+    field_value_setter.SetMathExp("0.2*sin(t*PI*2*0.1)",     1,Fem::Field::VALUE, world);	// oscilate bc1_field y axis
 		
 		id_field_disp = solid.GetIdField_Disp();
 		id_field_equiv_stress = world.MakeField_FieldElemDim(id_field_disp,2,SCALAR,VALUE,BUBBLE);
@@ -846,12 +777,10 @@ void SetNewProblem()
 		
 		unsigned int id_field_bc0 = solid.AddFixElemAry(conv.GetIdEA_fromCad(2,Cad::EDGE),world);
 		unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(4,Cad::EDGE),world);
-		{
-			CField& bc1_field = world.GetField(id_field_bc0);
-			bc1_field.SetValue("0.5*sin(t*PI*2*0.1)"    , 1,Fem::Field::VALUE, world,true);	// harmonic oscilation to bc1_field y axis
-			bc1_field.SetValue("0.3*(1-cos(t*PI*2*0.1))", 0,Fem::Field::VALUE, world,true);	// harmonic oscilation to bc1_field x axis
-		}
-		
+    field_value_setter = CFieldValueSetter(id_field_bc0,world);
+    field_value_setter.SetMathExp("0.5*sin(t*PI*2*0.1)",    0,Fem::Field::VALUE, world);	// oscilate bc1_field x axis
+    field_value_setter.SetMathExp("0.3*(1-cos(t*PI*2*0.1))",1,Fem::Field::VALUE, world);	// oscilate bc1_field y axis
+    
 		id_field_disp = solid.GetIdField_Disp();
 		id_field_stress = world.MakeField_FieldElemDim(id_field_disp,2,STSR2,VALUE,BUBBLE);
 //		id_field_equiv_stress = world.MakeField_FieldElemDim(id_field_disp,2,SCALAR,VALUE,BUBBLE);
@@ -904,11 +833,8 @@ void SetNewProblem()
 			id_field_bc0 = solid.AddFixElemAry(aIdEA,world);
 		}
 		unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(8,Cad::EDGE),world);
-		{
-			CField& bc1_field = world.GetField(id_field_bc1);
-			bc1_field.SetValue("-0.03*(1-cos(t*PI*2*0.1))"    , 1,Fem::Field::VALUE, world,true);	// harmonic oscilation to bc1_field y axis
-//			bc1_field.SetValue(" +0.3*(1-cos(t*PI*2*0.1))", 0,Fem::Field::VALUE, world,true);	// harmonic oscilation to bc1_field x axis
-		}
+    field_value_setter = CFieldValueSetter(id_field_bc1,world);
+    field_value_setter.SetMathExp("-0.03*(1-cos(t*PI*2*0.1))", 1,Fem::Field::VALUE, world);	// oscilate bc1_field x axis    
 		
 		id_field_disp = solid.GetIdField_Disp();
 		id_field_stress = world.MakeField_FieldElemDim(id_field_disp,2,STSR2,VALUE,BUBBLE);
@@ -962,11 +888,8 @@ void SetNewProblem()
 			id_field_bc0 = solid.AddFixElemAry(aIdEA,world);
 		}
 		unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(8,Cad::EDGE),world);
-		{
-			CField& bc1_field = world.GetField(id_field_bc1);
-			bc1_field.SetValue("-0.03*(1-cos(t*PI*2*0.1))", 1,Fem::Field::VALUE, world,true);	// harmonic oscilation to bc1_field y axis
-//			bc1_field.SetValue(" +0.3*(1-cos(t*PI*2*0.1))", 0,Fem::Field::VALUE, world,true);	// harmonic oscilation to bc1_field x axis
-		}
+    field_value_setter = CFieldValueSetter(id_field_bc1,world);
+    field_value_setter.SetMathExp("-0.03*(1-cos(t*PI*2*0.1))", 1,Fem::Field::VALUE, world);	// oscilate bc1_field x axis        
 		
 		id_field_disp = solid.GetIdField_Disp();
 		id_field_stress = world.MakeField_FieldElemDim(id_field_disp,2,STSR2,VALUE,BUBBLE);		

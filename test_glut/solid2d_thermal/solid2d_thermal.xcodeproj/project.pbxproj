@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8DD76F650486A84900D96B5E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* main.cpp */; settings = {ATTRIBUTES = (); }; };
 		8DD76F6A0486A84900D96B5E /* solid2d_thermal.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = C6859E8B029090EE04C91782 /* solid2d_thermal.1 */; };
+		A944578012E9543A0099ECA5 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A944577F12E9543A0099ECA5 /* main.cpp */; };
 		A9C5FA2F1188D4EF0064BFDD /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9C5FA2E1188D4EF0064BFDD /* GLUT.framework */; };
 		A9C5FA311188D4FB0064BFDD /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9C5FA301188D4FB0064BFDD /* OpenGL.framework */; };
 		A9EDB5AC11A8B03E0003AC93 /* libdfm_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A9EDB5AB11A8B0350003AC93 /* libdfm_core.a */; };
@@ -45,8 +45,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		08FB7796FE84155DC02AAC07 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		8DD76F6C0486A84900D96B5E /* solid2d_thermal */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = solid2d_thermal; sourceTree = BUILT_PRODUCTS_DIR; };
+		A944577F12E9543A0099ECA5 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		A9C5FA2E1188D4EF0064BFDD /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = /System/Library/Frameworks/GLUT.framework; sourceTree = "<absolute>"; };
 		A9C5FA301188D4FB0064BFDD /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		A9C5FA341188D5570064BFDD /* dfm_core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = dfm_core.xcodeproj; path = ../../lib/xcodelib_core/dfm_core.xcodeproj; sourceTree = SOURCE_ROOT; };
@@ -83,7 +83,7 @@
 		08FB7795FE84155DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				08FB7796FE84155DC02AAC07 /* main.cpp */,
+				A944577F12E9543A0099ECA5 /* main.cpp */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -179,7 +179,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8DD76F650486A84900D96B5E /* main.cpp in Sources */,
+				A944578012E9543A0099ECA5 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

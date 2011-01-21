@@ -177,7 +177,7 @@ bool CCadObj2D::GetCurve_Polyline(unsigned int id_e, std::vector<double>& aRelCo
 	return true;
 }
 
-bool CCadObj2D::GetCurve_Polyline(
+bool CCadObj2D::GetCurveAsPolyline(
         unsigned int id_e, std::vector<Com::CVector2D>& aCo, double elen) const
 {
   if( !m_EdgeSet.IsObjID(id_e) ){
@@ -194,7 +194,7 @@ bool CCadObj2D::GetCurve_Polyline(
 }
 
 //! ID:id_eの辺をndiv個に分割したものを得る. 但し始点，終点はそれぞれps,peとする
-bool CCadObj2D::GetCurve_Polyline(unsigned int id_e, std::vector<Com::CVector2D>& aCo,
+bool CCadObj2D::GetCurveAsPolyline(unsigned int id_e, std::vector<Com::CVector2D>& aCo,
         unsigned int ndiv, const Com::CVector2D& ps, const Com::CVector2D& pe) const
 {
   if( !m_EdgeSet.IsObjID(id_e) ){
@@ -289,6 +289,11 @@ int CCadObj2D::GetLayer(Cad::CAD_ELEM_TYPE type, unsigned int id) const
 void CCadObj2D::GetLayerMinMax(int& ilayer_min, int& ilayer_max) const
 {
 	const std::vector<unsigned int>& aIdL = this->GetAryElemID(Cad::LOOP);
+  if( aIdL.size() == 0 ){
+    ilayer_min = 0;
+    ilayer_max = 0;    
+    return;
+  }
 	{
 		assert( aIdL.size() > 0 );
 		unsigned int id_l0 = aIdL[0];
@@ -825,7 +830,7 @@ CCadObj2D::CResAddPolygon  Cad::CCadObj2D::AddPolygon(const std::vector<Com::CVe
   res.aIdV.clear(); res.aIdE.clear();
 	res.aIdV.reserve(npoint);
 	for(unsigned int ipoint=0;ipoint<npoint;ipoint++){
-		unsigned int id_v0 = this->AddVertex(Cad::LOOP, id_l, aPoint[ipoint] );
+		unsigned int id_v0 = this->AddVertex(Cad::LOOP, id_l, aPoint[ipoint] ).id_v_add;
 		if( id_v0 == 0 ) goto FAIL_ADD_POLYGON_INSIDE_LOOP;
 		res.aIdV.push_back(id_v0);
 	}
@@ -866,39 +871,42 @@ FAIL_ADD_POLYGON_INSIDE_LOOP :
 	return CResAddPolygon();	
 }
 
-unsigned int CCadObj2D::AddVertex(Cad::CAD_ELEM_TYPE itype, unsigned int id, const  Com::CVector2D& vec)
+CCadObj2D::CResAddVertex CCadObj2D::AddVertex(Cad::CAD_ELEM_TYPE itype, unsigned int id, const  Com::CVector2D& vec)
 {
 //  std::cout << "CadObj2D::AddVertex" << std::endl;
+  CResAddVertex res;
 	if(      itype == Cad::NOT_SET || id == 0 )
 	{
 		unsigned int id_v_add = m_BRep.AddVertex_Loop(0);
 		const int tmp_id = m_VertexSet.AddObj( std::make_pair(id_v_add,CVertex2D(vec)) );
 		assert( tmp_id ==(int)id_v_add );
-		return id_v_add;
+    res.id_v_add = id_v_add;
+		return res;
 	}
 	else if( itype == Cad::LOOP )
 	{
 		unsigned int id_l = id;
 		assert( m_LoopSet.IsObjID(id_l) );    
-		if( !m_LoopSet.IsObjID(id_l) ) return 0;
+		if( !m_LoopSet.IsObjID(id_l) ) return res;
 		// この点がループの中に入っているかどうかを調べる
-		if( !this->CheckIsPointInsideLoop(id_l,vec) ){ return 0; }
+		if( !this->CheckIsPointInsideLoop(id_l,vec) ){ return res; }
 		unsigned int id_v_add = m_BRep.AddVertex_Loop(id_l);
 		const int tmp_id = m_VertexSet.AddObj( std::make_pair(id_v_add,CVertex2D(vec)) );
 		assert( tmp_id == (int)id_v_add );
 		assert( this->AssertValid()==0 );
-		return id_v_add;
+    res.id_v_add = id_v_add;
+		return res;
 	}
 	else if( itype == Cad::EDGE )
 	{
 		unsigned int id_e = id;
 		assert( m_EdgeSet.IsObjID(id_e) );
-		if( !m_EdgeSet.IsObjID(id_e) ) return 0;
+		if( !m_EdgeSet.IsObjID(id_e) ) return res;
 		CEdge2D edge_old = this->GetEdge(id_e);
 		// 入力点を辺の上に射影できるのか調べる
 		Com::CVector2D vec_add = edge_old.GetNearestPoint(vec);
 		if( SquareLength(vec_add-edge_old.po_e) < 1.0e-20 || SquareLength(vec_add-edge_old.po_s) < 1.0e-20 ){
-			return 0;
+			return res;
 		}
 		////////////////////////////////
 		// Leave Input Check Section
@@ -930,9 +938,11 @@ unsigned int CCadObj2D::AddVertex(Cad::CAD_ELEM_TYPE itype, unsigned int id, con
 			edge = edge_old;
 		}
 		assert( this->AssertValid() == 0 );
-		return id_v_add;
+    res.id_v_add = id_v_add;
+    res.id_e_add = id_e_add;
+		return res;
 	}
-	return 0;
+	return res;
 }
 
 bool CCadObj2D::SetCurve_Line(const unsigned int id_e)
@@ -1059,7 +1069,7 @@ bool Cad::CCadObj2D::SetCurve_Polyline(unsigned int id_e, const std::vector<Com:
 	const std::vector<unsigned int>& aID_Loop = m_LoopSet.GetAry_ObjID();
 	for(unsigned int iid_l=0;iid_l<aID_Loop.size();iid_l++){
 		unsigned int id_l = aID_Loop[iid_l];
-        if( this->CheckLoop(id_l) != 0 ) goto FAILURE;
+    if( this->CheckLoop(id_l) != 0 ) goto FAILURE;
 	}
 	return true;
 FAILURE:
@@ -1166,7 +1176,7 @@ bool CCadObj2D::CheckIntersection_EdgeAgainstLoop(const CEdge2D& edge,unsigned i
 
 
 // DXFファイルへの書き出し
-bool CCadObj2D::WriteToFile_dxf(const std::string& file_name) const
+bool CCadObj2D::WriteToFile_dxf(const std::string& file_name, double scale) const
 {
 	FILE *fp;
 	if( (fp = ::fopen(file_name.c_str(),"w"))== NULL ){
@@ -1199,8 +1209,8 @@ bool CCadObj2D::WriteToFile_dxf(const std::string& file_name) const
 	fprintf(fp, "  0\nSECTION\n");
 	fprintf(fp, "  2\nHEADER\n");
 	fprintf(fp, "  9\n$ACADVER\n  1\nAC1009\n");
-	fprintf(fp, "  9\n$EXTMIN\n  10\n%lf\n  20\n%lf\n",x_min,y_min);
-	fprintf(fp, "  9\n$EXTMAX\n  10\n%lf\n  20\n%lf\n",x_max,y_max);
+	fprintf(fp, "  9\n$EXTMIN\n  10\n%lf\n  20\n%lf\n",x_min*scale,y_min*scale);
+	fprintf(fp, "  9\n$EXTMAX\n  10\n%lf\n  20\n%lf\n",x_max*scale,y_max*scale);
 	fprintf(fp, "  0\nENDSEC\n");
 	// テーブルセクション
 	fprintf(fp, "  0\nSECTION\n");
@@ -1217,9 +1227,9 @@ bool CCadObj2D::WriteToFile_dxf(const std::string& file_name) const
 	for(unsigned int iid_l=0;iid_l<aIdLoop.size();iid_l++){
 		const unsigned int id_l = aIdLoop[iid_l];
 		assert( m_LoopSet.IsObjID(id_l) );
-        std::auto_ptr<Cad::ICad2D::CItrLoop> pItr = this->GetItrLoop(id_l);
+    std::auto_ptr<Cad::ICad2D::CItrLoop> pItr = this->GetItrLoop(id_l);
 		for(;;){
-            for(;!pItr->IsEnd();(*pItr)++){
+      for(;!pItr->IsEnd();(*pItr)++){
 				bool is_same_dir;   unsigned int id_e;
 				if( !pItr->GetIdEdge(id_e,is_same_dir) ){ assert(0); fclose(fp); return false; }
 				unsigned int id_vs, id_ve;
@@ -1230,12 +1240,12 @@ bool CCadObj2D::WriteToFile_dxf(const std::string& file_name) const
 				const CVector2D& pe = this->GetVertexCoord(id_ve);
 				if( this->GetEdgeCurveType(id_e) == 0 ){
 					fprintf(fp,"  0\nLINE\n  8\n%d\n  6\nCONTINUOUS\n  62\n7\n",id_l);
-					fprintf(fp,"  10\n%lf\n",ps.x);
-					fprintf(fp,"  20\n%lf\n",ps.y);
-					fprintf(fp,"  11\n%lf\n",pe.x);
-					fprintf(fp,"  21\n%lf\n",pe.y);
+					fprintf(fp,"  10\n%lf\n",ps.x*scale);
+					fprintf(fp,"  20\n%lf\n",ps.y*scale);
+					fprintf(fp,"  11\n%lf\n",pe.x*scale);
+					fprintf(fp,"  21\n%lf\n",pe.y*scale);
 				}
-				else if( this->GetEdgeCurveType(id_e) == 1 ){
+				else if( this->GetEdgeCurveType(id_e) == 1 ){ // Arc
 					const CEdge2D& edge = this->GetEdge(id_e);
 					CVector2D pc;	double r;
 					edge.GetCenterRadius(pc,r);
@@ -1249,26 +1259,40 @@ bool CCadObj2D::WriteToFile_dxf(const std::string& file_name) const
 						else{                    d1 = ds; d2 = de; }
 					}
 					fprintf(fp,"  0\nARC\n  8\n%d\n  6\nCONTINUOUS\n  62\n7\n  100\nAcDbCircle\n",id_l);
-					fprintf(fp,"  10\n%lf\n",pc.x);	// 中心のｘ座標指定
-					fprintf(fp,"  20\n%lf\n",pc.y);	// 中心のｙ座標指定
-					fprintf(fp,"  40\n%lf\n",r);	// 半径指定
+					fprintf(fp,"  10\n%lf\n",pc.x*scale);	// 中心のｘ座標指定
+					fprintf(fp,"  20\n%lf\n",pc.y*scale);	// 中心のｙ座標指定
+					fprintf(fp,"  40\n%lf\n",r*scale);	// 半径指定
 					fprintf(fp,"  100\nAcDbArc\n");
 					fprintf(fp,"  50\n%lf\n",d1);
 					fprintf(fp,"  51\n%lf\n",d2);
 				}
+        else if( this->GetEdgeCurveType(id_e) == 2 ){ // polyline
+					const CEdge2D& edge = this->GetEdge(id_e);
+					fprintf(fp,"  0\nPOLYLINE\n  8\n%d\n  6\nCONTINUOUS\n",id_l);
+					fprintf(fp,"  10\n0.0\n");
+					fprintf(fp,"  20\n0.0\n");
+					fprintf(fp,"  30\n0.0\n");
+					fprintf(fp,"  70\n8\n");
+					fprintf(fp,"  66\n1\n");          
+          ////
+          const std::vector<double>& axys = edge.aRelCoMesh;
+          assert( axys.size() % 2 == 0 );
+          const unsigned int nno = axys.size()/2;
+          const Com::CVector2D& po_s = this->GetVertexCoord( edge.id_v_s );
+          const Com::CVector2D& po_e = this->GetVertexCoord( edge.id_v_e );
+          Com::CVector2D v0 = po_e-po_s;
+          Com::CVector2D v1(-v0.y,v0.x);          
+          fprintf(fp,"  0\nVERTEX\n 8\n0\n 10\n%lf\n 20\n%lf\n 30\n%lf\n", po_s.x*scale, po_s.y*scale, 0.0);
+          for(unsigned int ino=0;ino<nno;ino++){
+            const Com::CVector2D& p = po_s + v0*axys[ino*2+0] + v1*axys[ino*2+1];
+            fprintf(fp,"  0\nVERTEX\n 8\n0\n 10\n%lf\n 20\n%lf\n 30\n%lf\n", p.x*scale, p.y*scale, 0.0);
+          }
+          fprintf(fp,"  0\nVERTEX\n 8\n0\n 10\n%lf\n 20\n%lf\n 30\n%lf\n", po_e.x*scale, po_e.y*scale, 0.0);          
+          fprintf(fp,"  0\nSEQEND\n");
+				}        
 			}
 			if( !pItr->ShiftChildLoop() ) break;
 		}
-/*		
-		fprintf(fp,"0\nPOLYLINE\n10\n0\n20\n0\n66\n1\n70\n0\n");
-		for(;!itr.IsEnd();itr++){
-			const unsigned int id_v = itr.GetIdVertex();
-			assert( this->IsID_Vertex(id_v) );
-			const CVector2D& v = this->GetVertexCoord(id_v);
-			fprintf(fp,"0\nVERTEX\n10\n%lf\n20\n%lf\n",v.x,v.y);
-		}
-		fprintf(fp,"0\nENDSEQ\n");
-*/
 	}
 	fprintf(fp, "  0\nENDSEC\n  0\nEOF\n");
 	fclose(fp);

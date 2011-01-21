@@ -38,7 +38,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <iostream>
 #include <vector>
 #include <stdio.h>
-
+#include <memory>
 
 #if defined(__APPLE__) && defined(__MACH__)
 #  include <OpenGL/gl.h>
@@ -64,6 +64,7 @@ CDrawerFace::CDrawerFace()
   pUVArray = 0;
   tex_cent_x = 0;
   tex_cent_y = 0;
+  tex_scale = 1;
   ////
 	pColorArray = 0;
 	is_draw_color_legend = false;
@@ -78,6 +79,7 @@ CDrawerFace::CDrawerFace
   pUVArray = 0;  
   tex_cent_x = 0;
   tex_cent_y = 0;  
+  tex_scale = 1;  
   ////
 	pColorArray = 0;
 	if( world.IsIdField(id_field_color) ){ is_draw_color_legend = true;  }
@@ -142,18 +144,53 @@ void CDrawerFace::EnableNormal(bool is_lighting){
   }
 }
 
-void CDrawerFace::EnableUVMap(bool is_uv_map){
+void CDrawerFace::EnableUVMap(bool is_uv_map, const Fem::Field::CFieldWorld& world)
+{
   if( (pUVArray != 0 ) == is_uv_map ){ return; }
   if( is_uv_map ){
     const unsigned int nnode = this->m_vertex_ary.NPoin();
+    const unsigned int ndim  = this->m_vertex_ary.NDim();
+    delete[] pUVArray;
     pUVArray = new double [nnode*2];
-    for(unsigned int i=0;i<nnode*2;i++){ pUVArray[i]=0; }
+    if( !world.IsIdField(m_id_field) ) return;
+    const Fem::Field::CField& field = world.GetField(m_id_field);
+//    unsigned int id_na_c_co = field.GetNodeSegInNodeAry(CORNER).id_na_co;
+//    assert( world.IsIdNA(id_na_c_co) );
+//    const Fem::Field::CNodeAry& na_c_co = world.GetNA(id_na_c_co);
+//    assert( field.IsNodeSeg(CORNER,false,world) );
+    const Fem::Field::CNodeAry::CNodeSeg& ns_c_co = field.GetNodeSeg(CORNER,false,world);
+//    const unsigned int ndim = ns_c_co.Length();      
+//    assert( ndim >= 2 );
+    for(unsigned int ino=0;ino<ns_c_co.Size();ino++){
+      double c[3]; ns_c_co.GetValue(ino,c);
+      pUVArray[ino*2+0] = c[0]*tex_scale;
+      pUVArray[ino*2+1] = c[1]*tex_scale;
+    }
   }
   else{
     delete[] pUVArray;
     pUVArray = 0;
   }  
 }
+
+void CDrawerFace::SetTexScale(double scale, const Fem::Field::CFieldWorld& world){
+  tex_scale = scale;  
+  if( pUVArray != 0 ){
+    const Fem::Field::CField& field = world.GetField(m_id_field);
+    // set the vertex array
+    unsigned int id_na_c_co = field.GetNodeSegInNodeAry(CORNER).id_na_co;
+    assert( world.IsIdNA(id_na_c_co) );
+    const Fem::Field::CNodeAry& na_c_co = world.GetNA(id_na_c_co);
+    assert( field.IsNodeSeg(CORNER,false,world) );
+    const Fem::Field::CNodeAry::CNodeSeg& ns_c_co = field.GetNodeSeg(CORNER,false,world);      
+    for(unsigned int ino=0;ino<ns_c_co.Size();ino++){
+      double c[3]; ns_c_co.GetValue(ino,c);
+      pUVArray[ino*2+0] = c[0]*tex_scale;
+      pUVArray[ino*2+1] = c[1]*tex_scale;
+    }
+  }   
+}
+
 
 void CDrawerFace::Draw() const 
 {
@@ -198,17 +235,19 @@ void CDrawerFace::Draw() const
       ::glMatrixMode(GL_TEXTURE);
       ::glLoadIdentity();
       ::glTranslated(-tex_cent_x, -tex_cent_y, 0.0);      
+      ::glMatrixMode(GL_MODELVIEW);
     }
 		for(unsigned int idp=0;idp<this->m_apIndexArrayElem.size();idp++){ 
 			View::CIndexArrayElem* pIndexArray = this->m_apIndexArrayElem[idp];
-			if( pIndexArray->GetElemDim() == 2 ){	// draw line
+			if( pIndexArray->GetElemDim() == 1 ){	// draw line
 				::glColor3d(0.0,0.0,0.0);
 				::glLineWidth(3);
 			}
-			if( pIndexArray->GetElemDim() == 3 ){	// draw face
-				 ::glColor3d(0.8,0.8,0.8);
+			if( pIndexArray->GetElemDim() == 2 ||  pIndexArray->GetElemDim() == 3 ){	// draw face
+        ::glColor3fv(m_apIndexArrayElem[idp]->color);
 			}      
       ::glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, m_apIndexArrayElem[idp]->color);              
+//      ::glColor3d(0.8,0.8,0.8);      
 			this->m_apIndexArrayElem[idp]->DrawElements(); 
 		}
 		::glDisableClientState(GL_VERTEX_ARRAY);
@@ -372,11 +411,15 @@ bool CDrawerFace::Update
   /////////////////////
   // make normal
   if( pNormalArray != 0 ){ MakeNormal(); }  
+  
+  
+  /////////////////////
+  // make uv map  
   if( pUVArray != 0 ){
     for(unsigned int ino=0;ino<ns_c_co.Size();ino++){
       double c[3]; ns_c_co.GetValue(ino,c);
-      pUVArray[ino*2+0] = c[0];
-      pUVArray[ino*2+1] = c[1];
+      pUVArray[ino*2+0] = c[0]*tex_scale;
+      pUVArray[ino*2+1] = c[1]*tex_scale;
     }
   }
 	return true;

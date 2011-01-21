@@ -73,6 +73,8 @@ bool ReadPPM_SetTexture(const std::string& fname,
                         unsigned int& texName, 
                         unsigned int& texWidth, unsigned int& texHeight);
   
+bool WritePPM_ScreenImage(const  std::string& fname);
+  
 //! Draw coordinate
 class CDrawerCoord : public CDrawer{
 public:

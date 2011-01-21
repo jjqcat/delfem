@@ -19,12 +19,15 @@
 #endif
 
 #include "delfem/camera.h"
+#include "delfem/glut_utility.h"
+
 #include "delfem/cad_obj2d.h"
 #include "delfem/mesher2d.h"
 #include "delfem/mesh3d.h"
 
 #include "delfem/field_world.h"
 #include "delfem/field.h"
+#include "delfem/field_value_setter.h"
 #include "delfem/drawer_field_face.h"
 #include "delfem/drawer_field_edge.h"
 #include "delfem/drawer_field_vector.h"
@@ -39,66 +42,9 @@ Fem::Eqn::CEqn_Scalar3D eqn_scalar;
 unsigned int id_base;
 double dt = 0.02;
 View::CDrawerArrayField drawer_ary;
+std::vector<Fem::Field::CFieldValueSetter> field_value_setter_ary;
 Com::View::CCamera camera;
 double mov_begin_x, mov_begin_y;
-
-void RenderBitmapString(float x, float y, void *font,char *string)
-{
-  char *c;
-  ::glRasterPos2f(x, y);
-  for (c=string; *c != '\0'; c++) {
-	  ::glutBitmapCharacter(font, *c);
-  }
-}
-
-void ShowFPS()
-{
-	static char s_fps[32];
-	int* font=(int*)GLUT_BITMAP_8_BY_13;
-	{
-		static int frame, timebase;
-		int time;
-		frame++;
-		time=glutGet(GLUT_ELAPSED_TIME);
-		if (time - timebase > 500) {
-			sprintf(s_fps,"FPS:%4.2f",frame*1000.0/(time-timebase));
-			timebase = time;
-			frame = 0;
-		}
-	}
-	char s_tmp[32];
-
-	GLint viewport[4];
-	::glGetIntegerv(GL_VIEWPORT,viewport);
-	const int win_w = viewport[2];
-	const int win_h = viewport[3];
-
-	::glMatrixMode(GL_PROJECTION);
-	::glPushMatrix();
-	::glLoadIdentity();
-	::gluOrtho2D(0, win_w, 0, win_h);
-	::glMatrixMode(GL_MODELVIEW);
-	::glPushMatrix();
-	::glLoadIdentity();
-	::glScalef(1, -1, 1);
-	::glTranslatef(0, -win_h, 0);
-	::glDisable(GL_LIGHTING);
-//	::glDisable(GL_DEPTH_TEST);
-	::glColor3d(1.0, 0.0, 0.0);
-	strcpy(s_tmp,"DelFEM demo");
-	RenderBitmapString(10,15, (void*)font, s_tmp);
-	::glColor3d(0.0, 0.0, 1.0);
-	strcpy(s_tmp,"Press \"space\" key!");
-	RenderBitmapString(120,15, (void*)font, s_tmp);
-	::glColor3d(0.0, 0.0, 0.0);
-	RenderBitmapString(10,30, (void*)font, s_fps);
-//	::glEnable(GL_LIGHTING);
-	::glEnable(GL_DEPTH_TEST);
-	::glPopMatrix();
-	::glMatrixMode(GL_PROJECTION);
-	::glPopMatrix();
-	::glMatrixMode(GL_MODELVIEW);
-}
 
 bool SetNewProblem()
 {
@@ -128,20 +74,20 @@ bool SetNewProblem()
 		eqn_scalar.SetAlpha(1.0);
 		eqn_scalar.SetTimeIntegrationParameter(dt);
 		unsigned int id_val_bc0 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(1,Cad::EDGE,1),world);
-		{
-			CField& field = world.GetField(id_val_bc0);
-			field.SetValue("cos(2*PI*t+0.1)", 0,Fem::Field::VALUE, world,true);
-		}
 		unsigned int id_val_bc1 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(2,Cad::EDGE,2),world);
-		{
-			CField& field = world.GetField(id_val_bc1);
-			field.SetValue(1.0,0,Fem::Field::VALUE,world,false);
-		}
-		unsigned int id_val_bc2 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(1,Cad::EDGE,2),world);
-		{
-			CField& field = world.GetField(id_val_bc1);
-			field.SetValue("sin(2*PI*t+0.1)", 0,Fem::Field::VALUE, world,true);
-		}
+		unsigned int id_val_bc2 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromCad(1,Cad::EDGE,2),world);    
+    field_value_setter_ary.clear();    
+    {
+      Fem::Field::CFieldValueSetter fvs(id_val_bc0,world);
+      fvs.SetMathExp("cos(2*PI*t+0.1)", 0, Fem::Field::VALUE,world);
+      field_value_setter_ary.push_back(fvs);
+    }
+    Fem::Field::SetFieldValue_Constant(id_val_bc1,0,Fem::Field::VALUE,world, 1.0);    
+    {
+      Fem::Field::CFieldValueSetter fvs(id_val_bc2,world);
+      fvs.SetMathExp("sin(2*PI*t+0.1)", 0, Fem::Field::VALUE,world);
+      field_value_setter_ary.push_back(fvs);
+    }    
 		// ï`âÊÉIÉuÉWÉFÉNÉgÇÃìoò^
 		drawer_ary.Clear();
 		const unsigned int id_field_val = eqn_scalar.GetIdField_Value();
@@ -157,26 +103,27 @@ bool SetNewProblem()
 		mesh_3d.Extrude(mesh_2d, 5.0, 0.5 );
 		world.Clear();
 		unsigned int id_base = world.AddMesh( mesh_3d );
-        const Fem::Field::CIDConvEAMshCad& conv = world.GetIDConverter(id_base);
+    const Fem::Field::CIDConvEAMshCad& conv = world.GetIDConverter(id_base);
 		// ï˚íˆéÆÇÃê›íË
 		eqn_scalar.SetDomain(id_base,world);
 		eqn_scalar.SetAlpha(1.0);
 		eqn_scalar.SetTimeIntegrationParameter(dt);
 		unsigned int id_val_bc0 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromMshExtrude(1,1),world);
-		{
-			CField& field = world.GetField(id_val_bc0);
-			field.SetValue("cos(2*PI*t+0.1)", 0,Fem::Field::VALUE, world,true);
-		}
 		unsigned int id_val_bc1 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromMshExtrude(3,2),world);
-		{
-			CField& field = world.GetField(id_val_bc1);
-			field.SetValue(1.0,0,Fem::Field::VALUE,world,false);
-		}
 		unsigned int id_val_bc2 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromMshExtrude(1,3),world);
-		{
-			CField& field = world.GetField(id_val_bc1);
-			field.SetValue("sin(2*PI*t+0.1)", 0,Fem::Field::VALUE, world,true);
-		}
+    
+    field_value_setter_ary.clear();    
+    {
+      Fem::Field::CFieldValueSetter fvs(id_val_bc0,world);
+      fvs.SetMathExp("cos(2*PI*t+0.1)", 0, Fem::Field::VALUE,world);
+      field_value_setter_ary.push_back(fvs);
+    }
+    Fem::Field::SetFieldValue_Constant(id_val_bc1,0,Fem::Field::VALUE,world, 1.0);
+    {
+      Fem::Field::CFieldValueSetter fvs(id_val_bc2,world);
+      fvs.SetMathExp("sin(2*PI*t+0.1)", 0, Fem::Field::VALUE,world);
+      field_value_setter_ary.push_back(fvs);
+    } 
 		// ï`âÊÉIÉuÉWÉFÉNÉgÇÃìoò^
 		drawer_ary.Clear();
 		const unsigned int id_field_val = eqn_scalar.GetIdField_Value();
@@ -198,20 +145,20 @@ bool SetNewProblem()
 		eqn_scalar.SetAlpha(1.0);
 		eqn_scalar.SetTimeIntegrationParameter(dt);
 		unsigned int id_val_bc0 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromMshExtrude(10,2),world);
-		{
-			CField& field = world.GetField(id_val_bc0);
-			field.SetValue("cos(2*PI*t+0.1)", 0,Fem::Field::VALUE, world,true);
-		}
 		unsigned int id_val_bc1 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromMshExtrude(1,1),world);
-		{
-			CField& field = world.GetField(id_val_bc1);
-			field.SetValue(1.0,0,Fem::Field::VALUE,world,false);
-		}
-		unsigned int id_val_bc2 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromMshExtrude(11,2),world);
-		{
-			CField& field = world.GetField(id_val_bc2);
-			field.SetValue("sin(2*PI*t+0.1)", 0,Fem::Field::VALUE, world,true);
-		}
+		unsigned int id_val_bc2 = eqn_scalar.AddFixElemAry(conv.GetIdEA_fromMshExtrude(11,2),world);        
+    field_value_setter_ary.clear();    
+    {
+      Fem::Field::CFieldValueSetter fvs(id_val_bc0,world);
+      fvs.SetMathExp("cos(2*PI*t+0.1)", 0, Fem::Field::VALUE,world);
+      field_value_setter_ary.push_back(fvs);
+    }
+    Fem::Field::SetFieldValue_Constant(id_val_bc1,0,Fem::Field::VALUE,world, 1.0);    
+    {
+      Fem::Field::CFieldValueSetter fvs(id_val_bc2,world);
+      fvs.SetMathExp("sin(2*PI*t+0.1)", 0, Fem::Field::VALUE,world);
+      field_value_setter_ary.push_back(fvs);
+    } 
 		// ï`âÊÉIÉuÉWÉFÉNÉgÇÃìoò^
 		drawer_ary.Clear();
 		const unsigned int id_field_val = eqn_scalar.GetIdField_Value();
@@ -230,15 +177,14 @@ bool SetNewProblem()
 		eqn_scalar.SetAlpha(1.0);
 		eqn_scalar.SetTimeIntegrationParameter(dt);
 		unsigned int id_val_bc0 = eqn_scalar.AddFixElemAry(3,world);
-		{
-			CField& field = world.GetField(id_val_bc0);
-			field.SetValue("cos(2*PI*t+0.1)", 0,Fem::Field::VALUE, world,true);
-		}
-		unsigned int id_val_bc1 = eqn_scalar.AddFixElemAry(4,world);
-		{
-			CField& field = world.GetField(id_val_bc1);
-			field.SetValue(0.0,0,Fem::Field::VALUE,world,false);
-		}
+		unsigned int id_val_bc1 = eqn_scalar.AddFixElemAry(4,world);    
+    field_value_setter_ary.clear();    
+    {
+      Fem::Field::CFieldValueSetter fvs(id_val_bc0,world);
+      fvs.SetMathExp("cos(2*PI*t+0.1)", 0, Fem::Field::VALUE,world);
+      field_value_setter_ary.push_back(fvs);
+    }
+    Fem::Field::SetFieldValue_Constant(id_val_bc1,0,Fem::Field::VALUE,world, 0.0);    
 		// ï`âÊÉIÉuÉWÉFÉNÉgÇÃìoò^
 		drawer_ary.Clear();
 		const unsigned int id_field_val = eqn_scalar.GetIdField_Value();
@@ -284,7 +230,10 @@ void myGlutDisplay(void)
 
 	if( is_animation ){
 		cur_time += dt;
-		world.FieldValueExec(cur_time);
+//		world.FieldValueExec(cur_time);
+    for(unsigned int iset=0;iset<field_value_setter_ary.size();iset++){
+      field_value_setter_ary[iset].ExecuteValue(cur_time,world);
+    }    
 		eqn_scalar.Solve(world);
 		if( eqn_scalar.GetAry_ItrNormRes().size() > 0 ){
 			std::cout << "Iter : " << eqn_scalar.GetAry_ItrNormRes()[0].first << " ";

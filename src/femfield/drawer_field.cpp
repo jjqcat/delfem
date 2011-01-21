@@ -38,6 +38,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <iostream>
 #include <vector>
 #include <stdio.h>
+#include <memory>
 
 #if defined(__APPLE__) && defined(__MACH__)
 #  include <OpenGL/gl.h>
@@ -126,7 +127,8 @@ CIndexArrayElem::CIndexArrayElem(unsigned int id_ea, unsigned int id_es, const F
 	is_selected = false;
 	this->id_ea=id_ea;
 	this->id_es=id_es;
-	color[0] = 0.8; color[1] = 0.8; color[2] = 0.8;
+//	color[0] = 0.8; color[1] = 0.8; color[2] = 0.8;
+	color[0] = 1.0; color[1] = 1.0; color[2] = 1.0;  
 //	color[0] = 0.8; color[1] = 0.2; color[2] = 0.2;
 //	color[0] = 0.2; color[1] = 0.8; color[2] = 0.2;
 	nElem = 0;
@@ -285,7 +287,7 @@ bool View::CIndexArrayElem::SetColor
 		if( !ea.IsSegID(id_es) ) return false;
 		if( ea.ElemType() != TRI ) return false;
 		const CElemAry::CElemSeg& es_v = ea.GetSeg(id_es_v);
-		assert( es_v.Size() == 1 );
+//		assert( es_v.Size() == 1 );
 		unsigned int id_na_v = es_v.GetIdNA();
 		assert( world.IsIdNA(id_na_v) );
 		const CNodeAry& na = world.GetNA(id_na_v);
@@ -392,7 +394,7 @@ bool View::CIndexArrayElem::SetColor
 void View::CIndexArrayElem::DrawElements()
 {
 	if( this->pColor == 0 ){ 
-		::glColor3d(color[0],color[1],color[2]);
+//		::glColor3d(color[0],color[1],color[2]);
 		if(      itype == Fem::Field::LINE )	// line
 		{
 			::glDrawElements(GL_LINES,    nElem*2,GL_UNSIGNED_INT,this->pIA_Elem);

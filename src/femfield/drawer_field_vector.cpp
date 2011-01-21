@@ -38,7 +38,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <iostream>
 #include <vector>
 #include <stdio.h>
-
+#include <memory>
 
 #if defined(__APPLE__) && defined(__MACH__)
 #  include <OpenGL/gl.h>
@@ -139,7 +139,7 @@ bool CDrawerVector::Update_VECTOR(const Fem::Field::CFieldWorld& world)
 			ndim_co = 3;
 			ndim_va = 2;
 		}
-		pData = new double [(ndim_co*ndim_va)*npo];
+		pData = new double [(ndim_co+ndim_va)*npo];
 	}
 	else{
 		if( ilayer_min == ilayer_max ){ 
@@ -150,6 +150,8 @@ bool CDrawerVector::Update_VECTOR(const Fem::Field::CFieldWorld& world)
 			assert( ndim_co == 3 && ndim_va == 2 ); 			
 		}
 	}
+  
+//  std::cout << ndim_co0 << " " << ndim_co << std::endl;
 
 	unsigned int icoun = 0;
 	// Make Data of Coord
@@ -261,22 +263,21 @@ bool CDrawerVector::Update_VECTOR(const Fem::Field::CFieldWorld& world)
 				assert( es_c_co.GetIdNA() == id_na_c_co );
 				const CElemAry::CElemSeg& es_b_va = field.GetElemSeg(id_ea,BUBBLE,true,world);
 				assert( es_b_va.GetIdNA() == nsna_b.id_na_va );
+        const unsigned int nnoes = es_c_co.Length();        
+        const double invnnoes = 1.0/(double)nnoes;
 				for(unsigned int ielem=0;ielem<ea.Size();ielem++){
 					double coord_cnt[3];
 					{	// gravity center
 						for(unsigned int idim=0;idim<ndim_co0;idim++){ coord_cnt[idim] = 0.0; }
-						const unsigned int nnoes = es_c_co.Length();
 						es_c_co.GetNodes(ielem,noes);
 						double coord[3];
 						for(unsigned int inoes=0;inoes<nnoes;inoes++){
-							unsigned int ipoi0 = noes[inoes];
-							assert( ipoi0 < na_c_co.Size() );
+							unsigned int ipoi0 = noes[inoes]; assert( ipoi0 < na_c_co.Size() );
 							ns_c_co.GetValue(ipoi0,coord);
-							for(unsigned int idim=0;idim<ndim_co0;idim++){
-								coord_cnt[idim] += coord[idim];
-							}
+							for(unsigned int idim=0;idim<ndim_co0;idim++){ coord_cnt[idim] += coord[idim]; }
 						}
-						for(unsigned int idim=0;idim<ndim_co0;idim++){ coord_cnt[idim] /= nnoes; }
+						for(unsigned int idim=0;idim<ndim_co0;idim++){ coord_cnt[idim] *= invnnoes; }
+//            std::cout << coord_cnt[0] << " " << coord_cnt[1] << " " << coord_cnt[2] << std::endl;
 					}
 					double value[3];
 					{	// get value
@@ -564,7 +565,7 @@ void CDrawerVector::Draw() const{
 				for(unsigned int ipo=0;ipo<npo;ipo++){
 					double* pCo = pData + ipo*(ndim_co+ndim_va);
 					double* pVa = pData + ipo*(ndim_co+ndim_va) + ndim_co;
-					::glVertex2dv(pCo);
+					::glVertex3dv(pCo);
 					::glVertex3d(pCo[0]+pVa[0],pCo[1]+pVa[1],pCo[2]+pVa[2]);
 				}
 			}		

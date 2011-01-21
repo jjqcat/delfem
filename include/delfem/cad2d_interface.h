@@ -116,24 +116,26 @@ public:
 	// 　　　　is_left_side==trueならこの円弧は始点終点を結ぶ線の始点から見て左側にある．is_left_side==falseなら右側
 	// 　　　　distは円の中心から始点終点を結ぶ線の中点が左側にどれだけ離れているかという値
 	//! @{
-    //ここから省略できそう？(このinterfaceは描画とメッシュ切のためだとして)
-    /*!
-	@brief 辺の形状タイプを返す
-	@retval ０ 線分
-    @retval １ 円弧
-    @retval ２ メッシュ
+  
+  
+  //ここから省略できそう？(このinterfaceは描画とメッシュ切のためだとして)
+  /*!
+   @brief 辺の形状タイプを返す
+   @retval ０ 線分
+   @retval １ 円弧
+   @retval ２ メッシュ
 	*/
 	virtual int GetEdgeCurveType(const unsigned int& id_e) const = 0;
 	//! ID:id_eの辺の情報を得る
 	virtual bool GetCurve_Arc(unsigned int id_e, bool& is_left_side, double& dist) const = 0;
-	virtual bool GetCurve_Polyline(unsigned int id_e, std::vector<double>& aRelCoMesh) const = 0;
-    //ここまで省略できそう？
+	virtual bool GetCurve_Polyline(unsigned int id_e, std::vector<double>& aRelCoMesh) const = 0;  
+  //ここまで省略できそう？
 
-    //! ID:id_eの辺のメッシュ分割を得る(elen<=0ならできるだけ詳細にメッシュを切ろうとする)
-    virtual bool GetCurve_Polyline(unsigned int id_e, std::vector<Com::CVector2D>& aCo, double elen) const = 0;
-    //! ID:id_eの辺をndiv個に分割したものを得る. 但し始点，終点はそれぞれps,peとする
-    virtual bool GetCurve_Polyline(unsigned int id_e, std::vector<Com::CVector2D>& aCo,
-                               unsigned int ndiv, const Com::CVector2D& ps, const Com::CVector2D& pe) const = 0;
+  //! ID:id_eの辺のメッシュ分割を得る(elen<=0ならできるだけ詳細にメッシュを切ろうとする)
+  virtual bool GetCurveAsPolyline(unsigned int id_e, std::vector<Com::CVector2D>& aCo, double elen) const = 0;
+  //! ID:id_eの辺をndiv個に分割したものを得る. 但し始点，終点はそれぞれps,peとする
+  virtual bool GetCurveAsPolyline(unsigned int id_e, std::vector<Com::CVector2D>& aCo,
+                                  unsigned int ndiv, const Com::CVector2D& ps, const Com::CVector2D& pe) const = 0;
 	//! @}
 
 	////////////////////////////////

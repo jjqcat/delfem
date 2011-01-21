@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #endif
 
 #include "delfem/field_world.h"
+#include "delfem/field_value_setter.h"
 
 #include "delfem/matvec/matdia_blkcrs.h"
 #include "delfem/matvec/vector_blk.h"
@@ -394,8 +395,8 @@ unsigned int CEqnSystem_Fluid2D::AddFixElemAry( const std::vector<unsigned int>&
 	if( id_field == 0 ) return 0;
 	assert( world.IsIdField(id_field) );
 	CField& field = world.GetField(id_field);
-	field.SetValue(0.0,0,Fem::Field::VELOCITY,world,false);
-	field.SetValue(0.0,1,Fem::Field::VELOCITY,world,false);
+  Fem::Field::SetFieldValue_Constant(id_field,0,Fem::Field::VELOCITY,world,0);
+  Fem::Field::SetFieldValue_Constant(id_field,1,Fem::Field::VELOCITY,world,0);
 	m_aIdFixField.push_back( std::make_pair(id_field,-1) );
 	return id_field;
 }
@@ -624,10 +625,10 @@ unsigned int CEqn_Fluid3D::AddFixElemAry( const std::vector<unsigned int>& aIdEA
 	const unsigned int id_field = world.GetPartialField(m_id_velo, aIdEA );
 	if( id_field == 0 ) return 0;
 	assert( world.IsIdField(id_field) );
-	CField& field = world.GetField(id_field);
-	field.SetValue(0.0,0,Fem::Field::VELOCITY,world,false);
-	field.SetValue(0.0,1,Fem::Field::VELOCITY,world,false);
-	field.SetValue(0.0,2,Fem::Field::VELOCITY,world,false);
+//	CField& field = world.GetField(id_field);
+  Fem::Field::SetFieldValue_Constant(id_field,0,Fem::Field::VELOCITY,world,0);
+  Fem::Field::SetFieldValue_Constant(id_field,1,Fem::Field::VELOCITY,world,0);
+  Fem::Field::SetFieldValue_Constant(id_field,2,Fem::Field::VELOCITY,world,0);
 	m_aIdFixField.push_back( std::make_pair(id_field,idof) );
 	return id_field;
 }

@@ -21,12 +21,15 @@
 #endif
 
 #include "delfem/camera.h"
+#include "delfem/glut_utility.h"
+
 #include "delfem/cad_obj2d.h"
 #include "delfem/mesher2d.h"
 #include "delfem/mesh3d.h"
 
 #include "delfem/field.h"
 #include "delfem/field_world.h"
+#include "delfem/field_value_setter.h"
 #include "delfem/drawer_field.h"
 #include "delfem/drawer_field_face.h"
 #include "delfem/drawer_field_edge.h"
@@ -37,64 +40,6 @@ using namespace Fem::Field;
 Com::View::CCamera camera;
 double mov_begin_x, mov_begin_y;
 
-void RenderBitmapString(float x, float y, void *font,char *string)
-{
-  char *c;
-  ::glRasterPos2f(x, y);
-  for (c=string; *c != '\0'; c++) {
-	  ::glutBitmapCharacter(font, *c);
-  }
-}
-
-
-void ShowFPS()
-{
-	int* font=(int*)GLUT_BITMAP_8_BY_13;
-	static char s_fps[30];
-	{
-		static int frame, timebase;
-		int time;
-		frame++;
-		time=glutGet(GLUT_ELAPSED_TIME);
-		if (time - timebase > 500) {
-			sprintf(s_fps,"FPS:%4.2f",frame*1000.0/(time-timebase));
-			timebase = time;
-			frame = 0;
-		}
-	}
-	char s_tmp[30];
-
-	GLint viewport[4];
-	::glGetIntegerv(GL_VIEWPORT,viewport);
-	const int win_w = viewport[2];
-	const int win_h = viewport[3];
-
-	::glMatrixMode(GL_PROJECTION);
-	::glPushMatrix();
-	::glLoadIdentity();
-	::gluOrtho2D(0, win_w, 0, win_h);
-	::glMatrixMode(GL_MODELVIEW);
-	::glPushMatrix();
-	::glLoadIdentity();
-	::glScalef(1, -1, 1);
-	::glTranslatef(0, -win_h, 0);
-	::glDisable(GL_LIGHTING);
-//	::glDisable(GL_DEPTH_TEST);
-	::glColor3d(1.0, 0.0, 0.0);
-	strcpy(s_tmp,"DelFEM demo");
-	RenderBitmapString(10,15, (void*)font, s_tmp);
-	::glColor3d(0.0, 0.0, 1.0);
-	strcpy(s_tmp,"Press \"Space\" key!");
-	RenderBitmapString(120,15, (void*)font, s_tmp);
-	::glColor3d(0.0, 0.0, 0.0);
-	RenderBitmapString(10,30, (void*)font, s_fps);
-//	::glEnable(GL_LIGHTING);
-	::glEnable(GL_DEPTH_TEST);
-	::glPopMatrix();
-	::glMatrixMode(GL_PROJECTION);
-	::glPopMatrix();
-	::glMatrixMode(GL_MODELVIEW);
-}
 
 void myGlutMotion( int x, int y ){
 	GLint viewport[4];
@@ -180,6 +125,7 @@ void myGlutSpecial(int Key, int x, int y)
 unsigned int id_field_val;
 unsigned int id_base;
 Fem::Field::CFieldWorld world;
+std::vector<Fem::Field::CFieldValueSetter> field_value_setter_ary;
 
 double cur_time = 0.0;
 bool is_animation = true;
@@ -199,7 +145,9 @@ void myGlutDisplay(void)
 
 	if( is_animation ){
 		cur_time += 0.1;
-		world.FieldValueExec(cur_time);
+    for(unsigned int iset=0;iset<field_value_setter_ary.size();iset++){
+      field_value_setter_ary[iset].ExecuteValue(cur_time,world);
+    }
 		drawer_ary.Update(world);
 	}
 	drawer_ary.Draw();
@@ -220,7 +168,7 @@ bool SetNewProblem()
 	static int id_val_bc0=0, id_val_bc1=0, id_val_bc2=0;
 	
 	if( iprob == 0 )
-	{
+  {
 		Cad::CCadObj2D cad_2d;
  		{
 			std::vector<Com::CVector2D> vec_ary;
@@ -232,19 +180,25 @@ bool SetNewProblem()
 		}
 		world.Clear();
 		id_base = world.AddMesh( Msh::CMesher2D(cad_2d,0.02) );
-		{
-			id_field_val = world.MakeField_FieldElemDim(id_base,2,Fem::Field::SCALAR);
-			assert( world.IsIdField(id_field_val) );
-			CField& val_field = world.GetField(id_field_val);
-			val_field.SetValue("sin(10*sqrt(x^2+y^2)-2*PI*t)", 0,Fem::Field::VALUE, world,true);
-		}
+    id_field_val = world.MakeField_FieldElemDim(id_base,2,Fem::Field::SCALAR);
+    assert( world.IsIdField(id_field_val) );
+    {
+      field_value_setter_ary.clear();
+      Fem::Field::CFieldValueSetter fvs(id_field_val,world);
+      fvs.SetMathExp("sin(10*sqrt(x^2+y^2)-2*PI*t)", 0, Fem::Field::VALUE,world);
+      field_value_setter_ary.push_back(fvs);
+    }
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_val,true,world,id_field_val,-1.0,1.0) );
 		drawer_ary.InitTrans( camera );
-	}
-	else if( iprob == 1 ){
-		CField& val_field = world.GetField(id_field_val);
-		val_field.SetValue("sin(2*PI*x-t)*sin(2*PI*y-t)", 0,Fem::Field::VALUE, world,true);
+  }
+	else if( iprob == 1 ){    
+    {
+      field_value_setter_ary.clear();
+      Fem::Field::CFieldValueSetter fvs(id_field_val,world);
+      fvs.SetMathExp("sin(2*PI*x-t)*sin(2*PI*y-t)", 0, Fem::Field::VALUE,world);
+      field_value_setter_ary.push_back(fvs);
+    }
 	}
 	else if( iprob == 2 )
 	{
@@ -253,11 +207,13 @@ bool SetNewProblem()
 //		msh_2d.ReadFromFile_GiDMsh("../input_file/hexa_tri.msh");
 		world.Clear();
 		id_base = world.AddMesh( msh_2d );
-		{
-			id_field_val = world.MakeField_FieldElemDim(id_base,2,Fem::Field::SCALAR);
-			CField& val_field = world.GetField(id_field_val);
-			val_field.SetValue("sin(0.5*sqrt((x+1)^2+y^2)-0.1*t)", 0,Fem::Field::VALUE, world,true);
-		}
+    id_field_val = world.MakeField_FieldElemDim(id_base,2,Fem::Field::SCALAR);        
+    {
+      field_value_setter_ary.clear();
+      Fem::Field::CFieldValueSetter fvs(id_field_val,world);
+      fvs.SetMathExp("sin(0.5*sqrt((x+1)^2+y^2)-0.1*t)", 0, Fem::Field::VALUE,world);
+      field_value_setter_ary.push_back(fvs);
+    }
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_val,true,world, id_field_val,-1.0,1.0) );
 		drawer_ary.InitTrans( camera);
@@ -278,16 +234,18 @@ bool SetNewProblem()
 		mesh_3d.Extrude(mesh_2d,1.0,0.07);
 		world.Clear();
 		id_base = world.AddMesh( mesh_3d );
-		{
-			id_field_val = world.MakeField_FieldElemDim(id_base,2,Fem::Field::SCALAR);
-			CField& val_field = world.GetField(id_field_val);
-			val_field.SetValue("sin(10*sqrt(x^2+y^2+z^2)-PI*t)", 0,Fem::Field::VALUE, world,true);
-		}
-		drawer_ary.Clear();
+    id_field_val = world.MakeField_FieldElemDim(id_base,2,Fem::Field::SCALAR);  
+    {
+      field_value_setter_ary.clear();
+      Fem::Field::CFieldValueSetter fvs(id_field_val,world);
+      fvs.SetMathExp("sin(10*sqrt(x^2+y^2+z^2)-PI*t)", 0, Fem::Field::VALUE,world);
+      field_value_setter_ary.push_back(fvs);
+    }
+    drawer_ary.Clear();
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_val,true,world,id_field_val,-1.0,1.0) );
 		drawer_ary.InitTrans( camera );
 	}
-	else if( iprob == 4 )
+  else if( iprob == 4 )
 	{
 		Msh::CMesher2D mesh_2d;
 		mesh_2d.ReadFromFile_GiDMsh("../input_file/hexa_tri.msh");
@@ -295,11 +253,13 @@ bool SetNewProblem()
 		mesh_3d.Extrude(mesh_2d,5.0,0.5);
 		world.Clear();
 		id_base = world.AddMesh( mesh_3d );
-		{
-			id_field_val = world.MakeField_FieldElemDim(id_base,2,Fem::Field::SCALAR);
-			CField& val_field = world.GetField(id_field_val);
-			val_field.SetValue("sin(1.0*sqrt(x^2+y^2+z^2)-2*PI*t)", 0,Fem::Field::VALUE, world,true);
-		}
+    id_field_val = world.MakeField_FieldElemDim(id_base,2,Fem::Field::SCALAR);
+    {
+      field_value_setter_ary.clear();      
+      Fem::Field::CFieldValueSetter fvs(id_field_val,world);
+      fvs.SetMathExp("sin(1.0*sqrt(x^2+y^2+z^2)-2*PI*t)", 0, Fem::Field::VALUE,world);
+      field_value_setter_ary.push_back(fvs);
+    }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_val,true,world,id_field_val,-1.0,1.0) );
 		drawer_ary.InitTrans( camera );
@@ -321,17 +281,18 @@ bool SetNewProblem()
 		world.Clear();
 		id_base = world.AddMesh( Msh::CMesher2D(cad_2d,0.02) );
 		const Fem::Field::CIDConvEAMshCad& conv = world.GetIDConverter(id_base);
-		{
-			id_field_val = world.MakeField_FieldElemDim(id_base,2,Fem::Field::SCALAR);
-			assert( world.IsIdField(id_field_val) );
-			unsigned int id_field0 = world.GetPartialField(id_field_val,conv.GetIdEA_fromCad(1,Cad::LOOP));
-			assert( world.IsIdField(id_field0) );
-			CField& val_field0 = world.GetField(id_field0);
-			val_field0.SetValue("sin(10*sqrt((x+0.5)^2+y^2)-2*PI*t)", 0,Fem::Field::VALUE, world,true);
-			unsigned int id_field1 = world.GetPartialField(id_field_val,conv.GetIdEA_fromCad(2,Cad::LOOP));
-			CField& val_field1 = world.GetField(id_field1);
-			val_field1.SetValue("sin(10*sqrt((x-0.5)^2+y^2)-2*PI*t)", 0,Fem::Field::VALUE, world,true);
-		}
+    id_field_val = world.MakeField_FieldElemDim(id_base,2,Fem::Field::SCALAR); assert( world.IsIdField(id_field_val) );
+    unsigned int id_field0 = world.GetPartialField(id_field_val,conv.GetIdEA_fromCad(1,Cad::LOOP)); assert( world.IsIdField(id_field0) ); 
+    unsigned int id_field1 = world.GetPartialField(id_field_val,conv.GetIdEA_fromCad(2,Cad::LOOP)); assert( world.IsIdField(id_field1) ); 
+    {
+      field_value_setter_ary.clear();
+      Fem::Field::CFieldValueSetter fvs0(id_field0,world);
+      fvs0.SetMathExp("sin(10*sqrt((x+0.5)^2+y^2)-2*PI*t)", 0, Fem::Field::VALUE,world);
+      field_value_setter_ary.push_back(fvs0);
+      Fem::Field::CFieldValueSetter fvs1(id_field1,world);
+      fvs1.SetMathExp("sin(10*sqrt((x-0.5)^2+y^2)-2*PI*t)", 0, Fem::Field::VALUE,world);
+      field_value_setter_ary.push_back(fvs1); 
+    }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_val,true,world,id_field_val,-1.0,1.0) );
 		drawer_ary.InitTrans( camera );
@@ -353,11 +314,13 @@ bool SetNewProblem()
 		world.Clear();
 		id_base = world.AddMesh( Msh::CMesher2D(cad_2d,0.05) );
 		const Fem::Field::CIDConvEAMshCad& conv = world.GetIDConverter(id_base);
-		{
-			id_field_val = world.MakeField_FieldElemAry(id_base,conv.GetIdEA_fromCad(1,Cad::LOOP),Fem::Field::SCALAR);
-			CField& val_field = world.GetField(id_field_val);
-			val_field.SetValue("sin(10*sqrt((x+0.5)^2+y^2)-2*PI*t)", 0,Fem::Field::VALUE, world,true);
-		}
+    id_field_val = world.MakeField_FieldElemAry(id_base,conv.GetIdEA_fromCad(1,Cad::LOOP),Fem::Field::SCALAR);    
+    {
+      field_value_setter_ary.clear();      
+      Fem::Field::CFieldValueSetter fvs(id_field_val,world);
+      fvs.SetMathExp("sin(10*sqrt((x+0.5)^2+y^2)-2*PI*t)", 0, Fem::Field::VALUE,world);
+      field_value_setter_ary.push_back(fvs);
+    }        
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_val,true,world,id_field_val,-1.0,1.0) );
 //		drawer_ary.PushBack( new View::CDrawerFace(id_field_val,true,world) );
@@ -365,12 +328,12 @@ bool SetNewProblem()
 	}
 	else if( iprob == 7 ){
 		unsigned int id_field_grad = world.MakeField_FieldElemDim(id_field_val,2,VECTOR2,VALUE,BUBBLE);
-		{
-			CField& field_grad = world.GetField(id_field_grad);
-//			field_grad.SetGradient(id_field_val,world);
-			field_grad.SetValue("0.1*sin(t)", 0,Fem::Field::VALUE, world,true);
-			field_grad.SetValue("0.1*cos(t)", 1,Fem::Field::VALUE, world,true);
-		}
+    {
+      Fem::Field::CFieldValueSetter fvs(id_field_grad,world);
+      fvs.SetMathExp("0.1*sin(t)", 0, Fem::Field::VALUE,world);
+      fvs.SetMathExp("0.1*cos(t)", 1, Fem::Field::VALUE,world);      
+      field_value_setter_ary.push_back(fvs);
+    }            
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerVector(id_field_grad,world) );
 		drawer_ary.InitTrans( camera );
 	}
@@ -380,17 +343,18 @@ bool SetNewProblem()
 		world.Clear();
 		id_base = world.AddMesh( mesh_3d );
 		id_field_val = world.MakeField_FieldElemDim(id_base,3,SCALAR);
-		{
-			id_field_val = world.MakeField_FieldElemAry(id_base,1,Fem::Field::SCALAR);
-			CField& val_field = world.GetField(id_field_val);
-			val_field.SetValue("sin(t+0.5*x)", 0,Fem::Field::VALUE, world,true);
-		}
-		unsigned int id_field_grad = world.MakeField_FieldElemDim(id_field_val,3,VECTOR3,VALUE,BUBBLE);
-		{
-			CField& field_grad = world.GetField(id_field_grad);
-			field_grad.SetGradient(id_field_val,world,true);
-			field_grad.ExportFile_Inp("grad_tet.inp",world);
-		}
+		unsigned int id_field_grad = world.MakeField_FieldElemDim(id_field_val,3,VECTOR3,VALUE,BUBBLE);    
+    field_value_setter_ary.clear();          
+    {
+      Fem::Field::CFieldValueSetter fvs(id_field_val,world);
+      fvs.SetMathExp("sin(t+0.5*x)", 0, Fem::Field::VALUE,world);
+      field_value_setter_ary.push_back(fvs);
+    }                
+    {
+      Fem::Field::CFieldValueSetter fvs(id_field_grad,world);
+      fvs.SetGradient(id_field_val, world);      
+      field_value_setter_ary.push_back(fvs);
+    }
 		drawer_ary.Clear();
 //		drawer_ary.PushBack( new View::CDrawerFaceContour(id_field_val,world,-1.0,1.0) );
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerVector(id_field_grad,world) );
@@ -403,18 +367,18 @@ bool SetNewProblem()
 		world.Clear();
 		id_base = world.AddMesh( mesh_3d );
 		id_field_val = world.MakeField_FieldElemDim(id_base,3,SCALAR);
-		{
-			id_field_val = world.MakeField_FieldElemAry(id_base,1,Fem::Field::SCALAR);
-			CField& val_field = world.GetField(id_field_val);
-			val_field.SetValue("sin(t+0.5*x)", 0,Fem::Field::VALUE, world,true);
-		}
-//		unsigned int id_field_grad = world.MakeField_AllRegion(VECTOR3,VALUE,BUBBLE);
-		unsigned int id_field_grad = world.MakeField_FieldElemDim(id_field_val,3,VECTOR3,VALUE,BUBBLE);
-		{
-			CField& field_grad = world.GetField(id_field_grad);
-			field_grad.SetGradient(id_field_val,world,true);
-			field_grad.ExportFile_Inp("grad_hex.inp",world);
-		}
+		unsigned int id_field_grad = world.MakeField_FieldElemDim(id_field_val,3,VECTOR3,VALUE,BUBBLE);    
+    field_value_setter_ary.clear();              
+    {
+      Fem::Field::CFieldValueSetter fvs(id_field_val,world);
+      fvs.SetMathExp("sin(t+0.5*x)", 0, Fem::Field::VALUE,world);
+      field_value_setter_ary.push_back(fvs);
+    }
+    {
+      Fem::Field::CFieldValueSetter fvs(id_field_grad,world);
+      fvs.SetGradient(id_field_val, world);      
+      field_value_setter_ary.push_back(fvs);
+    }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerVector(id_field_grad,world) );
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerEdge(id_field_grad,true,world) );
@@ -427,14 +391,15 @@ bool SetNewProblem()
 		msh_2d.ReadFromFile_GiDMsh("../input_file/hexa_tri.msh");
 		world.Clear();
 		id_base = world.AddMesh( msh_2d );
-		{
-			id_field_val = world.MakeField_FieldElemDim(id_base,2,Fem::Field::SCALAR,VALUE,BUBBLE);
-			CField& val_field = world.GetField(id_field_val);
-			val_field.SetValue("sin(x+y-0.1*t)", 0,Fem::Field::VALUE, world,true);
-		}
+    id_field_val = world.MakeField_FieldElemDim(id_base,2,Fem::Field::SCALAR,VALUE,BUBBLE);
+    field_value_setter_ary.clear();                  
+    {
+      Fem::Field::CFieldValueSetter fvs(id_field_val,world);
+      fvs.SetMathExp("sin(x+y-0.1*t)", 0, Fem::Field::VALUE,world);
+      field_value_setter_ary.push_back(fvs);
+    }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_val,true,world,id_field_val,-1.0,1.0) );
-//		drawer_ary.PushBack( new View::CDrawerFace(id_field_val,true,world) );
 		drawer_ary.InitTrans( camera);
 	}
 	else if( iprob == 11 )
@@ -446,11 +411,13 @@ bool SetNewProblem()
 		mesh_3d.Extrude(msh_2d,5.0,1);
 		world.Clear();
 		id_base = world.AddMesh( mesh_3d );
-		{
-			id_field_val = world.MakeField_FieldElemDim(id_base,3,Fem::Field::SCALAR,VALUE,BUBBLE);
-			CField& val_field = world.GetField(id_field_val);
-			val_field.SetValue("sin(0.5*sqrt(x^2+y^2+z^2)-2*PI*t)", 0,Fem::Field::VALUE, world,true);
-		}
+    id_field_val = world.MakeField_FieldElemDim(id_base,3,Fem::Field::SCALAR,VALUE,BUBBLE);    
+    field_value_setter_ary.clear();                      
+    {
+      Fem::Field::CFieldValueSetter fvs(id_field_val,world);
+      fvs.SetMathExp("sin(0.5*sqrt(x^2+y^2+z^2)-2*PI*t)", 0, Fem::Field::VALUE,world);
+      field_value_setter_ary.push_back(fvs);
+    }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_val,true,world, id_field_val,-1.0,1.0) );
 //		drawer_ary.PushBack( new View::CDrawerFace(id_field_val,true,world) );
@@ -469,21 +436,20 @@ bool SetNewProblem()
 		}
 		world.Clear();
 		id_base = world.AddMesh( Msh::CMesher2D(cad_2d,0.1) );
-		{
-			id_field_val = world.MakeField_FieldElemDim(id_base,2,Fem::Field::SCALAR,VALUE,CORNER|BUBBLE);
-            std::cout << id_field_val << std::endl;
-			assert( world.IsIdField(id_field_val) );
-			CField& val_field = world.GetField(id_field_val);
-			val_field.SetValue("sin(10*sqrt(x^2+y^2)-2*PI*t)", 0,Fem::Field::VALUE, world,true);
-		}
-		unsigned int id_field_vec;
-		{
-			id_field_vec = world.MakeField_FieldElemDim(id_base,2,Fem::Field::VECTOR2,VALUE,CORNER|BUBBLE);
-			assert( world.IsIdField(id_field_vec) );
-			CField& vec_field = world.GetField(id_field_vec);
-			vec_field.SetValue("0.05*sin(t)", 0,Fem::Field::VALUE, world,true);
-			vec_field.SetValue("0.05*cos(t)", 1,Fem::Field::VALUE, world,true);
-		}
+    id_field_val = world.MakeField_FieldElemDim(id_base,2,Fem::Field::SCALAR,VALUE,CORNER|BUBBLE);  assert( world.IsIdField(id_field_val) );
+		unsigned int id_field_vec = world.MakeField_FieldElemDim(id_base,2,Fem::Field::VECTOR2,VALUE,CORNER|BUBBLE); assert( world.IsIdField(id_field_vec) );    
+    field_value_setter_ary.clear();                      
+    {
+      Fem::Field::CFieldValueSetter fvs(id_field_val,world);
+      fvs.SetMathExp("sin(10*sqrt(x^2+y^2)-2*PI*t)", 0, Fem::Field::VALUE,world);
+      field_value_setter_ary.push_back(fvs);
+    }                   
+    {
+      Fem::Field::CFieldValueSetter fvs(id_field_vec,world);
+      fvs.SetMathExp("0.05*sin(t)", 0, Fem::Field::VALUE,world);
+      fvs.SetMathExp("0.05*cos(t)", 1, Fem::Field::VALUE,world);      
+      field_value_setter_ary.push_back(fvs);
+    }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_val,true,world, id_field_val,-1.0,1.0) );
 		drawer_ary.PushBack( new View::CDrawerVector(id_field_vec,world) );
@@ -505,17 +471,8 @@ void myGlutKeyboard(unsigned char key, int x, int y)
 	  exit(0);
 	  break;
   case 'a' :
-	  is_animation = true;
-	  break;
-  case 's' :
-	  if( is_animation ){
-		cur_time += 0.1;
-		world.FieldValueExec(cur_time);
-		drawer_ary.Update(world);
-		glutPostRedisplay();
-	  }
-	  is_animation = true;
-	  break;
+      is_animation = !is_animation;
+      break;
   case ' ':
 	  SetNewProblem();
 	  ::glMatrixMode(GL_PROJECTION);
