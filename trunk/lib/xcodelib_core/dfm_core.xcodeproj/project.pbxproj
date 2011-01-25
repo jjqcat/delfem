@@ -423,6 +423,7 @@
 				A9EDB2A511A8ABFF0003AC93 /* femls */,
 				A9EDB2AB11A8ABFF0003AC93 /* field_world.h */,
 				A9EDB2AC11A8ABFF0003AC93 /* field.h */,
+				A94452A712E899DA0099ECA5 /* field_value_setter.h */,
 				A9EDB2AD11A8ABFF0003AC93 /* indexed_array.h */,
 				A9EDB2AE11A8ABFF0003AC93 /* linearsystem_interface_eqnsys.h */,
 				A9EDB2AF11A8ABFF0003AC93 /* ls */,
@@ -440,7 +441,6 @@
 				A9EDB2D911A8ABFF0003AC93 /* uglyfont.h */,
 				A9EDB2DA11A8ABFF0003AC93 /* vector2d.h */,
 				A9EDB2DB11A8ABFF0003AC93 /* vector3d.h */,
-				A94452A712E899DA0099ECA5 /* field_value_setter.h */,
 				A944563B12E8FC930099ECA5 /* glut_utility.h */,
 			);
 			name = Header;
