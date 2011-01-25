@@ -45,7 +45,7 @@
 
 Com::View::CCamera camera;
 double mov_begin_x, mov_begin_y;
-int press_button;
+int imodifier;
 
 
 
@@ -441,14 +441,14 @@ double cur_time = 0;
 
 class RigidElasticConnection{
 public:
-    RigidElasticConnection(unsigned int irigid, unsigned int id_lambda, unsigned int id_disp){
-        this->irigid = irigid;
-        this->id_lambda = id_lambda;
-        this->id_disp = id_disp;
-    }
-    unsigned int id_disp;
-    unsigned int id_lambda;
-    unsigned int irigid;
+  RigidElasticConnection(unsigned int irigid, unsigned int id_lambda, unsigned int id_disp){
+    this->irigid = irigid;
+    this->id_lambda = id_lambda;
+    this->id_disp = id_disp;
+  }
+  unsigned int id_disp;
+  unsigned int id_lambda;
+  unsigned int irigid;  
 };
 std::vector<unsigned int> aIdDisp;
 std::vector< RigidElasticConnection > aRigidElastic;
@@ -822,54 +822,54 @@ void myGlutDisplay(void)
 	::glMatrixMode(GL_MODELVIEW);
 	::glLoadIdentity();
 	Com::View::SetModelViewTransform(camera);
-
-    if( is_animation ){
-        // çÑëÃÇÃâ^ìÆÇâÇ≠
-//        StepTime();
-//        StepTime2();
-        StepTime4();
-        cur_time += dt;
-        std::cout << cur_time << std::endl;
-    }
-
-    DrawBackGround();
-
-    ::glColor3d(0.7,0.7,0.7);
-    ::glBegin(GL_QUADS);
-    ::glVertex3d(-2,-2,0);
-    ::glVertex3d( 2,-2,0);
-    ::glVertex3d( 2, 2,0);
-    ::glVertex3d(-2, 2,0);
+  
+  if( is_animation ){
+    // çÑëÃÇÃâ^ìÆÇâÇ≠
+    //        StepTime();
+    //        StepTime2();
+    StepTime4();
+    cur_time += dt;
+    std::cout << cur_time << std::endl;
+  }
+  
+  DrawBackGround();
+  
+  ::glColor3d(0.7,0.7,0.7);
+  ::glBegin(GL_QUADS);
+  ::glVertex3d(-2,-2,0);
+  ::glVertex3d( 2,-2,0);
+  ::glVertex3d( 2, 2,0);
+  ::glVertex3d(-2, 2,0);
+  ::glEnd();
+  {
+    ::glLineWidth(1);
+    ::glBegin(GL_LINES);
+    ::glColor3d(1,0,0);
+    ::glVertex3d(0,0,0);
+    ::glVertex3d(1,0,0);
+    ::glColor3d(0,1,0);
+    ::glVertex3d(0,0,0);
+    ::glVertex3d(0,1,0);
+    ::glColor3d(0,0,1);
+    ::glVertex3d(0,0,0);
+    ::glVertex3d(0,0,1);
     ::glEnd();
-    {
-        ::glLineWidth(1);
-        ::glBegin(GL_LINES);
-        ::glColor3d(1,0,0);
-        ::glVertex3d(0,0,0);
-        ::glVertex3d(1,0,0);
-        ::glColor3d(0,1,0);
-        ::glVertex3d(0,0,0);
-        ::glVertex3d(0,1,0);
-        ::glColor3d(0,0,1);
-        ::glVertex3d(0,0,0);
-        ::glVertex3d(0,0,1);
-        ::glEnd();
-    }
-
-    for(unsigned int irb=0;irb<aRB.size();irb++){
-//	    aRB[irb].Draw();
+  }
+  
+  for(unsigned int irb=0;irb<aRB.size();irb++){
+    //	    aRB[irb].Draw();
 		DrawRigidBody(aRB[irb]);
-    }
-    for(unsigned int ifix=0;ifix<apFix.size();ifix++){
+  }
+  for(unsigned int ifix=0;ifix<apFix.size();ifix++){
 		DrawConstraint(apFix[ifix],aRB);
-//	    apFix[ifix]->Draw(aRB);
-    }
-
-    drawer_ary.Draw();
-
-    ShowFPS();
-
-	glutSwapBuffers();
+    //	    apFix[ifix]->Draw(aRB);
+  }
+  
+  drawer_ary.Draw();
+  
+  ShowFPS();
+  
+	glutSwapBuffers();  
 }
 
 void myGlutIdle(){
@@ -883,10 +883,10 @@ void myGlutMotion( int x, int y ){
 	const int win_h = viewport[3];
 	const double mov_end_x = (2.0*x-win_w)/win_w;
 	const double mov_end_y = (win_h-2.0*y)/win_h;
-	if( press_button == GLUT_MIDDLE_BUTTON ){
+	if( imodifier == GLUT_ACTIVE_CTRL ){
 		camera.MouseRotation(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
 	}
-	else if( press_button == GLUT_RIGHT_BUTTON ){
+	else if( imodifier == GLUT_ACTIVE_SHIFT ){
 		camera.MousePan(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
 	}
 	mov_begin_x = mov_end_x;
@@ -901,7 +901,7 @@ void myGlutMouse(int button, int state, int x, int y){
 	const int win_h = viewport[3];
 	mov_begin_x = (2.0*x-win_w)/win_w;
 	mov_begin_y = (win_h-2.0*y)/win_h;
-	press_button = button;
+  imodifier = ::glutGetModifiers();
 }
 
 
@@ -1208,7 +1208,7 @@ void SetProblem()
 		iprob = 0;
 	}
 
-    camera.SetRotationMode(Com::View::ROT_3D);
+  camera.SetRotationMode(Com::View::ROT_3D);
 }
 
 

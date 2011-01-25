@@ -46,39 +46,6 @@ static double TriArea(const double p0[], const double p1[], const double p2[]){
 	return 0.5*( (p1[0]-p0[0])*(p2[1]-p0[1])-(p2[0]-p0[0])*(p1[1]-p0[1]) );
 }
 
-static void TriDlDx(double dldx[][2], double const_term[],
-			 const double p0[], const double p1[], const double p2[]){
-
-	const double area = TriArea(p0,p1,p2);
-	const double tmp1 = 0.5 / area;
-
-	const_term[0] = tmp1*(p1[0]*p2[1]-p2[0]*p1[1]);
-	const_term[1] = tmp1*(p2[0]*p0[1]-p0[0]*p2[1]);
-	const_term[2] = tmp1*(p0[0]*p1[1]-p1[0]*p0[1]);
-
-	dldx[0][0] = tmp1*(p1[1]-p2[1]);
-	dldx[1][0] = tmp1*(p2[1]-p0[1]);
-	dldx[2][0] = tmp1*(p0[1]-p1[1]);
-
-	dldx[0][1] = tmp1*(p2[0]-p1[0]);
-	dldx[1][1] = tmp1*(p0[0]-p2[0]);
-	dldx[2][1] = tmp1*(p1[0]-p0[0]);
-}
-
-
-bool CField::CValueFieldDof::GetValue(double cur_t, double& value) const {
-    if( itype == 0 ){ return false; }
-    if( itype == 1 ){ value = val; return true; }
-    if( itype == 2 ){
-        Fem::Field::CEval eval;
-        eval.SetKey("t",cur_t);
-        if( !eval.SetExp(math_exp) ){ return false; }
-        value = eval.Calc();
-        return true;
-    }
-    return false;
-}
-
 CField::CField(const CField& rhs)
 {
 	m_is_valid = rhs.m_is_valid;
@@ -96,13 +63,13 @@ CField::CField(const CField& rhs)
   
 	////////////////
 	m_DofSize = rhs.m_DofSize;
-	m_aValueFieldDof = rhs.m_aValueFieldDof;  
-	m_id_field_dep = rhs.m_id_field_dep;
-	m_is_gradient = rhs.m_is_gradient;
+//	m_aValueFieldDof = rhs.m_aValueFieldDof;  
+//	m_id_field_dep = rhs.m_id_field_dep;
+//	m_is_gradient = rhs.m_is_gradient;
 }
 
 CField::CField
-(unsigned int id_field_parent,	// 親フィールド
+(unsigned int id_field_parent,	// parent field
  const std::vector<CElemInterpolation>& aEI, 
  const CNodeSegInNodeAry& nsna_c, const CNodeSegInNodeAry& nsna_b, 
  CFieldWorld& world)
@@ -170,11 +137,6 @@ CField::CField
 			}
 		}
 	}
-
-	m_id_field_dep = 0;
-	m_is_gradient = false;
-//	m_is_mises = false;
-//	m_is_maxprinciple = false;
 
 	m_is_valid = this->AssertValid(world);
 	assert( m_is_valid );
@@ -657,133 +619,6 @@ bool CField::SetValueType( FIELD_TYPE field_type, const int fdt, CFieldWorld& wo
 	}
 	this->m_DofSize = ndofsize;
 	return true;
-}
-
-
-
-//! 時間依存かどうか調べる
-bool CField::IsTimeDependent() const
-{
-	for(unsigned int idof=0;idof<m_aValueFieldDof.size();idof++){
-		const CValueFieldDof& val = m_aValueFieldDof[idof];
-		if( val.IsTimeDependent() ){ return true; }
-	}
-	return false;
-}
-
-	
-// elem_aryに含まれる節点全てidofblk番目の自由度を固定する
-bool Fem::Field::CField::SetBCFlagToES(MatVec::CBCFlag& bc_flag, 
-        const Fem::Field::CElemAry& ea, unsigned int id_es, unsigned int idofblk) const
-{
-  assert( (int)idofblk < bc_flag.LenBlk() );
-  if( (int)idofblk >= bc_flag.LenBlk() ) return false;
-	assert( ea.IsSegID(id_es) );
-	const Fem::Field::CElemAry::CElemSeg& es = ea.GetSeg(id_es);
-	unsigned int noes[256];
-	unsigned int nnoes = es.Length();
-	for(unsigned int ielem=0;ielem<ea.Size();ielem++){
-		es.GetNodes(ielem,noes);
-		for(unsigned int inoes=0;inoes<nnoes;inoes++){
-			const unsigned int inode0 = noes[inoes];
-      bc_flag.SetBC(inode0,idofblk);
-//			m_Flag[inode0*m_lenBlk+idofblk] = 1;
-		}
-	}
-	return true;
-}
-
-
-void CField::BoundaryCondition(const ELSEG_TYPE& elseg_type, unsigned int idofns, MatVec::CBCFlag& bc_flag, const CFieldWorld& world) const
-{
-  assert( (int)idofns < bc_flag.LenBlk()  );
-	if( m_aElemIntp.size() == 0 ){
-		const unsigned int nblk = bc_flag.NBlk();
-		for(unsigned int iblk=0;iblk<nblk;iblk++){
-			bc_flag.SetBC(iblk,idofns);
-		}
-		return;
-	}
-	for(unsigned int iea=0;iea<m_aElemIntp.size();iea++){
-		unsigned int id_ea = m_aElemIntp[iea].id_ea;
-		const CElemAry& ea = world.GetEA(id_ea);
-		if( elseg_type == CORNER && m_aElemIntp[iea].id_es_c_va != 0 ){
-			this->SetBCFlagToES(bc_flag, ea, m_aElemIntp[iea].id_es_c_va,idofns);
-		}
-		if( elseg_type == BUBBLE && m_aElemIntp[iea].id_es_b_va != 0 ){
-			this->SetBCFlagToES(bc_flag, ea, m_aElemIntp[iea].id_es_b_va,idofns);
-		}
-		if( elseg_type == EDGE   && m_aElemIntp[iea].id_es_e_va != 0 ){
-			this->SetBCFlagToES(bc_flag, ea, m_aElemIntp[iea].id_es_e_va,idofns);
-		}
-	}
-}
-
-
-void CField::BoundaryCondition
-(const ELSEG_TYPE& elseg_type, 
- MatVec::CBCFlag& bc_flag, 
- const CFieldWorld& world, 
- unsigned int ioffset ) const
-{
-	if( m_aElemIntp.size() == 0 && elseg_type == CORNER ){
-		const unsigned int nblk = bc_flag.NBlk();
-		const unsigned int len = bc_flag.LenBlk();
-		for(unsigned int iblk=0;iblk<nblk;iblk++){
-		for(unsigned int ilen=0;ilen<len;ilen++){
-			bc_flag.SetBC(iblk,ilen+ioffset);
-		}
-		}
-		return;
-	}
-
-	{	// Assert
-		const unsigned int len = bc_flag.LenBlk();
-		assert( ioffset < len );
-	}
-	const unsigned int nlen = this->GetNLenValue();
-
-	for(unsigned int iea=0;iea<m_aElemIntp.size();iea++){
-		unsigned int id_ea = m_aElemIntp[iea].id_ea;
-		const CElemAry& ea = world.GetEA(id_ea);
-		unsigned int noes[256];
-		if( elseg_type == CORNER && m_aElemIntp[iea].id_es_c_va != 0 ){
-			const Fem::Field::CElemAry::CElemSeg& es = this->GetElemSeg(id_ea,CORNER,true,world);
-			unsigned int nnoes = es.Length();
-			for(unsigned int ielem=0;ielem<ea.Size();ielem++){
-				es.GetNodes(ielem,noes);
-				for(unsigned int inoes=0;inoes<nnoes;inoes++){
-					for(unsigned int ilen=0;ilen<nlen;ilen++){
-						bc_flag.SetBC(noes[inoes],ilen+ioffset);
-					}
-				}
-			}
-		}
-		if( elseg_type == BUBBLE && m_aElemIntp[iea].id_es_b_va != 0 ){
-			const Fem::Field::CElemAry::CElemSeg& es = this->GetElemSeg(id_ea,BUBBLE,true,world);
-			unsigned int nnoes = es.Length();
-			for(unsigned int ielem=0;ielem<ea.Size();ielem++){
-				es.GetNodes(ielem,noes);
-				for(unsigned int inoes=0;inoes<nnoes;inoes++){
-					for(unsigned int ilen=0;ilen<nlen;ilen++){
-						bc_flag.SetBC(noes[inoes],ilen+ioffset);
-					}
-				}
-			}
-		}
-		if( elseg_type == EDGE   && m_aElemIntp[iea].id_es_e_va != 0 ){
-			const Fem::Field::CElemAry::CElemSeg& es = this->GetElemSeg(id_ea,EDGE,true,world);
-			unsigned int nnoes = es.Length();
-			for(unsigned int ielem=0;ielem<ea.Size();ielem++){
-				es.GetNodes(ielem,noes);
-				for(unsigned int inoes=0;inoes<nnoes;inoes++){
-					for(unsigned int ilen=0;ilen<nlen;ilen++){
-						bc_flag.SetBC(noes[inoes],ilen+ioffset);
-					}
-				}
-			}
-		}
-	}
 }
 
 // 要素補間のタイプを取得する

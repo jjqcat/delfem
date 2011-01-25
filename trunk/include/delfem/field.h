@@ -32,13 +32,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <string>
 #include <stdio.h>
 
-//#include "delfem/field_world.h"
-#include "delfem/eval.h"
+//#include "delfem/eval.h"
 #include "delfem/elem_ary.h"
 #include "delfem/node_ary.h"
-
-//(FieldとMatVecは分離させたいから，そのうちこのヘッダへのリンクは削除)
-#include "delfem/matvec/bcflag_blk.h"
 
 namespace Fem{
 namespace Field{
@@ -136,46 +132,6 @@ public:
     id_na_va(nsna.id_na_va), is_part_va(nsna.is_part_va), 
     id_ns_va(nsna.id_ns_va), id_ns_ve(nsna.id_ns_ve), id_ns_ac(nsna.id_ns_ac){}
 	};
-public:	
-	//! 場の値定義クラス（そのうち抽象クラスにする予定）
-	class CValueFieldDof{
-	public:
-		CValueFieldDof(double val){ this->SetValue(val); }
-		CValueFieldDof(const std::string str){ 	this->SetValue(str); }
-		CValueFieldDof(){ itype=0; }
-		////////////////
-		void SetValue(std::string str){
-			itype = 2;
-			math_exp = str;
-		}
-		void SetValue(double val){
-			itype =1;
-			this->val = val;
-		}
-		bool IsTimeDependent() const{
-			if( itype != 2 ) return false;
-			Fem::Field::CEval eval;
-			eval.SetKey("t",0);
-			eval.SetExp(math_exp);
-			return eval.IsKeyUsed("t");
-		}
-    bool GetValue(double cur_t, double& value) const;
-		const std::string GetString() const{
-			if( itype == 1 ){
-				char buff[16];
-				sprintf(buff,"%lf",val);
-				return std::string(buff);
-			}
-			else{
-				return math_exp;
-			}
-		}
-	public:
-		int itype; // 0なら設定されていない。1なら値が設定されてる。2なら数式が設定されてる。
-		double val;
-		std::string math_exp;
-	};
-
 public:
 	CField
   (unsigned int id_field_parent,	// parent field
@@ -185,27 +141,17 @@ public:
   CField(const CField& field);
 	CField(){};	//! default constructor
 
-	//////////////// 
-	// Getメソッド
-
 	bool IsValid() const{ return m_is_valid; }	//!< get the validation flag
 	bool AssertValid(CFieldWorld& world) const;	//!< check if it is valid
-	//! 座標の次元を得る
-	unsigned int GetNDimCoord() const{ return m_ndim_coord; }
-	//! 値の長さを得る
-	unsigned int GetNLenValue() const { return m_DofSize; }
-	//! フィールドの種類を得る
-	FIELD_TYPE GetFieldType() const { return m_field_type; }
+	unsigned int GetNDimCoord() const{ return m_ndim_coord; }	//!< get dimension of the coordinate
+	unsigned int GetNLenValue() const { return m_DofSize; } //!< get length of the value
+	FIELD_TYPE GetFieldType() const { return m_field_type; } 	//!< get type of field (i.e. SCALAR,VECTOR2)
 	unsigned int GetFieldDerivativeType() const { return m_field_derivative_type; }
   
 	// TODO:ここは高次補間では要書き換え(PartialかどうかはELSEG_TYPEごとに違う)
 	//! 部分場かどうかを調べる
 	bool IsPartial() const { return this->m_na_c.is_part_va; }
-	//! 依存場かどうか調べる
-	bool IsDepend() const { 
-		if( m_id_field_dep == 0 ) return false;
-		return true;
-	}
+  
 	// TODO:ここは高次補間では要書き換え(PartialかどうかはELSEG_TYPEごとに違う)
 	// 親フィールドなら０を返す
 	unsigned int GetIDFieldParent() const {	return this->m_id_field_parent; }
@@ -236,8 +182,6 @@ public:
 		if( es_type != EDGE   ){ assert(0); }
 		return m_na_e;
 	}
-	//! 時間依存かどうか調べる
-	bool IsTimeDependent() const;
 	//! 最大値最小値を取得
 	void GetMinMaxValue(double& min, double& max, const CFieldWorld& world, 
                       unsigned int idof=0, const int fdt=VALUE) const;
@@ -251,15 +195,7 @@ public:
   (double velo[], 
    unsigned int& id_ea_stat, unsigned int& ielem_stat, double& r1, double& r2,
    const double co[], const Fem::Field::CFieldWorld& world ) const;
-
-	////////////////////////////////
-	// 境界条件を設定する関数(FieldとMatVecは分離させたいから，そのうちこの関数は削除ー＞LiearSystem_Fieldに追加)
-
-	// 境界条件をセットする（LinearSystemから呼ばれる)
-	void BoundaryCondition(const Field::ELSEG_TYPE& elseg_type, unsigned int idofns, MatVec::CBCFlag& bc_flag, const CFieldWorld& world) const;
-	// 境界条件をセットする（LinearSystemから呼ばれる)
-	void BoundaryCondition(const Field::ELSEG_TYPE& elseg_type, MatVec::CBCFlag& bc_flag, const CFieldWorld& world, unsigned int ioffset = 0) const;
-
+  
 	unsigned int GetMapVal2Co(unsigned int inode_va) const {
 		if( m_map_val2co.size() == 0 ) return inode_va;
 		assert( inode_va < m_map_val2co.size() );
@@ -271,12 +207,6 @@ public:
 
 	// MicroAVS inpファイルへの書き出し
 	bool ExportFile_Inp(const std::string& file_name, const CFieldWorld& world);
-
-private:
-    bool SetBCFlagToES(MatVec::CBCFlag& bc_flag, const Fem::Field::CElemAry& ea, unsigned int id_es, unsigned int idofblk) const;
-	// セーブされた値をidofnsの自由度にセットする
-	bool SetValue(double time, unsigned int idofns, FIELD_DERIVATION_TYPE fdt, const CValueFieldDof& val, CFieldWorld& world);
-	bool SetGradientValue(unsigned int id_field, CFieldWorld& world);
 private:
 	bool m_is_valid;
 	unsigned int m_id_field_parent;	// 親フィールドは、要素が値節点を全参照していなければならない
@@ -295,12 +225,11 @@ private:
 
 	////////////////
 	unsigned int m_DofSize;
-	std::vector<CValueFieldDof> m_aValueFieldDof;	// 場の値が入っている配列、DofSize*[val,velo,acc]
 
 	// 外部依存場の場合（FieldWorldに依存関係の木を作成するつもり）
 	// 勾配と歪（線形，非線形）ぐらい？
-	unsigned int m_id_field_dep;
-	bool m_is_gradient;
+//	unsigned int m_id_field_dep;
+//	bool m_is_gradient;
 };	// end class CField;
 
 }	// end namespace Field

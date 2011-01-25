@@ -330,6 +330,115 @@ double CZLinearSystem::FinalizeMarge()
 	return sqrt(sq_norm_res);
 }
 
+
+
+// elem_aryに含まれる節点全てidofblk番目の自由度を固定する
+static bool SetBCFlagToES
+(unsigned int id_field,
+ MatVec::CBCFlag& bc_flag, 
+ const Fem::Field::CElemAry& ea, unsigned int id_es, unsigned int idofblk)
+{
+  assert( (int)idofblk < bc_flag.LenBlk() );
+  if( (int)idofblk >= bc_flag.LenBlk() ) return false;
+  assert( ea.IsSegID(id_es) );
+  const Fem::Field::CElemAry::CElemSeg& es = ea.GetSeg(id_es);
+  unsigned int noes[256];
+  unsigned int nnoes = es.Length();
+  for(unsigned int ielem=0;ielem<ea.Size();ielem++){
+    es.GetNodes(ielem,noes);
+    for(unsigned int inoes=0;inoes<nnoes;inoes++){
+      const unsigned int inode0 = noes[inoes];
+      bc_flag.SetBC(inode0,idofblk);
+      //			m_Flag[inode0*m_lenBlk+idofblk] = 1;
+    }
+  }
+  return true;
+}
+
+
+static void BoundaryCondition
+(unsigned int id_field, const ELSEG_TYPE& elseg_type, unsigned int idofns, 
+ MatVec::CBCFlag& bc_flag, const CFieldWorld& world)
+{
+  if( !world.IsIdField(id_field) ) return;
+  const Fem::Field::CField& field = world.GetField(id_field);
+  assert( (int)idofns < bc_flag.LenBlk()  );
+  const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+  for(unsigned int iea=0;iea<aIdEA.size();iea++){
+    const unsigned int id_ea = aIdEA[iea];
+    const CElemAry& ea = world.GetEA(id_ea);
+    if( elseg_type == CORNER && field.GetIdElemSeg(id_ea,CORNER,true,world) != 0 ){
+      SetBCFlagToES(id_field,bc_flag, ea, field.GetIdElemSeg(id_ea,CORNER,true,world), idofns);
+    }
+    if( elseg_type == BUBBLE && field.GetIdElemSeg(id_ea,BUBBLE,true,world) != 0 ){
+      SetBCFlagToES(id_field,bc_flag, ea, field.GetIdElemSeg(id_ea,BUBBLE,true,world), idofns);
+    }
+    if( elseg_type == EDGE   && field.GetIdElemSeg(id_ea,EDGE,  true,world) != 0 ){
+      SetBCFlagToES(id_field,bc_flag, ea, field.GetIdElemSeg(id_ea,EDGE,  true,world), idofns);
+    }
+  }
+}
+
+static void BoundaryCondition
+(unsigned int id_field, const ELSEG_TYPE& elseg_type,  
+ MatVec::CBCFlag& bc_flag, const CFieldWorld& world,  
+ unsigned int ioffset=0)
+{
+  if( !world.IsIdField(id_field) ) return;
+  const Fem::Field::CField& field = world.GetField(id_field);  
+  {	// Assert
+    const unsigned int len = bc_flag.LenBlk();
+    assert( ioffset < len );
+  }
+  const unsigned int nlen = field.GetNLenValue();
+  
+  const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+  for(unsigned int iea=0;iea<aIdEA.size();iea++){
+    unsigned int id_ea = aIdEA[iea];
+    const CElemAry& ea = world.GetEA(id_ea);
+    unsigned int noes[256];
+    if( elseg_type == CORNER && field.GetIdElemSeg(id_ea,CORNER,true,world) != 0 ){
+      const Fem::Field::CElemAry::CElemSeg& es = field.GetElemSeg(id_ea,CORNER,true,world);
+      unsigned int nnoes = es.Length();
+      for(unsigned int ielem=0;ielem<ea.Size();ielem++){
+        es.GetNodes(ielem,noes);
+        for(unsigned int inoes=0;inoes<nnoes;inoes++){
+          for(unsigned int ilen=0;ilen<nlen;ilen++){
+            bc_flag.SetBC(noes[inoes],ilen+ioffset);
+          }
+        }
+      }
+    }
+    if( elseg_type == BUBBLE && field.GetIdElemSeg(id_ea,BUBBLE,true,world) != 0 ){
+      const Fem::Field::CElemAry::CElemSeg& es = field.GetElemSeg(id_ea,BUBBLE,true,world);
+      unsigned int nnoes = es.Length();
+      for(unsigned int ielem=0;ielem<ea.Size();ielem++){
+        es.GetNodes(ielem,noes);
+        for(unsigned int inoes=0;inoes<nnoes;inoes++){
+          for(unsigned int ilen=0;ilen<nlen;ilen++){
+            bc_flag.SetBC(noes[inoes],ilen+ioffset);
+          }
+        }
+      }
+    }
+    if( elseg_type == EDGE   && field.GetIdElemSeg(id_ea,EDGE,true,world) != 0 ){
+      const Fem::Field::CElemAry::CElemSeg& es = field.GetElemSeg(id_ea,EDGE,true,world);
+      unsigned int nnoes = es.Length();
+      for(unsigned int ielem=0;ielem<ea.Size();ielem++){
+        es.GetNodes(ielem,noes);
+        for(unsigned int inoes=0;inoes<nnoes;inoes++){
+          for(unsigned int ilen=0;ilen<nlen;ilen++){
+            bc_flag.SetBC(noes[inoes],ilen+ioffset);
+          }
+        }
+      }
+    }
+  }
+}
+
+
+
+
 bool CZLinearSystem::SetFixedBoundaryCondition_Field( unsigned int id_field, unsigned int idofns, const CFieldWorld& world ){
 	if( !world.IsIdField(id_field) ) return false;
 	const CField& field = world.GetField(id_field);
@@ -338,19 +447,19 @@ bool CZLinearSystem::SetFixedBoundaryCondition_Field( unsigned int id_field, uns
 	{
 		unsigned int ils0 = this->FindIndexArray_Seg(id_field_parent,CORNER,world);
 		if( ils0 < m_aSeg.size() ){
-			field.BoundaryCondition(CORNER,idofns,*m_BCFlag[ils0],world);
+			BoundaryCondition(id_field,CORNER,idofns,*m_BCFlag[ils0],world);
 		}
 	}
 	{
 		unsigned int ils0 = this->FindIndexArray_Seg(id_field_parent,EDGE,world);
 		if( ils0 < m_aSeg.size() ){
-			field.BoundaryCondition(EDGE,idofns,*m_BCFlag[ils0],world);
+			BoundaryCondition(id_field,EDGE,idofns,*m_BCFlag[ils0],world);
 		}
 	}
 	{
 		unsigned int ils0 = this->FindIndexArray_Seg(id_field_parent,BUBBLE,world);
 		if( ils0 < m_aSeg.size() ){
-			field.BoundaryCondition(BUBBLE,idofns,*m_BCFlag[ils0],world);
+			BoundaryCondition(id_field,BUBBLE,idofns,*m_BCFlag[ils0],world);
 		}
 	}
 	return true;
@@ -366,19 +475,19 @@ bool CZLinearSystem::SetFixedBoundaryCondition_Field( unsigned int id_field, con
 	{
 		unsigned int ils0 = this->FindIndexArray_Seg(id_field_parent,CORNER,world);
 		if( ils0 < m_aSeg.size() ){
-			field.BoundaryCondition(CORNER,*m_BCFlag[ils0],world);
+			BoundaryCondition(id_field,CORNER,*m_BCFlag[ils0],world);
 		}
 	}
 	{
 		unsigned int ils0 = this->FindIndexArray_Seg(id_field_parent,EDGE,world);
 		if( ils0 < m_aSeg.size() ){
-			field.BoundaryCondition(EDGE,*m_BCFlag[ils0],world);
+			BoundaryCondition(id_field,EDGE,*m_BCFlag[ils0],world);
 		}
 	}
 	{
 		unsigned int ils0 = this->FindIndexArray_Seg(id_field_parent,BUBBLE,world);
 		if( ils0 < m_aSeg.size() ){
-			field.BoundaryCondition(BUBBLE,*m_BCFlag[ils0],world);
+			BoundaryCondition(id_field,BUBBLE,*m_BCFlag[ils0],world);
 		}
 	}
 	return true;
