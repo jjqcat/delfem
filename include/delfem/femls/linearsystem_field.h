@@ -49,6 +49,17 @@ namespace Field{
 	class CFieldWorld;
 }
 namespace Ls{
+  
+void BoundaryCondition
+(unsigned int id_field, const Fem::Field::ELSEG_TYPE& elseg_type,  
+ MatVec::CBCFlag& bc_flag, const Fem::Field::CFieldWorld& world,  
+ unsigned int ioffset=0);  
+  
+void BoundaryCondition
+(unsigned int id_field, const Fem::Field::ELSEG_TYPE& elseg_type, unsigned int idofns, 
+ MatVec::CBCFlag& bc_flag, const Fem::Field::CFieldWorld& world);
+
+  
 /*! 
 @brief ˜A—§ˆêŽŸ•û’öŽ®ƒNƒ‰ƒX
 @ingroup FemLs

@@ -25,7 +25,7 @@
 #if !defined(FIELD_VALUE_SETTER_H)
 #define FIELD_VALUE_SETTER_H
 
-
+#include "delfem/eval.h"
 #include "delfem/field.h"
 #include "delfem/field_world.h"
 

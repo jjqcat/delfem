@@ -386,33 +386,35 @@ int Ls::CLinearSystem_RigidField2::FindIndexArray_Seg(
 	return -1;
 }
 
-bool Ls::CLinearSystem_RigidField2::SetFixedBoundaryCondition_Field( unsigned int id_field, const Fem::Field::CFieldWorld& world )
+bool Ls::CLinearSystem_RigidField2::SetFixedBoundaryCondition_Field
+(unsigned int id_field, const Fem::Field::CFieldWorld& world )
 {
+  
 	if( !world.IsIdField(id_field) ) return false;
-    const Fem::Field::CField& field = world.GetField(id_field);
+  const Fem::Field::CField& field = world.GetField(id_field);
 	unsigned int id_field_parent = field.GetIDFieldParent();
 	if( id_field_parent == 0 ) id_field_parent = id_field;
-
+  
 	{
-        int ils0 = this->FindIndexArray_Seg(id_field_parent,Fem::Field::CORNER,world);
+    int ils0 = this->FindIndexArray_Seg(id_field_parent,Fem::Field::CORNER,world);
 		if( ils0 >= 0 && ils0 < m_aSegRF.size() ){
 			const CLinSysSegRF& ls0 = this->m_aSegRF[ils0];
-            MatVec::CBCFlag& bc_flag = m_ls.GetBCFlag(ils0);//*m_ls.m_BCFlag[ils0];
+      MatVec::CBCFlag& bc_flag = m_ls.GetBCFlag(ils0);//*m_ls.m_BCFlag[ils0];
 			if( ls0.id_field== id_field_parent ){
-                field.BoundaryCondition(Fem::Field::CORNER,bc_flag,world);
+        Fem::Ls::BoundaryCondition(id_field,Fem::Field::CORNER,bc_flag,world);
 			}
 		}
 	}
 	{
-        int ils0 = this->FindIndexArray_Seg(id_field_parent,Fem::Field::EDGE,world);
+    int ils0 = this->FindIndexArray_Seg(id_field_parent,Fem::Field::EDGE,world);
 		if( ils0 >= 0 && ils0 < m_aSegRF.size() ){
-            assert(0);
+      assert(0);
 		}
 	}
 	{
-        int ils0 = this->FindIndexArray_Seg(id_field_parent,Fem::Field::BUBBLE,world);
+    int ils0 = this->FindIndexArray_Seg(id_field_parent,Fem::Field::BUBBLE,world);
 		if( ils0 >= 0 && ils0 < m_aSegRF.size() ){
-            assert(0);
+      assert(0);
 		}
 	}
 	return true;

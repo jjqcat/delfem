@@ -33,7 +33,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "math.h"
 
 #include "delfem/field_world.h"
-
 #include "delfem/femls/linearsystem_field.h"
 
 #include "delfem/indexed_array.h"
@@ -47,6 +46,118 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 using namespace MatVec;
 using namespace Fem::Ls;
 using namespace Fem::Field;
+
+
+
+// elem_aryに含まれる節点全てidofblk番目の自由度を固定する
+static bool SetBCFlagToES
+(unsigned int id_field,
+ MatVec::CBCFlag& bc_flag, 
+ const Fem::Field::CElemAry& ea, unsigned int id_es, unsigned int idofblk)
+{
+  assert( (int)idofblk < bc_flag.LenBlk() );
+  if( (int)idofblk >= bc_flag.LenBlk() ) return false;
+  assert( ea.IsSegID(id_es) );
+  const Fem::Field::CElemAry::CElemSeg& es = ea.GetSeg(id_es);
+  unsigned int noes[256];
+  unsigned int nnoes = es.Length();
+  for(unsigned int ielem=0;ielem<ea.Size();ielem++){
+    es.GetNodes(ielem,noes);
+    for(unsigned int inoes=0;inoes<nnoes;inoes++){
+      const unsigned int inode0 = noes[inoes];
+      bc_flag.SetBC(inode0,idofblk);
+      //			m_Flag[inode0*m_lenBlk+idofblk] = 1;
+    }
+  }
+  return true;
+}
+
+
+void Fem::Ls::BoundaryCondition
+(unsigned int id_field, const ELSEG_TYPE& elseg_type, unsigned int idofns, 
+ MatVec::CBCFlag& bc_flag, const CFieldWorld& world)
+{
+  if( !world.IsIdField(id_field) ) return;
+  const Fem::Field::CField& field = world.GetField(id_field);
+  assert( (int)idofns < bc_flag.LenBlk()  );
+  const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+  for(unsigned int iea=0;iea<aIdEA.size();iea++){
+    const unsigned int id_ea = aIdEA[iea];
+    const CElemAry& ea = world.GetEA(id_ea);
+    if( elseg_type == CORNER && field.GetIdElemSeg(id_ea,CORNER,true,world) != 0 ){
+      SetBCFlagToES(id_field,bc_flag, ea, field.GetIdElemSeg(id_ea,CORNER,true,world), idofns);
+    }
+    if( elseg_type == BUBBLE && field.GetIdElemSeg(id_ea,BUBBLE,true,world) != 0 ){
+      SetBCFlagToES(id_field,bc_flag, ea, field.GetIdElemSeg(id_ea,BUBBLE,true,world), idofns);
+    }
+    if( elseg_type == EDGE   && field.GetIdElemSeg(id_ea,EDGE,  true,world) != 0 ){
+      SetBCFlagToES(id_field,bc_flag, ea, field.GetIdElemSeg(id_ea,EDGE,  true,world), idofns);
+    }
+  }
+}
+
+
+void Fem::Ls::BoundaryCondition
+(unsigned int id_field, const ELSEG_TYPE& elseg_type,  
+ MatVec::CBCFlag& bc_flag, const CFieldWorld& world,  
+ unsigned int ioffset)
+{
+  if( !world.IsIdField(id_field) ) return;
+  const Fem::Field::CField& field = world.GetField(id_field);  
+  {	// Assert
+    const unsigned int len = bc_flag.LenBlk();
+    assert( ioffset < len );
+  }
+  const unsigned int nlen = field.GetNLenValue();
+  
+  const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+  for(unsigned int iea=0;iea<aIdEA.size();iea++){
+    unsigned int id_ea = aIdEA[iea];
+    const CElemAry& ea = world.GetEA(id_ea);
+    unsigned int noes[256];
+    if( elseg_type == CORNER && field.GetIdElemSeg(id_ea,CORNER,true,world) != 0 ){
+      const Fem::Field::CElemAry::CElemSeg& es = field.GetElemSeg(id_ea,CORNER,true,world);
+      unsigned int nnoes = es.Length();
+      for(unsigned int ielem=0;ielem<ea.Size();ielem++){
+        es.GetNodes(ielem,noes);
+        for(unsigned int inoes=0;inoes<nnoes;inoes++){
+          for(unsigned int ilen=0;ilen<nlen;ilen++){
+            bc_flag.SetBC(noes[inoes],ilen+ioffset);
+          }
+        }
+      }
+    }
+    if( elseg_type == BUBBLE && field.GetIdElemSeg(id_ea,BUBBLE,true,world) != 0 ){
+      const Fem::Field::CElemAry::CElemSeg& es = field.GetElemSeg(id_ea,BUBBLE,true,world);
+      unsigned int nnoes = es.Length();
+      for(unsigned int ielem=0;ielem<ea.Size();ielem++){
+        es.GetNodes(ielem,noes);
+        for(unsigned int inoes=0;inoes<nnoes;inoes++){
+          for(unsigned int ilen=0;ilen<nlen;ilen++){
+            bc_flag.SetBC(noes[inoes],ilen+ioffset);
+          }
+        }
+      }
+    }
+    if( elseg_type == EDGE   && field.GetIdElemSeg(id_ea,EDGE,true,world) != 0 ){
+      const Fem::Field::CElemAry::CElemSeg& es = field.GetElemSeg(id_ea,EDGE,true,world);
+      unsigned int nnoes = es.Length();
+      for(unsigned int ielem=0;ielem<ea.Size();ielem++){
+        es.GetNodes(ielem,noes);
+        for(unsigned int inoes=0;inoes<nnoes;inoes++){
+          for(unsigned int ilen=0;ilen<nlen;ilen++){
+            bc_flag.SetBC(noes[inoes],ilen+ioffset);
+          }
+        }
+      }
+    }
+  }
+}
+
+
+
+//////////////////////////////////////
+
 
 int CLinearSystem_Field::AddLinSysSeg_Field(
 		const unsigned int id_field, ELSEG_TYPE es_type, const CFieldWorld& world)
@@ -477,24 +588,24 @@ MatVec::CVector_Blk& CLinearSystem_Field::GetUpdate
  const CFieldWorld& world)
 {
 	int ils0 = this->FindIndexArray_Seg(id_field,elseg_type,world);
-    if( ils0 < 0 || ils0 >= (int)this->GetNLynSysSeg() ){ assert(0); throw 0; }
+  if( ils0 < 0 || ils0 >= (int)this->GetNLynSysSeg() ){ assert(0); throw 0; }
 	return m_ls.GetVector(-2,ils0);
 }
 
-CMatDia_BlkCrs& CLinearSystem_Field::GetMatrix(
-        unsigned int id_field,
-        const ELSEG_TYPE elseg_type, 
-		const CFieldWorld& world)
+CMatDia_BlkCrs& CLinearSystem_Field::GetMatrix
+(unsigned int id_field,
+ const ELSEG_TYPE elseg_type, 
+ const CFieldWorld& world)
 {
 	int ils0 = this->FindIndexArray_Seg(id_field,elseg_type,world);
-    if( ils0 < 0 || ils0 >= (int)this->GetNLynSysSeg() ){ assert(0); throw 0; }
+  if( ils0 < 0 || ils0 >= (int)this->GetNLynSysSeg() ){ assert(0); throw 0; }
 	return m_ls.GetMatrix(ils0);
 }
 
-CMat_BlkCrs& CLinearSystem_Field::GetMatrix(
-    unsigned int id_field_col,const ELSEG_TYPE elseg_type_col,
-	unsigned int id_field_row,const ELSEG_TYPE elseg_type_row,
-	const CFieldWorld& world)
+CMat_BlkCrs& CLinearSystem_Field::GetMatrix
+(unsigned int id_field_col,const ELSEG_TYPE elseg_type_col,
+ unsigned int id_field_row,const ELSEG_TYPE elseg_type_row,
+ const CFieldWorld& world)
 {
 	int ils_col = FindIndexArray_Seg(id_field_col,elseg_type_col,world);
     if( ils_col < 0 || ils_col >= (int)this->GetNLynSysSeg() ){ assert(0); throw 0; }
@@ -518,7 +629,7 @@ bool CLinearSystem_Field::SetFixedBoundaryCondition_Field(
       MatVec::CBCFlag& bc_flag = m_ls.GetBCFlag(ils0);//*m_BCFlag[ils0];
 			const CLinSysSeg_Field& ls0 = this->m_aSegField[ils0];
 			if( ls0.id_field == id_field_parent ){
-				field.BoundaryCondition(CORNER,idofns,bc_flag,world);
+        Fem::Ls::BoundaryCondition(id_field,CORNER,idofns,bc_flag,world);
 			}
 			else{   // 結合された場
 				assert( ls0.id_field2 == id_field_parent );
@@ -526,7 +637,7 @@ bool CLinearSystem_Field::SetFixedBoundaryCondition_Field(
 				assert( world.IsIdField(id_field1) );
 				const CField& field1 = world.GetField(id_field1);
 				const unsigned int len1 = field1.GetNLenValue();
-				field.BoundaryCondition(CORNER,idofns+len1,bc_flag,world);
+        Fem::Ls::BoundaryCondition(id_field,CORNER,idofns+len1,bc_flag,world);
 			}
 		}
 	}
@@ -536,16 +647,16 @@ bool CLinearSystem_Field::SetFixedBoundaryCondition_Field(
       MatVec::CBCFlag& bc_flag = m_ls.GetBCFlag(ils0);//*m_ls.m_BCFlag[ils0];
 			const CLinSysSeg_Field& ls0 = this->m_aSegField[ils0];
 			assert( ls0.id_field== id_field_parent );
-			field.BoundaryCondition(EDGE,idofns,bc_flag,world);
+      Fem::Ls::BoundaryCondition(id_field,EDGE,idofns,bc_flag,world);
 		}
 	}
 	{
 		const int ils0 = this->FindIndexArray_Seg(id_field_parent,BUBBLE,world);
-        if( ils0 >= 0 && ils0 < (int)m_aSegField.size() ){
-            MatVec::CBCFlag& bc_flag = m_ls.GetBCFlag(ils0);//*m_ls.m_BCFlag[ils0];
+    if( ils0 >= 0 && ils0 < (int)m_aSegField.size() ){
+      MatVec::CBCFlag& bc_flag = m_ls.GetBCFlag(ils0);//*m_ls.m_BCFlag[ils0];
 			const CLinSysSeg_Field& ls0 = this->m_aSegField[ils0];
 			assert( ls0.id_field== id_field_parent );
-			field.BoundaryCondition(BUBBLE,idofns,bc_flag,world);
+      Fem::Ls::BoundaryCondition(id_field,BUBBLE,idofns,bc_flag,world);
 		}
 	}
 	return true;
@@ -563,7 +674,7 @@ bool CLinearSystem_Field::SetFixedBoundaryCondition_Field( unsigned int id_field
 			const CLinSysSeg_Field& ls0 = this->m_aSegField[ils0];
       MatVec::CBCFlag& bc_flag = m_ls.GetBCFlag(ils0);//*m_ls.m_BCFlag[ils0];
 			if( ls0.id_field == id_field_parent ){
-				field.BoundaryCondition(CORNER,bc_flag,world);
+				BoundaryCondition(id_field,CORNER,bc_flag,world);
 			}
 			else{   // combined field
 				assert( ls0.id_field2 == id_field_parent );
@@ -572,7 +683,7 @@ bool CLinearSystem_Field::SetFixedBoundaryCondition_Field( unsigned int id_field
 				const CField& field1 = world.GetField(id_field1);
 				const unsigned int len1 = field1.GetNLenValue();
         assert( bc_flag.LenBlk() == (int)len1 + (int)field.GetNLenValue() );
-				field.BoundaryCondition(CORNER,bc_flag,world,len1);
+				BoundaryCondition(id_field,CORNER,bc_flag,world,len1);
 			}
 		}
 	}
@@ -582,7 +693,7 @@ bool CLinearSystem_Field::SetFixedBoundaryCondition_Field( unsigned int id_field
       MatVec::CBCFlag& bc_flag = m_ls.GetBCFlag(ils0);//*m_ls.m_BCFlag[ils0];
 			const CLinSysSeg_Field& ls0 = this->m_aSegField[ils0];
 			assert( ls0.id_field== id_field_parent );
-			field.BoundaryCondition(EDGE,bc_flag,world);
+			BoundaryCondition(id_field,EDGE,bc_flag,world);
 		}
 	}
 	{
@@ -591,7 +702,7 @@ bool CLinearSystem_Field::SetFixedBoundaryCondition_Field( unsigned int id_field
       MatVec::CBCFlag& bc_flag = m_ls.GetBCFlag(ils0);//*m_ls.m_BCFlag[ils0];
       const CLinSysSeg_Field& ls0 = this->m_aSegField[ils0];
 			assert( ls0.id_field== id_field_parent );
-			field.BoundaryCondition(BUBBLE,bc_flag,world);
+			BoundaryCondition(id_field,BUBBLE,bc_flag,world);
 		}
 	}
 	return true;
