@@ -424,7 +424,7 @@ bool SetNewProblem()
 		drawer_ary.InitTrans( camera);
 	}
 	else if( iprob == 12 )
-	{	// ÉoÉuÉãêﬂì_Çä‹ÇÒÇæï‚ä‘
+	{	// scalar field and vector field
 		Cad::CCadObj2D cad_2d;
  		{
 			std::vector<Com::CVector2D> vec_ary;

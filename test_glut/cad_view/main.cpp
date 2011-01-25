@@ -25,13 +25,14 @@
 #include "delfem/camera.h"
 #include "delfem/drawer_gl_utility.h"
 #include "delfem/glut_utility.h"
+
 #include "delfem/serialize.h"
 #include "delfem/cad_obj2d.h"
 #include "delfem/drawer_cad.h"
 
 Com::View::CCamera mvp_trans;
 double mov_begin_x, mov_begin_y;
-int press_button;
+int imodifier;
 Com::View::CDrawerArray drawer_ary;
 
 
@@ -76,10 +77,10 @@ void myGlutMotion( int x, int y ){
 	const int win_h = viewport[3];
 	const double mov_end_x = (2.0*x-win_w)/win_w;
 	const double mov_end_y = (win_h-2.0*y)/win_h;
-	if( press_button == GLUT_MIDDLE_BUTTON ){
+	if(      imodifier == GLUT_ACTIVE_CTRL ){
 		mvp_trans.MouseRotation(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
 	}
-	else if( press_button == GLUT_RIGHT_BUTTON ){
+	else if( imodifier == GLUT_ACTIVE_SHIFT ){
 		mvp_trans.MousePan(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
 	}
 	mov_begin_x = mov_end_x;
@@ -94,8 +95,8 @@ void myGlutMouse(int button, int state, int x, int y){
 	const int win_h = viewport[3];
 	mov_begin_x = (2.0*x-win_w)/win_w;
 	mov_begin_y = (win_h-2.0*y)/win_h;
-	press_button = button;
-	if( button == GLUT_LEFT_BUTTON && state == GLUT_DOWN ){
+  imodifier = ::glutGetModifiers();
+	if( state == GLUT_DOWN && imodifier == 0 ){
 		const unsigned int size_buffer = 2048;
 		unsigned int selec_buffer[size_buffer];
 		Com::View::PickPre(size_buffer,selec_buffer, x,y,5,5, mvp_trans);
@@ -120,7 +121,7 @@ bool SetNewProblem()
 	if( iprob == 0 )
 	{
 		unsigned int id_l0;
- 		{	// Make model
+ 		{	// define shape
 			std::vector<Com::CVector2D> vec_ary;
 			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
       vec_ary.push_back( Com::CVector2D(1.0,0.0) );
@@ -156,7 +157,7 @@ bool SetNewProblem()
 	}
 	else if( iprob == 1 )
 	{
- 		{	// Make model
+ 		{	// define shape
 			std::vector<Com::CVector2D> vec_ary;
 			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(2.0,0.0) );
@@ -166,7 +167,7 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(0.0,2.0) );
 			const unsigned int id_l0 = cad_2d.AddPolygon( vec_ary ).id_l_add;
 		}
-    {
+    { // copy test
       Cad::CCadObj2D cad_tmp(cad_2d);
       cad_2d.Clear();
       cad_2d = cad_tmp;
@@ -207,8 +208,8 @@ bool SetNewProblem()
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
 		drawer_ary.InitTrans(mvp_trans);
 	}
-	else  if( iprob == 3 )	// AddPolygonÇégÇÌÇ∏Ç…å`ÇÇ¬Ç≠ÇÈ
-	{
+	else  if( iprob == 3 )
+  {
 		const unsigned int id_v1 = cad_2d.AddVertex(Cad::NOT_SET,0,Com::CVector2D(0,0)).id_v_add;
 		const unsigned int id_v2 = cad_2d.AddVertex(Cad::NOT_SET,0,Com::CVector2D(1,0)).id_v_add;
 		cad_2d.ConnectVertex_Line(id_v1,id_v2);
@@ -221,8 +222,7 @@ bool SetNewProblem()
 		cad_2d.ConnectVertex_Line(id_v5,id_v7);
 		const unsigned int id_v6 = cad_2d.AddVertex(Cad::NOT_SET,0,Com::CVector2D(1.5,0.5)).id_v_add;
 		cad_2d.ConnectVertex_Line(id_v5,id_v6);
-		cad_2d.ConnectVertex_Line(id_v4,id_v1);	// ÉãÅ[ÉvÇ™Ç≈Ç´ÇÈ
-//		cad_2d.ConnectVertex_Line(id_v2,id_v6);
+		cad_2d.ConnectVertex_Line(id_v4,id_v1);
     {
       Cad::CCadObj2D cad_tmp(cad_2d);
       cad_2d.Clear();
@@ -235,7 +235,7 @@ bool SetNewProblem()
 	else if( iprob == 4 )
 	{
 		unsigned int id_l0;
- 		{	// Make model
+ 		{	// define shape
 			std::vector<Com::CVector2D> vec_ary;
 			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
@@ -262,9 +262,9 @@ bool SetNewProblem()
 		drawer_ary.InitTrans(mvp_trans);
 	}
 	else if( iprob == 5 )
-	{	// Ç–Ç¡Ç≠ÇËï‘Ç¡ÇΩÉãÅ[ÉvÇó^Ç¶ÇÈ
+	{
 		unsigned int id_l0;
- 		{	// Make model
+ 		{	// define shape
 			std::vector<Com::CVector2D> vec_ary;
 			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(0.0,1.0) );
@@ -272,7 +272,7 @@ bool SetNewProblem()
 			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
 			id_l0 = cad_2d.AddPolygon( vec_ary ).id_l_add;
 		}
-    {
+    { // copy test
       Cad::CCadObj2D cad_tmp(cad_2d);
       cad_2d.Clear();
       cad_2d = cad_tmp;
@@ -282,9 +282,9 @@ bool SetNewProblem()
 		drawer_ary.InitTrans(mvp_trans);
 	}
 	else if( iprob == 6 )
-	{	// ÉãÅ[ÉvÇÃíÜÇ…ÉãÅ[Év
+	{
 		unsigned int id_l0;
- 		{	// Make model
+ 		{	// define initial loop
 			std::vector<Com::CVector2D> vec_ary;
 			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
@@ -308,21 +308,19 @@ bool SetNewProblem()
 		}
 		unsigned int id_e0 = cad_2d.ConnectVertex_Line(1,3).id_e_add;
 		cad_2d.RemoveElement(Cad::EDGE,id_e0);
-    ////////////////
-    {
+    { // copy test
       Cad::CCadObj2D cad_tmp(cad_2d);
       cad_2d.Clear();
       cad_2d = cad_tmp;
     }    
-		////////////////
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
 		drawer_ary.InitTrans(mvp_trans);
 	}
 	else if( iprob == 7 )
-	{	// ÉãÅ[ÉvÇÃíÜÇ…ÉãÅ[Év
+	{
 		unsigned int id_l0;
- 		{	// Make model
+ 		{	// define shape
 			std::vector<Com::CVector2D> vec_ary;
 			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
@@ -336,7 +334,6 @@ bool SetNewProblem()
 		cad_2d.ConnectVertex_Line(id_v1,id_v2);
 		cad_2d.ConnectVertex_Line(id_v2,id_v3);
 		cad_2d.ConnectVertex_Line(id_v3,id_v1);
-		////////////////
 		{
 			unsigned int id_e0 = cad_2d.ConnectVertex_Line(id_v2,2).id_e_add;
 			cad_2d.RemoveElement(Cad::EDGE,id_e0);
@@ -345,8 +342,7 @@ bool SetNewProblem()
 			unsigned int id_e0 = cad_2d.ConnectVertex_Line(2,id_v2).id_e_add;
 			cad_2d.RemoveElement(Cad::EDGE,id_e0);
 		}
-		////////////////
-    {
+    { // copy test
       Cad::CCadObj2D cad_tmp(cad_2d);
       cad_2d.Clear();
       cad_2d = cad_tmp;
@@ -377,8 +373,7 @@ bool SetNewProblem()
 			id_e3 = cad_2d.ConnectVertex_Line(id_v1,id_v2).id_e_add;
 			id_e4 = cad_2d.ConnectVertex_Line(id_v1,id_v3).id_e_add;
 		}
-		////////////////
-    {
+    { // copy test
       Cad::CCadObj2D cad_tmp(cad_2d);
       cad_2d.Clear();
       cad_2d = cad_tmp;
@@ -388,9 +383,9 @@ bool SetNewProblem()
 		drawer_ary.InitTrans(mvp_trans);
 	}
 	else if( iprob == 9 )
-	{	// ÉãÅ[ÉvÇÃíÜÇ…ÉãÅ[Év
+	{
 		unsigned int id_l0;
- 		{	// Make model
+ 		{	// define shape
 			std::vector<Com::CVector2D> vec_ary;
 			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
@@ -407,8 +402,7 @@ bool SetNewProblem()
 		unsigned int id_e1 = cad_2d.ConnectVertex_Line(id_v3,id_v4).id_e_add;
 		unsigned int id_e2 = cad_2d.ConnectVertex_Line(id_v4,id_v5).id_e_add;
 		cad_2d.RemoveElement(Cad::EDGE,id_e1);
-		////////////////
-    {
+    { // copy test
       Cad::CCadObj2D cad_tmp(cad_2d);
       cad_2d.Clear();
       cad_2d = cad_tmp;
@@ -420,7 +414,7 @@ bool SetNewProblem()
 	else if( iprob == 10 )
 	{
 		unsigned int id_l0;
- 		{	// Make model
+ 		{	// define shape
 			std::vector<Com::CVector2D> vec_ary;
 			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
@@ -430,8 +424,7 @@ bool SetNewProblem()
 		}
 		unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,0,Com::CVector2D(1.1,0)).id_v_add;
 		cad_2d.RemoveElement(Cad::VERTEX,id_v1);
-		////////////////
-    {
+    { // copy test
       Cad::CCadObj2D cad_tmp(cad_2d);
       cad_2d.Clear();
       cad_2d = cad_tmp;
@@ -441,7 +434,7 @@ bool SetNewProblem()
 		drawer_ary.InitTrans(mvp_trans);
 	}
 	else if( iprob == 11 ){
-		{	// ê≥ï˚å`Ç…ãÈå`ÇÃåä
+		{	// define initial loop
       std::vector<Com::CVector2D> vec_ary;
       vec_ary.push_back( Com::CVector2D(0.0,0.0) );
       vec_ary.push_back( Com::CVector2D(1.0,0.0) );
@@ -465,8 +458,7 @@ bool SetNewProblem()
 			cad_2d.SetCurve_Polyline(4,aRelCo);
 		}
 		cad_2d.RemoveElement(Cad::VERTEX,1);
-		////////////////
-    {
+    { // copy shape
       Cad::CCadObj2D cad_tmp(cad_2d);
       cad_2d.Clear();
       cad_2d = cad_tmp;
@@ -475,8 +467,6 @@ bool SetNewProblem()
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
 		drawer_ary.InitTrans(mvp_trans);
 	}
-	
-	////////////////
 	::glMatrixMode(GL_PROJECTION);
 	::glLoadIdentity();
 	Com::View::SetProjectionTransform(mvp_trans);

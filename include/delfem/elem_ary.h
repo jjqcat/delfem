@@ -245,7 +245,7 @@ private:
   (const unsigned int id_es, const Com::CIndexedArray& elsup, bool isnt_self,
    Com::CIndexedArray& psup ) const;
 
-  bool MakeElemSurElem( const unsigned int& id_es_corner, Com::CIndexedArray& elsup, int* elsuel) const;
+  bool MakeElemSurElem( const unsigned int& id_es_corner, const Com::CIndexedArray& elsup, int* elsuel) const;
 private:
 
 

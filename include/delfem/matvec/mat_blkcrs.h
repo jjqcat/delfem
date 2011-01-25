@@ -55,8 +55,8 @@ public:
 	CMat_BlkCrs(unsigned int nblk_col, unsigned int len_col, 
 		        unsigned int nblk_row, unsigned int len_row );
     
-    CMat_BlkCrs(unsigned int nblk_col, const std::vector<unsigned int>& alen_col, 
-                unsigned int nblk_row, const std::vector<unsigned int>& alen_row );
+  CMat_BlkCrs(unsigned int nblk_col, const std::vector<unsigned int>& alen_col, 
+              unsigned int nblk_row, const std::vector<unsigned int>& alen_row );
 
 	/*!
 	@brief 行列をコピーするためのコンストラクタ
@@ -71,9 +71,9 @@ public:
 
 	virtual bool Initialize(unsigned int nblk_col, unsigned int len_col, 
 		                    unsigned int nblk_row, unsigned int len_row );
-    // Diaで隠蔽するためにvirtualにしておく
-    virtual bool Initialize(unsigned int nblk_col, const std::vector<unsigned int>& alen_col, 
-                            unsigned int nblk_row, const std::vector<unsigned int>& alen_row );
+  // Diaで隠蔽するためにvirtualにしておく
+  virtual bool Initialize(unsigned int nblk_col, const std::vector<unsigned int>& alen_col, 
+                          unsigned int nblk_row, const std::vector<unsigned int>& alen_row );
 
 	inline unsigned int NBlkMatCol() const { return m_nblk_MatCol; }	//!< 行に幾つブロックがあるか
 	inline unsigned int NBlkMatRow() const { return m_nblk_MatRow; }	//!< 列に幾つブロックがあるか
@@ -82,24 +82,24 @@ public:
 	inline int LenBlkCol() const { return m_len_BlkCol; }
 	//! ブロックの行のサイズ(縦の長さ)を取得.
 	inline unsigned int LenBlkCol(unsigned int iblk) const { 
-        assert( iblk < m_nblk_MatCol );
-        if( m_len_BlkCol == -1 ){
-            assert( m_DofPtrCol != 0 );
-            return m_DofPtrCol[iblk+1]-m_DofPtrCol[iblk];
-        }
-        return m_len_BlkCol; 
+    assert( iblk < m_nblk_MatCol );
+    if( m_len_BlkCol == -1 ){
+      assert( m_DofPtrCol != 0 );
+      return m_DofPtrCol[iblk+1]-m_DofPtrCol[iblk];
     }
+    return m_len_BlkCol; 
+  }
 	//! ブロックの列のサイズ(横の長さ)を取得.もしもFixされて無い場合は-1を返す
 	inline int LenBlkRow() const { return m_len_BlkRow; }
 	//! ブロックの行のサイズ(横の長さ)を取得.
 	inline unsigned int LenBlkRow(unsigned int iblk) const { 
-        assert( iblk < m_nblk_MatRow );
-        if( m_len_BlkRow == -1 ){
-            assert( m_DofPtrRow != 0 );
-            return m_DofPtrRow[iblk+1]-m_DofPtrRow[iblk];
-        }
-        return m_len_BlkRow; 
+    assert( iblk < m_nblk_MatRow );
+    if( m_len_BlkRow == -1 ){
+      assert( m_DofPtrRow != 0 );
+      return m_DofPtrRow[iblk+1]-m_DofPtrRow[iblk];
     }
+    return m_len_BlkRow; 
+  }
 
 	//! 値に０を設定．データ領域が確保されていなければ，確保する
 	virtual bool SetZero();	
@@ -107,10 +107,10 @@ public:
 	virtual bool DeletePattern();	
 
 	virtual void FillPattern();
-    virtual bool AddPattern(const Com::CIndexedArray& crs);	//!< 非ゼロパターンを追加する
+  virtual bool AddPattern(const Com::CIndexedArray& crs);	//!< 非ゼロパターンを追加する
 	virtual bool AddPattern(const CMat_BlkCrs& rhs, const bool isnt_trans);	//!< 非ゼロパターンを追加する
 	virtual bool AddPattern(const CMat_BlkCrs& rhs, 
-		const COrdering_Blk& order_col, const COrdering_Blk& order_row);	//!< 非ゼロパターンを追加する
+                          const COrdering_Blk& order_col, const COrdering_Blk& order_row);	//!< 非ゼロパターンを追加する
 
 	// ここは派生クラスに任せるつもり
 	virtual bool SetPatternBoundary(const CMat_BlkCrs& rhs, const CBCFlag& bc_flag_col, const CBCFlag& bc_flag_row);
@@ -118,19 +118,19 @@ public:
 	
 	virtual bool SetValue(const CMat_BlkCrs& rhs, const bool isnt_trans);
 	virtual bool SetValue(const CMat_BlkCrs& rhs, 
-		const COrdering_Blk& order_col, const COrdering_Blk& order_row);
+                        const COrdering_Blk& order_col, const COrdering_Blk& order_row);
 	
 	//! 要素剛性行列をマージする
-	virtual bool Mearge(
-		unsigned int nblkel_col, const unsigned int* blkel_col,
-		unsigned int nblkel_row, const unsigned int* blkel_row,
-		unsigned int blksize, const double* emat);
-    //! 作業用配列の領域を解放する
-    void DeleteMargeTmpBuffer(){
-        if( m_marge_tmp_buffer == 0 ) return;
-        delete[]  m_marge_tmp_buffer;
-        m_marge_tmp_buffer = 0;
-    }
+	virtual bool Mearge
+  (unsigned int nblkel_col, const unsigned int* blkel_col,
+   unsigned int nblkel_row, const unsigned int* blkel_row,
+   unsigned int blksize, const double* emat);
+  //! 作業用配列の領域を解放する
+  void DeleteMargeTmpBuffer(){
+    if( m_marge_tmp_buffer == 0 ) return;
+    delete[]  m_marge_tmp_buffer;
+    m_marge_tmp_buffer = 0;
+  }
 
 	//! 行列ベクトル積
 	virtual bool MatVec(double alpha, const CVector_Blk& x, double beta, CVector_Blk& b, const bool isnt_trans) const;
@@ -184,12 +184,12 @@ protected:
 	unsigned int* m_colInd_Blk;	//!< CRSのColum Index
 	unsigned int* m_rowPtr_Blk;	//!< CRSのRow Pointer
 
-    int* m_marge_tmp_buffer;	//!< マージの時に必要な作業バッファ
+  int* m_marge_tmp_buffer;	//!< マージの時に必要な作業バッファ
 
-    // Flexの時に定義される値
-    unsigned int* m_DofPtrCol;
-    unsigned int* m_DofPtrRow;
-    unsigned int* m_ValPtr;
+  // Flexの時に定義される値
+  unsigned int* m_DofPtrCol;
+  unsigned int* m_DofPtrRow;
+  unsigned int* m_ValPtr;
 
 	double* m_valCrs_Blk;	//!< 行列の値
 };

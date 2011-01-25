@@ -285,7 +285,7 @@ void myGlutDisplay(void)
 
 	if( is_animation  ){
 		cur_time += dt;
-		world.FieldValueExec(cur_time);
+//		world.FieldValueExec(cur_time);
 		Solve();
 //		Solve2();
 		drawer_ary.Update(world);

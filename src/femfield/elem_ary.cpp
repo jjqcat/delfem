@@ -199,18 +199,18 @@ CElemAry::CElemAry(const CElemAry& ea){
 
 // FEM用の行列パターンを作る（非対角ブロック行列用）
 bool CElemAry::MakePattern_FEM(
-	const unsigned int& id_es0, const unsigned int& id_es1, Com::CIndexedArray& crs ) const{
-
+	const unsigned int& id_es0, const unsigned int& id_es1, Com::CIndexedArray& crs ) const
+{
 	assert( m_aSeg.IsObjID(id_es0) );
 	assert( m_aSeg.IsObjID(id_es1) );
 	if( !m_aSeg.IsObjID(id_es0) ) return false;
 	if( !m_aSeg.IsObjID(id_es1) ) return false;
+  Com::CIndexedArray elsup;
+	if( !this->MakePointSurElem( id_es0, elsup) ) goto FAILURE;
 	{	// npoinの長さチェック
 		const CElemSeg& es = m_aSeg.GetObj(id_es0);
-		if( es.max_noes >= crs.size ){	crs.size = es.max_noes; }
+		if( es.max_noes >= crs.Size() ){ crs.InitializeSize(es.max_noes+1); }
 	}
-    Com::CIndexedArray elsup;
-	if( !this->MakePointSurElem( id_es0, elsup) ) goto FAILURE;
 	if( !this->MakePointSurPoint(id_es1, elsup, false, crs) ) goto FAILURE;
 	crs.Sort();
 	return true;
@@ -222,17 +222,17 @@ FAILURE:
 }
 
 // FEM用の行列パターンを作る（対角ブロック行列用）
-bool CElemAry::MakePattern_FEM(
-		const unsigned int& id_es, Com::CIndexedArray& crs ) const{
-	
+bool CElemAry::MakePattern_FEM
+(const unsigned int& id_es, Com::CIndexedArray& crs ) const
+{	
 	assert( m_aSeg.IsObjID(id_es) );
 	if( !m_aSeg.IsObjID(id_es) ) return false;
-	{	// npoinの長さチェック
-		const CElemSeg& es = m_aSeg.GetObj(id_es);
-		if( es.max_noes >= crs.size ){	crs.size = es.max_noes; }
-	}
   Com::CIndexedArray elsup;
 	if( !this->MakePointSurElem( id_es, elsup) ) goto FAILURE;
+	{	// npoinの長さチェック
+		const CElemSeg& es = m_aSeg.GetObj(id_es);
+		if( es.max_noes >= crs.Size() ){	crs.InitializeSize(es.max_noes+1); }
+	}  
 	if( !this->MakePointSurPoint(id_es, elsup, true, crs) ) goto FAILURE;
 	crs.Sort();
 	assert( crs.CheckValid() );
@@ -608,7 +608,7 @@ bool CElemAry::MakeElemSurElem(const unsigned int& id_es_corner,int* elsuel) con
 }
 
 bool CElemAry::MakeElemSurElem( const unsigned int& id_es, 
-		Com::CIndexedArray& elsup, int* elsuel ) const
+		const Com::CIndexedArray& elsup, int* elsuel ) const
 {
 	assert( m_aSeg.IsObjID(id_es) );
 	if( !m_aSeg.IsObjID(id_es) ){ return false; }
@@ -616,7 +616,7 @@ bool CElemAry::MakeElemSurElem( const unsigned int& id_es,
 	const unsigned int inoel_s = es.begin;
 	const unsigned int inoel_e = inoel_s + es.m_nnoes;
 	const unsigned int max_noes = es.max_noes;
-	assert( max_noes < elsup.size );
+	assert( max_noes < elsup.Size() );
 	assert( inoel_e <= npoel );
 
 	SElemInfo elem_info = ElemInfoAry[ this->ElemType() ];
@@ -625,7 +625,7 @@ bool CElemAry::MakeElemSurElem( const unsigned int& id_es,
 	const unsigned int* nlpofa = elem_info.nlpofa;
 	const unsigned int* lpofa = elem_info.lpofa;
 
-	const unsigned int npoin = elsup.size;
+	const unsigned int npoin = elsup.Size();
 
 	unsigned int* tmp_poin = new unsigned int [npoin];
 	for(unsigned int ipoin=0;ipoin<npoin;ipoin++){ tmp_poin[ipoin] = 0; }
@@ -679,12 +679,8 @@ bool CElemAry::MakePointSurElem( const unsigned int id_es, Com::CIndexedArray& e
 	const CElemSeg& es = m_aSeg.GetObj(id_es);
 	const unsigned int inoel_s = es.begin;
 	const unsigned int inoel_e = inoel_s + es.m_nnoes;
-	const unsigned int max_noes = es.GetMaxNoes();
-
-	if( elsup.size <= max_noes ){
-		elsup.size = max_noes+1;
-	}
-	const unsigned int npoin = elsup.size;
+	if( elsup.Size() <= es.GetMaxNoes() ){ elsup.InitializeSize(es.GetMaxNoes()+1); }
+	const unsigned int npoin = elsup.Size();
 
 	elsup.index.resize(npoin+1);
 	for(unsigned int ipoin=0;ipoin<npoin+1;ipoin++){ elsup.index[ipoin] = 0; }
@@ -743,10 +739,11 @@ bool CElemAry_UNS::MakePointSurPoint(
 }
 */
 
-bool CElemAry::MakeElemToEdge(const unsigned int& id_es_corner, 
-		const unsigned int& nedge, const std::vector<unsigned int>& edge_ary,
-		std::vector<int>& el2ed ) const{
-
+bool CElemAry::MakeElemToEdge
+(const unsigned int& id_es_corner, 
+ const unsigned int& nedge, const std::vector<unsigned int>& edge_ary,
+ std::vector<int>& el2ed ) const
+{
 	assert( nedge*2 == edge_ary.size () );
 	assert( m_aSeg.IsObjID(id_es_corner) );
 	if( !m_aSeg.IsObjID(id_es_corner) ) return false;
@@ -755,7 +752,7 @@ bool CElemAry::MakeElemToEdge(const unsigned int& id_es_corner,
 	const unsigned int neled = CElemSeg::GetLength( EDGE, this->ElemType() );
 	el2ed.resize( neled * this->Size(), -1 );
 
-    Com::CIndexedArray elsup;
+  Com::CIndexedArray elsup;
 	this->MakePointSurElem(id_es_corner,elsup);
 
 	if( this->ElemType() == TRI ){
@@ -763,7 +760,7 @@ bool CElemAry::MakeElemToEdge(const unsigned int& id_es_corner,
 		for(unsigned int iedge=0;iedge<nedge;iedge++){
 			const unsigned int ipo0 = edge_ary[iedge*2  ];
 			const unsigned int ipo1 = edge_ary[iedge*2+1];
-			assert( ipo0 < elsup.size );
+			assert( ipo0 < elsup.Size() );
 			for(unsigned int ielsup=elsup.index[ipo0];ielsup<elsup.index[ipo0+1];ielsup++){
 				if( ielsup >= elsup.array.size() ) continue;
 				const unsigned int ielem0 = elsup.array[ielsup];
@@ -783,7 +780,7 @@ bool CElemAry::MakeElemToEdge(const unsigned int& id_es_corner,
 		for(unsigned int iedge=0;iedge<nedge;iedge++){
 			const unsigned int ipo0 = edge_ary[iedge*2  ];
 			const unsigned int ipo1 = edge_ary[iedge*2+1];
-			assert( ipo0 < elsup.size );
+			assert( ipo0 < elsup.Size() );
 			for(unsigned int ielsup=elsup.index[ipo0];ielsup<elsup.index[ipo0+1];ielsup++){
 				if( ielsup >= elsup.array.size() ) continue;
 				const unsigned int ielem0 = elsup.array[ielsup];
@@ -831,13 +828,13 @@ bool CElemAry::MakePointSurPoint(
 	unsigned int jnoel_e = jnoel_s + es.m_nnoes;
 	unsigned int npoin_j = es.GetMaxNoes()+1;
 
-	if( psup.size < elsup.size ){ psup.size = elsup.size; }
-	const unsigned int npoin_i = psup.size;
+	if( psup.Size() < elsup.Size() ){ psup.InitializeSize(elsup.Size()); }
+	const unsigned int npoin_i = psup.Size();
 
 	int* lpoin = new int [npoin_j];
 	for(unsigned int jpoin=0;jpoin<npoin_j;jpoin++){ lpoin[jpoin] = -1; }
 	int icoun0 = 0;
-	for(unsigned int ipoin=0;ipoin<elsup.size;ipoin++){
+	for(unsigned int ipoin=0;ipoin<elsup.Size();ipoin++){
 		if( isnt_self ){ lpoin[ipoin] = ipoin; }
 		for(unsigned int ielsup=elsup.index[ipoin];ielsup<elsup.index[ipoin+1];ielsup++){
 			const unsigned int jelem0 = elsup.array[ielsup];
@@ -860,7 +857,7 @@ bool CElemAry::MakePointSurPoint(
 	for(unsigned int jpoin=0;jpoin<npoin_j;jpoin++){ lpoin[jpoin] = -1; }
 	icoun0 = 0;
 	psup.index[0] = 0;
-	for(unsigned int ipoin=0;ipoin<elsup.size;ipoin++){
+	for(unsigned int ipoin=0;ipoin<elsup.Size();ipoin++){
 		if( isnt_self ){ lpoin[ipoin] = ipoin; }
 		for(unsigned int ielsup=elsup.index[ipoin];ielsup<elsup.index[ipoin+1];ielsup++){
 			const unsigned int jelem0 = elsup.array[ielsup];
@@ -877,7 +874,7 @@ bool CElemAry::MakePointSurPoint(
 		}
 		psup.index[ipoin+1] = icoun0;
 	}
-	for(unsigned int ipoin=elsup.size;ipoin<npoin_i;ipoin++){
+	for(unsigned int ipoin=elsup.Size();ipoin<npoin_i;ipoin++){
 		psup.index[ipoin+1] = icoun0;
 	}
 	delete[] lpoin;

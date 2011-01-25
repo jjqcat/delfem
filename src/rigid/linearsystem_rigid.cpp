@@ -607,62 +607,62 @@ void Ls::CLinearSystem_RigidBody_CRS2::SetRigidSystem(
     const std::vector<Rigid::CRigidBody3D>& aRB,
     const std::vector<Rigid::CConstraint*>& aConst)
 {
-    this->Clear();
-    nRB = aRB.size();
-    nConst = aConst.size();
-    const unsigned int nblk = nRB+nConst;
-    {
-        m_aBlkSize.resize(nblk);
-        for(unsigned int irb=0;irb<nRB;irb++){
-            m_aBlkSize[irb] = aRB[irb].GetDOF();
-        }
-        for(unsigned int icst=0;icst<nConst;icst++){
-            m_aBlkSize[nRB+icst] = aConst[icst]->GetDOF();
-        }
-        m_mat.Initialize(nblk,m_aBlkSize, nblk,m_aBlkSize);
-        m_residual.Initialize(nblk,m_aBlkSize);
-        m_update.Initialize(nblk,m_aBlkSize);
+  this->Clear();
+  nRB = aRB.size();
+  nConst = aConst.size();
+  const unsigned int nblk = nRB+nConst;
+  {
+    m_aBlkSize.resize(nblk);
+    for(unsigned int irb=0;irb<nRB;irb++){
+      m_aBlkSize[irb] = aRB[irb].GetDOF();
     }
-    {
-        Com::CIndexedArray crs;
-        crs.size = nblk;
-        crs.index.resize(nblk+1);
-        crs.index[0] = 0;
-        for(unsigned int i=0;i<nRB;i++){ crs.index[i+1]=0; }
-        for(unsigned int i=nRB;i<nRB+nConst;i++){ crs.index[i+1]=0; }
-        for(unsigned int icst=0;icst<nConst;icst++){
-            const std::vector<unsigned int>& aIndRB = aConst[icst]->GetAry_IndexRB();
-            for(unsigned int i=0;i<aIndRB.size();i++){
-                const unsigned int irb0 = aIndRB[i];
-                crs.index[irb0+1] += 1;
-            }
-            crs.index[icst+nRB+1] += aIndRB.size();
-        }
-        for(unsigned int i=0;i<nblk;i++){ 
-            crs.index[i+1] = crs.index[i+1] + crs.index[i];
-        }
-        const unsigned int ncrs = crs.index[nblk];
-        crs.array.resize(ncrs);
-        for(unsigned int icst=0;icst<nConst;icst++){
-            const std::vector<unsigned int>& aIndRB = aConst[icst]->GetAry_IndexRB();
-            for(unsigned int i=0;i<aIndRB.size();i++){
-                const unsigned int irb0 = aIndRB[i];
-                const unsigned int icrs0 = crs.index[icst+nRB];
-                crs.array[icrs0] = irb0;
-                crs.index[icst+nRB] += 1;
-                const unsigned int icrs1 = crs.index[irb0];
-                crs.array[icrs1] = icst+nRB;
-                crs.index[irb0] += 1;
-            }
-        }
-        for(int i=nblk;i>0;i--){ 
-            crs.index[i] = crs.index[i-1];
-        }
-        crs.index[0] = 0;
-        crs.Sort();
-        assert( crs.index[nRB+nConst] == ncrs );
-        m_mat.AddPattern(crs);
+    for(unsigned int icst=0;icst<nConst;icst++){
+      m_aBlkSize[nRB+icst] = aConst[icst]->GetDOF();
     }
+    m_mat.Initialize(nblk,m_aBlkSize, nblk,m_aBlkSize);
+    m_residual.Initialize(nblk,m_aBlkSize);
+    m_update.Initialize(nblk,m_aBlkSize);
+  }
+  {
+    Com::CIndexedArray crs;
+    crs.InitializeSize(nblk);
+    crs.index.resize(nblk+1);
+    crs.index[0] = 0;
+    for(unsigned int i=0;i<nRB;i++){ crs.index[i+1]=0; }
+    for(unsigned int i=nRB;i<nRB+nConst;i++){ crs.index[i+1]=0; }
+    for(unsigned int icst=0;icst<nConst;icst++){
+      const std::vector<unsigned int>& aIndRB = aConst[icst]->GetAry_IndexRB();
+      for(unsigned int i=0;i<aIndRB.size();i++){
+        const unsigned int irb0 = aIndRB[i];
+        crs.index[irb0+1] += 1;
+      }
+      crs.index[icst+nRB+1] += aIndRB.size();
+    }
+    for(unsigned int i=0;i<nblk;i++){ 
+      crs.index[i+1] = crs.index[i+1] + crs.index[i];
+    }
+    const unsigned int ncrs = crs.index[nblk];
+    crs.array.resize(ncrs);
+    for(unsigned int icst=0;icst<nConst;icst++){
+      const std::vector<unsigned int>& aIndRB = aConst[icst]->GetAry_IndexRB();
+      for(unsigned int i=0;i<aIndRB.size();i++){
+        const unsigned int irb0 = aIndRB[i];
+        const unsigned int icrs0 = crs.index[icst+nRB];
+        crs.array[icrs0] = irb0;
+        crs.index[icst+nRB] += 1;
+        const unsigned int icrs1 = crs.index[irb0];
+        crs.array[icrs1] = icst+nRB;
+        crs.index[irb0] += 1;
+      }
+    }
+    for(int i=nblk;i>0;i--){ 
+      crs.index[i] = crs.index[i-1];
+    }
+    crs.index[0] = 0;
+    crs.Sort();
+    assert( crs.index[nRB+nConst] == ncrs );
+    m_mat.AddPattern(crs);      
+  }  
 }
 
 

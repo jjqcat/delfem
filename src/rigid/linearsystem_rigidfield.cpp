@@ -80,11 +80,11 @@ void Ls::CLinearSystem_RigidField::Solve(Ls::CPreconditioner_RigidField& prec)
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
-// 対角にパターンを追加
+// add pattern to the diagonal
 bool Ls::CLinearSystem_RigidField2::AddPattern_Field(const unsigned int id_field, const Fem::Field::CFieldWorld& world)
 {
 	if( !world.IsIdField(id_field) ) return false;
-    const Fem::Field::CField& field = world.GetField(id_field);
+  const Fem::Field::CField& field = world.GetField(id_field);
 	unsigned int id_field_parent;
 	{
 		if( field.GetIDFieldParent() == 0 ){ id_field_parent = id_field; }
@@ -95,49 +95,48 @@ bool Ls::CLinearSystem_RigidField2::AddPattern_Field(const unsigned int id_field
 
 	int ilss_add;
 	{	// Cornerブロックを作る
-        unsigned int id_na_val = field.GetNodeSegInNodeAry(Fem::Field::CORNER).id_na_va;
+    unsigned int id_na_val = field.GetNodeSegInNodeAry(Fem::Field::CORNER).id_na_va;
 		if( id_na_val != 0 ){
 			assert( world.IsIdNA(id_na_val) );
-            const Fem::Field::CNodeAry& na = world.GetNA(id_na_val);
-            assert( m_ls.GetNLinSysSeg() == this->m_aSegRF.size() );
-            ilss_add = m_ls.GetNLinSysSeg();
-            this->m_aSegRF.push_back( CLinSysSegRF(id_field_parent,Fem::Field::CORNER) );
-            int ires = m_ls.AddLinSysSeg( na.Size(), field.GetNLenValue() );
-            assert( ires == ilss_add );
+      const Fem::Field::CNodeAry& na = world.GetNA(id_na_val);
+      assert( m_ls.GetNLinSysSeg() == this->m_aSegRF.size() );
+      ilss_add = m_ls.GetNLinSysSeg();
+      this->m_aSegRF.push_back( CLinSysSegRF(id_field_parent,Fem::Field::CORNER) );
+      int ires = m_ls.AddLinSysSeg( na.Size(), field.GetNLenValue() );
+      assert( ires == ilss_add );
 		}
 		else{ ilss_add = -1; }
 	}
 	////////////////////////////////
 	const std::vector<unsigned int> aIdEA = field.GetAry_IdElemAry();
-    assert( aIdEA.size() > 0 );
-	for(unsigned int iiea=0;iiea<aIdEA.size();iiea++)
-	{
+  assert( aIdEA.size() > 0 );
+	for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 		const unsigned int id_ea = aIdEA[iiea];
-        const Fem::Field::CElemAry& ea = world.GetEA(id_ea);
+    const Fem::Field::CElemAry& ea = world.GetEA(id_ea);
 		// CORNER節点について
-        if( field.GetIdElemSeg(id_ea,Fem::Field::CORNER,true,world) != 0 ){
+    if( field.GetIdElemSeg(id_ea,Fem::Field::CORNER,true,world) != 0 ){
 			assert( world.IsIdEA(id_ea) );
-            const unsigned int id_es_c = field.GetIdElemSeg(id_ea,Fem::Field::CORNER,true,world);
+      const unsigned int id_es_c = field.GetIdElemSeg(id_ea,Fem::Field::CORNER,true,world);
 			assert( ea.IsSegID(id_es_c) );
-            {
-                Com::CIndexedArray crs;
-                ea.MakePattern_FEM(id_es_c,crs);
-			    m_ls.AddMat_Dia(ilss_add, crs );			// cc行列を作る
-            }
-            if( field.GetIdElemSeg(id_ea,Fem::Field::BUBBLE,true,world) != 0 ){	// CORNER-BUBBLE
-                assert(0);
+      {
+        Com::CIndexedArray crs;
+        ea.MakePattern_FEM(id_es_c,crs);
+        m_ls.AddMat_Dia(ilss_add, crs );			// cc行列を作る
+      }
+      if( field.GetIdElemSeg(id_ea,Fem::Field::BUBBLE,true,world) != 0 ){	// CORNER-BUBBLE
+        assert(0);
 			}
-            if( field.GetIdElemSeg(id_ea,Fem::Field::EDGE,true,world) != 0 ){	// CONRER-EDGE
-                assert(0);
+      if( field.GetIdElemSeg(id_ea,Fem::Field::EDGE,true,world) != 0 ){	// CONRER-EDGE
+        assert(0);
 			}
 		}
 		// EDGE節点について
-        if( field.GetIdElemSeg(id_ea,Fem::Field::EDGE,true,world) != 0 ){
-            assert(0);
+    if( field.GetIdElemSeg(id_ea,Fem::Field::EDGE,true,world) != 0 ){
+      assert(0);
 		}
 		// BUBBLE節点について
-        if( field.GetIdElemSeg(id_ea,Fem::Field::BUBBLE,true,world) != 0 ){
-            assert(0);
+    if( field.GetIdElemSeg(id_ea,Fem::Field::BUBBLE,true,world) != 0 ){
+      assert(0);
 		}
 	}
 	return true;
@@ -230,26 +229,26 @@ bool Ls::CLinearSystem_RigidField2::AddPattern_Field(
 						m_ls.AddMat_NonDia(ilss_add_c,ils2_c, crs);		// c1c2行列を足す
 						const unsigned int nnode2 = m_ls.GetBlkSizeLinSeg(ils2_c);
 						Com::CIndexedArray crs_inv;
-						crs_inv.SetInverse( nnode2, crs );
+						crs_inv.SetTranspose( nnode2, crs );
 						m_ls.AddMat_NonDia(ils2_c,ilss_add_c, crs_inv);	// c2c1行列を足す
 					}
 					// CORNER1-BUBBLE2
-                    const int ils2_b = this->FindIndexArray_Seg(id_field2,Fem::Field::BUBBLE,world);
+          const int ils2_b = this->FindIndexArray_Seg(id_field2,Fem::Field::BUBBLE,world);
 					if( ils2_b != -1 ){
-                        assert(0);
+            assert(0);
 					}
 				}
 				else{
-                    const Fem::Field::CNodeAry& na1 = world.GetNA(id_na_co1);
-                    const unsigned int id_es_c_co1 = field1.GetIdElemSeg(id_ea1,Fem::Field::CORNER,false,world);
-                    const unsigned int id_es_c_co2 = field2.GetIdElemSeg(id_ea2,Fem::Field::CORNER,false,world);
+          const Fem::Field::CNodeAry& na1 = world.GetNA(id_na_co1);
+          const unsigned int id_es_c_co1 = field1.GetIdElemSeg(id_ea1,Fem::Field::CORNER,false,world);
+          const unsigned int id_es_c_co2 = field2.GetIdElemSeg(id_ea2,Fem::Field::CORNER,false,world);
 					if( na1.IsIncludeEaEs_InEaEs( 
 						std::make_pair(id_ea1,id_es_c_co1),
 						std::make_pair(id_ea2,id_es_c_co2) ) )
 					{
 						std::cout << "ea : " << id_ea1 << " is included in " << id_ea2 << std::endl;
 						assert( ea1.IsSegID(id_es_c_co1) );
-                        Com::CIndexedArray crs;
+            Com::CIndexedArray crs;
 						ea1.MakePattern_FEM(id_es_c1,id_es_c1,crs);	// 自分も含む
 						assert( crs.CheckValid() );
 						if( field2.IsPartial() ){
@@ -264,13 +263,13 @@ bool Ls::CLinearSystem_RigidField2::AddPattern_Field(
 							unsigned int jno_va2 = jno_co;
 							crs.array[icrs] = jno_va2;
 						}
-                        int ils2 = this->FindIndexArray_Seg(id_field2,Fem::Field::CORNER,world);
+            int ils2 = this->FindIndexArray_Seg(id_field2,Fem::Field::CORNER,world);
 						assert( ils2 >= 0 && ils2 < this->GetNLinSysSeg() );
 //						std::cout << "ils_seg : " << ils0 << " " << ils2 << std::endl;
 						m_ls.AddMat_NonDia(ilss_add_c,ils2, crs);
 						const unsigned int nnode2 = m_ls.GetBlkSizeLinSeg(ils2);
 						Com::CIndexedArray crs_inv;
-						crs_inv.SetInverse( nnode2, crs );
+						crs_inv.SetTranspose( nnode2, crs );
 						m_ls.AddMat_NonDia(ils2,ilss_add_c, crs_inv);
 					}
 				}
@@ -307,7 +306,7 @@ bool Ls::CLinearSystem_RigidField2::AddPattern_Field(
 			m_ls.AddMat_NonDia(ils0,ils2, crs);		// b1c2行列を作る
 			Com::CIndexedArray crs_inv;
 			const unsigned nnode2 = m_ls.GetBlkSizeLinSeg(ils2);
-			crs_inv.SetInverse( nnode2, crs );
+			crs_inv.SetTranspose( nnode2, crs );
 			m_ls.AddMat_NonDia(ils2,ils0, crs_inv);	// c2b1行列を作る
 		}
 	}
@@ -325,43 +324,44 @@ bool Ls::CLinearSystem_RigidField2::AddPattern_RigidField(
     const unsigned int id_field_l, const unsigned int id_field_u, const Fem::Field::CFieldWorld& world, 
     unsigned int irb, std::vector<Rigid::CRigidBody3D>& aRB, std::vector<Rigid::CConstraint*>& aConst)
 {
-    this->AddPattern_Field(id_field_l,id_field_u,world);
-    const int ils_l = this->FindIndexArray_Seg(id_field_l,Fem::Field::CORNER,world);
-    const int ils_u = this->FindIndexArray_Seg(id_field_u,Fem::Field::CORNER,world);
-    assert( ils_l >= 0 && ils_l < this->GetNLinSysSeg() );
-    assert( ils_u >= 0 && ils_u < this->GetNLinSysSeg() );
-    assert( ilss_rigid >= 0 && ilss_rigid < this->GetNLinSysSeg() );
-    Com::CIndexedArray crs;
+  this->AddPattern_Field(id_field_l,id_field_u,world);
+  const int ils_l = this->FindIndexArray_Seg(id_field_l,Fem::Field::CORNER,world);
+  const int ils_u = this->FindIndexArray_Seg(id_field_u,Fem::Field::CORNER,world);
+  assert( ils_l >= 0 && ils_l < this->GetNLinSysSeg() );
+  assert( ils_u >= 0 && ils_u < this->GetNLinSysSeg() );
+  assert( ilss_rigid >= 0 && ilss_rigid < this->GetNLinSysSeg() );
+  Com::CIndexedArray crs;
 	const unsigned int nblk_r = m_ls.GetBlkSizeLinSeg(ilss_rigid);
 	const unsigned int nblk_l = m_ls.GetBlkSizeLinSeg(ils_l);
-    {
-        crs.size = nblk_r;
-        crs.index.resize( nblk_r+1 );
-        crs.index[0] = 0;
-        for(unsigned int iblk=0;iblk<nblk_r;iblk++){
-            if( iblk == irb ){
-                crs.index[iblk+1] = crs.index[iblk] + nblk_l;
-            }
-            else{
-                crs.index[iblk+1] = crs.index[iblk];
-            }
-        }
-        crs.array.resize( nblk_l );
-        for(unsigned int iblk=0;iblk<nblk_l;iblk++){
-            crs.array[iblk] = iblk;
-        }
-/*        for(unsigned int iblk=0;iblk<nblk_r;iblk++){
-            for(unsigned int icrs=crs.index[iblk];icrs<crs.index[iblk+1];icrs++){
-                const unsigned int jblk = crs.array[icrs];
-                std::cout << iblk << " " << jblk << std::endl;
-            }
-        }*/
+  {
+//    crs.size = nblk_r;
+    crs.index.clear();
+    crs.index.resize( nblk_r+1,0);
+    crs.index[0] = 0;
+    for(unsigned int iblk=0;iblk<nblk_r;iblk++){
+      if( iblk == irb ){
+        crs.index[iblk+1] = crs.index[iblk] + nblk_l;
+      }
+      else{
+        crs.index[iblk+1] = crs.index[iblk];
+      }
     }
+    crs.array.resize( nblk_l );
+    for(unsigned int iblk=0;iblk<nblk_l;iblk++){
+      crs.array[iblk] = iblk;
+    }
+    /*        for(unsigned int iblk=0;iblk<nblk_r;iblk++){
+     for(unsigned int icrs=crs.index[iblk];icrs<crs.index[iblk+1];icrs++){
+     const unsigned int jblk = crs.array[icrs];
+     std::cout << iblk << " " << jblk << std::endl;
+     }
+     }*/
+  }
 	m_ls.AddMat_NonDia(ilss_rigid,ils_l, crs);
 	Com::CIndexedArray crs_inv;
-	crs_inv.SetInverse( nblk_l, crs );
+	crs_inv.SetTranspose( nblk_l, crs );
 	m_ls.AddMat_NonDia(ils_l,ilss_rigid, crs_inv);
-    return true;
+  return true;  
 }
 
 
@@ -495,66 +495,66 @@ bool Ls::CLinearSystem_RigidField2::UpdateValueOfField_NewmarkBeta(
 void Ls::CLinearSystem_RigidField2::SetRigidSystem(const std::vector<Rigid::CRigidBody3D>& aRB, 
                                                    const std::vector<Rigid::CConstraint*>& aConst)
 {   
-//    std::cout << "0ls : set rigid system" << std::endl;
-    assert( m_ls.GetNLinSysSeg() == this->m_aSegRF.size() );
-    ilss_rigid = m_ls.GetNLinSysSeg();
-    const unsigned int nRB = aRB.size();
-    const unsigned int nConst = aConst.size();
-    m_aSegRF.push_back( CLinSysSegRF(nRB,nConst) );
-
-    const unsigned int nblk = nRB+nConst;
-    {
-        std::vector<unsigned int> aBlkSize;
-        aBlkSize.resize(nblk);
-        for(unsigned int irb=0;irb<nRB;irb++){
-            aBlkSize[irb] = aRB[irb].GetDOF();
-        }
-        for(unsigned int icst=0;icst<nConst;icst++){
-            aBlkSize[nRB+icst] = aConst[icst]->GetDOF();
-        }
-        const int ires = m_ls.AddLinSysSeg(nblk,aBlkSize);
-        assert( ires == ilss_rigid );
+  //    std::cout << "0ls : set rigid system" << std::endl;
+  assert( m_ls.GetNLinSysSeg() == this->m_aSegRF.size() );
+  ilss_rigid = m_ls.GetNLinSysSeg();
+  const unsigned int nRB = aRB.size();
+  const unsigned int nConst = aConst.size();
+  m_aSegRF.push_back( CLinSysSegRF(nRB,nConst) );
+  
+  const unsigned int nblk = nRB+nConst;
+  {
+    std::vector<unsigned int> aBlkSize;
+    aBlkSize.resize(nblk);
+    for(unsigned int irb=0;irb<nRB;irb++){
+      aBlkSize[irb] = aRB[irb].GetDOF();
     }
-    Com::CIndexedArray crs;
-    {
-        crs.size = nblk;
-        crs.index.resize(nblk+1);
-        crs.index[0] = 0;
-        for(unsigned int i=0;i<nRB;i++){ crs.index[i+1]=0; }
-        for(unsigned int i=nRB;i<nRB+nConst;i++){ crs.index[i+1]=0; }
-        for(unsigned int icst=0;icst<nConst;icst++){
-            const std::vector<unsigned int>& aIndRB = aConst[icst]->GetAry_IndexRB();
-            for(unsigned int i=0;i<aIndRB.size();i++){
-                const unsigned int irb0 = aIndRB[i];
-                crs.index[irb0+1] += 1;
-            }
-            crs.index[icst+nRB+1] += aIndRB.size();
-        }
-        for(unsigned int i=0;i<nblk;i++){ 
-            crs.index[i+1] = crs.index[i+1] + crs.index[i];
-        }
-        const unsigned int ncrs = crs.index[nblk];
-        crs.array.resize(ncrs);
-        for(unsigned int icst=0;icst<nConst;icst++){
-            const std::vector<unsigned int>& aIndRB = aConst[icst]->GetAry_IndexRB();
-            for(unsigned int i=0;i<aIndRB.size();i++){
-                const unsigned int irb0 = aIndRB[i];
-                const unsigned int icrs0 = crs.index[icst+nRB];
-                crs.array[icrs0] = irb0;
-                crs.index[icst+nRB] += 1;
-                const unsigned int icrs1 = crs.index[irb0];
-                crs.array[icrs1] = icst+nRB;
-                crs.index[irb0] += 1;
-            }
-        }
-        for(int i=nblk;i>0;i--){ 
-            crs.index[i] = crs.index[i-1];
-        }
-        crs.index[0] = 0;
-        crs.Sort();
-        assert( crs.index[nRB+nConst] == ncrs );
+    for(unsigned int icst=0;icst<nConst;icst++){
+      aBlkSize[nRB+icst] = aConst[icst]->GetDOF();
     }
-    m_ls.AddMat_Dia(ilss_rigid,crs);
+    const int ires = m_ls.AddLinSysSeg(nblk,aBlkSize);
+    assert( ires == ilss_rigid );
+  }
+  Com::CIndexedArray crs;
+  {
+    crs.index.clear();
+    crs.index.resize(nblk+1,0);
+    crs.index[0] = 0;
+    for(unsigned int i=0;i<nRB;i++){ crs.index[i+1]=0; }
+    for(unsigned int i=nRB;i<nRB+nConst;i++){ crs.index[i+1]=0; }
+    for(unsigned int icst=0;icst<nConst;icst++){
+      const std::vector<unsigned int>& aIndRB = aConst[icst]->GetAry_IndexRB();
+      for(unsigned int i=0;i<aIndRB.size();i++){
+        const unsigned int irb0 = aIndRB[i];
+        crs.index[irb0+1] += 1;
+      }
+      crs.index[icst+nRB+1] += aIndRB.size();
+    }
+    for(unsigned int i=0;i<nblk;i++){ 
+      crs.index[i+1] = crs.index[i+1] + crs.index[i];
+    }
+    const unsigned int ncrs = crs.index[nblk];
+    crs.array.resize(ncrs);
+    for(unsigned int icst=0;icst<nConst;icst++){
+      const std::vector<unsigned int>& aIndRB = aConst[icst]->GetAry_IndexRB();
+      for(unsigned int i=0;i<aIndRB.size();i++){
+        const unsigned int irb0 = aIndRB[i];
+        const unsigned int icrs0 = crs.index[icst+nRB];
+        crs.array[icrs0] = irb0;
+        crs.index[icst+nRB] += 1;
+        const unsigned int icrs1 = crs.index[irb0];
+        crs.array[icrs1] = icst+nRB;
+        crs.index[irb0] += 1;
+      }
+    }
+    for(int i=nblk;i>0;i--){ 
+      crs.index[i] = crs.index[i-1];
+    }
+    crs.index[0] = 0;
+    crs.Sort();
+    assert( crs.index[nRB+nConst] == ncrs );
+  }
+  m_ls.AddMat_Dia(ilss_rigid,crs);  
 }
 
 
@@ -694,21 +694,21 @@ void Ls::CLinearSystem_RigidField2::AddMatrix(unsigned int indr, bool is_rb_r, u
                unsigned int indl, bool is_rb_l, unsigned int offsetl, unsigned int sizel,
                const double* emat, double d)
 {
-    assert( m_ls.IsMatrix(ilss_rigid,ilss_rigid) );
-    MatVec::CMatDia_BlkCrs& mat = m_ls.GetMatrix(ilss_rigid);
-    const unsigned int nRB    = this->GetSizeRigidBody();
-    const unsigned int iblk0 = (is_rb_r) ? indr : indr + nRB;
-    const unsigned int iblk1 = (is_rb_l) ? indl : indl + nRB;
-    const unsigned int lencol = mat.LenBlkCol(iblk0);
-    const unsigned int lenrow = mat.LenBlkRow(iblk1);
-    assert( lencol*lenrow <= 36 );
-    double tmp[36];
-    for(unsigned int i=0;i<lencol*lenrow;i++){ tmp[i] = 0; }
-    for(unsigned int i=0;i<sizer;i++){
-    for(unsigned int j=0;j<sizel;j++){
-        tmp[(i+offsetr)*lenrow + (j+offsetl)] += emat[i*sizel+j]*d;
-     }
-    }
-    mat.Mearge(1,&iblk0, 1,&iblk1, lencol*lenrow, tmp );
+  assert( m_ls.IsMatrix(ilss_rigid,ilss_rigid) );
+  MatVec::CMatDia_BlkCrs& mat = m_ls.GetMatrix(ilss_rigid);
+  const unsigned int nRB    = this->GetSizeRigidBody();
+  const unsigned int iblk0 = (is_rb_r) ? indr : indr + nRB;
+  const unsigned int iblk1 = (is_rb_l) ? indl : indl + nRB;
+  const unsigned int lencol = mat.LenBlkCol(iblk0);
+  const unsigned int lenrow = mat.LenBlkRow(iblk1);
+  assert( lencol*lenrow <= 36 );
+  double tmp[36];
+  for(unsigned int i=0;i<lencol*lenrow;i++){ tmp[i] = 0; }
+  for(unsigned int i=0;i<sizer;i++){
+  for(unsigned int j=0;j<sizel;j++){
+    tmp[(i+offsetr)*lenrow + (j+offsetl)] += emat[i*sizel+j]*d;
+  }
+  }  
+  mat.Mearge(1,&iblk0, 1,&iblk1, lencol*lenrow, tmp );
 }
     

@@ -20,12 +20,14 @@
 #endif
 
 #include "delfem/camera.h"
+#include "delfem/glut_utility.h"
 
 #include "delfem/cad_obj2d.h"
 #include "delfem/mesher2d.h"
 
 #include "delfem/field_world.h"
 #include "delfem/field.h"
+#include "delfem/field_value_setter.h"
 #include "delfem/drawer_field_face.h"
 #include "delfem/drawer_field_edge.h"
 #include "delfem/drawer_field_vector.h"
@@ -40,73 +42,14 @@
 using namespace Fem::Ls;
 using namespace Fem::Field;
 
-void RenderBitmapString(float x, float y, void *font,char *string)
-{
-  char *c;
-  ::glRasterPos2f(x, y);
-  for (c=string; *c != '\0'; c++) {
-	  ::glutBitmapCharacter(font, *c);
-  }
-}
 
-
-void ShowFPS()
-{
-	int* font = (int*)GLUT_BITMAP_8_BY_13;
-	static char s_fps[32];
-	{
-		static int frame, timebase;
-		int time;
-		frame++;
-		time=glutGet(GLUT_ELAPSED_TIME);
-		if (time - timebase > 500) {
-			sprintf(s_fps,"FPS:%4.2f",frame*1000.0/(time-timebase));
-			timebase = time;
-			frame = 0;
-		}
-	}
-	char s_tmp[32];
-
-	GLint viewport[4];
-	::glGetIntegerv(GL_VIEWPORT,viewport);
-	const int win_w = viewport[2];
-	const int win_h = viewport[3];
-
-	::glMatrixMode(GL_PROJECTION);
-	::glPushMatrix();
-	::glLoadIdentity();
-	::gluOrtho2D(0, win_w, 0, win_h);
-	::glMatrixMode(GL_MODELVIEW);
-	::glPushMatrix();
-	::glLoadIdentity();
-	::glScalef(1, -1, 1);
-	::glTranslatef(0, -win_h, 0);
-	::glDisable(GL_LIGHTING);
-//	::glDisable(GL_DEPTH_TEST);
-	::glColor3d(1.0, 0.0, 0.0);
-	strcpy(s_tmp,"DelFEM domo");
-	RenderBitmapString(10,15, (void*)font, s_tmp);
-	::glColor3d(0.0, 0.0, 1.0);
-	strcpy(s_tmp,"Press \"space\" key!");
-	RenderBitmapString(120,15, (void*)font, s_tmp);
-	::glColor3d(0.0, 0.0, 0.0);	
-	RenderBitmapString(10,30, (void*)font, s_fps);
-//	::glEnable(GL_LIGHTING);
-	::glEnable(GL_DEPTH_TEST);
-	::glPopMatrix();
-	::glMatrixMode(GL_PROJECTION);
-	::glPopMatrix();
-	::glMatrixMode(GL_MODELVIEW);
-}
-
-void myGlutIdle(){	// アイドル時のコールバック関数
+void myGlutIdle(){	// call back function for idle
 	glutPostRedisplay();
 }
 
 Com::View::CCamera camera;
 
-void myGlutResize(int w, int h)
-{	// ウィンドウサイズ変更時のコールバック関数
+void myGlutResize(int w, int h){ // call vack function for resize
 	camera.SetWindowAspect((double)w/h);
 	glViewport(0, 0, w, h);
 	::glMatrixMode(GL_PROJECTION);
@@ -188,8 +131,7 @@ void myGlutSpecial(int Key, int x, int y)
 	::glutPostRedisplay();
 }
 
-void myGlutDisplay(void)
-{	// 描画時のコールバック関数
+void myGlutDisplay(void){	// call back function for display
 	::glClearColor(1.0, 1.0, 1.0, 1.0);
 	::glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	::glEnable(GL_DEPTH_TEST);
@@ -270,13 +212,11 @@ void SetNewProblem()
 
 		unsigned int id_field_def_fix0 = world.GetPartialField(id_field_deflect,conv.GetIdEA_fromCad(2,Cad::EDGE));
 		unsigned int id_field_def_fix1 = world.GetPartialField(id_field_deflect,conv.GetIdEA_fromCad(4,Cad::EDGE));
+    Fem::Field::SetFieldValue_Constant(id_field_rot_fix1,1,Fem::Field::VALUE,world, -1);
+    
 		ls.SetFixedBoundaryCondition_Field(id_field_def_fix0,world);
-		ls.SetFixedBoundaryCondition_Field(id_field_def_fix1,world);
-
-		{
-			Fem::Field::CField& field = world.GetField(id_field_rot_fix1);
-			field.SetValue(-1,1,Fem::Field::VALUE,world,false);
-		}
+		ls.SetFixedBoundaryCondition_Field(id_field_def_fix1,world);    
+    
 		ls.InitializeMarge();
 		Fem::Eqn::AddLinearSystem_DKT2D_Static(ls,world,id_field_deflect,id_field_rot);
 		double res = ls.FinalizeMarge();
@@ -293,8 +233,6 @@ void SetNewProblem()
 		ls.UpdateValueOfField(id_field_deflect,world,VALUE);
 		ls.UpdateValueOfField(id_field_rot,world,VALUE);
 
-
-		// 描画オブジェクトの登録
 		drawer_ary.Clear();
 	//	drawer_ary.PushBack( new View::CDrawerVector(id_field_rot,world) );
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_deflect,false,world) );
@@ -315,10 +253,8 @@ void SetNewProblem()
 		unsigned int id_field_rot_fix1 = world.GetPartialField(id_field_rot,4);
 		unsigned int id_field_def_fix0 = world.GetPartialField(id_field_deflect,3);
 		unsigned int id_field_def_fix1 = world.GetPartialField(id_field_deflect,4);
-		{
-			Fem::Field::CField& field = world.GetField(id_field_def_fix1);
-			field.SetValue(-3,0,Fem::Field::VALUE,world,false);
-		}
+    
+    Fem::Field::SetFieldValue_Constant(id_field_def_fix1,0,Fem::Field::VALUE,world, -3);    
 
 		Fem::Ls::CLinearSystem_Field ls;
 		LsSol::CPreconditioner_ILU prec;
@@ -346,8 +282,6 @@ void SetNewProblem()
 		ls.UpdateValueOfField(id_field_deflect,world,VALUE);
 		ls.UpdateValueOfField(id_field_rot,world,VALUE);
 
-
-		// 描画オブジェクトの登録
 		drawer_ary.Clear();
 	//	drawer_ary.PushBack( new View::CDrawerVector(id_field_rot,world) );
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_deflect,false,world) );
