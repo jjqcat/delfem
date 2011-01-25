@@ -402,7 +402,7 @@ bool CZMat_BlkCrs::AddPattern(const Com::CIndexedArray& crs)
 {
 	// 入力チェック
 	if( !crs.CheckValid() ) return false;
-	if( crs.size > NBlkMatCol() ) return false;
+	if( crs.Size() > NBlkMatCol() ) return false;
 	{
 		unsigned int max_val = 0;
 		for(unsigned int i=0;i<crs.array.size();i++){
@@ -418,7 +418,7 @@ bool CZMat_BlkCrs::AddPattern(const Com::CIndexedArray& crs)
 		assert( m_colInd_Blk != 0 );
 		const unsigned int nblk = NBlkMatCol();
 		{
-			const unsigned int nblk_crs = crs.size;
+			const unsigned int nblk_crs = crs.Size();
 			for(unsigned int iblk=0;iblk<nblk_crs+1;iblk++){
 				m_colInd_Blk[iblk] = crs.index[iblk];
 			}
@@ -450,7 +450,7 @@ bool CZMat_BlkCrs::AddPattern(const Com::CIndexedArray& crs)
 			tmp_buffer[iblk] = 0;
 		}
 //		const unsigned int ncrs_size = crs.size;
-		for(unsigned int iblk=0;iblk<crs.size;iblk++){
+		for(unsigned int iblk=0;iblk<crs.Size();iblk++){
 			// 既に要素が入っている場所にフラグを立てる
 			for(unsigned int icrs=m_colInd_Blk[iblk];icrs<m_colInd_Blk[iblk+1];icrs++){
 				unsigned int jnode = m_rowPtr_Blk[icrs];
@@ -478,7 +478,7 @@ bool CZMat_BlkCrs::AddPattern(const Com::CIndexedArray& crs)
 
 	// パターンを追加する
 	std::vector<unsigned int> tmp_row_ptr;
-	tmp_row_ptr.reserve(crs.size+this->NCrs());
+	tmp_row_ptr.reserve(crs.Size()+this->NCrs());
 	{	// とりあえずこのtmp_row_ptrを作ってから、コピーする
 		int* tmp_buffer = new int [this->NBlkMatRow()];
 		for(unsigned int iblk=0;iblk>NBlkMatRow();iblk++){ tmp_buffer[iblk] = 0; }
@@ -491,7 +491,7 @@ bool CZMat_BlkCrs::AddPattern(const Com::CIndexedArray& crs)
 					tmp_buffer[jblk] = iblk+1;
 				}
 			}
-			if( iblk < crs.size ){	// ここは忘れがちで注意が必要
+			if( iblk < crs.Size() ){	// ここは忘れがちで注意が必要
 				for(unsigned int icrs=crs.index[iblk];icrs<crs.index[iblk+1];icrs++){
 					unsigned int jblk = crs.array[icrs];
                     if( tmp_buffer[jblk] != (int)iblk+1 ){

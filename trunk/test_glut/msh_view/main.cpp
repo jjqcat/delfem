@@ -40,7 +40,7 @@ void myGlutMotion( int x, int y ){
 	const double mov_end_x = (2.0*x-win_w)/win_w;
 	const double mov_end_y = (win_h-2.0*y)/win_h;
   ////
-  if( imodifier == GLUT_ACTIVE_SHIFT ){ // pan
+  if(      imodifier == GLUT_ACTIVE_SHIFT ){ // pan
     camera.MousePan(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 		
 	}
 	else if( imodifier == GLUT_ACTIVE_CTRL ){ //  rotation

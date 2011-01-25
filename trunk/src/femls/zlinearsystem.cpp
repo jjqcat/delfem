@@ -140,7 +140,7 @@ bool CZLinearSystem::AddPattern_Field(const unsigned int id_field, const CFieldW
 				this->AddMat_NonDia(ils0,ils1, crs);		// cb行列を作る
 				const unsigned int nnode1 = m_aSeg[ils1].nnode;
 				Com::CIndexedArray crs_inv;
-				crs_inv.SetInverse(nnode1,crs);
+				crs_inv.SetTranspose(nnode1,crs);
 				this->AddMat_NonDia(ils1,ils0, crs_inv);	// bc行列を作る
 			}
 			if( field.GetIdElemSeg(id_ea,EDGE,true,world) != 0 ){	// CONRER-EDGE
@@ -153,7 +153,7 @@ bool CZLinearSystem::AddPattern_Field(const unsigned int id_field, const CFieldW
 				this->AddMat_NonDia(ils0,ils1, crs);		// ce行列を作る
 				const unsigned int nnode1 = m_aSeg[ils1].nnode;
 				Com::CIndexedArray crs_inv;
-				crs_inv.SetInverse(nnode1,crs);
+				crs_inv.SetTranspose(nnode1,crs);
 				this->AddMat_NonDia(ils1,ils0, crs_inv);	// ec行列を作る
 			}
 		}
@@ -173,7 +173,7 @@ bool CZLinearSystem::AddPattern_Field(const unsigned int id_field, const CFieldW
 				this->AddMat_NonDia(ils0,ils1, crs);		// eb行列を作る
 				const unsigned int nnode1 = m_aSeg[ils1].nnode;
 				Com::CIndexedArray crs_inv;
-				crs_inv.SetInverse(nnode1,crs);
+				crs_inv.SetTranspose(nnode1,crs);
 				this->AddMat_NonDia(ils1,ils0, crs_inv);	// be行列を作る
 			}
 		}

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////
 //                                                            //
-//		DelFEM Test_glut of Fluid 2D                          //
+//		DelFEM Test_glut of Fluid 2D                            //
 //                                                            //
 //          Copy Rights (c) Nobuyuki Umetani 2009             //
 //          e-mail : numetani@gmail.com                       //
@@ -28,6 +28,7 @@
 #endif
 
 #include "delfem/camera.h"	// camera parameter class
+#include "delfem/glut_utility.h"  // FPS()
 
 #include "delfem/cad_obj2d.h"	// Cad::CCadObj2D
 #include "delfem/mesher2d.h"	// Mesh::CMesher2D
@@ -41,72 +42,16 @@
 #include "delfem/drawer_field_image_based_flow_vis.h"
 #include "delfem/drawer_field_streamline.h"
 
-#include "delfem/eqnsys_fluid.h"		// 有限要素法流体ソルバクラスCEqnSystem_Fluid2D
-
-void RenderBitmapString(float x, float y, void *font,char *string)
-{
-  char *c;
-  ::glRasterPos2f(x, y);
-  for (c=string; *c != '\0'; c++) {
-	  ::glutBitmapCharacter(font, *c);
-  }
-}
-
-void ShowFPS(){
-	static char s_fps[32];
-	int* font=(int*)GLUT_BITMAP_8_BY_13;
-	{
-		static int frame, timebase;
-		int time;
-		frame++;
-		time=glutGet(GLUT_ELAPSED_TIME);
-		if (time - timebase > 500) {
-			sprintf(s_fps,"FPS:%4.2f",frame*1000.0/(time-timebase));
-			timebase = time;
-			frame = 0;
-		}
-	}
-	char s_tmp[30];
-
-	GLint viewport[4];
-	::glGetIntegerv(GL_VIEWPORT,viewport);
-	const int win_w = viewport[2];
-	const int win_h = viewport[3];
-
-	::glMatrixMode(GL_PROJECTION);
-	::glPushMatrix();
-	::glLoadIdentity();
-	::gluOrtho2D(0, win_w, 0, win_h);
-	::glMatrixMode(GL_MODELVIEW);
-	::glPushMatrix();
-	::glLoadIdentity();
-	::glScalef(1, -1, 1);
-	::glTranslatef(0, -win_h, 0);
-	::glDisable(GL_LIGHTING);
-//	::glDisable(GL_DEPTH_TEST);
-//	::glColor3d(1.0, 1.0, 0.0);
-	::glColor3d(1.0, 0.0, 0.0);
-	strcpy(s_tmp,"DelFEM demo");
-	RenderBitmapString(10,15, (void*)font, s_tmp);
-	::glColor3d(0.0, 0.0, 1.0);
-	strcpy(s_tmp,"Press \"space\" key!");
-	RenderBitmapString(120,15, (void*)font, s_tmp);
-//	::glColor3d(1.0, 0.0, 0.0);
-	::glColor3d(0.0, 0.0, 0.0);
-	RenderBitmapString(10,30, (void*)font, s_fps);
-//	::glEnable(GL_LIGHTING);
-	::glEnable(GL_DEPTH_TEST);
-	::glPopMatrix();
-	::glMatrixMode(GL_PROJECTION);
-	::glPopMatrix();
-	::glMatrixMode(GL_MODELVIEW);
-}
+#include "delfem/eqnsys_fluid.h"		// Fem::Eqn::CEqnSystem_Fluid2D
 
 void myGlutIdle(){
 	glutPostRedisplay();
 }
 
 Com::View::CCamera camera;
+double mov_begin_x, mov_begin_y;
+bool is_animation = true;
+int imodifier;
 
 void myGlutResize(int w, int h)
 {
@@ -125,8 +70,6 @@ unsigned int id_base;
 Fem::Field::CFieldWorld world;
 Fem::Eqn::CEqnSystem_Fluid2D fluid;
 Fem::Field::CFieldValueSetter field_value_setter;
-double mov_begin_x, mov_begin_y;
-bool is_animation = true;
 
 void myGlutMotion( int x, int y ){
 	GLint viewport[4];
@@ -135,8 +78,12 @@ void myGlutMotion( int x, int y ){
 	const int win_h = viewport[3];
 	const double mov_end_x = (2.0*x-win_w)/win_w;
 	const double mov_end_y = (win_h-2.0*y)/win_h;
-//	camera.MouseRotation(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
-	camera.MousePan(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
+  if(      imodifier == GLUT_ACTIVE_SHIFT ){
+    camera.MousePan(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
+  }
+  else if( imodifier == GLUT_ACTIVE_CTRL ){
+    camera.MouseRotation(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
+  }
 	mov_begin_x = mov_end_x;
 	mov_begin_y = mov_end_y;
 	::glutPostRedisplay();
@@ -145,6 +92,7 @@ void myGlutMotion( int x, int y ){
 void myGlutMouse(int button, int state, int x, int y){
 	GLint viewport[4];
 	::glGetIntegerv(GL_VIEWPORT,viewport);
+  imodifier = ::glutGetModifiers();
 	const int win_w = viewport[2];
 	const int win_h = viewport[3];
 	mov_begin_x = (2.0*x-win_w)/win_w;
@@ -214,7 +162,6 @@ void myGlutDisplay(void)
 	{
 		cur_time += dt;
     field_value_setter.ExecuteValue(cur_time,world);
-//		world.FieldValueExec(cur_time);
 		fluid.Solve(world);
 		if( fluid.GetAry_ItrNormRes().size() > 0 ){
 //			std::cout << "Iter : " << fluid.GetAry_ItrNormRes()[0].first << " ";
@@ -314,7 +261,7 @@ void SetNewProblem()
 	{
 		fluid.SetRho(0.5);
 	}
-	else if( iprob == 3 )	// キャビティーフロー問題，非定常Naiver-Stokes流れ
+	else if( iprob == 3 )	// cavity flow，non-static Naiver-Stokes flow
 	{
 		fluid.SetRho(0.02);
 		fluid.SetMyu(0.00001);
@@ -347,7 +294,6 @@ void SetNewProblem()
 			id_field_bc1 = fluid.AddFixElemAry(id_ea_bc1,world);
 		}
 		
-		// 描画オブジェクトの登録
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerVector(id_field_velo,world) );
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_press,true,world, id_field_press) );
@@ -356,7 +302,7 @@ void SetNewProblem()
 	else if( iprob == 5 ) // l shaped flow
 	{
 		Cad::CCadObj2D cad_2d;
- 		{	// 形を作る
+ 		{	// define shape
 			std::vector<Com::CVector2D> vec_ary;
 			vec_ary.push_back( Com::CVector2D(0.0, 0.0) );
 			vec_ary.push_back( Com::CVector2D(1.0, 0.0) );
@@ -399,7 +345,6 @@ void SetNewProblem()
 		fluid.SetStokes();
 		fluid.SetTimeIntegrationParameter(dt);
 
-		// 描画オブジェクトの登録
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerVector(id_field_velo,world) );
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_press,true,world, id_field_press) );
@@ -449,7 +394,6 @@ void SetNewProblem()
 		fluid.SetIsStationary(true);
 		fluid.SetTimeIntegrationParameter(dt);
 
-		// 描画オブジェクトの登録
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerVector(id_field_velo,world) );
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_press,true,world,id_field_press) );
@@ -515,7 +459,6 @@ void SetNewProblem()
 		fluid.SetNavierStokes();
 		fluid.SetTimeIntegrationParameter(dt);
 
-		// 描画オブジェクトの登録
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerVector(id_field_velo,world) );
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_press,true,world,id_field_press) );
@@ -527,7 +470,7 @@ void SetNewProblem()
 	else if( iprob == 11 )	// two element array problem
 	{
 		Cad::CCadObj2D cad_2d;
- 		{	// 形を作る
+ 		{	// define shape
 			std::vector<Com::CVector2D> vec_ary;
 			vec_ary.push_back( Com::CVector2D(0.0, 0.0) );
 			vec_ary.push_back( Com::CVector2D(1.0, 0.0) );
@@ -568,12 +511,11 @@ void SetNewProblem()
 		fluid.SetNavierStokes();
 		fluid.SetTimeIntegrationParameter(dt);
 
-		// 描画オブジェクトの登録
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerVector(id_field_velo,world) );
-//		drawer_ary.PushBack( new Fem::Field::View::CDrawerFaceContour(id_field_press,world) );
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_press,true,world,id_field_press) );
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerStreamline(id_field_velo,world) );
+//		drawer_ary.PushBack( new Fem::Field::View::CDrawerFaceContour(id_field_press,world) );    
 		drawer_ary.InitTrans( camera );
 	}
   else if( iprob == 12 ){ // back-step flow
@@ -629,18 +571,17 @@ void SetNewProblem()
 			fluid.SetEquation(eqn_fluid);
 		}
 
-		// 描画オブジェクトの登録
 		drawer_ary.Clear();
-//		drawer_ary.PushBack( new Fem::Field::View::CDrawerImageBasedFlowVis(id_field_velo,world,1) );
-//		drawer_ary.PushBack( new Fem::Field::View::CDrawerStreamline(id_field_velo,world) );
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerVector(id_field_velo,world) );
-//		drawer_ary.PushBack( new Fem::Field::View::CDrawerFaceContour(id_field_press,world) );
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_press,true,world,id_field_press) );
+    //		drawer_ary.PushBack( new Fem::Field::View::CDrawerFaceContour(id_field_press,world) );
+    //		drawer_ary.PushBack( new Fem::Field::View::CDrawerImageBasedFlowVis(id_field_velo,world,1) );
+    //		drawer_ary.PushBack( new Fem::Field::View::CDrawerStreamline(id_field_velo,world) );        
 		drawer_ary.InitTrans( camera );
 	}
 	if( iprob == 13 ){ // buoyant problem
 		Cad::CCadObj2D cad_2d;
- 		{	// 形を作る
+ 		{	// define shape
 			std::vector<Com::CVector2D> vec_ary;
 			vec_ary.push_back( Com::CVector2D( 0.0, 0.0) );
 			vec_ary.push_back( Com::CVector2D( 3.0, 0.0) );
@@ -688,10 +629,10 @@ void SetNewProblem()
 
 		// registration of visualization objects
 		drawer_ary.Clear();
-//		drawer_ary.PushBack( new Fem::Field::View::CDrawerStreamline(id_field_velo,world) );
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerVector(id_field_velo,world) );
-//		drawer_ary.PushBack( new Fem::Field::View::CDrawerFaceContour(id_field_press,world);
-		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_press,true,world,id_field_press) );
+		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_press,true,world,id_field_press) );    
+    //		drawer_ary.PushBack( new Fem::Field::View::CDrawerFaceContour(id_field_press,world);
+    //		drawer_ary.PushBack( new Fem::Field::View::CDrawerStreamline(id_field_velo,world) );
 		drawer_ary.InitTrans( camera );
 	}
 	else if( iprob == 14 )
@@ -727,7 +668,7 @@ void SetNewProblem()
 		cur_time = 0;
 		world.Clear();
 		id_base = world.AddMesh(mesh_2d);
-		const Fem::Field::CIDConvEAMshCad& conv = world.GetIDConverter(id_base);  // ID変換クラス
+		const Fem::Field::CIDConvEAMshCad& conv = world.GetIDConverter(id_base);
 		unsigned int id_base2 = 0;
 		{
 			std::vector<unsigned int> mapVal2Co;
@@ -782,18 +723,17 @@ void SetNewProblem()
 
 		// registration of visualization objects
 		drawer_ary.Clear();
+		drawer_ary.PushBack( new Fem::Field::View::CDrawerVector(     id_field_velo, world) );    
+		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_press,true,world,id_field_press) );    
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerImageBasedFlowVis(id_field_velo,world,1) );
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerStreamline(id_field_velo,world) );
-		drawer_ary.PushBack( new Fem::Field::View::CDrawerVector(     id_field_velo, world) );
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerFaceContour(id_field_press,world) );
-		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_press,true,world,id_field_press) );
 		drawer_ary.InitTrans( camera );
 	}
 	
 	::glMatrixMode(GL_PROJECTION);
 	::glLoadIdentity();
 	Com::View::SetProjectionTransform(camera);
-//	::glutPostRedisplay();
 
 	iprob++;
 	if( iprob == nprob ){ iprob = 0; }

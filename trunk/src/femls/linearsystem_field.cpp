@@ -115,7 +115,7 @@ bool CLinearSystem_Field::AddPattern_Field(const unsigned int id_field, const CF
 				this->AddMat_NonDia(ils0,ils1, crs);		// cb行列を作る
 				const unsigned int nnode1 = m_aSegField[ils1].nnode;
 				Com::CIndexedArray crs_inv;
-				crs_inv.SetInverse(nnode1,crs);
+				crs_inv.SetTranspose(nnode1,crs);
 				this->AddMat_NonDia(ils1,ils0, crs_inv);	// bc行列を作る
 			}
 			if( field.GetIdElemSeg(id_ea,EDGE,true,world) != 0 ){	// CONRER-EDGE
@@ -126,7 +126,7 @@ bool CLinearSystem_Field::AddPattern_Field(const unsigned int id_field, const CF
 				this->AddMat_NonDia(ils0,ils1, crs);		// ce行列を作る
 				const unsigned int nnode1 = m_aSegField[ils1].nnode;
 				Com::CIndexedArray crs_inv;
-				crs_inv.SetInverse(nnode1,crs);
+				crs_inv.SetTranspose(nnode1,crs);
 				this->AddMat_NonDia(ils1,ils0, crs_inv);	// ec行列を作る
 			}
 		}
@@ -148,7 +148,7 @@ bool CLinearSystem_Field::AddPattern_Field(const unsigned int id_field, const CF
 				this->AddMat_NonDia(ils0,ils1, crs);		// eb行列を作る
 				const unsigned int nnode1 = m_aSegField[ils1].nnode;
 				Com::CIndexedArray crs_inv;
-				crs_inv.SetInverse(nnode1,crs);
+				crs_inv.SetTranspose(nnode1,crs);
 				this->AddMat_NonDia(ils1,ils0, crs_inv);	// be行列を作る
 			}
 		}
@@ -314,7 +314,7 @@ bool CLinearSystem_Field::AddPattern_Field(
 		this->AddMat_NonDia(ils_c,ils2_c, crs);		// c1c2行列を足す
 		unsigned int nnode2 = m_aSegField[ils2_c].nnode;
 		Com::CIndexedArray crs_inv;
-		crs_inv.SetInverse( nnode2, crs );
+		crs_inv.SetTranspose( nnode2, crs );
 		this->AddMat_NonDia(ils2_c,ils_c, crs_inv);	// c2c1行列を足す
 		return true;
 	}
@@ -362,7 +362,7 @@ bool CLinearSystem_Field::AddPattern_Field(
 						this->AddMat_NonDia(ils_c,ils2_c, crs);		// c1c2行列を足す
 						unsigned int nnode2 = m_aSegField[ils2_c].nnode;
 						Com::CIndexedArray crs_inv;
-						crs_inv.SetInverse( nnode2, crs );
+						crs_inv.SetTranspose( nnode2, crs );
 						this->AddMat_NonDia(ils2_c,ils_c, crs_inv);	// c2c1行列を足す
 					}
 					// CORNER1-BUBBLE2
@@ -377,7 +377,7 @@ bool CLinearSystem_Field::AddPattern_Field(
 						this->AddMat_NonDia(ils_c,ils2_b, crs);		// c1b2行列を足す
 						unsigned int nnode2 = m_aSegField[ils2_b].nnode;
 						Com::CIndexedArray crs_inv;
-						crs_inv.SetInverse( nnode2, crs );
+						crs_inv.SetTranspose( nnode2, crs );
 						this->AddMat_NonDia(ils2_b,ils_c, crs_inv);	// b2c1行列を足す
 					}
 				}
@@ -407,12 +407,12 @@ bool CLinearSystem_Field::AddPattern_Field(
 							crs.array[icrs] = jno_va2;
 						}
 						int ils2 = this->FindIndexArray_Seg(id_field2,CORNER,world);
-                        assert( ils2 >= 0 && ils2 < (int)this->GetNLynSysSeg() );
+            assert( ils2 >= 0 && ils2 < (int)this->GetNLynSysSeg() );
 //						std::cout << "ils_seg : " << ils0 << " " << ils2 << std::endl;
 						this->AddMat_NonDia(ils_c,ils2, crs);
 						unsigned int nnode2 = m_aSegField[ils2].nnode;
 						Com::CIndexedArray crs_inv;
-						crs_inv.SetInverse( nnode2, crs );
+						crs_inv.SetTranspose( nnode2, crs );
 						this->AddMat_NonDia(ils2,ils_c, crs_inv);
 					}
 				}
@@ -439,7 +439,7 @@ bool CLinearSystem_Field::AddPattern_Field(
 		const unsigned int id_es_c2 = field2.GetIdElemSeg(id_ea2,CORNER,true,world);
 		assert( ea1.IsSegID(id_es_c2) );
 		int ils2 = this->FindIndexArray_Seg(id_field2,CORNER,world);
-        assert( ils2 >= 0 && ils2 < (int)this->GetNLynSysSeg() );
+    assert( ils2 >= 0 && ils2 < (int)this->GetNLynSysSeg() );
 		{
 			Com::CIndexedArray crs;
 			ea1.MakePattern_FEM(id_es_b1,id_es_c2,crs);
@@ -447,7 +447,7 @@ bool CLinearSystem_Field::AddPattern_Field(
 			this->AddMat_NonDia(ils_b,ils2, crs);		// b1c2行列を作る
 			Com::CIndexedArray crs_inv;
 			const unsigned nnode2 = m_aSegField[ils2].nnode;
-			crs_inv.SetInverse( nnode2, crs );
+			crs_inv.SetTranspose( nnode2, crs );
 			this->AddMat_NonDia(ils2,ils_b, crs_inv);	// c2b1行列を作る
 		}
 	}

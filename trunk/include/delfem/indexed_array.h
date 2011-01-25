@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define INDEXED_ARRAY_H
 
 #if defined(__VISUALC__)
-    #pragma warning( disable : 4786 )
+#pragma warning( disable : 4786 )
 #endif
 
 #include <vector>
@@ -40,21 +40,29 @@ namespace Com{
 class CIndexedArray
 {
 public:
-	CIndexedArray() : size(0){}
+	CIndexedArray(){}
 
-	//! 転置して初期化
-	void SetInverse(unsigned int size, const CIndexedArray& crs){	
-		this->size = size;
+  void InitializeSize(unsigned int size){
+    index.clear();
+    index.resize(size+1,0);
+    array.clear();
+  }
+  unsigned int Size() const{
+    if( index.size() == 0 ){ return 0; }
+    return index.size()-1;
+  }
+
+	//! initialize with transpose pattern
+	void SetTranspose(unsigned int size, const CIndexedArray& crs){	
+    index.clear();
 		index.resize( size+1, 0 );
 		for(unsigned int icrs=0;icrs<crs.array.size();icrs++){
 			const unsigned int jno = crs.array[icrs];
 			if( jno < size ){ index[jno+1]++; }
 		}
-		for(unsigned int j=0;j<size;j++){
-			index[j+1] += index[j];
-		}
+		for(unsigned int j=0;j<size;j++){ index[j+1] += index[j]; }
 		array.resize(index[size]);
-		for(unsigned int i=0;i<crs.size;i++){
+		for(unsigned int i=0;i<crs.Size();i++){
 		for(unsigned int icrs=crs.index[i];icrs<crs.index[i+1];icrs++){
 			const unsigned int jno = crs.array[icrs];
 			const unsigned int jcrs = index[jno];
@@ -62,9 +70,7 @@ public:
 			index[jno]++;
 		}
 		}
-		for(int k=size-1;k>=0;k--){
-			index[k+1] = index[k];
-		}
+		for(int k=size-1;k>=0;k--){ index[k+1] = index[k]; }
 		index[0] = 0;
 /*
 		////////////////
@@ -91,8 +97,8 @@ public:
 */
 	}
 public:
+  //! initialize as a dense matrix
 	void Fill(unsigned int ncol, unsigned int nrow){
-		size = ncol;
 		index.resize(ncol+1);
 		index[0] = 0;
 		array.resize(ncol*nrow);
@@ -105,6 +111,8 @@ public:
 	}
 	//! sort that each sub array have incremental odering
 	void Sort(){
+    if( index.size() == 0 ) return;
+    const unsigned int size = index.size()-1;
 		for(unsigned int ipoin=0;ipoin<size;ipoin++){
 			const unsigned int is = index[ipoin  ];
 			const unsigned int ie = index[ipoin+1];
@@ -123,13 +131,11 @@ public:
 		}
 	}
 	bool CheckValid() const {
-		if( index.size() < size+1 ) return false;
+    unsigned int size = index.size()-1;
 		if( index[size] > array.size()+1 ) return false;
 		return true;
 	}
-public: // TODO: make this private 
-	unsigned int size;
-	// unsigned int Size(){ return index.size()-1; }	// とかでサイズを出しては駄目なの？
+public:
 	std::vector<unsigned int> index;
 	std::vector<unsigned int> array;
 };

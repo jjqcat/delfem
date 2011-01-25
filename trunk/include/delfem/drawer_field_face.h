@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
 /*! @file
-@brief 面で場を可視化するクラス(Fem::Field::View::CDrawerFace)のインターフェース
+@brief Interfacde for field visualization class of element surface(Fem::Field::View::CDrawerFace)
 @author Nobuyuki Umetani
 */
 

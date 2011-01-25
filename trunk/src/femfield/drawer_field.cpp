@@ -127,8 +127,8 @@ CIndexArrayElem::CIndexArrayElem(unsigned int id_ea, unsigned int id_es, const F
 	is_selected = false;
 	this->id_ea=id_ea;
 	this->id_es=id_es;
-//	color[0] = 0.8; color[1] = 0.8; color[2] = 0.8;
-	color[0] = 1.0; color[1] = 1.0; color[2] = 1.0;  
+	color[0] = 0.8; color[1] = 0.8; color[2] = 0.8;
+//	color[0] = 1.0; color[1] = 1.0; color[2] = 1.0;  
 //	color[0] = 0.8; color[1] = 0.2; color[2] = 0.2;
 //	color[0] = 0.2; color[1] = 0.8; color[2] = 0.2;
 	nElem = 0;
