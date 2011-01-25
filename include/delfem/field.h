@@ -244,28 +244,13 @@ public:
 	// 場の追加
 	bool SetValueType( Field::FIELD_TYPE field_type, const int fdt, CFieldWorld& world);
 	int GetLayer(unsigned int id_ea) const;
-
-	////////////////////////////////
-	// 値を設定する関数 (Will be moved to another class)
-/*
-	//! セーブされた値を全自由度にセットする
-	bool ExecuteValue(double time, CFieldWorld& world);
-	//! 定数をセーブ＆セットする
-	void SetValue(double val, unsigned int idofns, FIELD_DERIVATION_TYPE fdt, CFieldWorld& world, bool is_save);
-	//! 数式をセーブ＆セットする
-	bool SetValue(std::string str_exp, unsigned int idofns, FIELD_DERIVATION_TYPE fdt, CFieldWorld& world, bool is_save);
-	//! 乱数場をセーブ＆セットする
-	void SetValueRandom(CFieldWorld& world) const;
-	//! 別の場の値をコピーしてセットする
-	void SetVelocity(unsigned int id_field, CFieldWorld& world);
-	//! 勾配をセットする
-	bool SetGradient(unsigned int id_field, CFieldWorld& world, bool is_save);
-*/	
+  
 	// TODO: 一度この関数を呼んだら，次に呼んだ時は高速に処理されるように，ハッシュを構築する
 	// TODO: 座標やコネクティビティの変更があった場合は，ハッシュを削除する
-	bool FindVelocityAtPoint(double velo[], 
-		unsigned int& id_ea_stat, unsigned int& ielem_stat, double& r1, double& r2,
-		const double co[], const Fem::Field::CFieldWorld& world ) const;
+	bool FindVelocityAtPoint
+  (double velo[], 
+   unsigned int& id_ea_stat, unsigned int& ielem_stat, double& r1, double& r2,
+   const double co[], const Fem::Field::CFieldWorld& world ) const;
 
 	////////////////////////////////
 	// 境界条件を設定する関数(FieldとMatVecは分離させたいから，そのうちこの関数は削除ー＞LiearSystem_Fieldに追加)

@@ -25,6 +25,8 @@
 #endif
 
 #include "delfem/camera.h"
+#include "delfem/glut_utility.h"
+
 #include "delfem/cad_obj2d.h"
 #include "delfem/mesh3d.h"
 
@@ -38,6 +40,7 @@
 #include "delfem/femls/linearsystem_field.h"
 
 #include "delfem/field_world.h"
+#include "delfem/field_value_setter.h"
 #include "delfem/drawer_field_face.h"
 #include "delfem/drawer_field_edge.h"
 
@@ -46,68 +49,17 @@ using namespace Fem::Ls;
 using namespace MatVec;
 using namespace Fem::Field;
 
-Com::View::CCamera mvp_trans;
+Com::View::CCamera camera;
+unsigned int imodifier;
 double mov_begin_x, mov_begin_y;
-
-void RenderBitmapString(float x, float y, void *font,char *string)
-{
-  char *c;
-  ::glRasterPos2f(x, y);
-  for (c=string; *c != '\0'; c++) {
-	  ::glutBitmapCharacter(font, *c);
-  }
-}
-
-
-void ShowFPS(){
-	static int frame, timebase;
-	static char s[30];
-	int time;
-	int* font=(int*)GLUT_BITMAP_8_BY_13;
-
-	frame++;
-	time=glutGet(GLUT_ELAPSED_TIME);
-	if (time - timebase > 500) {
-		sprintf(s,"FPS:%4.2f",frame*1000.0/(time-timebase));
-		timebase = time;
-		frame = 0;
-	}
-
-	GLint viewport[4];
-	::glGetIntegerv(GL_VIEWPORT,viewport);
-	const int win_w = viewport[2];
-	const int win_h = viewport[3];
-
-	::glMatrixMode(GL_PROJECTION);
-	::glPushMatrix();
-	::glLoadIdentity();
-	::gluOrtho2D(0, win_w, 0, win_h);
-	::glMatrixMode(GL_MODELVIEW);
-	::glPushMatrix();
-	::glLoadIdentity();
-	::glScalef(1, -1, 1);
-	::glTranslatef(0, -win_h, 0);
-	::glDisable(GL_LIGHTING);
-//	::glDisable(GL_DEPTH_TEST);
-	::glColor3d(1.0, 1.0, 0.0);
-	RenderBitmapString(10,15, (void*)font, "DelFEM demo");
-	::glColor3d(1.0, 1.0, 1.0);
-	RenderBitmapString(10,30,(void *)font,s);
-//	::glEnable(GL_LIGHTING);
-	::glEnable(GL_DEPTH_TEST);
-	::glPopMatrix();
-	::glMatrixMode(GL_PROJECTION);
-	::glPopMatrix();
-	::glMatrixMode(GL_MODELVIEW);
-}
 
 void myGlutResize(int w, int h)
 {
-	mvp_trans.SetWindowAspect((double)w/h);
+	camera.SetWindowAspect((double)w/h);
 	::glViewport(0, 0, w, h);
 	::glMatrixMode(GL_PROJECTION);
 	::glLoadIdentity();
-	Com::View::SetProjectionTransform(mvp_trans);
+	Com::View::SetProjectionTransform(camera);
 	::glutPostRedisplay();
 }
 
@@ -118,9 +70,13 @@ void myGlutMotion( int x, int y ){
 	const int win_h = viewport[3];
 	const double mov_end_x = (2.0*x-win_w)/win_w;
 	const double mov_end_y = (win_h-2.0*y)/win_h;
-//	mvp_trans.MouseRotation(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
-	mvp_trans.MousePan(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
-	mov_begin_x = mov_end_x;
+  if(      imodifier == GLUT_ACTIVE_SHIFT ){
+    camera.MousePan(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y);     
+  }
+  else if( imodifier == GLUT_ACTIVE_CTRL ){
+    camera.MouseRotation(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
+  }    
+	mov_begin_x = mov_end_x;    
 	mov_begin_y = mov_end_y;
 	::glutPostRedisplay();
 }
@@ -128,6 +84,7 @@ void myGlutMotion( int x, int y ){
 void myGlutMouse(int button, int state, int x, int y){
 	GLint viewport[4];
 	::glGetIntegerv(GL_VIEWPORT,viewport);
+  imodifier = glutGetModifiers();
 	const int win_w = viewport[2];
 	const int win_h = viewport[3];
 	mov_begin_x = (2.0*x-win_w)/win_w;
@@ -137,7 +94,7 @@ void myGlutMouse(int button, int state, int x, int y){
 
 double cur_time = 0.0;
 const double dt = 0.02;
-bool is_animation = false;
+bool is_animation = true;
 
 void SetProblem();
 void myGlutKeyboard(unsigned char Key, int x, int y)
@@ -157,7 +114,7 @@ void myGlutKeyboard(unsigned char Key, int x, int y)
 	}
 	::glMatrixMode(GL_PROJECTION);
 	::glLoadIdentity();
-	Com::View::SetProjectionTransform(mvp_trans);
+	Com::View::SetProjectionTransform(camera);
 	::glutPostRedisplay();
 }
 
@@ -167,34 +124,34 @@ void myGlutSpecial(int Key, int x, int y)
 	{
 	case GLUT_KEY_PAGE_UP:
 		if( ::glutGetModifiers() && GLUT_ACTIVE_SHIFT ){
-			if( mvp_trans.IsPers() ){
-				const double tmp_fov_y = mvp_trans.GetFovY() + 10.0;
-				mvp_trans.SetFovY( tmp_fov_y );
+			if( camera.IsPers() ){
+				const double tmp_fov_y = camera.GetFovY() + 10.0;
+				camera.SetFovY( tmp_fov_y );
 			}
 		}
 		else{
-			const double tmp_scale = mvp_trans.GetScale() * 0.9;
-			mvp_trans.SetScale( tmp_scale );
+			const double tmp_scale = camera.GetScale() * 0.9;
+			camera.SetScale( tmp_scale );
 		}
 		break;
 	case GLUT_KEY_PAGE_DOWN:
 		if( ::glutGetModifiers() && GLUT_ACTIVE_SHIFT ){
-			if( mvp_trans.IsPers() ){
-				const double tmp_fov_y = mvp_trans.GetFovY() - 10.0;
-				mvp_trans.SetFovY( tmp_fov_y );
+			if( camera.IsPers() ){
+				const double tmp_fov_y = camera.GetFovY() - 10.0;
+				camera.SetFovY( tmp_fov_y );
 			}
 		}
 		else{
-			const double tmp_scale = mvp_trans.GetScale() * 1.111;
-			mvp_trans.SetScale( tmp_scale );
+			const double tmp_scale = camera.GetScale() * 1.111;
+			camera.SetScale( tmp_scale );
 		}
 		break;
 	case GLUT_KEY_HOME :
-		mvp_trans.Fit();
+		camera.Fit();
 		break;
 	case GLUT_KEY_END :
-		if( mvp_trans.IsPers() ) mvp_trans.SetIsPers(false);
-		else{ mvp_trans.SetIsPers(true); }
+		if( camera.IsPers() ) camera.SetIsPers(false);
+		else{ camera.SetIsPers(true); }
 		break;
 	default:
 		break;
@@ -202,7 +159,7 @@ void myGlutSpecial(int Key, int x, int y)
 	
 	::glMatrixMode(GL_PROJECTION);
 	::glLoadIdentity();
-	Com::View::SetProjectionTransform(mvp_trans);
+	Com::View::SetProjectionTransform(camera);
 	::glutPostRedisplay();
 }
 
@@ -217,6 +174,7 @@ void myGlutIdle(){
 
 
 Fem::Field::CFieldWorld world;
+Fem::Field::CFieldValueSetter field_value_setter;
 View::CDrawerArrayField drawer_ary;
 
 const double gravity[2] = { 0.0, -10.0 };
@@ -269,7 +227,7 @@ void Solve(){
 //    getchar();
 }
 
-// ï`âÊéûÇÃÉRÅ[ÉãÉoÉbÉNä÷êî
+// √Ø`√¢√ä√©√ª√á√É√âR√Ö[√â√£√âo√âb√âN√§√∑√™√Æ
 void myGlutDisplay(void)
 {
 	::glClearColor(0.2f, 0.7f, 0.7f ,1.0f);
@@ -281,7 +239,7 @@ void myGlutDisplay(void)
 
 	::glMatrixMode(GL_MODELVIEW);
 	::glLoadIdentity();
-	Com::View::SetModelViewTransform(mvp_trans);
+	Com::View::SetModelViewTransform(camera);
 
 	if( is_animation  ){
 		cur_time += dt;
@@ -321,17 +279,15 @@ void SetProblem()
 
 		////////////////		
 		id_disp = world.MakeField_FieldElemDim(id_base,2, VECTOR2, VALUE|VELOCITY|ACCELERATION, CORNER);
-//		world.FieldValueExec(cur_time);
-        unsigned int id_disp_fix0;
-    {   // ã´äEèåèÇÃê›íË
+    unsigned int id_disp_fix0;
+    { // get fixed field
       std::vector<unsigned int> aIdEAFix;
-      //		aIdEAFix.push_back(3);
 			aIdEAFix.push_back( conv.GetIdEA_fromCad(2,Cad::EDGE) );
       id_disp_fix0 = world.GetPartialField(id_disp,aIdEAFix);
-      Fem::Field::CField& field = world.GetField(id_disp_fix0);
-      field.SetValue("sin(t)",    0,Fem::Field::VALUE,world,true);
-      field.SetValue("sin(0.5*t)",1,Fem::Field::VALUE,world,true);
     }
+    field_value_setter = Fem::Field::CFieldValueSetter(id_disp_fix0,world);
+    field_value_setter.SetMathExp("sin(t)",    0,Fem::Field::VALUE,world);
+    field_value_setter.SetMathExp("sin(0.5*t)",1,Fem::Field::VALUE,world);
 		
 		// set linear system
     ls.Clear();
@@ -341,7 +297,7 @@ void SetProblem()
     prec.SetFillInLevel(0);
     prec.SetLinearSystem(ls.m_ls);
 
-		// ï`âÊÉIÉuÉWÉFÉNÉgÇÃìoò^
+		// √Ø`√¢√ä√âI√âu√âW√âF√âN√âg√á√É√¨o√≤^
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerEdge(id_disp,false,world) );
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_disp,false,world) );
@@ -377,11 +333,11 @@ int main(int argc,char* argv[])
 	glutSpecialFunc(myGlutSpecial);
 	glutIdleFunc(myGlutIdle);
 	
-	// ñ‚ëËÇÃê›íË
+	// √±‚Äö√´√ã√á√É√™‚Ä∫√≠√ã
 	SetProblem();
-	drawer_ary.InitTrans(mvp_trans);
+	drawer_ary.InitTrans(camera);
 	
-	// ÉÅÉCÉìÉãÅ[Év
+	// √â√Ö√âC√â√¨√â√£√Ö[√âv
 	glutMainLoop();
 	return 0;
 }
