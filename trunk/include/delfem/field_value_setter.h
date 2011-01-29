@@ -42,7 +42,7 @@ bool SetFieldValue_Constant
 bool SetFieldValue_MathExp
   (unsigned int id_field_to, unsigned int idofns, Fem::Field::FIELD_DERIVATION_TYPE fdt, 
    Fem::Field::CFieldWorld& world,                          
-   std::string str_exp, double t);
+   std::string str_exp, double t=0);
   
 //! set random field to the field
 void SetFieldValue_Random
