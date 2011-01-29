@@ -6,6 +6,7 @@
 #include "delfem/camera.h"
 #include "delfem/field.h"
 #include "delfem/field_world.h"
+#include "delfem/field_value_setter.h"
 #include "delfem/drawer_field.h"
 #include "delfem/eqnsys_solid.h"
 
@@ -39,6 +40,7 @@ public:
     Com::View::CCamera camera;
 
     Fem::Field::CFieldWorld world;
+    std::vector<Fem::Field::CFieldValueSetter> field_value_setter_ary;
     Fem::Field::View::CDrawerArrayField drawer_ary;
     double cur_time;
     double dt;

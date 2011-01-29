@@ -84,11 +84,14 @@ void GLWidget_Solid2d::mouseMoveEvent(QMouseEvent *event)
 void GLWidget_Solid2d::StepTime()
 {
     cur_time += dt;
-    world.FieldValueExec(cur_time);
+    for(unsigned int ifvs=0;ifvs<field_value_setter_ary.size();ifvs++){
+      field_value_setter_ary[ifvs].ExecuteValue(cur_time,world);
+    }
+    //world.FieldValueExec(cur_time);
     solid.Solve(world);
     if( id_field_equiv_stress != 0 ){ solid.SetEquivStressValue(id_field_equiv_stress,world); } // Åe?Åg?ÅÒ??I?I?e?d?X?V
     if( id_field_stress       != 0 ){ solid.SetStressValue(     id_field_stress,      world); } // ÅÒ??I?I?e?d?X?V
-    world.FieldValueDependExec();
+//    world.FieldValueDependExec();
     drawer_ary.Update(world);
     updateGL();
 }
@@ -124,6 +127,8 @@ void GLWidget_Solid2d::SetDrawerArray(){
         drawer_ary.PushBack( new Fem::Field::View::CDrawerEdge(id_field_disp,true ,world) );
     }
 }
+
+
 
 void GLWidget_Solid2d::SetNewProblem()
 {
@@ -166,10 +171,10 @@ void GLWidget_Solid2d::SetNewProblem()
 
         unsigned int id_field_bc0 = solid.AddFixElemAry(conv.GetIdEA_fromCad(2,Cad::EDGE),world);
         unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(4,Cad::EDGE),world);
-        {
-            Fem::Field::CField& bc1_field = world.GetField(id_field_bc0);
-            bc1_field.SetValue("sin(t*PI*2*0.1)", 1,Fem::Field::VALUE, world,true);	// bc1_field?Iy?A?W?EÅfP?UÅgR?dÅfCÅÒA
-        }
+        Fem::Field::CFieldValueSetter fvs(id_field_bc1,world);
+        fvs.SetMathExp("sin(t*PI*2*0.1)", 1,Fem::Field::VALUE,world);
+        field_value_setter_ary.clear();
+        field_value_setter_ary.push_back(fvs);
 
         // View Setting
         this->itype_face_draw = 1;  // plain deform
@@ -231,10 +236,12 @@ void GLWidget_Solid2d::SetNewProblem()
         // Set Temparatuer Distribution
         const unsigned int id_field_disp = solid.GetIdField_Disp();
         id_field_temp = world.MakeField_FieldElemDim(id_field_disp,2,SCALAR,VALUE,CORNER);
-        {
-            CField& field = world.GetField(id_field_temp);
-            field.SetValue("sin(6.28*y)*sin(x)*sin(t)", 0,Fem::Field::VALUE, world,true);
-        }
+
+        Fem::Field::CFieldValueSetter fvs(id_field_temp,world);
+        fvs.SetMathExp("sin(6.28*y)*sin(x)*sin(t)", 0,Fem::Field::VALUE, world);
+        field_value_setter_ary.clear();
+        field_value_setter_ary.push_back(fvs);
+
         solid.SetThermalStress(id_field_temp);
         solid.ClearFixElemAry(3,world);
 
@@ -261,11 +268,11 @@ void GLWidget_Solid2d::SetNewProblem()
             vec_ary.push_back( Com::CVector2D(1.0,0.0) );
             vec_ary.push_back( Com::CVector2D(1.0,1.0) );
             vec_ary.push_back( Com::CVector2D(0.0,1.0) );
-            const unsigned int id_l = cad_2d.AddPolygon( vec_ary );
-            const unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.3,0.2));
-            const unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.7,0.2));
-            const unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.7,0.8));
-            const unsigned int id_v4 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.3,0.8));
+            const unsigned int id_l = cad_2d.AddPolygon( vec_ary ).id_l_add;
+            const unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.3,0.2)).id_v_add;
+            const unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.7,0.2)).id_v_add;
+            const unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.7,0.8)).id_v_add;
+            const unsigned int id_v4 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(0.3,0.8)).id_v_add;
             cad_2d.ConnectVertex_Line(id_v1,id_v2);
             cad_2d.ConnectVertex_Line(id_v2,id_v3);
             cad_2d.ConnectVertex_Line(id_v3,id_v4);
@@ -286,12 +293,13 @@ void GLWidget_Solid2d::SetNewProblem()
         solid.SetGravitation(0.0,0.0);	// ?d?I?O
 
         unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(3,Cad::EDGE),world);
-        {
-            CField& field = world.GetField(id_field_bc1);
-            field.SetValue("0.3*sin(1.5*t)", 0,Fem::Field::VALUE, world,true);
-            field.SetValue("0.1*(cos(t)+1)", 1,Fem::Field::VALUE, world,true);
-        }
         unsigned int id_field_bc2 = solid.AddFixElemAry(conv.GetIdEA_fromCad(1,Cad::EDGE),world);
+
+        Fem::Field::CFieldValueSetter fvs(id_field_bc1,world);
+        fvs.SetMathExp("0.3*sin(1.5*t)", 0,Fem::Field::VALUE, world);
+        fvs.SetMathExp("0.1*(cos(t)+1)", 1,Fem::Field::VALUE, world);
+        field_value_setter_ary.clear();
+        field_value_setter_ary.push_back(fvs);
 
         // View Setting
         this->itype_face_draw = 1;  // plain deform
@@ -308,8 +316,8 @@ void GLWidget_Solid2d::SetNewProblem()
             vec_ary.push_back( Com::CVector2D(1.0,1.0) );
             vec_ary.push_back( Com::CVector2D(0.0,1.0) );
             cad_2d.AddPolygon( vec_ary );
-            const unsigned int id_v1 = cad_2d.AddVertex(Cad::EDGE,1,Com::CVector2D(0.5,0.0));
-            const unsigned int id_v2 = cad_2d.AddVertex(Cad::EDGE,3,Com::CVector2D(0.5,1.0));
+            const unsigned int id_v1 = cad_2d.AddVertex(Cad::EDGE,1,Com::CVector2D(0.5,0.0)).id_v_add;
+            const unsigned int id_v2 = cad_2d.AddVertex(Cad::EDGE,3,Com::CVector2D(0.5,1.0)).id_v_add;
             cad_2d.ConnectVertex_Line(id_v1,id_v2);
         }
 
@@ -329,12 +337,13 @@ void GLWidget_Solid2d::SetNewProblem()
         solid.SetGravitation(0.0,0.0);
 
         unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(3,Cad::EDGE),world);
-        {
-            CField& field = world.GetField(id_field_bc1);
-            field.SetValue("0.3*sin(1.5*t)",     0,Fem::Field::VALUE, world,true);
-            field.SetValue("0.1*(cos(t)+1)+0.1", 1,Fem::Field::VALUE, world,true);
-        }
         unsigned int id_field_bc2 = solid.AddFixElemAry(conv.GetIdEA_fromCad(5,Cad::EDGE),world);
+
+        Fem::Field::CFieldValueSetter fvs(id_field_bc1,world);
+        fvs.SetMathExp("0.3*sin(1.5*t)",     0,Fem::Field::VALUE, world);
+        fvs.SetMathExp("0.1*(cos(t)+1)+0.1", 1,Fem::Field::VALUE, world);
+        field_value_setter_ary.clear();
+        field_value_setter_ary.push_back(fvs);
 
         // View Setting
         this->itype_face_draw = 1;  // plain deform
@@ -351,12 +360,12 @@ void GLWidget_Solid2d::SetNewProblem()
             vec_ary.push_back( Com::CVector2D(2.0,0.5) );
             vec_ary.push_back( Com::CVector2D(0.0,0.5) );
             cad_2d.AddPolygon( vec_ary );
-            const unsigned int id_v5 = cad_2d.AddVertex(Cad::EDGE,1,Com::CVector2D(1.5,0.0));
-            const unsigned int id_v3 = cad_2d.AddVertex(Cad::EDGE,1,Com::CVector2D(1.0,0.0));
-            const unsigned int id_v1 = cad_2d.AddVertex(Cad::EDGE,1,Com::CVector2D(0.5,0.0));
-            const unsigned int id_v2 = cad_2d.AddVertex(Cad::EDGE,3,Com::CVector2D(0.5,0.5));
-            const unsigned int id_v4 = cad_2d.AddVertex(Cad::EDGE,3,Com::CVector2D(1.0,0.5));
-            const unsigned int id_v6 = cad_2d.AddVertex(Cad::EDGE,3,Com::CVector2D(1.5,0.5));
+            const unsigned int id_v5 = cad_2d.AddVertex(Cad::EDGE,1,Com::CVector2D(1.5,0.0)).id_v_add;
+            const unsigned int id_v3 = cad_2d.AddVertex(Cad::EDGE,1,Com::CVector2D(1.0,0.0)).id_v_add;
+            const unsigned int id_v1 = cad_2d.AddVertex(Cad::EDGE,1,Com::CVector2D(0.5,0.0)).id_v_add;
+            const unsigned int id_v2 = cad_2d.AddVertex(Cad::EDGE,3,Com::CVector2D(0.5,0.5)).id_v_add;
+            const unsigned int id_v4 = cad_2d.AddVertex(Cad::EDGE,3,Com::CVector2D(1.0,0.5)).id_v_add;
+            const unsigned int id_v6 = cad_2d.AddVertex(Cad::EDGE,3,Com::CVector2D(1.5,0.5)).id_v_add;
             cad_2d.ConnectVertex_Line(id_v1,id_v2);
             cad_2d.ConnectVertex_Line(id_v3,id_v4);
             cad_2d.ConnectVertex_Line(id_v5,id_v6);
@@ -387,12 +396,12 @@ void GLWidget_Solid2d::SetNewProblem()
             eqn.SetYoungPoisson(0.1,0.3,true);
             solid.SetEquation(eqn);
         }
-        unsigned int id_field_temp = world.MakeField_FieldElemAry(id_base, conv.GetIdEA_fromCad(3,Cad::LOOP),
-            SCALAR,VALUE,CORNER);
-        {	// ÅhM?I?e
-            CField& field = world.GetField(id_field_temp);
-            field.SetValue("0.1*sin(3.14*4*y)*sin(2*t)", 0,Fem::Field::VALUE, world,true);
-        }
+        unsigned int id_field_temp = world.MakeField_FieldElemAry(id_base, conv.GetIdEA_fromCad(3,Cad::LOOP),SCALAR,VALUE,CORNER);
+        Fem::Field::CFieldValueSetter fvs(id_field_temp,world);
+        fvs.SetMathExp("0.1*sin(3.14*4*y)*sin(2*t)", 0,Fem::Field::VALUE, world);
+        field_value_setter_ary.clear();
+        field_value_setter_ary.push_back(fvs);
+
         {	// ÅhMÅÒ??I?d?l?Å˜?É ???u?`Åfe?Å·ÅeI
             Fem::Eqn::CEqn_Solid2D eqn = solid.GetEquation(conv.GetIdEA_fromCad(3,Cad::LOOP));
             eqn.SetThermalStress(id_field_temp);
@@ -414,10 +423,10 @@ void GLWidget_Solid2d::SetNewProblem()
     else if( iprob == 9 ){
         solid.SetRho(0.0001);
         solid.SetStationary(false);
-        {	// ?I?E?I?e?d?aÅÒo?EÅfP?UÅgR?E?YÅfe
-            CField& field = world.GetField(id_field_disp_fix0);
-            field.SetValue("0.5*cos(2*t)", 1,Fem::Field::VALUE, world,true);
-        }
+        Fem::Field::CFieldValueSetter fvs(id_field_disp_fix0,world);
+        fvs.SetMathExp("0.5*cos(2*t)", 1,Fem::Field::VALUE, world);
+//        field_value_setter_ary.clear();
+        field_value_setter_ary.push_back(fvs);
     }
     else if( iprob == 10 ){
         Cad::CCadObj2D cad_2d;
@@ -428,8 +437,8 @@ void GLWidget_Solid2d::SetNewProblem()
             vec_ary.push_back( Com::CVector2D(2.0,1.0) );
             vec_ary.push_back( Com::CVector2D(0.0,1.0) );
             cad_2d.AddPolygon( vec_ary );
-            const unsigned int id_v1 = cad_2d.AddVertex(Cad::EDGE,1,Com::CVector2D(1.0,0.0));
-            const unsigned int id_v2 = cad_2d.AddVertex(Cad::EDGE,3,Com::CVector2D(1.0,1.0));
+            const unsigned int id_v1 = cad_2d.AddVertex(Cad::EDGE,1,Com::CVector2D(1.0,0.0)).id_v_add;
+            const unsigned int id_v2 = cad_2d.AddVertex(Cad::EDGE,3,Com::CVector2D(1.0,1.0)).id_v_add;
             cad_2d.ConnectVertex_Line(id_v1,id_v2);
         }
 
@@ -462,11 +471,12 @@ void GLWidget_Solid2d::SetNewProblem()
 
 //		id_field_disp_fix0 = solid.AddFixElemAry(conv.GetIdEA_fromCad(2,1),world);
         const unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(4,Cad::EDGE),world);
-        {
-            CField& field = world.GetField(id_field_bc1);
-            field.SetValue("0.3*sin(1.5*t)",     0,Fem::Field::VALUE, world,true);
-            field.SetValue("0.1*(cos(t)+1)+0.1", 1,Fem::Field::VALUE, world,true);
-        }
+
+        Fem::Field::CFieldValueSetter fvs(id_field_bc1,world);
+        fvs.SetMathExp("0.3*sin(1.5*t)",     0,Fem::Field::VALUE, world);
+        fvs.SetMathExp("0.1*(cos(t)+1)+0.1", 1,Fem::Field::VALUE, world);
+        field_value_setter_ary.clear();
+        field_value_setter_ary.push_back(fvs);
 
         // Set Visualization
         this->itype_face_draw = 1;  // plain deform
@@ -476,8 +486,8 @@ void GLWidget_Solid2d::SetNewProblem()
     }
     else if( iprob == 11 )
     {
-        Cad::CCadObj2D cad_2d;
-        unsigned int id_l;
+      Cad::CCadObj2D cad_2d;      
+      unsigned int id_l;
         unsigned int id_e1,id_e2,id_e3,id_e4,id_e5;
         {   // define shape
             std::vector<Com::CVector2D> vec_ary;
@@ -486,18 +496,18 @@ void GLWidget_Solid2d::SetNewProblem()
             vec_ary.push_back( Com::CVector2D(1.0,0.0) );
             vec_ary.push_back( Com::CVector2D(1.0,1.0) );
             vec_ary.push_back( Com::CVector2D(0.0,1.0) );
-            id_l = cad_2d.AddPolygon( vec_ary );
-            unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.2,0.5) );
-            id_e1 = cad_2d.ConnectVertex_Line(2,id_v1);
-            unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.5,0.2) );
-            unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.5,0.5) );
-            unsigned int id_v4 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.5,0.8) );
-            unsigned int id_v5 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.8,0.5) );
-            unsigned int id_v6 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.3,0.5) );
-            id_e2 = cad_2d.ConnectVertex_Line(id_v2,id_v3);
-            id_e3 = cad_2d.ConnectVertex_Line(id_v3,id_v4);
-            id_e4 = cad_2d.ConnectVertex_Line(id_v3,id_v5);
-            id_e5 = cad_2d.ConnectVertex_Line(id_v3,id_v6);
+            id_l = cad_2d.AddPolygon( vec_ary ).id_l_add;
+            unsigned int id_v1 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.2,0.5) ).id_v_add;
+            id_e1 = cad_2d.ConnectVertex_Line(2,id_v1).id_e_add;
+            unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.5,0.2) ).id_v_add;
+            unsigned int id_v3 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.5,0.5) ).id_v_add;
+            unsigned int id_v4 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.5,0.8) ).id_v_add;
+            unsigned int id_v5 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.8,0.5) ).id_v_add;
+            unsigned int id_v6 = cad_2d.AddVertex(Cad::LOOP, id_l, Com::CVector2D(0.3,0.5) ).id_v_add;
+            id_e2 = cad_2d.ConnectVertex_Line(id_v2,id_v3).id_e_add;
+            id_e3 = cad_2d.ConnectVertex_Line(id_v3,id_v4).id_e_add;
+            id_e4 = cad_2d.ConnectVertex_Line(id_v3,id_v5).id_e_add;
+            id_e5 = cad_2d.ConnectVertex_Line(id_v3,id_v6).id_e_add;
         }
         Msh::CMesher2D mesh_2d(cad_2d,0.1);
 
@@ -537,11 +547,11 @@ void GLWidget_Solid2d::SetNewProblem()
 
         unsigned int id_field_bc0 = solid.AddFixElemAry(conv.GetIdEA_fromCad(3,Cad::EDGE),world);
         unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(5,Cad::EDGE),world);
-        {
-            CField& bc1_field = world.GetField(id_field_bc0);
-            bc1_field.SetValue("0.1*sin(t*PI*2*0.1)",     0,Fem::Field::VALUE, world,true);	// bc1_field?Iy?A?W?EÅfP?UÅgR?dÅfCÅÒA
-            bc1_field.SetValue("0.1*(1-cos(t*PI*2*0.1))", 1,Fem::Field::VALUE, world,true);	// bc1_field?Iy?A?W?EÅfP?UÅgR?dÅfCÅÒA
-        }
+        Fem::Field::CFieldValueSetter fvs(id_field_bc1,world);
+        fvs.SetMathExp("0.1*sin(t*PI*2*0.1)",     0,Fem::Field::VALUE, world);
+        fvs.SetMathExp("0.1*(1-cos(t*PI*2*0.1))", 1,Fem::Field::VALUE, world);
+        field_value_setter_ary.clear();
+        field_value_setter_ary.push_back(fvs);
 
         // Set Visualization
         this->itype_face_draw = 1;  // plane deform
@@ -561,10 +571,10 @@ void GLWidget_Solid2d::SetNewProblem()
             vec_ary.push_back( Com::CVector2D(5.0,0.0) );
             vec_ary.push_back( Com::CVector2D(5.0,2.0) );
             vec_ary.push_back( Com::CVector2D(0.0,2.0) );
-            id_l = cad_2d.AddPolygon( vec_ary );
-            unsigned int id_v1 = cad_2d.AddVertex(Cad::EDGE,3,Com::CVector2D(2.5,2.0));
-            unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(2.5,1.0));
-            id_e = cad_2d.ConnectVertex_Line(id_v1,id_v2);
+            id_l = cad_2d.AddPolygon( vec_ary ).id_l_add;
+            unsigned int id_v1 = cad_2d.AddVertex(Cad::EDGE,3,Com::CVector2D(2.5,2.0)).id_v_add;
+            unsigned int id_v2 = cad_2d.AddVertex(Cad::LOOP,id_l,Com::CVector2D(2.5,1.0)).id_v_add;
+            id_e = cad_2d.ConnectVertex_Line(id_v1,id_v2).id_e_add;
         }
         Msh::CMesher2D mesh_2d(cad_2d,0.2);
         world.Clear();
@@ -599,11 +609,11 @@ void GLWidget_Solid2d::SetNewProblem()
 
         unsigned int id_field_bc0 = solid.AddFixElemAry(conv.GetIdEA_fromCad(2,Cad::EDGE),world);
         unsigned int id_field_bc1 = solid.AddFixElemAry(conv.GetIdEA_fromCad(4,Cad::EDGE),world);
-        {
-            CField& bc1_field = world.GetField(id_field_bc0);
-            bc1_field.SetValue("0.5*(1-cos(t*PI*2*0.1))", 0,Fem::Field::VALUE, world,true);	// bc1_field?Iy?A?W?EÅfP?UÅgR?dÅfCÅÒA
-            bc1_field.SetValue("0.2*sin(t*PI*2*0.1)",     1,Fem::Field::VALUE, world,true);	// bc1_field?Iy?A?W?EÅfP?UÅgR?dÅfCÅÒA
-        }
+        Fem::Field::CFieldValueSetter fvs(id_field_bc1,world);
+        fvs.SetMathExp("0.5*(1-cos(t*PI*2*0.1))",0,Fem::Field::VALUE, world);
+        fvs.SetMathExp("0.2*sin(t*PI*2*0.1)",    1,Fem::Field::VALUE, world);
+        field_value_setter_ary.clear();
+        field_value_setter_ary.push_back(fvs);
 
         const unsigned int id_field_disp = solid.GetIdField_Disp();
         id_field_equiv_stress = world.MakeField_FieldElemDim(id_field_disp,2,SCALAR,VALUE,BUBBLE);
