@@ -7,32 +7,30 @@ TARGET = dfm_core
 INCLUDEPATH += ../../include/
 VPATH += ../../src \
     ../../include/delfem/
-#VERSION = 1.2.0
+
+# VERSION = 1.2.0
 QT += opengl
-#DEFINES += NDEBUG
-#MAKE_CXXFLAGS_RELEASE = -O3
-SOURCES += \
-#   Com
-    com/drawer.cpp \
+
+# DEFINES += NDEBUG
+# MAKE_CXXFLAGS_RELEASE = -O3
+# Com
+SOURCES += com/drawer.cpp \
     com/vector3d.cpp \
     com/uglyfont.cpp \
     com/quaternion.cpp \
-    com/drawer_gl_utility.cpp \
-#   Cad
+    com/drawer_gl_utility.cpp \ # Cad
     cad/cad_obj2d.cpp \
     cad/cad_elem2d.cpp \
     cad/brep.cpp \
     cad/drawer_cad.cpp \
-    cad/brep2d.cpp \
-#   Msh
+    cad/brep2d.cpp \ # Msh
     msh/meshkernel2d.cpp \
     msh/meshkernel3d.cpp \
     msh/mesher2d.cpp \
     msh/mesher3d.cpp \
     msh/mesh3d.cpp \
     msh/drawer_msh.cpp \
-    msh/mesh3d_extrude.cpp \
-#   FemField
+    msh/mesh3d_extrude.cpp \ # FemField
     femfield/node_ary.cpp \
     femfield/field_world.cpp \
     femfield/field.cpp \
@@ -43,8 +41,7 @@ SOURCES += \
     femfield/drawer_field_edge.cpp \
     femfield/drawer_field_face.cpp \
     femfield/drawer_field_image_based_flow_vis.cpp \
-    femfield/drawer_field_streamline.cpp \
-#   MatVec
+    femfield/drawer_field_streamline.cpp \ # MatVec
     matvec/matdiafrac_blkcrs.cpp \
     matvec/matdia_blkcrs.cpp \
     matvec/matfrac_blkcrs.cpp \
@@ -59,18 +56,15 @@ SOURCES += \
     matvec/zsolver_mat_iter.cpp \
     matvec/zmatdiafrac_blkcrs.cpp \
     matvec/zmatdia_blkcrs.cpp \
-    matvec/zmat_blkcrs.cpp \
-#   Ls
+    matvec/zmat_blkcrs.cpp \ # Ls
     ls/preconditioner.cpp \
     ls/linearsystem.cpp \
     ls/solver_ls_iter.cpp \
-    ls/eigen_lanczos.cpp \
-#   FemLs
+    ls/eigen_lanczos.cpp \ # FemLs
     femls/zsolver_ls_iter.cpp \
     femls/zlinearsystem.cpp \
     femls/linearsystem_fieldsave.cpp \
-    femls/linearsystem_field.cpp \
-#   FemEqn
+    femls/linearsystem_field.cpp \ # FemEqn
     femeqn/ker_emat_tri.cpp \
     femeqn/eqn_poisson.cpp \
     femeqn/eqn_diffusion.cpp \
@@ -87,10 +81,11 @@ SOURCES += \
     femeqn/eqnsys_scalar.cpp \
     femeqn/eqnsys_shell.cpp \
     femeqn/eqnsys_fluid.cpp \
-    femeqn/eqnsys_solid.cpp
-HEADERS += \
-#   Com
-    camera.h \
+    femeqn/eqnsys_solid.cpp \
+    ../../src/femfield/field_value_setter.cpp
+
+# Com
+HEADERS += camera.h \
     drawer_gl_utility.h \
     drawer.h \
     vector2d.h \
@@ -99,8 +94,7 @@ HEADERS += \
     quaternion.h \
     serialize.h \
     uglyfont.h \
-    indexed_array.h \
-#   Cad
+    indexed_array.h \ # Cad
     cad_obj2d.h \
     cad2d_interface.h \
     cad_com.h \
@@ -108,16 +102,14 @@ HEADERS += \
     cad/brep2d.h \
     cad/brep.h \
     cad/objset_cad.h \
-    cad/cad_elem2d.h \
-#   Msh
+    cad/cad_elem2d.h \ # Msh
     mesher2d.h \
     mesh3d.h \
     mesh_primitive.h \
     mesh_interface.h \
     drawer_msh.h \
     msh/meshkernel2d.h \
-    msh/meshkernel3d.h \
-#   FemField
+    msh/meshkernel3d.h \ # FemField
     objset.h \
     node_ary.h \
     field_world.h \
@@ -129,8 +121,7 @@ HEADERS += \
     drawer_field_edge.h \
     drawer_field_face.h \
     drawer_field_image_based_flow_vis.h \
-    drawer_field_streamline.h \
-#   MatVec
+    drawer_field_streamline.h \ # MatVec
     matvec/ker_mat.h \
     matvec/solver_mat_iter.h \
     matvec/matfrac_blkcrs.h \
@@ -149,20 +140,17 @@ HEADERS += \
     matvec/zmatprecond_blk.h \
     matvec/zmatdiafrac_blkcrs.h \
     matvec/zmatdia_blkcrs.h \
-    matvec/zmat_blkcrs.h \
-#   Ls
+    matvec/zmat_blkcrs.h \ # Ls
     ls/linearsystem.h \
     ls/linearsystem_interface_solver.h \
     ls/solver_ls_iter.h \
     ls/preconditioner.h \
-    ls/eigen_lanczos.h \
-#   FemLs
+    ls/eigen_lanczos.h \ # FemLs
     femls/zsolver_ls_iter.h \
     femls/zpreconditioner.h \
     femls/zlinearsystem.h \
     femls/linearsystem_fieldsave.h \
-    femls/linearsystem_field.h \
-#   FemEqn
+    femls/linearsystem_field.h \ # FemEqn
     linearsystem_interface_eqnsys.h \
     femeqn/ker_emat_hex.h \
     femeqn/ker_emat_tet.h \
@@ -184,4 +172,5 @@ HEADERS += \
     eqnsys_scalar.h \
     eqnsys_solid.h \
     eqnsys_fluid.h \
-    eqnsys_shell.h
+    eqnsys_shell.h \
+    ../../include/delfem/field_value_setter.h
