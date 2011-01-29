@@ -6,8 +6,10 @@
 #include "delfem/camera.h"
 #include "delfem/field.h"
 #include "delfem/field_world.h"
+#include "delfem/field_value_setter.h"
 #include "delfem/drawer_field.h"
 #include "delfem/eqnsys_fluid.h"
+
 
 class GLWidget : public QGLWidget
 {
@@ -32,6 +34,7 @@ public:
 public:
     Fem::Eqn::CEqnSystem_Fluid2D fluid;
     Fem::Field::CFieldWorld world;
+    Fem::Field::CFieldValueSetter field_value_setter;
 private:
     Com::View::CCamera camera;
 

@@ -128,7 +128,7 @@ public:
 	////////////////////////////////
 	// Get Methods
 
-	const std::string& Name() const { return m_str_name; }  //!< name
+//	const std::string& Name() const { return m_str_name; }  //!< name
 	unsigned int Size()	const { return m_Size; }  //!< number of nodes
 
 	//! Get a not-used ID of Node Segment
@@ -235,7 +235,7 @@ private:
 		return ieaes;
 	}
 private:
-	std::string m_str_name;	//!< name
+//	std::string m_str_name;	//!< name
 	unsigned int m_Size;	//!< number of nodes
 	unsigned int m_DofSize;		//!< the size of DOF in node  	
 	double* m_paValue;		//!< the values in nodes  

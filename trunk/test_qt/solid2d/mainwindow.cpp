@@ -4,7 +4,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include "glwidget.h"
+#include "glwidget_solid2d.h"
 
 #include "dialog_solid2d.h"
 #include "dialog_solid2d_viewsetting.h"

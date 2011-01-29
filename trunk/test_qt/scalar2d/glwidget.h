@@ -6,8 +6,10 @@
 #include "delfem/camera.h"
 #include "delfem/field.h"
 #include "delfem/field_world.h"
+#include "delfem/field_value_setter.h"
 #include "delfem/drawer_field.h"
 #include "delfem/eqnsys_scalar.h"
+
 
 class GLWidget : public QGLWidget
 {
@@ -31,6 +33,7 @@ public:
     void SetNewProblem();
 public:
     Fem::Field::CFieldWorld world;
+    Fem::Field::CFieldValueSetter field_value_setter;
     Fem::Eqn::CEqnSystem_Scalar2D eqn_scalar;
 private:
     Com::View::CCamera camera;
@@ -40,5 +43,6 @@ private:
     double dt;
     unsigned int id_base;
 };
+
 
 #endif

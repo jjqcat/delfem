@@ -57,7 +57,7 @@ CNodeAry::CNodeAry() : m_Size(0)
 }
 
 CNodeAry::CNodeAry(const CNodeAry& na){
-	m_str_name = na.m_str_name;
+//	m_str_name = na.m_str_name;
 	m_Size = na.m_Size;
 	m_DofSize = na.m_DofSize;
   {
