@@ -131,8 +131,8 @@ public:
 		}
 	}
 	bool CheckValid() const {
-    unsigned int size = index.size()-1;
-		if( index[size] > array.size()+1 ) return false;
+    unsigned int size = index.size()-1;    
+    if( index[size] > array.size() ){ return false; }
 		return true;
 	}
 public:
