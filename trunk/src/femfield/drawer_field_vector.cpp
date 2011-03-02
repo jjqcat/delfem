@@ -74,10 +74,10 @@ CDrawerVector::~CDrawerVector(){
 	if( pData != 0 ){ delete pData; }
 }
 
-Com::CBoundingBox CDrawerVector::GetBoundingBox( double rot[] ) const{
+Com::CBoundingBox3D CDrawerVector::GetBoundingBox( double rot[] ) const{
 //	if( this->pData == 0 ) return Com::CBoundingBox();
 //	return m_paVer->GetBoundingBox(rot);
-	return Com::CBoundingBox();
+	return Com::CBoundingBox3D();
 }
 
 // update value of vector

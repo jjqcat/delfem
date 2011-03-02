@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 /*! @file
-@brief FEMのためのID管理テンプレート(ObjSet)の宣言・実装
+@brief interface&implementation of ID admin template class(ObjSet
 @author Nobuyuki Umetani
 */
 
@@ -79,7 +79,7 @@ public:
 		if( m_aID2Index.size() == 0 )	return 1;
 		unsigned int iid;
 		for(iid=1;iid<m_aID2Index.size();iid++){	// find ID from 1
-            if( m_aID2Index[iid] == -1 )	return iid;
+      if( m_aID2Index[iid] == -1 )	return iid;
 		}
 		return m_aID2Index.size();
 	}

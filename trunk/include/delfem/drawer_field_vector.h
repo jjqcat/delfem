@@ -17,7 +17,6 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-
 /*! @file
 @brief interface of vector drawer vector class (Fem::Field::View::CDrawerVector)
 @author Nobuyuki Umetani
@@ -42,7 +41,7 @@ public:
 	CDrawerVector();
 	CDrawerVector(unsigned int id_field, const Fem::Field::CFieldWorld& world );
 	virtual ~CDrawerVector();
-	Com::CBoundingBox GetBoundingBox( double rot[] ) const;
+	Com::CBoundingBox3D GetBoundingBox( double rot[] ) const;
 	virtual void DrawSelection(unsigned int idraw) const{};
 	virtual void AddSelected(const int selec_flag[]){}
 	virtual void ClearSelected(){}

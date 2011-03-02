@@ -37,7 +37,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <assert.h>
 
 namespace Com{
-class CBoundingBox;
+class CBoundingBox3D;
 
 namespace View{
 
@@ -53,13 +53,13 @@ public:
 	@param[in] idraw 名前付けの最初に付けられる数
 	*/
 	virtual void DrawSelection(unsigned int idraw) const = 0;
-	//! 描画する
+	//! draw in openGL frame buffer
 	virtual void Draw() const = 0;
 	/*!
-	@brief バウンディング・ボックスの取得
-	@param[in] rot ３×３の回転行列
+	@brief Obtain 3D Bounding Box (Com::CBoundingBox)
+	@param[in] rot : 3x3 rotation matrix
 	*/
-	virtual Com::CBoundingBox GetBoundingBox(double rot[]) const = 0;
+	virtual Com::CBoundingBox3D GetBoundingBox(double rot[]) const = 0;
 	//! 選択されたオブジェクトを追加して，ハイライトさせる
 	virtual void AddSelected(const int selec_flag[]) = 0;
 	//! 選択を解除する
@@ -111,7 +111,7 @@ public:
 		for(unsigned int idraw=0;idraw<m_drawer_ary.size();idraw++){ delete m_drawer_ary[idraw]; }
 		m_drawer_ary.clear();
 	}
-	Com::CBoundingBox GetBoundingBox( double rot[] ) const;
+	Com::CBoundingBox3D GetBoundingBox( double rot[] ) const;
 	void InitTrans(Com::View::CCamera& mvp_trans);
 public:
 	std::vector<CDrawer*> m_drawer_ary;
@@ -149,7 +149,7 @@ public:
   }
   // rot == 0 : return object axis bounding box
   // rot != 0 : return rotated axis bounding box (rot is 3x3 matrix)
-	Com::CBoundingBox GetBoundingBox( double rot[] ) const;
+	Com::CBoundingBox3D GetBoundingBox( double rot[] ) const;
 	inline unsigned int NDim() const { return ndim; }
 	inline unsigned int NPoin() const { return npoin; }
   void EnableUVMap(bool is_uv_map){

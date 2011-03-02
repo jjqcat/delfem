@@ -77,7 +77,7 @@ CDrawerEdge::~CDrawerEdge(){
 	if( m_paVer != 0 ){ delete m_paVer; }
 }
 
-Com::CBoundingBox CDrawerEdge::GetBoundingBox( double rot[] ) const
+Com::CBoundingBox3D CDrawerEdge::GetBoundingBox( double rot[] ) const
 {
 	return m_paVer->GetBoundingBox(rot);
 }

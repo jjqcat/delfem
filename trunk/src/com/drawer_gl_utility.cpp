@@ -358,6 +358,7 @@ bool WritePPM_ScreenImage(const  std::string& fname)
     }
   }
   fout.close();  
+  return true;
 }
 
 

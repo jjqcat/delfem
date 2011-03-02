@@ -101,8 +101,7 @@ void myGlutMouse(int button, int state, int x, int y){
 		unsigned int selec_buffer[size_buffer];
 		Com::View::PickPre(size_buffer,selec_buffer, x,y,5,5, mvp_trans);
 		drawer_ary.DrawSelection();
-		std::vector<Com::View::SSelectedObject> aSelecObj
-			= Com::View::PickPost(selec_buffer, x,y, mvp_trans );
+		std::vector<Com::View::SSelectedObject> aSelecObj = Com::View::PickPost(selec_buffer, x,y, mvp_trans );
 		drawer_ary.ClearSelected();
 		if( aSelecObj.size() > 0 ){
 			drawer_ary.AddSelected( aSelecObj[0].name );
@@ -157,16 +156,29 @@ bool SetNewProblem()
 	}
 	else if( iprob == 1 )
 	{
+    Cad::CCadObj2D::CResAddPolygon res;
  		{	// define shape
 			std::vector<Com::CVector2D> vec_ary;
 			vec_ary.push_back( Com::CVector2D(0.0,0.0) );
-			vec_ary.push_back( Com::CVector2D(2.0,0.0) );
+			vec_ary.push_back( Com::CVector2D(1.0,0.0) );
 			vec_ary.push_back( Com::CVector2D(2.0,1.0) );
 			vec_ary.push_back( Com::CVector2D(1.0,1.0) );
 			vec_ary.push_back( Com::CVector2D(1.0,2.0) );
 			vec_ary.push_back( Com::CVector2D(0.0,2.0) );
-			const unsigned int id_l0 = cad_2d.AddPolygon( vec_ary ).id_l_add;
+			res = cad_2d.AddPolygon( vec_ary );
 		}
+    cad_2d.RemoveElement(Cad::EDGE,res.aIdE[1]);    
+    cad_2d.RemoveElement(Cad::EDGE,res.aIdE[2]);        
+    cad_2d.RemoveElement(Cad::VERTEX,res.aIdV[2]);        
+    unsigned int id_e_new = cad_2d.ConnectVertex_Line(res.aIdE[3],res.aIdE[1]).id_e_add;
+    Cad::CCadObj2D::CResAddVertex res0 = cad_2d.AddVertex(Cad::EDGE,id_e_new,Com::CVector2D(1,0.4));
+    Cad::CCadObj2D::CResAddVertex res1 = cad_2d.AddVertex(Cad::EDGE,id_e_new,Com::CVector2D(1,0.6));
+    Cad::CCadObj2D::CResAddVertex res2 = cad_2d.AddVertex(Cad::EDGE,res.aIdE[5],Com::CVector2D(0,0.4));
+    Cad::CCadObj2D::CResAddVertex res3 = cad_2d.AddVertex(Cad::EDGE,res.aIdE[5],Com::CVector2D(0,0.6));
+    cad_2d.ConnectVertex_Line(res0.id_v_add,res2.id_v_add);    
+    cad_2d.ConnectVertex_Line(res1.id_v_add,res3.id_v_add);
+    cad_2d.RemoveElement(Cad::EDGE,res1.id_e_add);
+    cad_2d.RemoveElement(Cad::EDGE,res3.id_e_add);
     { // copy test
       Cad::CCadObj2D cad_tmp(cad_2d);
       cad_2d.Clear();
@@ -251,7 +263,9 @@ bool SetNewProblem()
 		cad_2d.ConnectVertex_Line(id_v2,id_v3);
 		cad_2d.ConnectVertex_Line(id_v3,id_v4);
 		cad_2d.ConnectVertex_Line(id_v4,id_v5);
-		cad_2d.ConnectVertex_Line(id_v5,id_v2);
+		unsigned int id_e1 = cad_2d.ConnectVertex_Line(id_v5,id_v2).id_e_add;
+    cad_2d.RemoveElement(Cad::EDGE,id_e1);
+    cad_2d.ConnectVertex_Line(id_v5,id_v2);    
     {
       Cad::CCadObj2D cad_tmp(cad_2d);
       cad_2d.Clear();

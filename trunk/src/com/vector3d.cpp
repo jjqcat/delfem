@@ -91,7 +91,7 @@ COctTree::COctTree(){
 	m_aVec.reserve( 2048 );
 }
 
-void COctTree::SetBoundingBox( const CBoundingBox& bb )
+void COctTree::SetBoundingBox( const CBoundingBox3D& bb )
 {
 	x_min = bb.x_min;  x_max = bb.x_max;
 	y_min = bb.y_min;  y_max = bb.y_max;
@@ -101,7 +101,7 @@ void COctTree::SetBoundingBox( const CBoundingBox& bb )
 
 bool COctTree::Check() const
 {
-	CBoundingBox bb(0.0,0.0, 0.0,0.0, 0.0,0.0);
+	CBoundingBox3D bb(0.0,0.0, 0.0,0.0, 0.0,0.0);
 	std::vector<unsigned int> aIndVec;
 	for(unsigned int icell=0;icell<m_aCell.size();icell++){
 		this->GetBoundaryOfCell(icell, bb);
@@ -211,7 +211,7 @@ bool COctTree::IsPointInSphere( double radius, const CVector3D& vec ) const
 	if( icell_in != -1 ){
 		assert( icell_in >= 0 && (unsigned int)icell_in < this->m_aCell.size() );
 		assert( m_aCell[icell_in].size >= 0 );	// このセルにはデータが入っている
-		CBoundingBox bb(0.0,0.0, 0.0,0.0, 0.0,0.0);
+		CBoundingBox3D bb(0.0,0.0, 0.0,0.0, 0.0,0.0);
 		this->GetBoundaryOfCell(icell_in,bb);
 		assert( bb.IsInside(vec) );
 		assert( m_aCell[icell_in].size >= 0 );
@@ -221,7 +221,7 @@ bool COctTree::IsPointInSphere( double radius, const CVector3D& vec ) const
 			assert( ivec0 < m_aVec.size() );
 			const CVector3D& vec0 = m_aVec[ivec0].second;
 			assert( bb.IsInside(vec0) );
-			const double sq_dist = SquareLength( vec, vec0 );
+			const double sq_dist = SquareDistance( vec, vec0 );
 			if( sq_dist < radius*radius ) return true;
 		}
 		// 球がセルの中に収まっている場合
@@ -236,11 +236,11 @@ bool COctTree::IsPointInSphere( double radius, const CVector3D& vec ) const
 	// 干渉があるデータセルを全て検索する
 	std::stack<unsigned int> stack_int_sect;
 	{
-		std::stack< std::pair<unsigned int,CBoundingBox> > stack_next;	// 干渉があるけど、データ型かポインタ型かわからないセル
-		stack_next.push( std::make_pair(0,CBoundingBox(x_min,x_max,y_min,y_max,z_min,z_max)) );
+		std::stack< std::pair<unsigned int,CBoundingBox3D> > stack_next;	// 干渉があるけど、データ型かポインタ型かわからないセル
+		stack_next.push( std::make_pair(0,CBoundingBox3D(x_min,x_max,y_min,y_max,z_min,z_max)) );
 		for(;!stack_next.empty();){
 			const unsigned int icell_cur = stack_next.top().first;
-			const CBoundingBox bb_cur = stack_next.top().second;
+			const CBoundingBox3D bb_cur = stack_next.top().second;
 			stack_next.pop();
 			assert( bb_cur.IsIntersectSphere(vec,radius) );
 			// 干渉を確認するルーティンがここに欲しい．
@@ -253,56 +253,56 @@ bool COctTree::IsPointInSphere( double radius, const CVector3D& vec ) const
 			const double y_cent=(bb_cur.y_min+bb_cur.y_max)*0.5;
 			const double z_cent=(bb_cur.z_min+bb_cur.z_max)*0.5;
 			{
-				CBoundingBox bb = bb_cur;
+				CBoundingBox3D bb = bb_cur;
 				bb.x_max=x_cent;  bb.y_max=y_cent;  bb.z_max=z_cent;
 				if( bb.IsIntersectSphere(vec,radius) ){
 					stack_next.push( std::make_pair(m_aCell[icell_cur].data[0],bb) );
 				}
 			}
 			{
-				CBoundingBox bb = bb_cur;
+				CBoundingBox3D bb = bb_cur;
 				bb.x_max=x_cent;  bb.y_max=y_cent;  bb.z_min=z_cent;
 				if( bb.IsIntersectSphere(vec,radius) ){
 					stack_next.push( std::make_pair(m_aCell[icell_cur].data[1],bb) );
 				}
 			}
 			{
-				CBoundingBox bb = bb_cur;
+				CBoundingBox3D bb = bb_cur;
 				bb.x_max=x_cent;  bb.y_min=y_cent;  bb.z_max=z_cent;
 				if( bb.IsIntersectSphere(vec,radius) ){
 					stack_next.push( std::make_pair(m_aCell[icell_cur].data[2],bb) );
 				}
 			}
 			{
-				CBoundingBox bb = bb_cur;
+				CBoundingBox3D bb = bb_cur;
 				bb.x_max=x_cent;  bb.y_min=y_cent;  bb.z_min=z_cent;
 				if( bb.IsIntersectSphere(vec,radius) ){
 					stack_next.push( std::make_pair(m_aCell[icell_cur].data[3],bb) );
 				}
 			}
 			{
-				CBoundingBox bb = bb_cur;
+				CBoundingBox3D bb = bb_cur;
 				bb.x_min=x_cent;  bb.y_max=y_cent;  bb.z_max=z_cent;
 				if( bb.IsIntersectSphere(vec,radius) ){
 					stack_next.push( std::make_pair(m_aCell[icell_cur].data[4],bb) );
 				}
 			}
 			{
-				CBoundingBox bb = bb_cur;
+				CBoundingBox3D bb = bb_cur;
 				bb.x_min=x_cent;  bb.y_max=y_cent;  bb.z_min=z_cent;
 				if( bb.IsIntersectSphere(vec,radius) ){
 					stack_next.push( std::make_pair(m_aCell[icell_cur].data[5],bb) );
 				}
 			}
 			{
-				CBoundingBox bb = bb_cur;
+				CBoundingBox3D bb = bb_cur;
 				bb.x_min=x_cent;  bb.y_min=y_cent;  bb.z_max=z_cent;
 				if( bb.IsIntersectSphere(vec,radius) ){
 					stack_next.push( std::make_pair(m_aCell[icell_cur].data[6],bb) );
 				}
 			}
 			{
-				CBoundingBox bb = bb_cur;
+				CBoundingBox3D bb = bb_cur;
 				bb.x_min=x_cent;  bb.y_min=y_cent;  bb.z_min=z_cent;
 				if( bb.IsIntersectSphere(vec,radius) ){
 					stack_next.push( std::make_pair(m_aCell[icell_cur].data[7],bb) );
@@ -317,7 +317,7 @@ bool COctTree::IsPointInSphere( double radius, const CVector3D& vec ) const
 		stack_int_sect.pop();
 		assert( icell0 >= 0 && (unsigned int)icell0 < this->m_aCell.size() );
 		assert( m_aCell[icell0].size >= 0 );	// このセルにはデータが入っている
-		CBoundingBox bb(0.0,0.0, 0.0,0.0, 0.0,0.0);
+		CBoundingBox3D bb(0.0,0.0, 0.0,0.0, 0.0,0.0);
 		this->GetBoundaryOfCell(icell0,bb);
 		assert( m_aCell[icell0].size >= 0 );
 		// セルの中の点が球の中に入るか調べる
@@ -326,7 +326,7 @@ bool COctTree::IsPointInSphere( double radius, const CVector3D& vec ) const
 			assert( ivec0 < m_aVec.size() );
 			const CVector3D& vec0 = m_aVec[ivec0].second;
 			assert( bb.IsInside(vec0) );
-			const double sq_dist = SquareLength( vec, vec0 );
+			const double sq_dist = SquareDistance( vec, vec0 );
 			if( sq_dist < radius*radius ) return true;
 		}
 	}	
@@ -334,7 +334,7 @@ bool COctTree::IsPointInSphere( double radius, const CVector3D& vec ) const
 }
 
 
-void COctTree::GetBoundaryOfCell(unsigned int icell_in, CBoundingBox& bb ) const
+void COctTree::GetBoundaryOfCell(unsigned int icell_in, CBoundingBox3D& bb ) const
 {
 	assert( icell_in < m_aCell.size() );
 	std::stack<unsigned int> loc_stack;
@@ -395,9 +395,9 @@ int COctTree::InsertPoint( unsigned int ipo_ins, const CVector3D& VecIns )
 			int nloc = m_aCell[icell0].size;
 			if( nloc > 0 ){
 				unsigned int iloc_min = 0;
-				double min_dist = Length( VecIns, m_aVec[ m_aCell[icell0].data[0] ].second );
+				double min_dist = Distance( VecIns, m_aVec[ m_aCell[icell0].data[0] ].second );
 				for(unsigned int iloc=1;iloc<(unsigned int)nloc;iloc++){
-					const double dist = Length( VecIns, m_aVec[ m_aCell[icell0].data[iloc] ].second );
+					const double dist = Distance( VecIns, m_aVec[ m_aCell[icell0].data[iloc] ].second );
 					if( dist < min_dist ){
 						min_dist = dist;
 						iloc_min = iloc;

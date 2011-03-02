@@ -352,18 +352,15 @@ void MatVec::COrdering_Blk::MakeOrdering_AMD(const MatVec::CMatDia_BlkCrs& mat)
 		}
 	}
 
-	std::vector<int> aBlk2BlkNext;
-	std::vector<int> aDeg2Blk;
-	aDeg2Blk.resize(nblk,-1);
-	aBlk2BlkNext.resize(nblk,-1);
-	for(unsigned int iblk=0;iblk<nblk;iblk++){
+	std::vector<int> aBlk2BlkNext(nblk,-1);
+	std::vector<int> aDeg2Blk(nblk,-1);
+  for(unsigned int iblk=0;iblk<nblk;iblk++){
 		const unsigned int d = aDegree[iblk];
 		aBlk2BlkNext[iblk] = aDeg2Blk[d];
 		aDeg2Blk[d] = iblk;
 	}
 
-	std::vector<int> aEnodeParentBlk;
-	aEnodeParentBlk.resize(nblk,-2);	// -2‚ÍEnode‚Å‚È‚¢‚±‚Æ‚ğ•\‚·
+	std::vector<int> aEnodeParentBlk(nblk,-2);	// -2‚ÍEnode‚Å‚È‚¢‚±‚Æ‚ğ•\‚·
 /*
 	// Degree‚Ì‡”Ô‚É•\¦
 	for(unsigned int ideg=0;ideg<nblk;ideg++){
@@ -427,8 +424,7 @@ void MatVec::COrdering_Blk::MakeOrdering_AMD(const MatVec::CMatDia_BlkCrs& mat)
 			aEnodeParentBlk[iblk0] = iblk_parent;
 			aDegree[iblk0] = aAroundEnode.size();
 		}
-		std::vector<int> aFlg;
-		aFlg.resize(nblk,-1);
+		std::vector<int> aFlg(nblk,-1);
 		for(unsigned int iar=0;iar<aAroundEnode.size();iar++){
 			unsigned int iblk0 = aAroundEnode[iar];
 			unsigned int deg = 0;

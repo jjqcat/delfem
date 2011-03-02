@@ -63,7 +63,7 @@ public :
 	virtual ~CDrawerMsh2D();
 
 	virtual void Draw() const;
-	virtual Com::CBoundingBox GetBoundingBox( double rot[] ) const{
+	virtual Com::CBoundingBox3D GetBoundingBox( double rot[] ) const{
 		return m_vertex_ary.GetBoundingBox( rot );
 	}
     void SetLineWidth(unsigned int iwidth);
@@ -105,7 +105,7 @@ public :
 	// virtualä÷êî
 	virtual void Draw() const;
 	virtual void DrawSelection(unsigned int idraw) const;
-	virtual Com::CBoundingBox GetBoundingBox( double rot[] ) const {
+	virtual Com::CBoundingBox3D GetBoundingBox( double rot[] ) const {
 		return m_vertex_ary.GetBoundingBox(	rot );
 	}
 	virtual void AddSelected(const int selec_flag[]);

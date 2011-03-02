@@ -48,7 +48,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "delfem/rigid/rigidbody.h"
 #include "delfem/rigid/linearsystem_rigid.h"
 
-
+/*
 bool GetVertical2Vector(const Com::CVector3D& vec0, Com::CVector3D& vec1, Com::CVector3D& vec2)
 {
     Com::CVector3D vec_a = vec0;
@@ -72,7 +72,7 @@ bool GetVertical2Vector(const Com::CVector3D& vec0, Com::CVector3D& vec1, Com::C
     }
     return true;
 }
-
+*/
 
 void MakeRotMatrix33_CartesianRotationVector(double* rot, const Com::CVector3D& vec)
 {

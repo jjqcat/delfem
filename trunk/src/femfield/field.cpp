@@ -188,8 +188,7 @@ bool CField::AssertValid(CFieldWorld& world) const
 			assert( world.IsIdNA(m_na_c.id_na_va) );
 			CNodeAry& na_val = world.GetNA(m_na_c.id_na_va);
 			unsigned int nnode_val = na_val.Size();
-			std::vector<unsigned int> flag_vec;
-			flag_vec.resize( nnode_val, 0 );
+			std::vector<unsigned int> flag_vec( nnode_val, 0 );
 			////////////////
 			for(unsigned int iei=0;iei<m_aElemIntp.size();iei++){
 				const unsigned int id_ea = m_aElemIntp[iei].id_ea;
@@ -220,8 +219,7 @@ bool CField::AssertValid(CFieldWorld& world) const
 			assert( world.IsIdNA(m_na_c.id_na_co) );
 			CNodeAry& na = world.GetNA(m_na_c.id_na_co);
 			unsigned int nnode_co = na.Size();
-			std::vector<unsigned int> flag_vec;
-			flag_vec.resize( nnode_co, 0 );
+			std::vector<unsigned int> flag_vec( nnode_co, 0 );
 			////////////////
 			for(unsigned int iei=0;iei<m_aElemIntp.size();iei++){
 				const unsigned int id_ea = m_aElemIntp[iei].id_ea;

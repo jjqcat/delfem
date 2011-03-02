@@ -16,14 +16,21 @@ void RenderBitmapString(float x, float y, void *font,char *string)
   }
 }
 
-void ShowBackGround(){  
-	::glMatrixMode(GL_MODELVIEW);
+void ShowBackGround()
+{  
+  const bool is_lighting = ::glIsEnabled(GL_LIGHTING);
+  const bool is_texture  = ::glIsEnabled(GL_TEXTURE_2D);  
+  ::glDisable(GL_LIGHTING);
+  ::glDisable(GL_TEXTURE_2D);
+  ////
+  ::glMatrixMode(GL_MODELVIEW);
   ::glPushMatrix();
 	::glLoadIdentity();
 	::glMatrixMode(GL_PROJECTION);
   ::glPushMatrix();
-	::glLoadIdentity();
+	::glLoadIdentity();  
   ::glDisable(GL_DEPTH_TEST);
+  ////
   ::glBegin(GL_QUADS);
   ::glColor3d(0.2,0.7,0.7);
   ::glVertex3d(-1,-1,0);
@@ -31,15 +38,23 @@ void ShowBackGround(){
   ::glColor3d(1,1,1);
   ::glVertex3d( 1, 1,0);
   ::glVertex3d(-1, 1,0);
-  ::glEnd();
-  ::glEnable(GL_DEPTH_TEST);
+  ::glEnd(); 
+  ////
+  ::glEnable(GL_DEPTH_TEST);    
 	::glMatrixMode(GL_PROJECTION);
   ::glPopMatrix();
 	::glMatrixMode(GL_MODELVIEW);
   ::glPopMatrix();
+  if( is_texture ){  ::glEnable(GL_TEXTURE_2D); }
+  if( is_lighting ){ ::glEnable(GL_LIGHTING); }
 }
 
 void ShowFPS(){
+  const bool is_lighting = ::glIsEnabled(GL_LIGHTING);
+  const bool is_texture  = ::glIsEnabled(GL_TEXTURE_2D);  
+  ::glDisable(GL_LIGHTING);
+  ::glDisable(GL_TEXTURE_2D);
+  /////
 	static char s_fps[32];
 	int* font=(int*)GLUT_BITMAP_8_BY_13;
 	{
@@ -87,30 +102,7 @@ void ShowFPS(){
 	::glMatrixMode(GL_PROJECTION);
 	::glPopMatrix();
 	::glMatrixMode(GL_MODELVIEW);
-}
-
-
-void DrawBackGround()
-{
-  // îwåiï`âÊ
-  ::glMatrixMode(GL_MODELVIEW);  // ModelViewçsóÒÇÉNÉäÉA
-  ::glPushMatrix();
-  ::glLoadIdentity();
-  ::glMatrixMode(GL_PROJECTION); // ProjectionçsóÒÇÉNÉäÉA
-  ::glPushMatrix();
-  ::glLoadIdentity();
-  ::glDisable(GL_DEPTH_TEST);    // DepthTestÇñ≥å¯Ç…Ç∑ÇÈ
-  ::glBegin(GL_QUADS);
-  ::glColor3d(0.2,0.7,0.7);   // â∫ÇÃêFÇê›íË
-  ::glVertex3d(-1,-1,0);  // ç∂â∫ÇÃì_
-  ::glVertex3d( 1,-1,0);  // âEâ∫ÇÃì_
-  ::glColor3d(1,1,1);         // è„ÇÃêFÇê›íË
-  ::glVertex3d( 1, 1,0);  // âEè„ÇÃì_
-  ::glVertex3d(-1, 1,0);  // ç∂è„ÇÃì_
-  ::glEnd();
-  ::glEnable(GL_DEPTH_TEST);     // DepthTestÇóLå¯Ç…Ç∑ÇÈ
-  ::glMatrixMode(GL_PROJECTION); // ProjectionçsóÒÇå≥Ç…ñﬂÇ∑
-  ::glPopMatrix();
-  ::glMatrixMode(GL_MODELVIEW);  // ModelViewçsóÒÇå≥Ç…ñﬂÇ∑
-  ::glPopMatrix();
+  ////
+  if( is_texture ){ glEnable(GL_TEXTURE_2D); }
+  if( is_lighting ){ ::glEnable(GL_LIGHTING); }  
 }

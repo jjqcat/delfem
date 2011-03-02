@@ -40,7 +40,7 @@ public:
 	CDrawerEdge();
 	CDrawerEdge(unsigned int id_field, bool isnt_value_disp, const Fem::Field::CFieldWorld& world );
 	virtual ~CDrawerEdge();
-	Com::CBoundingBox GetBoundingBox( double rot[] ) const;
+	Com::CBoundingBox3D GetBoundingBox( double rot[] ) const;
 	virtual void DrawSelection(unsigned int idraw) const{};
 	virtual void AddSelected(const int selec_flag[]){}
 	virtual void ClearSelected(){}

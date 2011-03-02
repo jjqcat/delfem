@@ -156,17 +156,71 @@ inline CVector3D operator * (const CVector3D& vec, double d){
 	return temp;
 }
 //! @}
+  
+static void GetVertical2Vector
+(const CVector3D& vec_n, 
+ CVector3D& vec_x, CVector3D& vec_y)
+{
+  vec_x = Cross(CVector3D(0,1,0),vec_n);
+  const double len = vec_x.Length();
+  if( len < 1.0e-10 ){
+    vec_x = Cross(CVector3D(1,0,0),vec_n);  // z????
+    vec_x.Normalize();
+    vec_y = Cross(vec_n,vec_x);  // x????
+  }
+  else{
+    const double invlen = 1.0/len;
+    vec_x *= invlen;
+    vec_y = Cross(vec_n,vec_x);
+  }
+}    
 
+  
 
-inline double ScalarTripleProduct(const double a[], const double b[], const double c[]){
+inline double ScalarTripleProduct3D(const double a[], const double b[], const double c[]){
 	return a[0]*(b[1]*c[2] - b[2]*c[1]) 
-		  +a[1]*(b[2]*c[0] - b[0]*c[2])
-		  +a[2]*(b[0]*c[1] - b[1]*c[0]);
+        +a[1]*(b[2]*c[0] - b[0]*c[2])
+        +a[2]*(b[0]*c[1] - b[1]*c[0]);
 }
 
-inline double Dot3(const double a[], const double b[]){
+inline double Dot3D(const double a[], const double b[]){
 	return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
 }
+
+  
+inline void Cross3D(double r[3], const double v1[3], const double v2[3]){
+  r[0] = v1[1]*v2[2] - v2[1]*v1[2];
+  r[1] = v1[2]*v2[0] - v2[2]*v1[0];
+  r[2] = v1[0]*v2[1] - v2[0]*v1[1];
+}
+  
+  
+inline double Length3D(const double v[3]){
+    return sqrt( v[0]*v[0] + v[1]*v[1] + v[2]*v[2] );
+}  
+
+
+static void GetVertical2Vector3D
+(const double vec_n[3], 
+ double vec_x[3], double vec_y[3])
+{
+  const double vec_s[3] = {0,1,0};
+  Cross3D(vec_x,vec_s,vec_n);
+  const double len = Length3D(vec_x);
+  if( len < 1.0e-10 ){
+    const double vec_t[3] = {1,0,0};
+    Cross3D(vec_x,vec_t,vec_n);  // z????
+    Cross3D(vec_y,vec_n,vec_x);  // x????
+  }
+  else{
+    const double invlen = 1.0/len;
+    vec_x[0] *= invlen;
+    vec_x[1] *= invlen;
+    vec_x[2] *= invlen;
+    Cross3D(vec_y,vec_n,vec_x);
+  }
+}  
+  
 
 //!< ３×３の行列
 class CMatrix3
@@ -297,17 +351,17 @@ public:
 };
 
 
-//! ３次元バウンディング・ボックスクラス
-class CBoundingBox
+//! 3D bounding box class
+class CBoundingBox3D
 {
 public:
-	CBoundingBox(){
+	CBoundingBox3D(){
 		x_min=0;	x_max=0;
 		y_min=0;	y_max=0;
 		z_min=0;	z_max=0;
 		isnt_empty = false;
 	}
-	CBoundingBox(double x_min0,double x_max0,  double y_min0,double y_max0,  double z_min0,double z_max0)
+	CBoundingBox3D(double x_min0,double x_max0,  double y_min0,double y_max0,  double z_min0,double z_max0)
 		: x_min(x_min0),x_max(x_max0),  
 		  y_min(y_min0),y_max(y_max0),  
 		  z_min(z_min0),z_max(z_max0)
@@ -317,19 +371,20 @@ public:
 		assert( z_min <= z_max );
 		isnt_empty = true;
 	}
-	CBoundingBox( const CBoundingBox& bb )
+	CBoundingBox3D( const CBoundingBox3D& bb )
 		: x_min(bb.x_min),x_max(bb.x_max), 
 		  y_min(bb.y_min),y_max(bb.y_max),  
 		  z_min(bb.z_min),z_max(bb.z_max), 
 		  isnt_empty(bb.isnt_empty){}
 
-	CBoundingBox& operator+=(const CBoundingBox& bb)
+	CBoundingBox3D& operator+=(const CBoundingBox3D& bb)
 	{
 		if( !bb.isnt_empty ) return *this;
 		if( !isnt_empty ){
 			x_max = bb.x_max;	x_min = bb.x_min;
 			y_max = bb.y_max;	y_min = bb.y_min;
 			z_max = bb.z_max;	z_min = bb.z_min;
+      this->isnt_empty = bb.isnt_empty;
 			return *this;
 		}
 		x_max = ( x_max > bb.x_max ) ? x_max : bb.x_max;
@@ -343,9 +398,9 @@ public:
 	bool IsInside(const CVector3D& vec)
 	{
 		if( !isnt_empty ) return false; // 何もない場合は常に偽
-		if( vec.x >= x_min && vec.x <= x_max &&
-			vec.y >= y_min && vec.y <= y_max && 
-			vec.z >= z_min && vec.z <= z_max ) return true;
+		if(  vec.x >= x_min && vec.x <= x_max
+			&& vec.y >= y_min && vec.y <= y_max 
+			&& vec.z >= z_min && vec.z <= z_max ) return true;
 		return false;
 	}
 	bool IsIntersectSphere(const CVector3D& vec, const double radius ) const
@@ -358,13 +413,8 @@ public:
 		return true;
 	}
 public:
-	double x_min;	//!< ｘ座標値の最小値
-	double x_max;	//!< ｘ座標値の最大値
-	double y_min;	//!< ｙ座標値の最小値
-	double y_max;	//!< ｙ座標値の最大値
-	double z_min;	//!< ｚ座標値の最小値
-	double z_max;	//!< ｚ座標値の最大値
-	bool isnt_empty;	//!< 何もない場合はfalse
+	double x_min,x_max,  y_min,y_max,  z_min,z_max;
+	bool isnt_empty;	//!< false if there is nothing inside
 };
 
 class COctTree
@@ -383,13 +433,13 @@ private:
 	};
 public:
 	COctTree();
-	void SetBoundingBox( const CBoundingBox& bb );
+	void SetBoundingBox( const CBoundingBox3D& bb );
 	int InsertPoint( unsigned int ipo_ins, const CVector3D& vec_ins );
 
 	bool Check() const;
 	int GetIndexCell_IncludePoint( const CVector3D& vec ) const;
 	void GetAllPointInCell( unsigned int icell0, std::vector<unsigned int>& ipoins ) const;
-	void GetBoundaryOfCell(unsigned int icell0, CBoundingBox& bb ) const;
+	void GetBoundaryOfCell(unsigned int icell0, CBoundingBox3D& bb ) const;
 	bool IsPointInSphere( double radius, const CVector3D& vec ) const;
 private:
 	std::vector< CCell > m_aCell;
@@ -458,7 +508,7 @@ inline double TriArea(const CVector3D& v1, const CVector3D& v2, const CVector3D&
 
 //! ３次元３角形の面積
 inline double TriArea(const int iv1, const int iv2, const int iv3, 
-				   const std::vector<CVector3D>& node )
+                      const std::vector<CVector3D>& node )
 {
 	return TriArea(node[iv1],node[iv2],node[iv3]);
 }
@@ -475,7 +525,7 @@ inline double SquareTriArea(const CVector3D& v1, const CVector3D& v2, const CVec
 ////////////////////////////////////////////////
 
 //! 長さの２乗
-inline double SquareLength(const CVector3D& ipo0, const CVector3D& ipo1)
+inline double SquareDistance(const CVector3D& ipo0, const CVector3D& ipo1)
 {
 	return	( ipo1.x - ipo0.x )*( ipo1.x - ipo0.x ) + ( ipo1.y - ipo0.y )*( ipo1.y - ipo0.y ) + ( ipo1.z - ipo0.z )*( ipo1.z - ipo0.z );
 }
@@ -488,16 +538,16 @@ inline double SquareLength(const CVector3D& point)
 
 ////////////////////////////////////////////////
 
-//! 長さ
+//! length of vector
 inline double Length(const CVector3D& point)
 {
 	return	sqrt( point.x*point.x + point.y*point.y + point.z*point.z );
 }
 
-//! 長さ
-inline double Length(const CVector3D& ipo0, const CVector3D& ipo1)
+//! distance between two points
+inline double Distance(const CVector3D& ipo0, const CVector3D& ipo1)
 {
-	return	sqrt( SquareLength(ipo0,ipo1) );
+	return	sqrt( SquareDistance(ipo0,ipo1) );
 }
 
 ////////////////////////////////////////////////
@@ -510,16 +560,16 @@ inline double SqareLongestEdgeLength(
 		const CVector3D& ipo3 )
 {
 	double edge1, edge2;
-	edge1 = SquareLength( ipo0, ipo1 );
-	edge2 = SquareLength( ipo0, ipo2 );
+	edge1 = SquareDistance( ipo0, ipo1 );
+	edge2 = SquareDistance( ipo0, ipo2 );
 	if( edge2 > edge1 ) edge1 = edge2;
-	edge2 = SquareLength( ipo0, ipo3 );
+	edge2 = SquareDistance( ipo0, ipo3 );
 	if( edge2 > edge1 ) edge1 = edge2;
-	edge2 = SquareLength( ipo1, ipo2 );
+	edge2 = SquareDistance( ipo1, ipo2 );
 	if( edge2 > edge1 ) edge1 = edge2;
-	edge2 = SquareLength( ipo1, ipo3 );
+	edge2 = SquareDistance( ipo1, ipo3 );
 	if( edge2 > edge1 ) edge1 = edge2;
-	edge2 = SquareLength( ipo2, ipo3 );
+	edge2 = SquareDistance( ipo2, ipo3 );
 	if( edge2 > edge1 ) edge1 = edge2;
 	return edge1;
 }
@@ -545,16 +595,16 @@ inline double SqareShortestEdgeLength(const CVector3D& ipo0,
 						  const CVector3D& ipo3 )
 {
 	double edge1, edge2;
-	edge1 = SquareLength( ipo0, ipo1 );
-	edge2 = SquareLength( ipo0, ipo2 );
+	edge1 = SquareDistance( ipo0, ipo1 );
+	edge2 = SquareDistance( ipo0, ipo2 );
 	if( edge2 < edge1 ) edge1 = edge2;
-	edge2 = SquareLength( ipo0, ipo3 );
+	edge2 = SquareDistance( ipo0, ipo3 );
 	if( edge2 < edge1 ) edge1 = edge2;
-	edge2 = SquareLength( ipo1, ipo2 );
+	edge2 = SquareDistance( ipo1, ipo2 );
 	if( edge2 < edge1 ) edge1 = edge2;
-	edge2 = SquareLength( ipo1, ipo3 );
+	edge2 = SquareDistance( ipo1, ipo3 );
 	if( edge2 < edge1 ) edge1 = edge2;
-	edge2 = SquareLength( ipo2, ipo3 );
+	edge2 = SquareDistance( ipo2, ipo3 );
 	if( edge2 < edge1 ) edge1 = edge2;
 	return edge1;
 }

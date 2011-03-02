@@ -24,12 +24,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 using namespace Com::View;
 
-Com::CBoundingBox CDrawerArray::GetBoundingBox( double rm[] ) const
+Com::CBoundingBox3D CDrawerArray::GetBoundingBox( double rm[] ) const
 {
 	if( m_drawer_ary.empty() ){
-		return CBoundingBox(-0.5,0.5, -0.5,0.5, -0.5,0.5);
+		return CBoundingBox3D(-0.5,0.5, -0.5,0.5, -0.5,0.5);
 	}	
-    CBoundingBox bb = m_drawer_ary[0]->GetBoundingBox(rm);
+    CBoundingBox3D bb = m_drawer_ary[0]->GetBoundingBox(rm);
 	for(unsigned int idraw=1;idraw<m_drawer_ary.size();idraw++){
         bb += m_drawer_ary[idraw]->GetBoundingBox(rm);
 	}
@@ -38,18 +38,18 @@ Com::CBoundingBox CDrawerArray::GetBoundingBox( double rm[] ) const
 
 // rot is 3 by 3 matrix for rotation
 // if rot is 0 this function don't perform rotation in measuring size
-Com::CBoundingBox CVertexArray::GetBoundingBox( double rot[] ) const
+Com::CBoundingBox3D CVertexArray::GetBoundingBox( double rot[] ) const
 {
-	if( pVertexArray == 0 ){ return Com::CBoundingBox(); }
+	if( pVertexArray == 0 ){ return Com::CBoundingBox3D(); }
 	if( rot == 0 )  // object axis alligned bounding box
   {
 		if( ndim == 2 ){		
-			Com::CBoundingBox bb;
+			Com::CBoundingBox3D bb;
 			{
 				const double x1 = pVertexArray[0];
 				const double y1 = pVertexArray[1];
 				const double z1 = 0.0;
-				bb = Com::CBoundingBox(x1,x1, y1,y1, z1,z1);
+				bb = Com::CBoundingBox3D(x1,x1, y1,y1, z1,z1);
 			}
 			for(unsigned int ipoin=1;ipoin<npoin;ipoin++){
 				const double x1 = pVertexArray[ipoin*2  ];
@@ -62,12 +62,12 @@ Com::CBoundingBox CVertexArray::GetBoundingBox( double rot[] ) const
 			return bb;
 		}
 		if( ndim == 3 ){
-			Com::CBoundingBox bb;
+			Com::CBoundingBox3D bb;
 			{
 				const double x1 = pVertexArray[0];
 				const double y1 = pVertexArray[1];
 				const double z1 = 0.0;
-				bb = Com::CBoundingBox(x1,x1, y1,y1, z1,z1);
+				bb = Com::CBoundingBox3D(x1,x1, y1,y1, z1,z1);
 			}
 			for(unsigned int ipoin=1;ipoin<npoin;ipoin++){
 				const double x1 = pVertexArray[ipoin*3  ];
@@ -111,7 +111,7 @@ Com::CBoundingBox CVertexArray::GetBoundingBox( double rot[] ) const
     const double hx = (x_max - x_min)*0.5;
     const double hy = (y_max - y_min)*0.5;
     const double hz = (z_max - z_min)*0.5;    
-		return Com::CBoundingBox(c2x-hx,c2x+hx, c2y-hy,c2y+hy, c2z-hz,c2z+hz);
+		return Com::CBoundingBox3D(c2x-hx,c2x+hx, c2y-hy,c2y+hy, c2z-hz,c2z+hz);
 	}
 	if( ndim == 3 ) // view axis alligned bounding box
   {
@@ -144,9 +144,9 @@ Com::CBoundingBox CVertexArray::GetBoundingBox( double rot[] ) const
     const double hx = (x_max - x_min)*0.5;
     const double hy = (y_max - y_min)*0.5;
     const double hz = (z_max - z_min)*0.5;    
-		return Com::CBoundingBox(c2x-hx,c2x+hx, c2y-hy,c2y+hy, c2z-hz,c2z+hz);
+		return Com::CBoundingBox3D(c2x-hx,c2x+hx, c2y-hy,c2y+hy, c2z-hz,c2z+hz);
 	}
-	return Com::CBoundingBox();
+	return Com::CBoundingBox3D();
 }
 
 void CDrawerArray::InitTrans(Com::View::CCamera& camera ){
@@ -162,6 +162,6 @@ void CDrawerArray::InitTrans(Com::View::CCamera& camera ){
 	}
 	// set object size to the transformation
 	double rot[9];	camera.RotMatrix33(rot);
-	Com::CBoundingBox bb = this->GetBoundingBox( rot );
+	Com::CBoundingBox3D bb = this->GetBoundingBox( rot );
 	camera.Fit(bb);
 }

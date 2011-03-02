@@ -838,12 +838,12 @@ inline int DetDelaunay(const Com::CVector3D& v1,
 		etmp1*v1.y + etmp2*v2.y + etmp3*v3.y,
 		etmp1*v1.z + etmp2*v2.z + etmp3*v3.z );
 	
-	const double qradius = Com::SquareLength( out_center, v1 );
-	assert( fabs( qradius - Com::SquareLength(out_center,v2) ) < 1.0e-10 );
-	assert( fabs( qradius - Com::SquareLength(out_center,v3) ) < 1.0e-10 );
+	const double qradius = Com::SquareDistance( out_center, v1 );
+	assert( fabs( qradius - Com::SquareDistance(out_center,v2) ) < 1.0e-10 );
+	assert( fabs( qradius - Com::SquareDistance(out_center,v3) ) < 1.0e-10 );
 	assert( fabs( Com::Height(v1,v2,v3,out_center) ) < 1.0e-10 );
 
-	const double distance = Com::SquareLength( out_center, v4 );
+	const double distance = Com::SquareDistance( out_center, v4 );
 	if( distance > qradius + 1.0e-6 ){
 		return 1;
 	}

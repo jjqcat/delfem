@@ -177,11 +177,11 @@ Com::CVector2D Cad::CEdge2D::GetTangentEdge(bool is_s) const {
 	return v;
 }
 
-//! 入力点から最も近い辺上の点と距離を返す
+//! return the point on this edge that is nearest from (po_in)
 Com::CVector2D Cad::CEdge2D::GetNearestPoint(const Com::CVector2D& po_in) const
 {
 	if( itype == 0 ){
-		const double t = this->FindNearestPointParameter_Line_Point(po_in,po_s,po_e);
+		const double t = FindNearestPointParameter_Line_Point(po_in,po_s,po_e);
 		if( t < 0 ){ return po_s; }
 		if( t > 1 ){ return po_e; }
 		else{ return po_s + (po_e-po_s)*t; }
@@ -193,7 +193,7 @@ Com::CVector2D Cad::CEdge2D::GetNearestPoint(const Com::CVector2D& po_in) const
 		double len = Com::Length(po_c,po_in);
 		if( len < 1.0e-10 ){ return po_s; }
 //		double dist = fabs(len-radius);
-		const Com::CVector2D& po_p = po_c*(1-radius/len)+po_in*(radius/len);	// 射影した点
+		const Com::CVector2D& po_p = po_c*(1-radius/len)+po_in*(radius/len);	// projected point
 		if( this->IsDirectionArc(po_p) ){ return po_p; }
 		const double dist_s = Com::SquareLength(po_in,po_s);
 		const double dist_e = Com::SquareLength(po_in,po_e);
@@ -218,7 +218,7 @@ Com::CVector2D Cad::CEdge2D::GetNearestPoint(const Com::CVector2D& po_in) const
 				min_dist = Com::Length(po_in,poi1);	
 				cand = poi1; 
 			}
-			const double t = this->FindNearestPointParameter_Line_Point(po_in,poi0,poi1);
+			const double t = FindNearestPointParameter_Line_Point(po_in,poi0,poi1);
 			if( t < 0.01 || t > 0.99 ) continue;
 			Com::CVector2D po_mid = poi0 + (poi1-poi0)*t;
 			if( Com::Length(po_in,po_mid) < min_dist ){ 
@@ -233,10 +233,10 @@ Com::CVector2D Cad::CEdge2D::GetNearestPoint(const Com::CVector2D& po_in) const
 	return v;
 }
 
-//! 自己交錯が無いかどうか調べる
+//! check self interaction inside edge
 bool Cad::CEdge2D::IsCrossEdgeSelf() const
 {
-	if( this->itype == 0 || this->itype == 1 ){ return false; }
+	if( this->itype == 0 || this->itype == 1 ){ return false; } // line segment and arc never intersect in itself
 	if( this->itype == 2 ){	// Mesh
 		const std::vector<double>& relcomsh = aRelCoMesh;
 		const unsigned int ndiv = relcomsh.size()/2+1;
@@ -256,7 +256,7 @@ bool Cad::CEdge2D::IsCrossEdgeSelf() const
 				Com::CVector2D poj1;
 				if( jdiv == ndiv-1 ){ poj1 = po_e; }
 				else{ poj1 = po_s + h0*relcomsh[jdiv*2+0]     + v0*relcomsh[jdiv*2+1]; }
-				if( CEdge2D::NumCross_LineSeg_LineSeg(poi0,poi1, poj0,poj1) != 0 ){ return true; }
+				if( IsCross_LineSeg_LineSeg(poi0,poi1, poj0,poj1) != 0 ){ return true; }
 			}
 		}
 		return false;
@@ -267,19 +267,274 @@ bool Cad::CEdge2D::IsCrossEdgeSelf() const
 	return false;
 }
 
+double Cad::GetDist_LineSeg_LineSeg(const Com::CVector2D& po_s0, const Com::CVector2D& po_e0,
+                                    const Com::CVector2D& po_s1, const Com::CVector2D& po_e1)
+{
+  if( IsCross_LineSeg_LineSeg(po_s0,po_e0, po_s1,po_e1) ) return -1;
+  const double ds1 = GetDist_LineSeg_Point(po_s0,po_s1,po_e1);
+  const double de1 = GetDist_LineSeg_Point(po_e0,po_s1,po_e1);
+  const double ds0 = GetDist_LineSeg_Point(po_s1,po_s0,po_e0);
+  const double de0 = GetDist_LineSeg_Point(po_e1,po_s0,po_e0);
+  double min_dist = ds1;
+  min_dist = ( de1 < min_dist ) ? de1 : min_dist;
+  min_dist = ( ds0 < min_dist ) ? ds0 : min_dist;
+  min_dist = ( de0 < min_dist ) ? de0 : min_dist;    
+  return min_dist;  
+}
+
+Com::CVector2D Cad::GetProjectedPointOnCircle(const Com::CVector2D& c, double r, 
+                                              const Com::CVector2D& v)
+{
+  Com::CVector2D cv = v-c;
+  return (r/cv.Length())*cv + c;
+}
+
+// 円弧の中心からみて，点poと円弧が同じ方向に重なっているか？
+static bool IsDirectionArc(const Com::CVector2D& po, 
+                           const Com::CVector2D& po_s, const Com::CVector2D& po_e,
+                           const Com::CVector2D& po_c, bool is_left_side)
+{
+	if( is_left_side ){
+		if( Com::TriArea(po_s,po_c,po_e) > 0.0 ){
+			if(    Com::TriArea(po_s,po_c,po) > 0.0 && Com::TriArea(po,po_c,po_e) > 0.0 ){ return true; }
+			else{ return false; }
+		}
+		else{
+			if(    Com::TriArea(po_s,po_c,po) > 0.0 || Com::TriArea(po,po_c,po_e) > 0.0 ){ return true; }
+			else{ return false; }
+		}
+	}
+	else{
+		if( Com::TriArea(po_e,po_c,po_s) > 0.0 ){
+			if(    Com::TriArea(po_e,po_c,po) > 0.0 && Com::TriArea(po,po_c,po_s) > 0.0 ){ return true; }
+			else{ return false; }
+		}
+		else{
+			if(    Com::TriArea(po_e,po_c,po) > 0.0 || Com::TriArea(po,po_c,po_s) > 0.0 ){ return true; }
+			else{ return false; }
+		}
+	}
+	return true;
+}
+
+static double GetDist_Point_Arc(const Com::CVector2D& po,
+                                const Com::CVector2D& po_s1, const Com::CVector2D& po_e1,
+                                const Com::CVector2D& po_c1, double radius1, bool is_left_side1)
+{  
+  double min_dist = Length(po,po_s1);
+  {
+    double d0 = Length(po,po_e1);
+    min_dist = ( min_dist < d0 ) ? min_dist : d0;
+  }
+  if( IsDirectionArc( Cad::GetProjectedPointOnCircle(po_c1,radius1,po), po_s1,po_e1,po_c1,is_left_side1) ){
+    double d0 = fabs(Length(po,po_c1)-radius1);      
+    min_dist = ( d0 < min_dist ) ? d0 : min_dist;
+  }
+  return min_dist;
+}
+
+static double GetDist_LineSeg_Arc(const Com::CVector2D& po_s0, const Com::CVector2D& po_e0,   
+                                  const Com::CVector2D& po_s1, const Com::CVector2D& po_e1,
+                                  const Com::CVector2D& po_c1, double radius1, bool is_left_side1)
+{
+  std::cout << "GetDist_Linseg_Arc " << std::endl;
+  {
+    double t0,t1;
+    if( Cad::IsCross_Line_Circle(po_c1,radius1,  po_s0,po_e0, t0,t1) ){ 
+      if( 0 < t0 && t0 < 1 && IsDirectionArc(po_s0 + (po_e0-po_s0)*t0, po_s1,po_e1,po_c1,is_left_side1) ){ return -1; }
+      if( 0 < t1 && t1 < 1 && IsDirectionArc(po_s0 + (po_e0-po_s0)*t1, po_s1,po_e1,po_c1,is_left_side1) ){ return -1; }
+    }
+  }
+  const double min_dist_s0 = GetDist_Point_Arc(po_s0, po_s1,po_e1,po_c1,radius1,is_left_side1);
+  const double min_dist_e0 = GetDist_Point_Arc(po_e0, po_s1,po_e1,po_c1,radius1,is_left_side1);
+  std::cout << "arc seg dist s0 e0 " << min_dist_s0 << " " << min_dist_e0 << std::endl;
+  double min_dist = ( min_dist_s0 < min_dist_e0 ) ? min_dist_s0 : min_dist_e0;
+  {
+    const double t = Cad::FindNearestPointParameter_Line_Point(po_c1,po_s0,po_e0);
+    if( t > 0 && t < 1){
+      const Com::CVector2D& v = po_s0 + (po_e0-po_s0)*t;
+      double d0 = Length(v,po_c1)-radius1;
+      std::cout << "arc seg shortese cand dist : " << d0 << std::endl;
+      if( d0 > 0 ){
+        if( IsDirectionArc( Cad::GetProjectedPointOnCircle(po_c1,radius1,v), po_s1,po_e1,po_c1,is_left_side1 ) ){
+          min_dist = ( d0 < min_dist ) ? d0 : min_dist;
+        }
+      }        
+    }      
+  }    
+  return min_dist;
+}
+
+
+// return minimum distance between this edge and e1
+// if the edge obviouly intersects, this function return 0 or -1
+double Cad::CEdge2D::Distance(const CEdge2D& e1) const
+{
+	const Com::CVector2D& po_s1 = e1.po_s;
+	const Com::CVector2D& po_e1 = e1.po_e;
+	if( this->itype == 0 && e1.itype == 0 ){	// intersection between lines
+    return GetDist_LineSeg_LineSeg(po_s,po_e,po_s1,po_e1);
+	}
+	else if( this->itype == 0 && e1.itype == 1 ){
+		Com::CVector2D po_c1;
+		double radius1;
+		e1.GetCenterRadius(po_c1,radius1);
+    return GetDist_LineSeg_Arc(po_s,po_e, e1.po_s,e1.po_e,po_c1,radius1,e1.is_left_side);
+	}
+	else if( this->itype == 1 && e1.itype == 0 ){
+		return e1.Distance(*this);
+	}
+	else if( this->itype == 1 && e1.itype == 1 ){
+		Com::CVector2D po_c0; double radius0;  this->GetCenterRadius(po_c0,radius0);
+		Com::CVector2D po_c1; double radius1;  e1.GetCenterRadius(po_c1,radius1);
+		////////////////
+		Com::CVector2D po0,po1;
+    bool is_cross_circle01 = false;
+		if( IsCross_Circle_Circle(po_c0,radius0,  po_c1,radius1, po0,po1) ){ 
+      is_cross_circle01 = true;
+      if( this->IsDirectionArc(po0) && e1.IsDirectionArc(po0) ){ return -1; }
+      if( this->IsDirectionArc(po1) && e1.IsDirectionArc(po1) ){ return -1; }      
+    }
+    const double min_dist_s0 = GetDist_Point_Arc(this->po_s, e1.po_s,e1.po_e,po_c1,radius1,e1.is_left_side);
+    const double min_dist_e0 = GetDist_Point_Arc(this->po_e, e1.po_s,e1.po_e,po_c1,radius1,e1.is_left_side);
+    const double min_dist_s1 = GetDist_Point_Arc(e1.po_s, this->po_s,this->po_e,po_c0,radius0,this->is_left_side);
+    const double min_dist_e1 = GetDist_Point_Arc(e1.po_e, this->po_s,this->po_e,po_c0,radius0,this->is_left_side);
+    const double min_dist0 = ( min_dist_s0 < min_dist_e0 ) ? min_dist_s0 : min_dist_e0;
+    const double min_dist1 = ( min_dist_s1 < min_dist_e1 ) ? min_dist_s1 : min_dist_e1;    
+    double min_dist = ( min_dist0 < min_dist1 ) ? min_dist0 : min_dist1;
+    if( !is_cross_circle01 ){
+      const bool is_c0_inside_c1 = Length(po_c0,po_c1) < radius1;
+      const bool is_c1_inside_c0 = Length(po_c1,po_c0) < radius0;
+      if( !is_c0_inside_c1 && !is_c1_inside_c0 ){
+        const Com::CVector2D& v1 = Cad::GetProjectedPointOnCircle(po_c1,radius1, po_c0);
+        const Com::CVector2D& v0 = Cad::GetProjectedPointOnCircle(po_c0,radius0, po_c1);      
+        if( e1.IsDirectionArc( v1 ) && this->IsDirectionArc( v0 ) ){        
+          double d0 = Length(v0,v1);
+          min_dist = ( d0 < min_dist ) ? d0 : min_dist;
+        }
+      }
+      else{
+        if( radius0 < radius1 ){
+          const Com::CVector2D& v1 = Cad::GetProjectedPointOnCircle(po_c1,radius1, po_c0);        
+          const Com::CVector2D& v0 = Cad::GetProjectedPointOnCircle(po_c0,radius0, v1);               
+          if( e1.IsDirectionArc( v1 ) && this->IsDirectionArc( v0 ) ){        
+            double d0 = Length(v0,v1);
+            min_dist = ( d0 < min_dist ) ? d0 : min_dist;
+          }        
+        }
+        else{
+          assert( is_c1_inside_c0 );
+          const Com::CVector2D& v0 = Cad::GetProjectedPointOnCircle(po_c0,radius0, po_c1);              
+          const Com::CVector2D& v1 = Cad::GetProjectedPointOnCircle(po_c1,radius1, v0);
+          if( e1.IsDirectionArc( v1 ) && this->IsDirectionArc( v0 ) ){        
+            double d0 = Length(v0,v1);
+            min_dist = ( d0 < min_dist ) ? d0 : min_dist;
+          }
+        }
+      }
+    }            
+		return min_dist;
+	}
+	else if( this->itype == 0 && e1.itype == 2 ){
+		const std::vector<double>& relcomsh1 = e1.aRelCoMesh;
+		const unsigned int ndiv1 = relcomsh1.size()/2+1;
+		const Com::CVector2D& h1 = e1.po_e-e1.po_s;
+		const Com::CVector2D v1(-h1.y,h1.x);
+    double min_dist = -1;
+		for(unsigned int idiv=0;idiv<ndiv1;idiv++){
+			Com::CVector2D po0;
+			if( idiv == 0 ){ po0 = e1.po_s; }
+			else{ po0 = e1.po_s + h1*relcomsh1[(idiv-1)*2+0] + v1*relcomsh1[(idiv-1)*2+1]; }
+			Com::CVector2D po1;
+			if( idiv == ndiv1-1 ){ po1 = e1.po_e; }
+			else{ po1 = e1.po_s + h1*relcomsh1[idiv*2+0]     + v1*relcomsh1[idiv*2+1]; }
+			////////////////
+      const double dist = GetDist_LineSeg_LineSeg(po_s,po_e,po0,po1);
+      if( dist < -0.5 ) return dist;
+      if( dist < min_dist || min_dist < -0.5 ){ min_dist = dist; }
+		}
+		return min_dist;
+	}
+	else if( this->itype == 2 && e1.itype == 0 ){
+		return e1.Distance(*this);
+	}
+	else if( this->itype == 2 && e1.itype == 1 ){
+		return e1.Distance(*this);
+	}
+	else if( this->itype == 1 && e1.itype == 2 ){
+		Com::CVector2D po_c0;
+		double radius0;
+		this->GetCenterRadius(po_c0,radius0);
+		////////////////
+		const Com::CVector2D& h1 = e1.po_e-e1.po_s;
+		const Com::CVector2D v1(-h1.y,h1.x);
+		////////////////
+		const std::vector<double>& relcomsh1 = e1.aRelCoMesh;
+		const unsigned int ndiv1 = relcomsh1.size()/2+1;
+    double min_dist = -1;    
+		for(unsigned int idiv=0;idiv<ndiv1;idiv++){
+			Com::CVector2D po0;
+			if( idiv == 0 ){ po0 = e1.po_s; }
+			else{ po0 = e1.po_s + h1*relcomsh1[(idiv-1)*2+0] + v1*relcomsh1[(idiv-1)*2+1]; }
+			Com::CVector2D po1;
+			if( idiv == ndiv1-1 ){ po1 = e1.po_e; }
+			else{ po1 = e1.po_s + h1*relcomsh1[idiv*2+0]     + v1*relcomsh1[idiv*2+1]; }
+			////////////////
+      const double dist = GetDist_LineSeg_Arc(po0,po1, po_s,po_e,po_c0,radius0,is_left_side);
+      if( dist < -0.5 ) return dist;
+      if( dist < min_dist || min_dist < -0.5 ){ min_dist = dist; }      
+		}
+		return min_dist;
+	}
+	else if( this->itype == 2 && e1.itype == 2 ){
+		const Com::CVector2D& h0 = po_e-po_s;
+		const Com::CVector2D v0(-h0.y,h0.x);
+		const Com::CVector2D& h1 = e1.po_e-e1.po_s;
+		const Com::CVector2D v1(-h1.y,h1.x);
+		////////////////
+		const std::vector<double>& relcomsh0 = this->aRelCoMesh;
+		const unsigned int ndiv0 = relcomsh0.size()/2+1;
+		const std::vector<double>& relcomsh1 = e1.aRelCoMesh;
+		const unsigned int ndiv1 = relcomsh1.size()/2+1;
+		////////////////
+    double min_dist = -1;GetDist_LineSeg_LineSeg(po_s,po_e,po_s1,po_e1);
+		for(unsigned int idiv=0;idiv<ndiv0;idiv++){
+			Com::CVector2D po0_i;
+			if( idiv == 0 ){ po0_i = po_s; }
+			else{ po0_i = po_s + h0*aRelCoMesh[(idiv-1)*2+0] + v0*aRelCoMesh[(idiv-1)*2+1]; }
+			Com::CVector2D po1_i;
+			if( idiv == ndiv0-1 ){ po1_i = po_e; }
+			else{ po1_i = po_s + h0*aRelCoMesh[idiv*2+0]     + v0*aRelCoMesh[idiv*2+1]; }
+			for(unsigned int jdiv=0;jdiv<ndiv1;jdiv++){
+				Com::CVector2D po0_j;
+				if( jdiv == 0 ){ po0_j = e1.po_s; }
+				else{ po0_j = e1.po_s + h1*relcomsh1[(jdiv-1)*2+0] + v1*relcomsh1[(jdiv-1)*2+1]; }
+				Com::CVector2D po1_j;
+				if( jdiv == ndiv1-1 ){ po1_j = e1.po_e; }
+				else{ po1_j = e1.po_s + h1*relcomsh1[jdiv*2+0]     + v1*relcomsh1[jdiv*2+1]; }
+        const double dist = GetDist_LineSeg_LineSeg(po0_i,po1_i,po0_j,po1_j);
+        if( dist < -0.5 ) return -1;
+        if( min_dist < -0.5 || dist < min_dist ){ min_dist = dist; }        
+			}
+		}
+		return min_dist;
+	}
+	return 1;
+}
+
 bool Cad::CEdge2D::IsCrossEdge(const CEdge2D& e1) const
 {
 	const Com::CVector2D& po_s1 = e1.po_s;
 	const Com::CVector2D& po_e1 = e1.po_e;
 	if( this->itype == 0 && e1.itype == 0 ){	// intersection between lines
-		return ( CEdge2D::NumCross_LineSeg_LineSeg(po_s,po_e, po_s1,po_e1) != 0 );
+		return ( IsCross_LineSeg_LineSeg(po_s,po_e, po_s1,po_e1) != 0 );
 	}
 	else if( this->itype == 0 && e1.itype == 1 ){
 		Com::CVector2D po_c1;
 		double radius1;
 		e1.GetCenterRadius(po_c1,radius1);
 		double t0,t1;
-		if( !CEdge2D::IsCross_Line_Circle(po_c1,radius1,  po_s,po_e, t0,t1) ){ return false; }
+		if( !IsCross_Line_Circle(po_c1,radius1,  po_s,po_e, t0,t1) ){ return false; }
 		if( 0 < t0 && t0 < 1 && e1.IsDirectionArc(po_s + (po_e-po_s)*t0) == 1 ){ return true; }
 		if( 0 < t1 && t1 < 1 && e1.IsDirectionArc(po_s + (po_e-po_s)*t1) == 1 ){ return true; }
 		return false;
@@ -296,7 +551,7 @@ bool Cad::CEdge2D::IsCrossEdge(const CEdge2D& e1) const
 		e1.GetCenterRadius(po_c1,radius1);
 		////////////////
 		Com::CVector2D po0,po1;
-		if( !CEdge2D::IsCross_Circle_Circle(po_c0,radius0,  po_c1,radius1, po0,po1) ){ return false; }
+		if( !IsCross_Circle_Circle(po_c0,radius0,  po_c1,radius1, po0,po1) ){ return false; }
 		if( this->IsDirectionArc(po0) && e1.IsDirectionArc(po0) ){ return true; }
 		if( this->IsDirectionArc(po1) && e1.IsDirectionArc(po1) ){ return true; }
 		return false;
@@ -314,7 +569,7 @@ bool Cad::CEdge2D::IsCrossEdge(const CEdge2D& e1) const
 			if( idiv == ndiv1-1 ){ po1 = e1.po_e; }
 			else{ po1 = e1.po_s + h1*relcomsh1[idiv*2+0]     + v1*relcomsh1[idiv*2+1]; }
 			////////////////
-			if( CEdge2D::NumCross_LineSeg_LineSeg(po_s,po_e, po0,po1) != 0 ){ return true; }
+			if( IsCross_LineSeg_LineSeg(po_s,po_e, po0,po1) != 0 ){ return true; }
 		}
 		return false;
 	}
@@ -343,7 +598,7 @@ bool Cad::CEdge2D::IsCrossEdge(const CEdge2D& e1) const
 			else{ po1 = e1.po_s + h1*relcomsh1[idiv*2+0]     + v1*relcomsh1[idiv*2+1]; }
 			////////////////
 			double t0,t1;
-			if( !CEdge2D::IsCross_Line_Circle(po_c0,radius0,  po0,po1, t0,t1) ){ continue; }
+			if( !IsCross_Line_Circle(po_c0,radius0,  po0,po1, t0,t1) ){ continue; }
 			if( 0 < t0 && t0 < 1 && this->IsDirectionArc(po0 + (po1-po0)*t0) == 1 ){ return true; }
 			if( 0 < t1 && t1 < 1 && this->IsDirectionArc(po0 + (po1-po0)*t1) == 1 ){ return true; }
 		}
@@ -374,7 +629,7 @@ bool Cad::CEdge2D::IsCrossEdge(const CEdge2D& e1) const
 				Com::CVector2D po1_j;
 				if( jdiv == ndiv1-1 ){ po1_j = e1.po_e; }
 				else{ po1_j = e1.po_s + h1*relcomsh1[jdiv*2+0]     + v1*relcomsh1[jdiv*2+1]; }
-				if( CEdge2D::NumCross_LineSeg_LineSeg(po0_i,po1_i, po0_j,po1_j) != 0 ){ return true; }
+				if( IsCross_LineSeg_LineSeg(po0_i,po1_i, po0_j,po1_j) != 0 ){ return true; }
 			}
 		}
 		return false;
@@ -400,7 +655,7 @@ bool Cad::CEdge2D::IsCrossEdge_ShareOnePoint(const CEdge2D& e1, bool is_share_s0
 		e1.GetCenterRadius(po_c1,radius1);
 		////////////////
 		double t0,t1;
-		if( !CEdge2D::IsCross_Line_Circle(po_c1,radius1,  po_s,po_e, t0,t1) ) return false;
+		if( !IsCross_Line_Circle(po_c1,radius1,  po_s,po_e, t0,t1) ) return false;
 		const Com::CVector2D p0 = po_s + (po_e-po_s)*t0;
 		const Com::CVector2D p1 = po_s + (po_e-po_s)*t1;
 		// この後t0,t1は共有点との距離計算に使われる
@@ -422,7 +677,7 @@ bool Cad::CEdge2D::IsCrossEdge_ShareOnePoint(const CEdge2D& e1, bool is_share_s0
 		e1.GetCenterRadius(po_c1,radius1);
 		////////////////
 		Com::CVector2D po0,po1;
-		bool is_cross = CEdge2D::IsCross_Circle_Circle(po_c0,radius0,  po_c1,radius1, po0,po1);
+		bool is_cross = IsCross_Circle_Circle(po_c0,radius0,  po_c1,radius1, po0,po1);
 		if( !is_cross ) return false;
 		////////////////
 		Com::CVector2D po_share;
@@ -448,7 +703,7 @@ bool Cad::CEdge2D::IsCrossEdge_ShareOnePoint(const CEdge2D& e1, bool is_share_s0
 			Com::CVector2D po1;
 			if( idiv == ndiv1-1 ){ po1 = e1.po_e; }
 			else{ po1 = e1.po_s + v0*relcomsh1[idiv*2+0] + v1*relcomsh1[idiv*2+1]; }
-			if( CEdge2D::NumCross_LineSeg_LineSeg(po_s,po_e, po0,po1) != 0 ){ return true; }
+			if( IsCross_LineSeg_LineSeg(po_s,po_e, po0,po1) != 0 ){ return true; }
 		}
 		return false;
 	}
@@ -476,7 +731,7 @@ bool Cad::CEdge2D::IsCrossEdge_ShareOnePoint(const CEdge2D& e1, bool is_share_s0
 			else{ po1 = e1.po_s + h1*relcomsh1[idiv*2+0]     + v1*relcomsh1[idiv*2+1]; }
 			////////////////
 			double t0,t1;
-			if( !CEdge2D::IsCross_Line_Circle(po_c0,radius0,  po0,po1, t0,t1) ){ continue; }
+			if( !IsCross_Line_Circle(po_c0,radius0,  po0,po1, t0,t1) ){ continue; }
 			if( 0 < t0 && t0 < 1 && this->IsDirectionArc( po0+(po1-po0)*t0 ) == 1 ){ return true; }
 			if( 0 < t1 && t1 < 1 && this->IsDirectionArc( po0+(po1-po0)*t1 ) == 1 ){ return true; }
 		}
@@ -486,7 +741,7 @@ bool Cad::CEdge2D::IsCrossEdge_ShareOnePoint(const CEdge2D& e1, bool is_share_s0
 			else{				po1 = e1.po_e;	po0 = e1.po_s + h1*relcomsh1[ndiv1*2-4] + v1*relcomsh1[ndiv1*2-3]; }	
 			////////////////
 			double t0,t1;
-			if( !CEdge2D::IsCross_Line_Circle(po_c0,radius0,  po0,po1, t0,t1) ){ return false; }
+			if( !IsCross_Line_Circle(po_c0,radius0,  po0,po1, t0,t1) ){ return false; }
 			const Com::CVector2D r0 = po0 + (po1-po0)*t0;
 			const Com::CVector2D r1 = po0 + (po1-po0)*t1;
 			// この後t0,t1は共有点との距離計算に使われる
@@ -527,7 +782,7 @@ bool Cad::CEdge2D::IsCrossEdge_ShareOnePoint(const CEdge2D& e1, bool is_share_s0
 				Com::CVector2D po1_j;
 				if( jdiv == ndiv1-1 ){ po1_j = e1.po_e; }
 				else{ po1_j = e1.po_s + h1*relcomsh1[jdiv*2+0]     + v1*relcomsh1[jdiv*2+1]; }
-				if( CEdge2D::NumCross_LineSeg_LineSeg(po0_i,po1_i, po0_j,po1_j) != 0 ){ return true; }
+				if( IsCross_LineSeg_LineSeg(po0_i,po1_i, po0_j,po1_j) != 0 ){ return true; }
 			}
 		}
 		return false;
@@ -546,10 +801,10 @@ bool Cad::CEdge2D::IsCrossEdge_ShareBothPoints(const CEdge2D& e1, bool is_share_
 	if(  is_share_s0s1 ){ assert( Com::SquareLength(po_s,po_s1) < 1.0e-20 && Com::SquareLength(po_e,po_e1) < 1.0e-20); }
 	else{                 assert( Com::SquareLength(po_s,po_e1) < 1.0e-20 && Com::SquareLength(po_e,po_s1) < 1.0e-20); }
 	////////////////////////////////
-	if( this->itype == 0 && e1.itype == 0 ){	// 直線同士の交差
+	if( this->itype == 0 && e1.itype == 0 ){	// intersection between lines
 		return true;
 	}
-	else if( this->itype == 0 && e1.itype == 1 ){	// 直線と円弧の交差
+	else if( this->itype == 0 && e1.itype == 1 ){	// intersection between line and arc
 		return false;
 	}
 	else if( this->itype == 1 && e1.itype == 0 ){
@@ -578,7 +833,7 @@ bool Cad::CEdge2D::IsCrossEdge_ShareBothPoints(const CEdge2D& e1, bool is_share_
 			Com::CVector2D po1;
 			if( idiv == ndiv1-1 ){ po1 = e1.po_e; }
 			else{ po1 = e1.po_s + v0*relcomsh1[idiv*2+0] + v1*relcomsh1[idiv*2+1]; }
-			if( CEdge2D::NumCross_LineSeg_LineSeg(po_s,po_e, po0,po1) != 0 ){ return true; }
+			if( IsCross_LineSeg_LineSeg(po_s,po_e, po0,po1) != 0 ){ return true; }
 		}
 		return false;
 	}
@@ -604,7 +859,7 @@ bool Cad::CEdge2D::IsCrossEdge_ShareBothPoints(const CEdge2D& e1, bool is_share_
 			else{ po1 = e1.po_s + h1*relcomsh1[idiv*2+0]     + v1*relcomsh1[idiv*2+1]; }
 			////////////////
 			double t0,t1;
-			if( !CEdge2D::IsCross_Line_Circle(po_c0,radius0,  po0,po1, t0,t1) ){ continue; }
+			if( !IsCross_Line_Circle(po_c0,radius0,  po0,po1, t0,t1) ){ continue; }
 			if( 0 < t0 && t0 < 1 && this->IsDirectionArc( po0+(po1-po0)*t0 ) == 1 ){ return true; }
 			if( 0 < t1 && t1 < 1 && this->IsDirectionArc( po0+(po1-po0)*t1 ) == 1 ){ return true; }
 		}
@@ -638,7 +893,7 @@ bool Cad::CEdge2D::IsCrossEdge_ShareBothPoints(const CEdge2D& e1, bool is_share_
 				Com::CVector2D po1_j;
 				if( jdiv == ndiv1-1 ){ po1_j = e1.po_e; }
 				else{ po1_j = e1.po_s + h1*relcomsh1[jdiv*2+0]     + v1*relcomsh1[jdiv*2+1]; }
-				if( CEdge2D::NumCross_LineSeg_LineSeg(po0_i,po1_i, po0_j,po1_j) != 0 ){ return true; }
+				if( IsCross_LineSeg_LineSeg(po0_i,po1_i, po0_j,po1_j) != 0 ){ return true; }
 			}
 		}
 		return false;
@@ -686,7 +941,7 @@ bool Cad::CEdge2D::GetNearestIntersectionPoint_AgainstHalfLine(Com::CVector2D& s
 		this->GetCenterRadius(po_c1,radius1);
 		////////////////
 		double t0,t1;
-		if( !CEdge2D::IsCross_Line_Circle(po_c1,radius1,  org,end, t0,t1) ) return false;
+		if( !IsCross_Line_Circle(po_c1,radius1,  org,end, t0,t1) ) return false;
 		const Com::CVector2D p0 = org + (end-org)*t0;
 		const Com::CVector2D p1 = org + (end-org)*t1;
     const bool is_sec0 = 0 < t0 && t0 < 1 && this->IsDirectionArc(p0);
@@ -749,7 +1004,7 @@ int Cad::CEdge2D::NumIntersect_AgainstHalfLine(const Com::CVector2D& po_b, const
 	}
 	const Com::CVector2D po_d = po_b + dir1*lenlong;
   if(      itype == 0 ){
-		return NumCross_LineSeg_LineSeg(po_s,po_e,po_b,po_d);
+    return IsCross_LineSeg_LineSeg(po_s,po_e,po_b,po_d);
 	}
 	else if( itype == 1 ){
 		return this->NumCross_Arc_LineSeg(po_b,po_d);
@@ -767,7 +1022,7 @@ int Cad::CEdge2D::NumIntersect_AgainstHalfLine(const Com::CVector2D& po_b, const
 			Com::CVector2D poi1;
 			if( idiv == ndiv-1 ){ poi1 = po_e; }
 			else{ poi1 = po_s + h0*relcomsh[idiv*2+0]     + v0*relcomsh[idiv*2+1]; }
-			int res = NumCross_LineSeg_LineSeg(po_b,po_d,poi0,poi1);
+			int res = IsCross_LineSeg_LineSeg(po_b,po_d,poi0,poi1);
 			if( res == -1 ) return -1;
 			icnt += res;
 		}
@@ -959,8 +1214,8 @@ bool Cad::CEdge2D::GetCurve_Mesh(std::vector<Com::CVector2D>& aCo, int ndiv) con
 
 ////////////////////////////////
 
-int Cad::CEdge2D::NumCross_LineSeg_LineSeg(const Com::CVector2D& po_s0, const Com::CVector2D& po_e0,
-												  const Com::CVector2D& po_s1, const Com::CVector2D& po_e1 )
+bool Cad::IsCross_LineSeg_LineSeg(const Com::CVector2D& po_s0, const Com::CVector2D& po_e0,
+                                  const Com::CVector2D& po_s1, const Com::CVector2D& po_e1 )
 {
 	{
 		const double min0x = ( po_s0.x < po_e0.x ) ? po_s0.x : po_e0.x;
@@ -973,18 +1228,20 @@ int Cad::CEdge2D::NumCross_LineSeg_LineSeg(const Com::CVector2D& po_s0, const Co
 		const double min1y = ( po_s1.y < po_e1.y ) ? po_s1.y : po_e1.y;
 		const double len = ((max0x-min0x)+(max0y-min0y)+(max1x-min1x)+(max1y-min1y))*0.0001;
 //		std::cout << len << std::endl;
-		if( max1x+len < min0x ) return 0;
-		if( max0x+len < min1x ) return 0;
-		if( max1y+len < min0y ) return 0;
-		if( max0y+len < min1y ) return 0;
+		if( max1x+len < min0x ) return false;
+		if( max0x+len < min1x ) return false;
+		if( max1y+len < min0y ) return false;
+		if( max0y+len < min1y ) return false;
 	}
 	const double area1 = Com::TriArea(po_s0,po_e0,po_s1);
 	const double area2 = Com::TriArea(po_s0,po_e0,po_e1);
 	const double area3 = Com::TriArea(po_s1,po_e1,po_s0);
 	const double area4 = Com::TriArea(po_s1,po_e1,po_e0);  
 //	std::cout << area1 << " " << area2 << " " << area3 << " " << area4 << std::endl;
-  const double a12 = area1*area2;
-  const double a34 = area3*area4;
+  const double a12 = area1*area2; if( a12 > 0 ) return false;
+  const double a34 = area3*area4; if( a34 > 0 ) return false;
+  return true;
+  /*
   if( fabs(a12) > fabs(a34) ){
     if( a12 > 0 ){
       if( fabs(area1) > fabs(area2)*0.000000001 && fabs(area1) > fabs(area2)*0.000000001 ){ return 0; }
@@ -1006,9 +1263,10 @@ int Cad::CEdge2D::NumCross_LineSeg_LineSeg(const Com::CVector2D& po_s0, const Co
     }    
   }
   return 1;
+   */
 }
 
-bool Cad::CEdge2D::IsCross_Circle_Circle(
+bool Cad::IsCross_Circle_Circle(
 		const Com::CVector2D& po_c0, double radius0,
 		const Com::CVector2D& po_c1, double radius1,
 		Com::CVector2D& po0, Com::CVector2D& po1 )
@@ -1044,8 +1302,8 @@ int Cad::CEdge2D::NumCross_Arc_LineSeg(const Com::CVector2D& po_s1, const Com::C
 	if( !is_out0 && !is_out1 ){	return 0; }
 
 	// どちらか一つの点が辺から見て円弧の側になければ交錯しない
-    bool is_arc_side0 = (Com::TriArea(po_e,po_s1,po_s) > 0.0) == is_left_side;
-    bool is_arc_side1 = (Com::TriArea(po_e,po_e1,po_s) > 0.0) == is_left_side;
+  bool is_arc_side0 = (Com::TriArea(po_e,po_s1,po_s) > 0.0) == is_left_side;
+  bool is_arc_side1 = (Com::TriArea(po_e,po_e1,po_s) > 0.0) == is_left_side;
 	if( !is_arc_side0 && !is_arc_side1 ){ return 0; }
 		
 	// 片方が円の内側，片方が円の外側の場合
@@ -1053,7 +1311,7 @@ int Cad::CEdge2D::NumCross_Arc_LineSeg(const Com::CVector2D& po_s1, const Com::C
 		if( is_arc_side0 && is_arc_side1 ){ return 1; }
 		// 弧と直線が交錯するか調べる
 		bool is_cross;
-		if( this->NumCross_LineSeg_LineSeg(po_s,po_e, po_s1,po_e1) != 0 ){
+		if( IsCross_LineSeg_LineSeg(po_s,po_e, po_s1,po_e1) != 0 ){
 			if( is_out0 ){ is_cross = is_arc_side0; }
 			else{ is_cross = is_arc_side1; }
 		}
@@ -1068,7 +1326,7 @@ int Cad::CEdge2D::NumCross_Arc_LineSeg(const Com::CVector2D& po_s1, const Com::C
 	// 両方が円の外側の場合
 	if( is_out0 && is_out1 ){
 		// 弧と直線が交錯するか調べる．交錯なら円弧とも交錯
-		if( this->NumCross_LineSeg_LineSeg(po_s,po_e, po_s1,po_e1) != 0 ){ return 1; }
+		if( IsCross_LineSeg_LineSeg(po_s,po_e, po_s1,po_e1) != 0 ){ return 1; }
 		Com::CVector2D foot;
 		{	// c0を線分s1e1に下ろした垂線の足を計算する
 			Com::CVector2D v01(po_e1.x-po_s1.x,  po_e1.y-po_s1.y );
@@ -1095,7 +1353,7 @@ int Cad::CEdge2D::NumCross_Arc_LineSeg(const Com::CVector2D& po_s1, const Com::C
 // 円弧と辺(直線でなければならない)の交点を求める
 // ２つある場合は交点のposからpoeへのパラメータがt1,t2に入り、返り値が１となる
 // 交点が無い場合は０が返り値となる
-bool Cad::CEdge2D::IsCross_Line_Circle(
+bool Cad::IsCross_Line_Circle(
 		const Com::CVector2D& poc, const double radius, 
 		const Com::CVector2D& pos, const Com::CVector2D& poe,
 		double& t0, double& t1)
@@ -1120,8 +1378,8 @@ bool Cad::CEdge2D::IsCross_Line_Circle(
 }
 
 
-// 点と直線の一番近い点を探す
-double Cad::CEdge2D::FindNearestPointParameter_Line_Point(const Com::CVector2D& po_c,
+// get parameter 't' of the line against point. t=0 is po_s, t=1 is po_e
+double Cad::FindNearestPointParameter_Line_Point(const Com::CVector2D& po_c,
 	const Com::CVector2D& po_s, const Com::CVector2D& po_e)
 {
 	const Com::CVector2D& es = po_e-po_s;
@@ -1130,6 +1388,22 @@ double Cad::CEdge2D::FindNearestPointParameter_Line_Point(const Com::CVector2D& 
 	const double b = Com::Dot(es,sc);
 	return - b/a;
 }
+
+// get parameter 't' of the line against point. t=0 is po_s, t=1 is po_e
+double Cad::GetDist_LineSeg_Point(const Com::CVector2D& po_c,
+                                  const Com::CVector2D& po_s, const Com::CVector2D& po_e)
+{
+	const Com::CVector2D& es = po_e-po_s;
+	const Com::CVector2D& sc = po_s-po_c;
+	const double a = Com::SquareLength(es);
+	const double b = Com::Dot(es,sc);
+	const double t =  - b/a;
+  if( t < 0 ){ return Length(po_s,po_c); }
+  if( t > 1 ){ return Length(po_e,po_c); }
+  Com::CVector2D p = po_s + t*(po_e-po_s);
+  return Length(p,po_c);
+}
+
 
 // 弦と弧で張られる領域内部に点poが入っているかを調べる
 int Cad::CEdge2D::IsInsideArcSegment(const Com::CVector2D& po) const
@@ -1294,7 +1568,7 @@ bool Cad::CEdge2D::Split(Cad::CEdge2D& edge_a, const Com::CVector2D& pa)
 					ind = idiv;
 					min_dist = Com::Length(pa,poi1);	
 				}
-				const double t = this->FindNearestPointParameter_Line_Point(pa,poi0,poi1);
+				const double t = FindNearestPointParameter_Line_Point(pa,poi0,poi1);
 				if( t < 0.01 || t > 0.99 ) continue;
 				Com::CVector2D po_mid = poi0 + (poi1-poi0)*t;
 				if( Com::Length(pa,po_mid) < min_dist ){ 
@@ -1350,31 +1624,32 @@ bool Cad::CEdge2D::Split(Cad::CEdge2D& edge_a, const Com::CVector2D& pa)
 
 // v0からエッジに沿った距離でlenの長さにある点を得る．
 // is_front==true 沿ならエッジに沿って，is_front==falseならエッジに沿わない
-bool Cad::CEdge2D::GetPointOnCurve_OnCircle(
-                              const Com::CVector2D& v0, double len, bool is_front,
-                              bool& is_exceed, Com::CVector2D& out) const
+bool Cad::CEdge2D::GetPointOnCurve_OnCircle
+(const Com::CVector2D& v0, double len, bool is_front,
+ bool& is_exceed, Com::CVector2D& out) const
 {
-    if( len <= 0 ) return false;
-    if( this->itype == 0 ) // 直線の場合
-    {
-        const Com::CVector2D& v1 = this->GetNearestPoint(v0);
-        if( is_front ){
-            double len1e = Com::Length(v1,this->po_e);
-            if( len1e < len ){ is_exceed=true; out=po_e; return true; }
-            out = (len/len1e)*po_e + (1-len/len1e)*v1;
-            is_exceed = false;
-            return true;
-        }
-        else{
-            double len1s = Com::Length(v1,this->po_s);
-            if( len1s < len ){ is_exceed=true; out=po_s; return true; }
-            out = (len/len1s)*po_s + (1-len/len1s)*v1;
-            is_exceed = false;
-            return true;
-        }
+  if( len <= 0 ) return false;
+  if( this->itype == 0 ) // 直線の場合
+  {
+    const Com::CVector2D& v1 = this->GetNearestPoint(v0);
+    if( is_front ){
+      double len1e = Com::Length(v1,this->po_e);
+      if( len1e < len ){ is_exceed=true; out=po_e; return true; }
+      out = (len/len1e)*po_e + (1-len/len1e)*v1;
+      is_exceed = false;
+      return true;
     }
-    return false;
+    else{
+      double len1s = Com::Length(v1,this->po_s);
+      if( len1s < len ){ is_exceed=true; out=po_s; return true; }
+      out = (len/len1s)*po_s + (1-len/len1s)*v1;
+      is_exceed = false;
+      return true;
+    }
+  }
+  return false;
 }
+
 
 //! そのうち交錯位置の情報も返したい
 int Cad::CheckEdgeIntersection(const std::vector<CEdge2D>& aEdge)
@@ -1386,8 +1661,9 @@ int Cad::CheckEdgeIntersection(const std::vector<CEdge2D>& aEdge)
 		const unsigned int ipo0 = e_i.id_v_s; 
 		const unsigned int ipo1 = e_i.id_v_e;
 		// edge_iのバウンディングボックスを取得
-		double x_min_i, x_max_i, y_min_i, y_max_i;
-		e_i.GetBoundingBox(x_min_i,x_max_i, y_min_i,y_max_i);
+    const Com::CBoundingBox2D& bb_i = e_i.GetBoundingBox();
+    //		double x_min_i, x_max_i, y_min_i, y_max_i;
+    //		e_i.GetBoundingBox(x_min_i,x_max_i, y_min_i,y_max_i);
 		////////////////
 		for(unsigned int jedge=iedge+1;jedge<nedge;jedge++){
 			const CEdge2D& e_j = aEdge[jedge];
@@ -1397,11 +1673,14 @@ int Cad::CheckEdgeIntersection(const std::vector<CEdge2D>& aEdge)
 			if( (ipo0-jpo0)*(ipo0-jpo1)*(ipo1-jpo0)*(ipo1-jpo1) != 0 ){
 				// BoundingBoxを用いて，交錯しないパターンを除外
 				// edge_jのバウンディングボックスを取得
-				double x_min_j, x_max_j, y_min_j, y_max_j;
-				e_j.GetBoundingBox(x_min_j,x_max_j, y_min_j,y_max_j);
+        const Com::CBoundingBox2D& bb_j = e_j.GetBoundingBox();        
+        //				double x_min_j, x_max_j, y_min_j, y_max_j;
+        //				e_j.GetBoundingBox(x_min_j,x_max_j, y_min_j,y_max_j);
+        if( bb_j.x_min > bb_i.x_max || bb_j.x_max < bb_i.x_min ) continue;
+        if( bb_j.y_min > bb_i.y_max || bb_j.y_max < bb_i.y_min ) continue;
 				////////////////
-				if( x_min_j > x_max_i || x_max_j < x_min_i ) continue;	// 交錯がありえないパターンを除外
-				if( y_min_j > y_max_i || y_max_j < y_min_i ) continue;	// 上に同じ
+        //				if( x_min_j > x_max_i || x_max_j < x_min_i ) continue;	// 交錯がありえないパターンを除外
+        //				if( y_min_j > y_max_i || y_max_j < y_min_i ) continue;	// 上に同じ
 				// 交点が無いか判断する
 				if( !e_i.IsCrossEdge(e_j) ){ continue; }
 				return 1;
@@ -1427,6 +1706,6 @@ int Cad::CheckEdgeIntersection(const std::vector<CEdge2D>& aEdge)
 			continue;
 		}
 	}
-//	std::cout << "Intersect Dosen't Occur" << std::endl;
+  //	std::cout << "Intersect Dosen't Occur" << std::endl;
 	return 0;
 }

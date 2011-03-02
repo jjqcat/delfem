@@ -477,10 +477,10 @@ void Fem::Field::View::MakeStreamLine(
 }
 
 
-Com::CBoundingBox Fem::Field::View::CDrawerStreamline::GetBoundingBox( double rot[] ) const
+Com::CBoundingBox3D Fem::Field::View::CDrawerStreamline::GetBoundingBox( double rot[] ) const
 {
-	if( aStLine.empty() ){ return Com::CBoundingBox(); }
-	if( aStLine[0].empty() ){ return Com::CBoundingBox(); }
+	if( aStLine.empty() ){ return Com::CBoundingBox3D(); }
+	if( aStLine[0].empty() ){ return Com::CBoundingBox3D(); }
 	double x_min = aStLine[0][0];
 	double y_min = aStLine[0][1];
 	double x_max = x_min;
@@ -497,7 +497,7 @@ Com::CBoundingBox Fem::Field::View::CDrawerStreamline::GetBoundingBox( double ro
 		}
 	}
 //		std::cout << x_min << " " << x_max << "  " << y_min << " " << y_max << std::endl;
-	return Com::CBoundingBox(x_min,x_max, y_min,y_max,-1,1);
+	return Com::CBoundingBox3D(x_min,x_max, y_min,y_max,-1,1);
 }
 
 void Fem::Field::View::CDrawerStreamline::Draw() const 
