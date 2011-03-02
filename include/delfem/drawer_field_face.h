@@ -49,7 +49,7 @@ public:
   
 	virtual void Draw() const;
 	virtual void DrawSelection(unsigned int idraw) const{};
-	virtual Com::CBoundingBox GetBoundingBox( double rot[] ) const{
+	virtual Com::CBoundingBox3D GetBoundingBox( double rot[] ) const{
 		return m_vertex_ary.GetBoundingBox(	rot );
 	}
 	virtual void AddSelected(const int selec_flag[]){}

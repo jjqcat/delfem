@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
 ////////////////////////////////////////////////////////////////
-// brep2d.cpp : ‚QŸŒ³ˆÊ‘ŠƒNƒ‰ƒX(Cad::CBrep2D)‚ÌÀ‘•
+// brep2d.cpp : ï¼’æ¬¡å…ƒä½ç›¸ã‚¯ãƒ©ã‚¹(Cad::CBrep2D)ã®å®Ÿè£…
 ////////////////////////////////////////////////////////////////
 
 #if defined(__VISUALC__)
@@ -44,18 +44,18 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 using namespace Cad;
 //using namespace Com;
 
-CBRep2D::CItrLoop::CItrLoop(const CBRep2D* ptr_cad_2d, unsigned int id_l)
+CBRepSurface::CItrLoop::CItrLoop(const CBRepSurface& ptr_cad_2d, unsigned int id_l)
 	: m_pBRep2D(ptr_cad_2d)
 {
 	is_valid = false;
 	m_IdUL = 0;
 	{
-		const std::map<unsigned int, unsigned int>::const_iterator itr =  m_pBRep2D->map_l2ul.find(id_l);
-		assert( itr != m_pBRep2D->map_l2ul.end() );
+		const std::map<unsigned int, unsigned int>::const_iterator itr =  m_pBRep2D.map_l2ul.find(id_l);
+		assert( itr != m_pBRep2D.map_l2ul.end() );
 		m_IdUL = itr->second;
 	}
-	assert( m_pBRep2D->m_BRep.IsID_UseLoop(m_IdUL) );
-	const CUseLoop& ul = m_pBRep2D->m_BRep.GetUseLoop(m_IdUL);
+	assert( m_pBRep2D.m_BRep.IsID_UseLoop(m_IdUL) );
+	const CUseLoop& ul = m_pBRep2D.m_BRep.GetUseLoop(m_IdUL);
 	assert( ul.id == m_IdUL );
 	m_IdHE = ul.id_he;
 	is_initial = true;
@@ -63,118 +63,118 @@ CBRep2D::CItrLoop::CItrLoop(const CBRep2D* ptr_cad_2d, unsigned int id_l)
 	is_end_child = false;
 }
 
-CBRep2D::CItrLoop::CItrLoop(const CBRep2D* ptr_cad_2d, unsigned int id_he, unsigned int id_ul)
+CBRepSurface::CItrLoop::CItrLoop(const CBRepSurface& ptr_cad_2d, unsigned int id_he, unsigned int id_ul)
 	: m_pBRep2D(ptr_cad_2d)
 {
 	is_valid = false;
 	m_IdUL = id_ul;
 	m_IdHE = id_he;
-	assert( m_pBRep2D->m_BRep.IsID_UseLoop(m_IdUL) );
-	assert( m_pBRep2D->m_BRep.IsID_HalfEdge(m_IdHE) );
-	const CHalfEdge& he = m_pBRep2D->m_BRep.GetHalfEdge(m_IdHE);
+	assert( m_pBRep2D.m_BRep.IsID_UseLoop(m_IdUL) );
+	assert( m_pBRep2D.m_BRep.IsID_HalfEdge(m_IdHE) );
+	const CHalfEdge& he = m_pBRep2D.m_BRep.GetHalfEdge(m_IdHE);
 	assert( he.id_ul == m_IdUL );
 	is_initial = false;
 	is_valid = true;
 	is_end_child = false;
 }
 
-void CBRep2D::CItrLoop::Begin(){
+void CBRepSurface::CItrLoop::Begin(){
 	if( !is_valid ) return;
 	is_initial = true;
-	const CUseLoop& ul = m_pBRep2D->m_BRep.GetUseLoop(m_IdUL);
+	const CUseLoop& ul = m_pBRep2D.m_BRep.GetUseLoop(m_IdUL);
 	assert( ul.id == m_IdUL );
 	m_IdHE = ul.id_he;
 }
 
-void CBRep2D::CItrLoop::operator++(){
+void CBRepSurface::CItrLoop::operator++(){
 	if( !is_valid ) return;
 	is_initial = false;
-	assert( m_pBRep2D->m_BRep.IsID_HalfEdge(m_IdHE) );
-	const CHalfEdge& he = m_pBRep2D->m_BRep.GetHalfEdge(m_IdHE);
+	assert( m_pBRep2D.m_BRep.IsID_HalfEdge(m_IdHE) );
+	const CHalfEdge& he = m_pBRep2D.m_BRep.GetHalfEdge(m_IdHE);
 	m_IdHE = he.id_he_f;
 	return;
 }
 
-void CBRep2D::CItrLoop::operator++(int n){
+void CBRepSurface::CItrLoop::operator++(int n){
 	if( !is_valid ) return;
 	is_initial = false;
-	assert( m_pBRep2D->m_BRep.IsID_HalfEdge(m_IdHE) );
-	const CHalfEdge& he = m_pBRep2D->m_BRep.GetHalfEdge(m_IdHE);
+	assert( m_pBRep2D.m_BRep.IsID_HalfEdge(m_IdHE) );
+	const CHalfEdge& he = m_pBRep2D.m_BRep.GetHalfEdge(m_IdHE);
 	m_IdHE = he.id_he_f;
 	return;
 }
 
-bool CBRep2D::CItrLoop::IsEnd() const {
+bool CBRepSurface::CItrLoop::IsEnd() const {
 	if( is_initial ) return false;
-	assert( m_pBRep2D->m_BRep.IsID_UseLoop(m_IdUL) );
-	const CUseLoop& ul = m_pBRep2D->m_BRep.GetUseLoop(m_IdUL);
+	assert( m_pBRep2D.m_BRep.IsID_UseLoop(m_IdUL) );
+	const CUseLoop& ul = m_pBRep2D.m_BRep.GetUseLoop(m_IdUL);
 	assert( ul.id == m_IdUL );
 	if( m_IdHE == ul.id_he ) return true;
 	return false;
 }
 
-bool CBRep2D::CItrLoop::GetIdEdge(unsigned int& id_e, bool& is_same_dir) const {
+bool CBRepSurface::CItrLoop::GetIdEdge(unsigned int& id_e, bool& is_same_dir) const {
 	if( !is_valid ) return false;
-	assert( m_pBRep2D->m_BRep.IsID_HalfEdge(m_IdHE) );
-	const CHalfEdge& he = m_pBRep2D->m_BRep.GetHalfEdge(m_IdHE);
+	assert( m_pBRep2D.m_BRep.IsID_HalfEdge(m_IdHE) );
+	const CHalfEdge& he = m_pBRep2D.m_BRep.GetHalfEdge(m_IdHE);
 	id_e = he.id_e;
 	is_same_dir = he.is_same_dir;
 	if( id_e == 0 ){ return false; }
 	return true;
 }
 
-unsigned int CBRep2D::CItrLoop::GetIdVertex() const {
+unsigned int CBRepSurface::CItrLoop::GetIdVertex() const {
 	if( !is_valid ) return 0;
-	assert( m_pBRep2D->m_BRep.IsID_HalfEdge(m_IdHE) );
-	const CHalfEdge& he = m_pBRep2D->m_BRep.GetHalfEdge(m_IdHE);
-	assert( m_pBRep2D->m_BRep.IsID_UseVertex(he.id_uv ) );
-	const CUseVertex& uv = m_pBRep2D->m_BRep.GetUseVertex( he.id_uv );
+	assert( m_pBRep2D.m_BRep.IsID_HalfEdge(m_IdHE) );
+	const CHalfEdge& he = m_pBRep2D.m_BRep.GetHalfEdge(m_IdHE);
+	assert( m_pBRep2D.m_BRep.IsID_UseVertex(he.id_uv ) );
+	const CUseVertex& uv = m_pBRep2D.m_BRep.GetUseVertex( he.id_uv );
 	const unsigned int id_v = uv.id_v;
-	m_pBRep2D->IsElemID(Cad::VERTEX,id_v);
+	m_pBRep2D.IsElemID(Cad::VERTEX,id_v);
 	return id_v;
 }
 
-unsigned int CBRep2D::CItrLoop::GetIdVertex_Ahead() const {
+unsigned int CBRepSurface::CItrLoop::GetIdVertex_Ahead() const {
 	if( !is_valid ) return 0;
-	assert( m_pBRep2D->m_BRep.IsID_HalfEdge(m_IdHE) );
-	const CHalfEdge& he = m_pBRep2D->m_BRep.GetHalfEdge(m_IdHE);
+	assert( m_pBRep2D.m_BRep.IsID_HalfEdge(m_IdHE) );
+	const CHalfEdge& he = m_pBRep2D.m_BRep.GetHalfEdge(m_IdHE);
 	const unsigned int id_he_f = he.id_he_f;
-	assert( m_pBRep2D->m_BRep.IsID_HalfEdge(id_he_f) );
-	const CHalfEdge& he_f = m_pBRep2D->m_BRep.GetHalfEdge(id_he_f);
+	assert( m_pBRep2D.m_BRep.IsID_HalfEdge(id_he_f) );
+	const CHalfEdge& he_f = m_pBRep2D.m_BRep.GetHalfEdge(id_he_f);
 	const unsigned int id_uv_f = he_f.id_uv;
-	const CUseVertex& uv_f = m_pBRep2D->m_BRep.GetUseVertex( id_uv_f );
+	const CUseVertex& uv_f = m_pBRep2D.m_BRep.GetUseVertex( id_uv_f );
 	const unsigned int id_v = uv_f.id_v;
-	m_pBRep2D->IsElemID(Cad::VERTEX,id_v);
+	m_pBRep2D.IsElemID(Cad::VERTEX,id_v);
 	return id_v;
 }
 
-unsigned int CBRep2D::CItrLoop::GetIdVertex_Behind() const {
+unsigned int CBRepSurface::CItrLoop::GetIdVertex_Behind() const {
 	if( !is_valid ) return 0;
-	assert( m_pBRep2D->m_BRep.IsID_HalfEdge(m_IdHE) );
-	const CHalfEdge& he = m_pBRep2D->m_BRep.GetHalfEdge(m_IdHE);
+	assert( m_pBRep2D.m_BRep.IsID_HalfEdge(m_IdHE) );
+	const CHalfEdge& he = m_pBRep2D.m_BRep.GetHalfEdge(m_IdHE);
 	const unsigned int id_he_b = he.id_he_b;
-	assert( m_pBRep2D->m_BRep.IsID_HalfEdge(id_he_b) );
-	const CHalfEdge& he_b = m_pBRep2D->m_BRep.GetHalfEdge(id_he_b);
+	assert( m_pBRep2D.m_BRep.IsID_HalfEdge(id_he_b) );
+	const CHalfEdge& he_b = m_pBRep2D.m_BRep.GetHalfEdge(id_he_b);
 	const unsigned int id_uv_b = he_b.id_uv;
-	const CUseVertex& uv_b = m_pBRep2D->m_BRep.GetUseVertex( id_uv_b );
+	const CUseVertex& uv_b = m_pBRep2D.m_BRep.GetUseVertex( id_uv_b );
 	const unsigned int id_v = uv_b.id_v;
-	m_pBRep2D->IsElemID(Cad::VERTEX,id_v);
+	m_pBRep2D.IsElemID(Cad::VERTEX,id_v);
 	return id_v;
 }
 
-bool CBRep2D::CItrLoop::ShiftChildLoop()
+bool CBRepSurface::CItrLoop::ShiftChildLoop()
 {
 	if( !is_valid ) return false;
-	assert( m_pBRep2D->m_BRep.IsID_UseLoop(m_IdUL) );
-	const CUseLoop& ul_p = m_pBRep2D->m_BRep.GetUseLoop(m_IdUL);
+	assert( m_pBRep2D.m_BRep.IsID_UseLoop(m_IdUL) );
+	const CUseLoop& ul_p = m_pBRep2D.m_BRep.GetUseLoop(m_IdUL);
 	assert( ul_p.id == m_IdUL );
 	if( ul_p.id_ul_c == 0 ){ 
 		is_end_child = true; 
 		return false;
 	}
 	m_IdUL = ul_p.id_ul_c;
-	assert( m_pBRep2D->m_BRep.IsID_UseLoop(m_IdUL) );
-	const CUseLoop& ul_c = m_pBRep2D->m_BRep.GetUseLoop(m_IdUL);
+	assert( m_pBRep2D.m_BRep.IsID_UseLoop(m_IdUL) );
+	const CUseLoop& ul_c = m_pBRep2D.m_BRep.GetUseLoop(m_IdUL);
 	assert( ul_c.id == m_IdUL );
 	m_IdHE = ul_c.id_he;
 	is_initial = true;
@@ -182,58 +182,58 @@ bool CBRep2D::CItrLoop::ShiftChildLoop()
 	return true;
 }
 
-unsigned int CBRep2D::CItrLoop::GetType() const // 0:•‚—V“_ 1:•‚—V•Ó 2:–ÊÏ‚ª‚ ‚é
+unsigned int CBRepSurface::CItrLoop::GetType() const // 0:æµ®éŠç‚¹ 1:æµ®éŠè¾º 2:é¢ç©ãŒã‚ã‚‹
 {
-	return m_pBRep2D->TypeUseLoop(this->m_IdUL);
+	return m_pBRep2D.TypeUseLoop(this->m_IdUL);
 }
 
-unsigned int CBRep2D::CItrLoop::GetIdLoop() const
+unsigned int CBRepSurface::CItrLoop::GetIdLoop() const
 {
 	if( !is_valid ) return 0;
-	assert( m_pBRep2D->m_BRep.IsID_UseLoop(m_IdUL) );
-	const CUseLoop& ul = m_pBRep2D->m_BRep.GetUseLoop(m_IdUL);
+	assert( m_pBRep2D.m_BRep.IsID_UseLoop(m_IdUL) );
+	const CUseLoop& ul = m_pBRep2D.m_BRep.GetUseLoop(m_IdUL);
 	assert( ul.id == m_IdUL );
 	return ul.id_l;
 }
 
-bool CBRep2D::CItrLoop::IsParent() const
+bool CBRepSurface::CItrLoop::IsParent() const
 {
 	if( !is_valid ) return false;
-	assert( m_pBRep2D->m_BRep.IsID_UseLoop(m_IdUL) );
-	const CUseLoop& ul = m_pBRep2D->m_BRep.GetUseLoop(m_IdUL);
+	assert( m_pBRep2D.m_BRep.IsID_UseLoop(m_IdUL) );
+	const CUseLoop& ul = m_pBRep2D.m_BRep.GetUseLoop(m_IdUL);
 	assert( ul.id == m_IdUL );
 	return (ul.id_ul_p == m_IdUL);
 }
 
-bool CBRep2D::CItrLoop::IsEdge_BothSideSameLoop() const
+bool CBRepSurface::CItrLoop::IsEdge_BothSideSameLoop() const
 {
-	assert( m_pBRep2D->m_BRep.IsID_HalfEdge(m_IdHE) );
-	const CHalfEdge& he = m_pBRep2D->m_BRep.GetHalfEdge(m_IdHE);
+	assert( m_pBRep2D.m_BRep.IsID_HalfEdge(m_IdHE) );
+	const CHalfEdge& he = m_pBRep2D.m_BRep.GetHalfEdge(m_IdHE);
 	const unsigned int id_he_o = he.id_he_o;
-	assert( m_pBRep2D->m_BRep.IsID_HalfEdge(id_he_o) );
-	const CHalfEdge& he_o = m_pBRep2D->m_BRep.GetHalfEdge(id_he_o);
+	assert( m_pBRep2D.m_BRep.IsID_HalfEdge(id_he_o) );
+	const CHalfEdge& he_o = m_pBRep2D.m_BRep.GetHalfEdge(id_he_o);
 	return he.id_ul == he_o.id_ul;
 }
 
-unsigned int CBRep2D::CItrLoop::CountVertex_UseLoop() const
+unsigned int CBRepSurface::CItrLoop::CountVertex_UseLoop() const
 {
 	if( !is_valid ) return 0;
 	unsigned int id_he_ini;
 	{
-		assert( m_pBRep2D->m_BRep.IsID_UseLoop(m_IdUL) );
-		const CUseLoop& ul = m_pBRep2D->m_BRep.GetUseLoop(m_IdUL);
+		assert( m_pBRep2D.m_BRep.IsID_UseLoop(m_IdUL) );
+		const CUseLoop& ul = m_pBRep2D.m_BRep.GetUseLoop(m_IdUL);
 		id_he_ini = ul.id_he;
 	}
 	unsigned int id_he = id_he_ini;
 	unsigned int icnt = 0;
 	for(;;){
 		icnt++;
-		const CHalfEdge& he = m_pBRep2D->m_BRep.GetHalfEdge(id_he);
+		const CHalfEdge& he = m_pBRep2D.m_BRep.GetHalfEdge(id_he);
 		const unsigned int id_he_f = he.id_he_f;
 		if( id_he_f == id_he_ini ) break;
 		{
-			assert( m_pBRep2D->m_BRep.IsID_HalfEdge(id_he_f) );
-			const CHalfEdge& he_f = m_pBRep2D->m_BRep.GetHalfEdge(id_he_f);
+			assert( m_pBRep2D.m_BRep.IsID_HalfEdge(id_he_f) );
+			const CHalfEdge& he_f = m_pBRep2D.m_BRep.GetHalfEdge(id_he_f);
 			assert( he_f.id_ul == m_IdUL );
 		}
 		id_he = id_he_f;
@@ -244,141 +244,149 @@ unsigned int CBRep2D::CItrLoop::CountVertex_UseLoop() const
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
-// ’¸“_ü‚è‚Ìƒ‹[ƒv‚ğ„‚é‚±‚Æ‚ª‚Å‚«‚éƒCƒeƒŒ[ƒ^
-CBRep2D::CItrVertex::CItrVertex(const CBRep2D* ptr_cad_2d, unsigned int id_v)
+// é ‚ç‚¹å‘¨ã‚Šã®ãƒ«ãƒ¼ãƒ—ã‚’å·¡ã‚‹ã“ã¨ãŒã§ãã‚‹ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿
+CBRepSurface::CItrVertex::CItrVertex(const CBRepSurface& ptr_cad_2d, unsigned int id_v)
 	: m_pBRep2D(ptr_cad_2d)
 {
 	is_valid = false;
 	m_IdUV = id_v;
-	const CUseVertex& uv = m_pBRep2D->m_BRep.GetUseVertex(m_IdUV);
+	const CUseVertex& uv = m_pBRep2D.m_BRep.GetUseVertex(m_IdUV);
 	assert( uv.id == m_IdUV );
 	m_IdHE = uv.id_he;
 	is_initial = true;
 	is_valid = true;
 }
 
-// ”½Œvü‚è‚É’¸“_‚Ü‚í‚è‚ğ‚ß‚®‚é
-void CBRep2D::CItrVertex::operator++(){
+// åæ™‚è¨ˆå‘¨ã‚Šã«é ‚ç‚¹ã¾ã‚ã‚Šã‚’ã‚ãã‚‹
+void CBRepSurface::CItrVertex::operator++(){
 	if( !is_valid ) return;
 	is_initial = false;
-	assert( m_pBRep2D->m_BRep.IsID_HalfEdge(m_IdHE) );
-	const CHalfEdge& he = m_pBRep2D->m_BRep.GetHalfEdge(m_IdHE);
+	assert( m_pBRep2D.m_BRep.IsID_HalfEdge(m_IdHE) );
+	const CHalfEdge& he = m_pBRep2D.m_BRep.GetHalfEdge(m_IdHE);
 	const unsigned int id_he_b = he.id_he_b;
-	assert( m_pBRep2D->m_BRep.IsID_HalfEdge(id_he_b) );
-	const CHalfEdge& he_b = m_pBRep2D->m_BRep.GetHalfEdge(id_he_b);
+	assert( m_pBRep2D.m_BRep.IsID_HalfEdge(id_he_b) );
+	const CHalfEdge& he_b = m_pBRep2D.m_BRep.GetHalfEdge(id_he_b);
 	m_IdHE = he_b.id_he_o;
 	return;
 }
 
-// ƒ_ƒ~[‚ÌƒIƒyƒŒ[ƒ^(++‚Æ“¯‚¶“­‚«)
-void CBRep2D::CItrVertex::operator++(int n){
+// ãƒ€ãƒŸãƒ¼ã®ã‚ªãƒšãƒ¬ãƒ¼ã‚¿(++ã¨åŒã˜åƒã)
+void CBRepSurface::CItrVertex::operator++(int n){
 	if( !is_valid ) return;
 	is_initial = false;
-	assert( m_pBRep2D->m_BRep.IsID_HalfEdge(m_IdHE) );
-	const CHalfEdge& he = m_pBRep2D->m_BRep.GetHalfEdge(m_IdHE);
+	assert( m_pBRep2D.m_BRep.IsID_HalfEdge(m_IdHE) );
+	const CHalfEdge& he = m_pBRep2D.m_BRep.GetHalfEdge(m_IdHE);
 	const unsigned int id_he_b = he.id_he_b;
-	assert( m_pBRep2D->m_BRep.IsID_HalfEdge(id_he_b) );
-	const CHalfEdge& he_b = m_pBRep2D->m_BRep.GetHalfEdge(id_he_b);
+	assert( m_pBRep2D.m_BRep.IsID_HalfEdge(id_he_b) );
+	const CHalfEdge& he_b = m_pBRep2D.m_BRep.GetHalfEdge(id_he_b);
 	m_IdHE = he_b.id_he_o;
 	return;
 }
 
-bool CBRep2D::CItrVertex::GetIdEdge_Behind(unsigned int& id_e, bool& is_same_dir) const {	
+bool CBRepSurface::CItrVertex::GetIdEdge_Behind(unsigned int& id_e, bool& is_same_dir) const {	
 	if( !is_valid ) return false;
-	assert( m_pBRep2D->m_BRep.IsID_HalfEdge(m_IdHE) );
-	const CHalfEdge& he = m_pBRep2D->m_BRep.GetHalfEdge(m_IdHE);
+	assert( m_pBRep2D.m_BRep.IsID_HalfEdge(m_IdHE) );
+	const CHalfEdge& he = m_pBRep2D.m_BRep.GetHalfEdge(m_IdHE);
 	id_e = he.id_e;
 	is_same_dir = he.is_same_dir;
 	return true;
 }
 
-// ’¸“_ü‚è‚Ì•Ó‚ÌID‚ÆA‚»‚Ì•Ó‚Ìn“_‚ªid_v‚Æˆê’v‚µ‚Ä‚¢‚é‚©‚Ç‚¤‚©
-bool CBRep2D::CItrVertex::GetIdEdge_Ahead(unsigned int& id_e, bool& is_same_dir) const {
+// é ‚ç‚¹å‘¨ã‚Šã®è¾ºã®IDã¨ã€ãã®è¾ºã®å§‹ç‚¹ãŒid_vã¨ä¸€è‡´ã—ã¦ã„ã‚‹ã‹ã©ã†ã‹
+bool CBRepSurface::CItrVertex::GetIdEdge_Ahead(unsigned int& id_e, bool& is_same_dir) const {
 	if( !is_valid ) return false;
-	assert( m_pBRep2D->m_BRep.IsID_HalfEdge(m_IdHE) );
-	const CHalfEdge& he = m_pBRep2D->m_BRep.GetHalfEdge(m_IdHE);
+	assert( m_pBRep2D.m_BRep.IsID_HalfEdge(m_IdHE) );
+	const CHalfEdge& he = m_pBRep2D.m_BRep.GetHalfEdge(m_IdHE);
 	const unsigned int id_he_b = he.id_he_b;
-	assert( m_pBRep2D->m_BRep.IsID_HalfEdge(id_he_b) );
-	const CHalfEdge& he_b = m_pBRep2D->m_BRep.GetHalfEdge(id_he_b);
+	assert( m_pBRep2D.m_BRep.IsID_HalfEdge(id_he_b) );
+	const CHalfEdge& he_b = m_pBRep2D.m_BRep.GetHalfEdge(id_he_b);
 	id_e = he_b.id_e;
 	is_same_dir = !he_b.is_same_dir;
 	return true;
 }
 
-// ƒ‹[ƒv‚ÌID‚ğ“¾‚é
-unsigned int CBRep2D::CItrVertex::GetIdLoop() const 
+// ãƒ«ãƒ¼ãƒ—ã®IDã‚’å¾—ã‚‹
+unsigned int CBRepSurface::CItrVertex::GetIdLoop() const 
 {
 	if( !is_valid ) return false;
-	assert( m_pBRep2D->m_BRep.IsID_HalfEdge(m_IdHE) );
-	const CHalfEdge& he = m_pBRep2D->m_BRep.GetHalfEdge(m_IdHE);
+	assert( m_pBRep2D.m_BRep.IsID_HalfEdge(m_IdHE) );
+	const CHalfEdge& he = m_pBRep2D.m_BRep.GetHalfEdge(m_IdHE);
 	unsigned int id_ul = he.id_ul;
-	assert( m_pBRep2D->m_BRep.IsID_UseLoop(id_ul) );
-	const CUseLoop& ul = m_pBRep2D->m_BRep.GetUseLoop(id_ul);
+	assert( m_pBRep2D.m_BRep.IsID_UseLoop(id_ul) );
+	const CUseLoop& ul = m_pBRep2D.m_BRep.GetUseLoop(id_ul);
 	return ul.id_l;
 }
 
-// –Êü‚è‚Ì•Ó‚ªˆêü‚µ‚½‚çtrue‚ğ•Ô‚·
-bool CBRep2D::CItrVertex::IsEnd() const
+// é¢å‘¨ã‚Šã®è¾ºãŒä¸€å‘¨ã—ãŸã‚‰trueã‚’è¿”ã™
+bool CBRepSurface::CItrVertex::IsEnd() const
 {
 	if( is_initial ) return false;
-	assert( m_pBRep2D->m_BRep.IsID_UseVertex(m_IdUV) );
-	// ‚¢‚¿‚¢‚¿UV‚ğæ‚Á‚Ä‚­‚é•K—v‚ª–³‚¢‚æ‚¤‚É‚‘¬‰»‚ª•K—v
-	const CUseVertex& uv = m_pBRep2D->m_BRep.GetUseVertex(m_IdUV); 
+	assert( m_pBRep2D.m_BRep.IsID_UseVertex(m_IdUV) );
+	// ã„ã¡ã„ã¡UVã‚’å–ã£ã¦ãã‚‹å¿…è¦ãŒç„¡ã„ã‚ˆã†ã«é«˜é€ŸåŒ–ãŒå¿…è¦
+	const CUseVertex& uv = m_pBRep2D.m_BRep.GetUseVertex(m_IdUV); 
 	if( m_IdHE == uv.id_he ) return true;
 	return false;
 }
 
 
-unsigned int CBRep2D::CItrVertex::CountEdge() const
+void CBRepSurface::CItrVertex::Begin(){
+	if( !is_valid ) return;
+	is_initial = true;
+	const CUseVertex& uv = m_pBRep2D.m_BRep.GetUseVertex(m_IdUV);
+	assert( uv.id == m_IdUV );
+	m_IdHE = uv.id_he;
+}
+
+unsigned int CBRepSurface::CItrVertex::CountEdge() const
 {
 	if( !is_valid ) return 0;
-	assert( m_pBRep2D->m_BRep.IsID_UseVertex(m_IdUV) );
-	const CUseVertex& uv = m_pBRep2D->m_BRep.GetUseVertex(m_IdUV);
+	assert( m_pBRep2D.m_BRep.IsID_UseVertex(m_IdUV) );
+	const CUseVertex& uv = m_pBRep2D.m_BRep.GetUseVertex(m_IdUV);
 	const unsigned int id_he0 = uv.id_he;
 	unsigned int id_he = id_he0;
 	unsigned int icnt = 0;
 	for(;;)
 	{
-		assert( m_pBRep2D->m_BRep.IsID_HalfEdge(id_he) );
-		const CHalfEdge& he = m_pBRep2D->m_BRep.GetHalfEdge(id_he);		
-		if( he.id_e == 0 ){ return 0; } // •‚—V“_
+		assert( m_pBRep2D.m_BRep.IsID_HalfEdge(id_he) );
+		const CHalfEdge& he = m_pBRep2D.m_BRep.GetHalfEdge(id_he);		
+		if( he.id_e == 0 ){ return 0; } // æµ®éŠç‚¹
 		icnt++;
 		const unsigned int id_he_b = he.id_he_b;
-		assert( m_pBRep2D->m_BRep.IsID_HalfEdge(id_he_b) );
-		const CHalfEdge& he_b = m_pBRep2D->m_BRep.GetHalfEdge(id_he_b);
+		assert( m_pBRep2D.m_BRep.IsID_HalfEdge(id_he_b) );
+		const CHalfEdge& he_b = m_pBRep2D.m_BRep.GetHalfEdge(id_he_b);
 		id_he = he_b.id_he_o;
 		if( id_he == id_he0 ) break;
 	}
 	return icnt;
 }
 
-bool CBRep2D::CItrVertex::IsParent() const
+bool CBRepSurface::CItrVertex::IsParent() const
 {
 	if( !is_valid ) return false;
-	assert( m_pBRep2D->m_BRep.IsID_HalfEdge(m_IdHE) );
-	const CHalfEdge& he = m_pBRep2D->m_BRep.GetHalfEdge(m_IdHE);
+	assert( m_pBRep2D.m_BRep.IsID_HalfEdge(m_IdHE) );
+	const CHalfEdge& he = m_pBRep2D.m_BRep.GetHalfEdge(m_IdHE);
 	unsigned int id_ul = he.id_ul;
-	assert( m_pBRep2D->m_BRep.IsID_UseLoop(id_ul) );
-	const CUseLoop& ul = m_pBRep2D->m_BRep.GetUseLoop(id_ul);
+	assert( m_pBRep2D.m_BRep.IsID_UseLoop(id_ul) );
+	const CUseLoop& ul = m_pBRep2D.m_BRep.GetUseLoop(id_ul);
 	return (ul.id_ul_p == id_ul);
 }
 
-bool CBRep2D::CItrVertex::IsSameUseLoop(const CItrVertex& itrl) const
+bool CBRepSurface::CItrVertex::IsSameUseLoop(const CItrVertex& itrl) const
 {
 	if( !is_valid ) return false;
-	assert( m_pBRep2D->m_BRep.IsID_HalfEdge(m_IdHE) );
-	const CHalfEdge& he0 = m_pBRep2D->m_BRep.GetHalfEdge(m_IdHE);
+	assert( m_pBRep2D.m_BRep.IsID_HalfEdge(m_IdHE) );
+	const CHalfEdge& he0 = m_pBRep2D.m_BRep.GetHalfEdge(m_IdHE);
 
 	if( !itrl.is_valid ) return false;
-	assert( itrl.m_pBRep2D->m_BRep.IsID_HalfEdge(itrl.m_IdHE) );
-	const CHalfEdge& he1 = itrl.m_pBRep2D->m_BRep.GetHalfEdge(itrl.m_IdHE);
+	assert( itrl.m_pBRep2D.m_BRep.IsID_HalfEdge(itrl.m_IdHE) );
+	const CHalfEdge& he1 = itrl.m_pBRep2D.m_BRep.GetHalfEdge(itrl.m_IdHE);
 	return (he0.id_ul == he1.id_ul);
 }
 
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
-bool CBRep2D::IsElemID(Cad::CAD_ELEM_TYPE type, unsigned int id) const
+bool CBRepSurface::IsElemID(Cad::CAD_ELEM_TYPE type, unsigned int id) const
 {
 	if(      type == Cad::VERTEX ){
 		return m_BRep.IsID_UseVertex(id);
@@ -392,7 +400,7 @@ bool CBRep2D::IsElemID(Cad::CAD_ELEM_TYPE type, unsigned int id) const
 	return false;
 }
 
-const std::vector<unsigned int> CBRep2D::GetAryElemID(Cad::CAD_ELEM_TYPE type) const
+const std::vector<unsigned int> CBRepSurface::GetAryElemID(Cad::CAD_ELEM_TYPE type) const
 {
 	if( type == Cad::VERTEX ){
 		return m_BRep.GetAry_UseVertexID();
@@ -409,7 +417,7 @@ const std::vector<unsigned int> CBRep2D::GetAryElemID(Cad::CAD_ELEM_TYPE type) c
 	return res;
 }
 
-bool CBRep2D::GetIdLoop_Edge(unsigned int id_e, unsigned int& id_l_l, unsigned int& id_l_r) const
+bool CBRepSurface::GetIdLoop_Edge(unsigned int id_e, unsigned int& id_l_l, unsigned int& id_l_r) const
 {
 	unsigned int id_he0;
 	{
@@ -420,6 +428,7 @@ bool CBRep2D::GetIdLoop_Edge(unsigned int id_e, unsigned int& id_l_l, unsigned i
 	assert( m_BRep.IsID_HalfEdge(id_he0) );
   const Cad::CHalfEdge& he0 = m_BRep.GetHalfEdge(id_he0);
 	const unsigned int id_he1 = he0.id_he_o;
+  assert( m_BRep.IsID_HalfEdge(id_he1));
   const Cad::CHalfEdge& he1 = m_BRep.GetHalfEdge(id_he1);
   unsigned int id_ul_l, id_ul_r;
   if( he0.is_same_dir ){
@@ -432,14 +441,37 @@ bool CBRep2D::GetIdLoop_Edge(unsigned int id_e, unsigned int& id_l_l, unsigned i
     id_ul_l = he1.id_ul;
     id_ul_r = he0.id_ul;
   }
-  const Cad::CUseLoop& ul_l = m_BRep.GetUseLoop(id_ul_l);
-  const Cad::CUseLoop& ul_r = m_BRep.GetUseLoop(id_ul_r);
+  const Cad::CUseLoop& ul_l = m_BRep.GetUseLoop(id_ul_l); assert( m_BRep.IsID_UseLoop(id_ul_l) );
+  const Cad::CUseLoop& ul_r = m_BRep.GetUseLoop(id_ul_r); assert( m_BRep.IsID_UseLoop(id_ul_r) );
   id_l_l = ul_l.id_l;
   id_l_r = ul_r.id_l;
   return true;
 }
 
-CBRep2D::CItrLoop CBRep2D::GetItrLoop_SideEdge(unsigned int id_e, bool is_left) const
+
+unsigned int CBRepSurface::GetIdLoop_Edge(unsigned int id_e, bool is_left) const
+{
+	unsigned int id_he0;
+	{
+		std::map<unsigned int,unsigned int>::const_iterator itr = this->map_e2he.find(id_e);
+		if( itr == this->map_e2he.end() ) return 0;
+		id_he0 = itr->second;
+	}
+	assert( m_BRep.IsID_HalfEdge(id_he0) );
+  const Cad::CHalfEdge& he0 = m_BRep.GetHalfEdge(id_he0);
+	const unsigned int id_he1 = he0.id_he_o;
+  assert( m_BRep.IsID_HalfEdge(id_he1));
+  const Cad::CHalfEdge& he1 = m_BRep.GetHalfEdge(id_he1);
+  unsigned int id_ul = 0;
+  assert( he0.is_same_dir != he1.is_same_dir );
+  if( he0.is_same_dir == is_left ){ id_ul = he0.id_ul; } 
+  else{                             id_ul = he1.id_ul; }
+  assert( m_BRep.IsID_UseLoop(id_ul) );
+  const Cad::CUseLoop& ul = m_BRep.GetUseLoop(id_ul);
+  return ul.id_l;
+}
+
+CBRepSurface::CItrLoop CBRepSurface::GetItrLoop_SideEdge(unsigned int id_e, bool is_left) const
 {
 	std::map<unsigned int,unsigned int>::const_iterator itr = this->map_e2he.find(id_e);
 	assert( itr != map_e2he.end() );
@@ -448,24 +480,24 @@ CBRep2D::CItrLoop CBRep2D::GetItrLoop_SideEdge(unsigned int id_e, bool is_left) 
 	const CHalfEdge& he1 = m_BRep.GetHalfEdge(id_he1);
 	if( is_left ){
 		unsigned int id_ul1 = he1.id_ul;
-		return CItrLoop(this,id_he1,id_ul1);
+		return CItrLoop(*this,id_he1,id_ul1);
 	}
 	unsigned int id_he2 =  he1.id_he_o;
 	assert( m_BRep.IsID_HalfEdge(id_he2) );
 	const CHalfEdge& he2 = m_BRep.GetHalfEdge(id_he2);
 	unsigned int id_ul2 = he2.id_ul;
-	return CItrLoop(this,id_he2,id_ul2);
+	return CItrLoop(*this,id_he2,id_ul2);
 }
 
 
-void CBRep2D::Clear()
+void CBRepSurface::Clear()
 {
 	this->m_BRep.Clear();
 	this->map_e2he.clear();
 	this->map_l2ul.clear();
 }
 
-bool CBRep2D::AssertValid() const
+bool CBRepSurface::AssertValid() const
 {
 	// Check Loop
 	for(std::map<unsigned int,unsigned int>::const_iterator itr=map_l2ul.begin();itr!=map_l2ul.end();itr++){
@@ -483,7 +515,7 @@ bool CBRep2D::AssertValid() const
       assert( m_BRep.IsID_UseLoop(id_ul) );
 			const CUseLoop& ul = m_BRep.GetUseLoop(id_ul);
 			assert( ul.id == id_ul ); 
-			assert( ul.id_l == id_l );
+			assert( ul.id_l == id_l );  // stops here      
       assert( ul.id_ul_p == id_ul_p );
 			// goto next loop
 			id_ul = ul.id_ul_c;
@@ -501,12 +533,16 @@ bool CBRep2D::AssertValid() const
 	// Check UseLoop
 	const std::vector<unsigned int>& id_ul_ary = this->m_BRep.m_UseLoopSet.GetAry_ObjID();
 	for(unsigned int iid=0;iid<id_ul_ary.size();iid++){
-        const unsigned int id_ul = id_ul_ary[iid];
+    const unsigned int id_ul = id_ul_ary[iid];
 		assert( m_BRep.IsID_UseLoop(id_ul) );
 		const CUseLoop& ul = m_BRep.GetUseLoop(id_ul);
 		assert( ul.id == id_ul );
 		const unsigned int id_l = ul.id_l;
-		if( id_l == 0 ) continue;
+		if( id_l == 0 ){ 
+      assert( ul.id_ul_p == 0 );
+      assert( ul.id_ul_c == 0 );
+      continue;
+    }
 		std::map<unsigned int,unsigned int>::const_iterator itr = map_l2ul.find(id_l);
 		assert( itr != map_l2ul.end() );
 	}
@@ -545,7 +581,7 @@ bool CBRep2D::AssertValid() const
 
 		const bool is_same_dir = hedge.is_same_dir;
 		const unsigned int id_e = hedge.id_e;
-		if( id_e == 0 ){// UV‚ğˆÍ‚ŞHE‚Ìê‡i–Ê‚É“_‚ªˆê“_‚¾‚¯)
+		if( id_e == 0 ){// UVã‚’å›²ã‚€HEã®å ´åˆï¼ˆé¢ã«ç‚¹ãŒä¸€ç‚¹ã ã‘)
 			assert( hedge.id_he_o == id_he );
 			assert( hedge.id_he_b == id_he );
 			assert( hedge.id_he_f == id_he );
@@ -580,26 +616,26 @@ bool CBRep2D::AssertValid() const
 	return true;
 }
 
-unsigned int CBRep2D::AddVertex_Loop(unsigned int id_l)
+unsigned int CBRepSurface::AddVertex_Loop(unsigned int id_l)
 {
 	unsigned int id_ul = 0;
 	{
 		const std::map<unsigned int, unsigned int>::const_iterator itr =  this->map_l2ul.find(id_l);
 		if( itr != this->map_l2ul.end() ){ id_ul = itr->second; }
 	}
-	/* UseVertex’Ç‰Á */
+	/* UseVertexè¿½åŠ  */
 	unsigned int id_uv_add,id_he_add,id_ul_add;
 	m_BRep.MVEL(id_uv_add,id_he_add,id_ul_add,id_ul);
 	this->m_BRep.AssertValid_Use();
 	m_BRep.SetLoopIDtoUseLoop(id_ul_add,id_l);
-	/* Vertex’Ç‰Á */
+	/* Vertexè¿½åŠ  */
 	unsigned int id_v_add = id_uv_add;
 	m_BRep.SetVertexIDtoUseVertex(id_uv_add,id_v_add);
 	assert( this->AssertValid() );
 	return id_v_add;
 }
 
-bool CBRep2D::GetIdVertex_Edge(unsigned int id_e, unsigned int& id_v1, unsigned int& id_v2) const
+bool CBRepSurface::GetIdVertex_Edge(unsigned int id_e, unsigned int& id_v1, unsigned int& id_v2) const
 {
 	unsigned int id_he;
 	{
@@ -617,7 +653,7 @@ bool CBRep2D::GetIdVertex_Edge(unsigned int id_e, unsigned int& id_v1, unsigned 
 	return true;
 }
 
-unsigned int CBRep2D::GetIdVertex_Edge(unsigned int id_e, bool is_root ){
+unsigned int CBRepSurface::GetIdVertex_Edge(unsigned int id_e, bool is_root ){
 	unsigned int id_he;
 	{
 		std::map<unsigned int,unsigned int>::const_iterator itr = map_e2he.find(id_e);
@@ -634,7 +670,7 @@ unsigned int CBRep2D::GetIdVertex_Edge(unsigned int id_e, bool is_root ){
 	return id_v2;
 }
 
-unsigned int CBRep2D::GetFreeKey(const std::map<unsigned int,unsigned int>& map)
+unsigned int CBRepSurface::GetFreeKey(const std::map<unsigned int,unsigned int>& map)
 {
 	if( map.empty() ) return 1;
 	////////////////
@@ -654,7 +690,7 @@ unsigned int CBRep2D::GetFreeKey(const std::map<unsigned int,unsigned int>& map)
 	return cand;
 }
 
-unsigned int CBRep2D::AddVertex_Edge(unsigned int id_e)
+unsigned int CBRepSurface::AddVertex_Edge(unsigned int id_e)
 {
 	unsigned int id_he;
 	{
@@ -697,7 +733,7 @@ unsigned int CBRep2D::AddVertex_Edge(unsigned int id_e)
 	return id_v_add;
 }
 
-std::vector< std::pair< unsigned int, bool > > CBRep2D::GetItrLoop_RemoveEdge(unsigned int id_e) const
+std::vector< std::pair< unsigned int, bool > > CBRepSurface::GetItrLoop_RemoveEdge(unsigned int id_e) const
 {
 	std::vector< std::pair<unsigned int,bool> > aIdEDir;
 	unsigned int id_he1;
@@ -709,10 +745,10 @@ std::vector< std::pair< unsigned int, bool > > CBRep2D::GetItrLoop_RemoveEdge(un
 	assert( m_BRep.IsID_HalfEdge(id_he1) );
 	const CHalfEdge& he1 = m_BRep.GetHalfEdge(id_he1);
 	unsigned int id_he2 = he1.id_he_o;
-	if( id_he2 == id_he1 ){ return aIdEDir; }	// •‚—V“_
+	if( id_he2 == id_he1 ){ return aIdEDir; }	// æµ®éŠç‚¹
 	assert( m_BRep.IsID_HalfEdge(id_he2) );
 	const CHalfEdge& he2 = m_BRep.GetHalfEdge(id_he2);
-	if( he1.id_ul != he2.id_ul ){ return aIdEDir; }	// —Ìˆæ‚ğ‚Q•ª‚·‚é
+	if( he1.id_ul != he2.id_ul ){ return aIdEDir; }	// é ˜åŸŸã‚’ï¼’åˆ†ã™ã‚‹
 	////////////////
 	unsigned int id_he = he2.id_he_f;
 	for(;;){
@@ -727,7 +763,7 @@ std::vector< std::pair< unsigned int, bool > > CBRep2D::GetItrLoop_RemoveEdge(un
 	return aIdEDir;
 }
 
-std::vector< std::pair<unsigned int,bool> > CBRep2D::GetItrLoop_ConnectVertex(
+std::vector< std::pair<unsigned int,bool> > CBRepSurface::GetItrLoop_ConnectVertex(
 		const CItrVertex& itrv1, const CItrVertex& itrv2) const
 {
 	std::vector< std::pair<unsigned int,bool> > aIdEDir;
@@ -737,7 +773,7 @@ std::vector< std::pair<unsigned int,bool> > CBRep2D::GetItrLoop_ConnectVertex(
 	if( !m_BRep.IsID_UseVertex(id_uv1) ){ return aIdEDir; }
 	if( !m_BRep.IsID_UseVertex(id_uv2) ){ return aIdEDir; }
 	if( id_uv1 == id_uv2 ){ return aIdEDir; }
-	if( itrv1.GetIdLoop() != itrv2.GetIdLoop() ){ return aIdEDir; }	// ˆá‚¤ƒ‹[ƒv‚É‘®‚·‚é“_‚ğŒ‹‚Ú‚¤‚Æ‚µ‚Ä‚¢‚é
+	if( itrv1.GetIdLoop() != itrv2.GetIdLoop() ){ return aIdEDir; }	// é•ã†ãƒ«ãƒ¼ãƒ—ã«å±ã™ã‚‹ç‚¹ã‚’çµã¼ã†ã¨ã—ã¦ã„ã‚‹
 	////////////////
 	unsigned int id_he1 = itrv1.GetIdHalfEdge();
 	unsigned int id_ul1;
@@ -757,7 +793,7 @@ std::vector< std::pair<unsigned int,bool> > CBRep2D::GetItrLoop_ConnectVertex(
 		assert( he2.id_e != 0 );
 	}
 	////////////////
-	if( id_ul1 != id_ul2 ) return aIdEDir;	// UseLoop‚ªˆá‚¤
+	if( id_ul1 != id_ul2 ) return aIdEDir;	// UseLoopãŒé•ã†
 	unsigned int id_he = id_he2;
 	for(;;){
 		const CHalfEdge& he = m_BRep.GetHalfEdge(id_he);
@@ -768,208 +804,155 @@ std::vector< std::pair<unsigned int,bool> > CBRep2D::GetItrLoop_ConnectVertex(
 	return aIdEDir;
 }
 
-unsigned int CBRep2D::ConnectVertex(const CItrVertex& itrv1, const CItrVertex& itrv2, bool is_left_ladd)
+CBRepSurface::CResConnectVertex CBRepSurface::ConnectVertex
+(const CItrVertex& itrv1, const CItrVertex& itrv2, bool is_left_ladd)
 {
+  CBRepSurface::CResConnectVertex res;
 //  std::cout << "CBRep2D::ConnectVertex" << std::endl;
 	const unsigned int id_uv1 = itrv1.GetIdUseVertex();
 	const unsigned int id_uv2 = itrv2.GetIdUseVertex();
-	if( !m_BRep.IsID_UseVertex(id_uv1) ){ return 0; }
-	if( !m_BRep.IsID_UseVertex(id_uv2) ){ return 0; }
-	if( id_uv1 == id_uv2 ){ return 0; }
+	if( !m_BRep.IsID_UseVertex(id_uv1) ){ return res; }
+	if( !m_BRep.IsID_UseVertex(id_uv2) ){ return res; }
+	if( id_uv1 == id_uv2 ){ return res; }
+  res.id_v1 = m_BRep.GetUseVertex(id_uv1).id_v;
+  res.id_v2 = m_BRep.GetUseVertex(id_uv2).id_v;  
 
-	if( itrv1.GetIdLoop() != itrv2.GetIdLoop() ){ return 0; }
+	if( itrv1.GetIdLoop() != itrv2.GetIdLoop() ){ return res; }
 	unsigned int id_l = itrv1.GetIdLoop();
+  res.id_l = id_l;
 
 	unsigned int id_he1 = itrv1.GetIdHalfEdge();
 	unsigned int id_he2 = itrv2.GetIdHalfEdge();
 
-	unsigned int id_ul1;
-	bool is_float1;
+	unsigned int id_ul1; bool is_float1;
 	{
 		assert( m_BRep.IsID_HalfEdge(id_he1) );
 		const CHalfEdge& he1 = m_BRep.GetHalfEdge(id_he1);
-		id_ul1 = he1.id_ul; 
+		id_ul1 = he1.id_ul; assert( m_BRep.IsID_UseLoop(id_ul1) );
 		is_float1 = (he1.id_e==0);
 	}
 	////////////////
-	unsigned int  id_ul2;
-	bool is_float2;
+	unsigned int id_ul2; bool is_float2;
 	{
 		assert( m_BRep.IsID_HalfEdge(id_he2) );
 		const CHalfEdge& he2 = m_BRep.GetHalfEdge(id_he2);
-		id_ul2 = he2.id_ul;	
+		id_ul2 = he2.id_ul;	assert( m_BRep.IsID_UseLoop(id_ul2) );
 		is_float2 = (he2.id_e==0);
 	}
 
 	// Leave Input Check Section
 	////////////////////////////////
 
-	if( id_ul1 != id_ul2 ){	// eƒ‹[ƒv‚Æqƒ‹[ƒvA‚Ü‚½‚Íqƒ‹[ƒv“¯m‚ğŒ‹‚ÔBMEKLŒn
-		if( id_l != 0 ){
-			////////////////
-			if( is_float1 && !is_float2 ){	// •‚—V“_‚Æƒ‹[ƒv‚ğŒ‹‚Ô
-				assert( !is_float2 );
-//				std::cout << "Add Edge In Loop One Floating Vertex(1)" << std::endl;
-				unsigned int id_he_add1;
-				if( !m_BRep.MEKL_OneFloatingVertex(id_he_add1, id_he2,id_he1) ){ assert(0); }
-				const unsigned int id_e_add = this->GetFreeKey(map_e2he);
-				m_BRep.SetEdgeIDtoHalfEdge(id_he_add1,id_e_add,false);
-				m_BRep.SetEdgeIDtoHalfEdge(id_he1,    id_e_add,true);
-				map_e2he.insert( std::make_pair(id_e_add,id_he1) );
-				assert( this->AssertValid() );
-				return id_e_add;
-			}
-			////////////////
-			else if( is_float2 && !is_float1 ){	// •‚—V“_‚Æƒ‹[Ìß‚ğŒ‹‚Ô
-				assert( !is_float1 );
-//				std::cout << "Add Edge In Loop One Floating Vertex(2)" << std::endl;
-				unsigned int id_he_add1;
-				if( !m_BRep.MEKL_OneFloatingVertex(id_he_add1, id_he1,id_he2) ){ assert(0); }
-				const unsigned int id_e_add = this->GetFreeKey(map_e2he);
-				m_BRep.SetEdgeIDtoHalfEdge(id_he_add1,id_e_add,true );
-				m_BRep.SetEdgeIDtoHalfEdge(id_he2,    id_e_add,false);
-				this->map_e2he.insert( std::make_pair(id_e_add,id_he_add1) );
-				assert( this->AssertValid() );
-				return id_e_add;
-			}
-			////////////////
-			else if( is_float1 && is_float2 ){	// •‚—V“_“¯m‚ğŒ‹‚Ô
-//				std::cout << "Add Edge In Loop Two Floating Vertex" << std::endl;
-				if( !m_BRep.MEKL_TwoFloatingVertex(id_he1,id_he2) ){ assert(0); }
-				const unsigned int id_e_add = this->GetFreeKey(map_e2he);
-				m_BRep.SetEdgeIDtoHalfEdge(id_he1,id_e_add,true );
-				m_BRep.SetEdgeIDtoHalfEdge(id_he2,id_e_add,false);
-				this->map_e2he.insert( std::make_pair(id_e_add,id_he1) );				
-				assert( this->AssertValid() );
-				return id_e_add;
-			}
-			////////////////
-			else{	// qƒ‹[ƒv‚Æeƒ‹[ƒv“¯m‚ğŒ‹‚Ô
-//				std::cout << "Add Edge with Child Loop " << std::endl;
-				unsigned int id_he_add1, id_he_add2;
-				if( !m_BRep.MEKL(id_he_add1, id_he_add2, id_he1,id_he2) ){ assert(0); }
-				const unsigned int id_e_add = this->GetFreeKey(map_e2he);
-				m_BRep.SetEdgeIDtoHalfEdge(id_he_add1,id_e_add,true );
-				m_BRep.SetEdgeIDtoHalfEdge(id_he_add2,id_e_add,false);
-				this->map_e2he.insert( std::make_pair(id_e_add,id_he_add1) );
-				{
-					unsigned int id_ul1p;
-					{
-						const CUseLoop& ul = m_BRep.GetUseLoop(id_ul1);
-						id_ul1p = ul.id_ul_p;
-						if( id_ul1p == 0 ){ id_ul1p = id_ul1; }
-					}
-					std::map<unsigned int,unsigned int>::iterator itr = this->map_l2ul.find(id_l);
-					assert( itr != this->map_l2ul.end() );
-					itr->second = id_ul1p;
-				}
-				assert( this->AssertValid() );
-				return id_e_add;
-			}
-		}
-		////////////////
-		else if( id_l == 0 ){	// ‚­‚Á‚Â‚¢‚Ä‚¢‚È‚¢ƒ‹[ƒv“¯m‚ğ•Ó‚ÅŒ‹‚Ô
-//			std::cout << "Connect 2 Loop " << std::endl;
-			if( !is_float1 && !is_float2 ){
-				unsigned int id_he_add1,id_he_add2;
-				if( !m_BRep.MEKL(id_he_add1,id_he_add2,  id_he1,id_he2) ){ assert(0); }
-				const unsigned int id_e_add = this->GetFreeKey(map_e2he);
-				m_BRep.SetEdgeIDtoHalfEdge(id_he_add1,id_e_add,true);
-				m_BRep.SetEdgeIDtoHalfEdge(id_he_add2,id_e_add,false);
-				this->map_e2he.insert( std::make_pair(id_e_add,id_he_add1) );				
-				assert( this->AssertValid() );
-				return id_e_add;
-			}
-			else if( is_float1 && is_float2 ){
-//				std::cout << "Add Edge Two Outer Floating Vertex" << std::endl;
-				if( !m_BRep.MEKL_TwoFloatingVertex(id_he1,id_he2) ){ assert(0); }
-				const unsigned int id_e_add = this->GetFreeKey(map_e2he);
-				m_BRep.SetEdgeIDtoHalfEdge(id_he1,id_e_add,true );
-				m_BRep.SetEdgeIDtoHalfEdge(id_he2,id_e_add,false);
-				this->map_e2he.insert( std::make_pair(id_e_add,id_he1) );				
-				assert( this->AssertValid() );
-				return id_e_add;
-			}
-			if( is_float1 && !is_float2 ){	// •‚—V“_‚Æƒ‹[ƒv‚ğŒ‹‚Ô
-				assert( !is_float2 );
-//				std::cout << "Add Edge In Loop One Floating Vertex(1)" << std::endl;
-				unsigned int id_he_add1;
-				if( !m_BRep.MEKL_OneFloatingVertex(id_he_add1, id_he2,id_he1) ){ assert(0); }
-				const unsigned int id_e_add = this->GetFreeKey(map_e2he);
-				m_BRep.SetEdgeIDtoHalfEdge(id_he_add1,id_e_add,false);
-				m_BRep.SetEdgeIDtoHalfEdge(id_he1,    id_e_add,true);
-				this->map_e2he.insert( std::make_pair(id_e_add,id_he1) );				
-				assert( this->AssertValid() );
-				return id_e_add;
-			}
-			else if( is_float2 && !is_float1 ){	// •‚—V“_‚Æƒ‹[Ìß‚ğŒ‹‚Ô
-				assert( !is_float1 );
-//				std::cout << "Add Edge In Loop One Outer Floating Vertex(2)" << std::endl;
-				unsigned int id_he_add1;
-				if( !m_BRep.MEKL_OneFloatingVertex(id_he_add1, id_he1,id_he2) ){ assert(0); }
-				const unsigned int id_e_add = this->GetFreeKey(map_e2he);
-				m_BRep.SetEdgeIDtoHalfEdge(id_he_add1,id_e_add,true );
-				m_BRep.SetEdgeIDtoHalfEdge(id_he2,    id_e_add,false);
-				this->map_e2he.insert( std::make_pair(id_e_add,id_he_add1) );				
-				assert( this->AssertValid() );
-				return id_e_add;
-			}
-		}
+	if( id_ul1 != id_ul2 ){	// class of MEKL, connect [parent and child loop], [two child loop] or [two boundray loop]
+    if( is_float1 && !is_float2 ){	// id_uv1 is floating vertex
+      //				std::cout << "Add Edge In Loop One Floating Vertex(1)" << std::endl;
+      unsigned int id_he_add1;
+      if( !m_BRep.MEKL_OneFloatingVertex(id_he_add1, id_he2,id_he1) ){ assert(0); }
+      const unsigned int id_e_add = this->GetFreeKey(map_e2he);
+      m_BRep.SetEdgeIDtoHalfEdge(id_he_add1,id_e_add,false);
+      m_BRep.SetEdgeIDtoHalfEdge(id_he1,    id_e_add,true);
+      map_e2he.insert( std::make_pair(id_e_add,id_he1) );
+      assert( this->AssertValid() );
+      res.id_e_add = id_e_add;
+      return res;
+    }
+    ////////////////
+    else if( is_float2 && !is_float1 ){	// id_uv2 is floating vertex
+      //				std::cout << "Add Edge In Loop One Floating Vertex(2)" << std::endl;
+      unsigned int id_he_add1;
+      if( !m_BRep.MEKL_OneFloatingVertex(id_he_add1, id_he1,id_he2) ){ assert(0); }
+      const unsigned int id_e_add = this->GetFreeKey(map_e2he);
+      m_BRep.SetEdgeIDtoHalfEdge(id_he_add1,id_e_add,true );
+      m_BRep.SetEdgeIDtoHalfEdge(id_he2,    id_e_add,false);
+      this->map_e2he.insert( std::make_pair(id_e_add,id_he_add1) );
+      assert( this->AssertValid() );
+      res.id_e_add = id_e_add;
+      return res;
+    }
+    ////////////////
+    else if( is_float1 && is_float2 ){	// id_uv1, id_uv2 are floating vertex
+      //				std::cout << "Add Edge In Loop Two Floating Vertex" << std::endl;
+      if( !m_BRep.MEKL_TwoFloatingVertex(id_he1,id_he2) ){ assert(0); }
+      const unsigned int id_e_add = this->GetFreeKey(map_e2he);
+      m_BRep.SetEdgeIDtoHalfEdge(id_he1,id_e_add,true );
+      m_BRep.SetEdgeIDtoHalfEdge(id_he2,id_e_add,false);
+      this->map_e2he.insert( std::make_pair(id_e_add,id_he1) );				
+      assert( this->AssertValid() );
+      res.id_e_add = id_e_add;
+      return res;
+    }
+    ////////////////
+    else{   // connect [parent and its child loops], [two child loop] or [two boundary loop]
+      //				std::cout << "Add Edge with Child Loop " << std::endl;
+      unsigned int id_he_add1, id_he_add2;
+      if( !m_BRep.MEKL(id_he_add1, id_he_add2, id_he1,id_he2) ){ assert(0); }
+      const unsigned int id_e_add = this->GetFreeKey(map_e2he);
+      m_BRep.SetEdgeIDtoHalfEdge(id_he_add1,id_e_add,true );
+      m_BRep.SetEdgeIDtoHalfEdge(id_he_add2,id_e_add,false);
+      this->map_e2he.insert( std::make_pair(id_e_add,id_he_add1) );
+      if( id_l != 0 ){ // connect [parent and its child loop] or [two child loop]
+        unsigned int id_ul1p = m_BRep.GetUseLoop(id_ul1).id_ul_p; assert(id_ul1p!=0);
+        std::map<unsigned int,unsigned int>::iterator itr = this->map_l2ul.find(id_l); assert( itr != this->map_l2ul.end() );
+        itr->second = id_ul1p;
+      }
+      else{} // connect boundary loops
+      assert( this->AssertValid() );
+      res.id_e_add = id_e_add;
+      return res;
+    }
 	}
-	else if( id_ul1 == id_ul2 ){	// ƒ‹[ƒv‚ğ‚Q‚Â‚É•ª‚¯‚éBMELŒn
-//		std::cout << "Split Loop" << std::endl;		
-		// •Óv1-v2‚Ì¶‘¤‚ªŒÃ‚¢ƒ‹[ƒvA‰E‘¤‚ªV‚µ‚¢ƒ‹[ƒv‚Æ‚È‚é
+	else if( id_ul1 == id_ul2 ){	// class of MEL, split loop into two
+		// è¾ºv1-v2ã®å·¦å´ãŒå¤ã„ãƒ«ãƒ¼ãƒ—ã€å³å´ãŒæ–°ã—ã„ãƒ«ãƒ¼ãƒ—ã¨ãªã‚‹
 		unsigned int id_he_add1,id_he_add2,id_ul_add;
-		{
-			assert( this->m_BRep.IsID_UseVertex(id_uv1) );
-			assert( this->m_BRep.IsID_UseVertex(id_uv2) );
-			if( !m_BRep.MEL(id_he_add1,id_he_add2,id_ul_add,  id_he1,id_he2) ){ assert(0); }
-		}
+    if( !m_BRep.MEL(id_he_add1,id_he_add2,id_ul_add,  id_he1,id_he2) ){ assert(0); }
 		assert( m_BRep.AssertValid_Use()==0 );
 		const unsigned int id_e_add = this->GetFreeKey(map_e2he);
 		m_BRep.SetEdgeIDtoHalfEdge(id_he_add1,id_e_add,true);
 		m_BRep.SetEdgeIDtoHalfEdge(id_he_add2,id_e_add,false);
 		this->map_e2he.insert( std::make_pair(id_e_add,id_he_add1) );
 		////////////////
-		bool iflag = true;	// true‚È‚çV‚µ‚­‰Á‚í‚éƒ‹[ƒv‚Íid_ul_add‚ğeƒ‹[ƒv‚Æ‚·‚é,false‚È‚çid_ul1‚ªe
-		if( id_l == 0 ){	// ƒ‹[ƒv‚ÌŠO‘¤‚Éƒ‹[ƒv‚ğ’Ç‰Á‚·‚éê‡
+		bool iflag = true;	// trueãªã‚‰æ–°ã—ãåŠ ã‚ã‚‹ãƒ«ãƒ¼ãƒ—ã¯id_ul_addã‚’è¦ªãƒ«ãƒ¼ãƒ—ã¨ã™ã‚‹,falseãªã‚‰id_ul1ãŒè¦ª
+		if( id_l == 0 ){	// ãƒ«ãƒ¼ãƒ—ã®å¤–å´ã«ãƒ«ãƒ¼ãƒ—ã‚’è¿½åŠ ã™ã‚‹å ´åˆ
 			iflag = !is_left_ladd;
 		}
 		else{
 			unsigned int id_ul_p = map_l2ul.find(id_l)->second;
 //      std::cout << "split l1 ladd lp : " << id_ul1 << " " << id_ul_add << " " << id_ul_p << std::endl;
-			if( id_ul1 != id_ul_p ){	// qƒ‹[ƒv‚ÌŠO‘¤‚Éƒ‹[ƒv‚ğ’Ç‰Á‚·‚éê‡
-				if( is_left_ladd ){	// id_ul_add‚ªqƒ‹[ƒv‚ÌŠO‘¤‚Ìƒ‹[ƒv‚É‚È‚Á‚½ê‡
+			if( id_ul1 != id_ul_p ){	// å­ãƒ«ãƒ¼ãƒ—ã®å¤–å´ã«ãƒ«ãƒ¼ãƒ—ã‚’è¿½åŠ ã™ã‚‹å ´åˆ
+				if( is_left_ladd ){	// id_ul_addãŒå­ãƒ«ãƒ¼ãƒ—ã®å¤–å´ã®ãƒ«ãƒ¼ãƒ—ã«ãªã£ãŸå ´åˆ
 					m_BRep.SwapUseLoop(id_ul_add,id_ul1);
 					m_BRep.SetLoopIDtoUseLoop(id_ul_add,id_l);  
 					m_BRep.AssertValid_Use();
 					iflag = false;
 				}				
-				else{}	// id_ul1‚ªqƒ‹[ƒv‚ÌŠO‘¤‚É‚È‚Á‚½ê‡
+				else{}	// id_ul1ãŒå­ãƒ«ãƒ¼ãƒ—ã®å¤–å´ã«ãªã£ãŸå ´åˆ
 			}
-			else{}	// ƒ‹[ƒv‚ğ“ñ•ª‚·‚éê‡
+			else{}	// ãƒ«ãƒ¼ãƒ—ã‚’äºŒåˆ†ã™ã‚‹å ´åˆ
 		}
 		////////////////
 		const unsigned int id_l_add = this->GetFreeKey(map_l2ul);
-		if( iflag ){	// V‚µ‚¢ƒ‹[ƒv‚Íid_ul_add‚Ìƒ‹[ƒv
+		if( iflag ){	// æ–°ã—ã„ãƒ«ãƒ¼ãƒ—ã¯id_ul_addã®ãƒ«ãƒ¼ãƒ—
 			this->map_l2ul.insert( std::make_pair(id_l_add,id_ul_add) );
 			m_BRep.SetLoopIDtoUseLoop(id_ul_add,id_l_add);
 		}
-		else{	// V‚µ‚¢ƒ‹[ƒv‚Íid_ul1‚Ìƒ‹[ƒv
+		else{	// æ–°ã—ã„ãƒ«ãƒ¼ãƒ—ã¯id_ul1ã®ãƒ«ãƒ¼ãƒ—
 			this->map_l2ul.insert( std::make_pair(id_l_add,id_ul1) );
 			m_BRep.SetLoopIDtoUseLoop(id_ul1   ,id_l_add);
 		}
 		assert( this->AssertValid() );
-		return id_e_add;
+    res.id_e_add = id_e_add;
+    res.id_l_add = id_l_add;
+    res.is_left_l_add = !iflag;
+    return res;
 	}
 	assert(0);
-	return 0;
+	return res;
 }
 
-bool CBRep2D::SwapItrLoop(const CItrLoop& itrl, unsigned int id_l_to )
+bool CBRepSurface::SwapItrLoop(const CItrLoop& itrl, unsigned int id_l_to )
 {
 	unsigned int id_ul_p_to;
-	{	// V‚µ‚­‚Å‚«‚éƒ‹[ƒv‚Ìe”¼ƒ‹[ƒv
+	{	// æ–°ã—ãã§ãã‚‹ãƒ«ãƒ¼ãƒ—ã®è¦ªåŠãƒ«ãƒ¼ãƒ—
 		id_ul_p_to = map_l2ul.find(id_l_to)->second;
 		const CUseLoop& ul = m_BRep.GetUseLoop(id_ul_p_to);
 		assert( ul.id_ul_p == id_ul_p_to );
@@ -985,7 +968,7 @@ bool CBRep2D::SwapItrLoop(const CItrLoop& itrl, unsigned int id_l_to )
 	return true;
 }
 
-bool CBRep2D::RemoveEdge(unsigned int id_e, bool is_del_cp)
+bool CBRepSurface::RemoveEdge(unsigned int id_e, bool is_del_cp)
 {
 	unsigned int id_he1 = 0;
 	{
@@ -1030,53 +1013,68 @@ bool CBRep2D::RemoveEdge(unsigned int id_e, bool is_del_cp)
 		}
 	}
 	////////////////////////////////
-	if( id_l1 != id_l2 && id_l1 != 0 && id_l2 != 0 ){	// ‚Q‚Â‚Ìƒ‹[ƒv‚ğŠu‚Ä‚Ä‚¢‚½•Ó‚ğÁ‚·
+	if( id_l1 != id_l2 ){	// ï¼’ã¤ã®ãƒ«ãƒ¼ãƒ—ã‚’éš”ã¦ã¦ã„ãŸè¾ºã‚’æ¶ˆã™
 //		std::cout << "Remove Splited Edge" << std::endl;
 		assert( id_ul1 != id_ul2 );
-		assert( !is_edge_vertex1 );
-		assert( !is_edge_vertex2 );
-		// qƒ‹[ƒv‚ª‚ ‚ê‚Î‚»‚¿‚ç‚ªc‚é‚æ‚¤‚ÉÁ‚·‚ÆAƒ‹[ƒv‚Ì“ü‚ê‘Ö‚¦‚ªŠy‚Å‚¢‚¢B
-		// —¼•ûqƒ‹[ƒv‚Á‚Ä‚±‚Æ‚Í‘½•ª‚È‚¢‚Ì‚ÅA‚Â‚Ü‚èeƒ‹[ƒv‚ğÏ‹É“I‚ÉÁ‚¹‚Î‚æ‚¢
-		{
-			if( !m_BRep.KEL(id_he1) ) assert(0);
-			unsigned int id_ul1p;	// id_ul1‚ÌV‚µ‚¢ˆÊ‘Šeƒ‹[ƒv
-			unsigned int id_l1p;	// id_ul1‚ÌV‚µ‚¢Šô‰½eƒ‹[ƒv
-			{
-				const CUseLoop& ul1 = m_BRep.GetUseLoop(id_ul1);
-				id_ul1p = ul1.id_ul_p;
-				if( id_ul1p == 0 ) id_ul1p = id_ul1;
-				assert( m_BRep.IsID_UseLoop(id_ul1p) );
-				const CUseLoop& ul1p = m_BRep.GetUseLoop(id_ul1p);
-				id_l1p = ul1p.id_l;
-				assert( map_l2ul.find(id_l1p) != map_l2ul.end() );
-			}
-			unsigned int id_ul = id_ul1p;
-			for(;;){	// ‘S‚Ä‚Ìqƒ‹[ƒv‚ÉV‚µ‚¢Šô‰½eƒ‹[ƒv‚ğİ’è
-				assert( m_BRep.IsID_UseLoop(id_ul) );
-				const CUseLoop& ul = m_BRep.GetUseLoop(id_ul);
-				////////////////
-				m_BRep.SetLoopIDtoUseLoop(id_ul,id_l1p);
-				////////////////
-				id_ul = ul.id_ul_c;
-				if( id_ul == 0 ) break;
-			}
-			// g‚í‚È‚¢Šô‰½eƒ‹[ƒv‚ğíœ
-			if( id_l1p == id_l1 ){ 
-				map_l2ul.erase(id_l2); 
-			}
-			else{
-				assert( id_l1p == id_l2 );
-				map_l2ul.erase(id_l1);
-			}
-		}
+		assert( !is_edge_vertex1 && !is_edge_vertex2 );
+    unsigned int id_lp_new;	// id_ul1ã®æ–°ã—ã„å¹¾ä½•è¦ªãƒ«ãƒ¼ãƒ—              
+    if( id_l1 != 0 ){ 
+      if( id_l2 == 0 ){ id_lp_new = 0; }
+      else{             id_lp_new = id_l1; }
+    }
+    else{               id_lp_new = 0; }
+    ////////
+    {
+      unsigned int id_ul = id_ul1;
+      const CUseLoop& ul = m_BRep.GetUseLoop(id_ul);         
+      id_ul = ul.id_ul_p;
+      for(;;){	// å…¨ã¦ã®å­ãƒ«ãƒ¼ãƒ—ã«æ–°ã—ã„å¹¾ä½•è¦ªãƒ«ãƒ¼ãƒ—ã‚’è¨­å®š
+        if( id_ul == 0 ) break;          
+        m_BRep.SetLoopIDtoUseLoop(id_ul,id_lp_new);
+        assert( m_BRep.IsID_UseLoop(id_ul) );
+        const CUseLoop& ul = m_BRep.GetUseLoop(id_ul);        
+        id_ul = ul.id_ul_c;
+      }
+    }
+    {
+      unsigned int id_ul = id_ul2;
+      const CUseLoop& ul = m_BRep.GetUseLoop(id_ul);         
+      id_ul = ul.id_ul_p;
+      for(;;){	// å…¨ã¦ã®å­ãƒ«ãƒ¼ãƒ—ã«æ–°ã—ã„å¹¾ä½•è¦ªãƒ«ãƒ¼ãƒ—ã‚’è¨­å®š
+        if( id_ul == 0 ) break;          
+        m_BRep.SetLoopIDtoUseLoop(id_ul,id_lp_new);
+        assert( m_BRep.IsID_UseLoop(id_ul) );
+        const CUseLoop& ul = m_BRep.GetUseLoop(id_ul);        
+        id_ul = ul.id_ul_c;
+      }
+    }  
+    /////
+    if( id_l1 != 0 ){
+      if( !m_BRep.KEL(id_he1) ) assert(0);      
+      if( id_l2 == 0 ){ map_l2ul.erase(id_l1); }
+      else{  // id_l1!=0 && id_l2!=0 
+        map_l2ul.erase(id_l1);
+        map_l2ul.erase(id_l2); 
+        // regist the parent use loop for id_l1
+        assert( m_BRep.IsID_UseLoop(id_ul1) );
+        const CUseLoop& ul = m_BRep.GetUseLoop(id_ul1);
+        assert( m_BRep.IsID_UseLoop(ul.id_ul_p) );
+        map_l2ul.insert( std::make_pair(id_l1,ul.id_ul_p) );
+      }
+    }
+    else{ // id_l1 == 0 
+      assert( id_l2 != 0 );
+      if( !m_BRep.KEL(id_he2) ) assert(0);              
+      map_l2ul.erase(id_l2);
+    }    
 		map_e2he.erase(id_e);
 		assert( this->AssertValid() );
 		return true;
 	}
-	if( id_ul1 == id_ul2 ){	// MEKLŒnA–Ê‚ğ•ªŠ„‚µ‚Ä‚¢‚È‚¢•Ó‚ğÁ‚·
+	if( id_ul1 == id_ul2 ){	// MEKLç³»ã€é¢ã‚’åˆ†å‰²ã—ã¦ã„ãªã„è¾ºã‚’æ¶ˆã™
 		assert( id_l1 == id_l2 );
 		if( !is_edge_vertex1 && !is_edge_vertex2 ){
-			if( id_l1 != 0 ){	// —¼•û‚Ç‚¿‚ç‚à’[“_‚Å‚È‚­Aƒ‹[ƒv‚Ì“à‘¤‚É‚ ‚é•Ó
+			if( id_l1 != 0 ){	// ä¸¡æ–¹ã©ã¡ã‚‰ã‚‚ç«¯ç‚¹ã§ãªãã€ãƒ«ãƒ¼ãƒ—ã®å†…å´ã«ã‚ã‚‹è¾º
 				unsigned int id_ul_add;
 				if( !m_BRep.KEML(id_ul_add,id_he1) ) assert(0);
 				if( is_del_cp ){
@@ -1086,10 +1084,13 @@ bool CBRep2D::RemoveEdge(unsigned int id_e, bool is_del_cp)
 				}
 				m_BRep.SetLoopIDtoUseLoop(id_ul_add,id_l1);
 			}
-			else{	// “ñ‚Â‚Ìƒ‹[ƒv‚ğŠO‘¤‚Å‚Â‚È‚¢‚Å‚é•Ó
+			else{	// äºŒã¤ã®ãƒ«ãƒ¼ãƒ—ã‚’å¤–å´ã§ã¤ãªã„ã§ã‚‹è¾º
+        unsigned int id_ul_add;
+				if( !m_BRep.KEML(id_ul_add,id_he1) ) assert(0);        
+				m_BRep.SetLoopIDtoUseLoop(id_ul_add,0);        
 			}
 		}
-		else if( is_edge_vertex1 && is_edge_vertex2 ){	// •‚—V•Ó‚ğÁ‚·
+		else if( is_edge_vertex1 && is_edge_vertex2 ){	// æµ®éŠè¾ºã‚’æ¶ˆã™
 //			std::cout << "Reverse MEKL_TwoFloatingVertex" << std::endl;
 			unsigned int id_ul_add;
 			if( !m_BRep.KEML_TwoFloatingVertex(id_ul_add,id_he1) ) assert(0);
@@ -1097,13 +1098,13 @@ bool CBRep2D::RemoveEdge(unsigned int id_e, bool is_del_cp)
 			m_BRep.SetEdgeIDtoHalfEdge(id_he2,0,true);
 			m_BRep.SetLoopIDtoUseLoop(id_ul_add,id_l1);
 		}
-		else if( is_edge_vertex1 && !is_edge_vertex2 ){	// uv1‚ª’[“_‚È•Ó‚ğÁ‚·
+		else if( is_edge_vertex1 && !is_edge_vertex2 ){	// uv1ãŒç«¯ç‚¹ãªè¾ºã‚’æ¶ˆã™
 //			std::cout << "Reverse MEKL_OneFloatingVertex(1)" << std::endl;
 			unsigned int id_ul_add;
 			if( !m_BRep.KEML_OneFloatingVertex(id_ul_add,id_he1) ) assert(0);
 			m_BRep.SetLoopIDtoUseLoop(id_ul_add,id_l1);
 		}
-		else if( is_edge_vertex2 && !is_edge_vertex1){	// uv2‚ª’[“_‚È•Ó‚ğÁ‚·
+		else if( is_edge_vertex2 && !is_edge_vertex1){	// uv2ãŒç«¯ç‚¹ãªè¾ºã‚’æ¶ˆã™
 //			std::cout << "Reverse MEKL_OneFloatingVertex(2)" << std::endl;
 			unsigned int id_ul_add;
 			if( !m_BRep.KEML_OneFloatingVertex(id_ul_add,id_he2) ) assert(0);
@@ -1116,11 +1117,11 @@ bool CBRep2D::RemoveEdge(unsigned int id_e, bool is_del_cp)
 	return false;
 }
 
-unsigned int CBRep2D::TypeUseLoop(unsigned int id_ul) const
+unsigned int CBRepSurface::TypeUseLoop(unsigned int id_ul) const
 {
 	assert( m_BRep.IsID_UseLoop(id_ul) );
 	unsigned int id_he_ini;
-	{	// •‚—V“_‚©‚Ç‚¤‚©ƒ`ƒFƒbƒN‚·‚é
+	{	// æµ®éŠç‚¹ã‹ã©ã†ã‹ãƒã‚§ãƒƒã‚¯ã™ã‚‹
 		const CUseLoop& ul = m_BRep.GetUseLoop(id_ul);
 		id_he_ini = ul.id_he;
 		assert( m_BRep.IsID_HalfEdge(id_he_ini) );
@@ -1131,7 +1132,7 @@ unsigned int CBRep2D::TypeUseLoop(unsigned int id_ul) const
 		}
 	}
 	unsigned int id_he = id_he_ini;
-	for(;;){	// ‘S‚Ä‚Ì”¼•Ó‚ğ‰ñ‚Á‚Ä‚İ‚ÄAˆê‚Â‚Å‚à•‚—V•Ó‚¶‚á‚È‚¢‚Æ‚±‚ë‚ª‚ ‚Á‚½‚ç–Ê
+	for(;;){	// å…¨ã¦ã®åŠè¾ºã‚’å›ã£ã¦ã¿ã¦ã€ä¸€ã¤ã§ã‚‚æµ®éŠè¾ºã˜ã‚ƒãªã„ã¨ã“ã‚ãŒã‚ã£ãŸã‚‰é¢
 		assert( m_BRep.IsID_HalfEdge(id_he) );
 		const CHalfEdge& he = m_BRep.GetHalfEdge(id_he);
 		const unsigned int id_he_f = he.id_he_f;
@@ -1148,33 +1149,33 @@ unsigned int CBRep2D::TypeUseLoop(unsigned int id_ul) const
 }
 
 
-bool CBRep2D::RemoveVertex(unsigned int id_v)
+bool CBRepSurface::RemoveVertex(unsigned int id_v)
 {
 	unsigned int id_uv = id_v;
 	if( !this->m_BRep.IsID_UseVertex(id_uv) ) return false;
 
 	unsigned int nedge_around_vtx = 0;
 	{
-		CItrVertex itrv(this,id_v);
+		CItrVertex itrv(*this,id_v);
 		nedge_around_vtx = itrv.CountEdge();
 	}
 
-	if(      nedge_around_vtx == 0 ){	// –Êã‚Ì•‚—V“_‚ğÁ‚·
-        assert( m_BRep.IsID_UseVertex(id_uv) );
+	if(      nedge_around_vtx == 0 ){	// é¢ä¸Šã®æµ®éŠç‚¹ã‚’æ¶ˆã™
+    assert( m_BRep.IsID_UseVertex(id_uv) );
 		if( !m_BRep.KVEL(id_uv) ) assert(0);
 	}
-	else if( nedge_around_vtx == 2 ){	// •Óã‚Ì“_‚ğÁ‚·
+	else if( nedge_around_vtx == 2 ){	// è¾ºä¸Šã®ç‚¹ã‚’æ¶ˆã™
 		const CUseVertex& uv = this->m_BRep.GetUseVertex(id_uv);
 		const unsigned int id_he1 = uv.id_he;
 		const CHalfEdge& he1 = this->m_BRep.GetHalfEdge(id_he1);
 		const unsigned int id_e1 = he1.id_e;
 		const unsigned int id_he2 = he1.id_he_o;
 		const CHalfEdge& he2 = this->m_BRep.GetHalfEdge(id_he2);
-		{	// ƒ‹[ƒvã‚Ì“_‚ª‚Q‚¾‚Á‚½‚çÈ‚­
+		{	// ãƒ«ãƒ¼ãƒ—ä¸Šã®ç‚¹ãŒï¼’ã ã£ãŸã‚‰çœã
 			unsigned int id_ul1 = he1.id_ul;
 			unsigned int id_ul2 = he2.id_ul;
-			const unsigned int nvl1 = CBRep2D::CItrLoop(this,id_he1,id_ul1).CountVertex_UseLoop();
-			const unsigned int nvl2 = CBRep2D::CItrLoop(this,id_he2,id_ul2).CountVertex_UseLoop();
+			const unsigned int nvl1 = CBRepSurface::CItrLoop(*this,id_he1,id_ul1).CountVertex_UseLoop();
+			const unsigned int nvl2 = CBRepSurface::CItrLoop(*this,id_he2,id_ul2).CountVertex_UseLoop();
 			assert( nvl1 > 1 && nvl2 > 1);
 			if( nvl1 == 2 || nvl2 == 2 ) return false;
 		}
@@ -1182,16 +1183,15 @@ bool CBRep2D::RemoveVertex(unsigned int id_v)
 		assert( m_BRep.IsID_UseVertex(id_uv2) );
 		unsigned int id_he_remove1 = id_he1;
 //		unsigned int id_he_replace1 = he1.id_he_b;
-        if( !m_BRep.KVE(id_he_remove1) ) assert(0);
+    if( !m_BRep.KVE(id_he_remove1) ) assert(0);
 		assert( m_BRep.AssertValid_Use()==0 );
 		map_e2he.erase(id_e1);
-    }
+  }
 	assert( this->AssertValid() );
 	return true;
 }
 
-// ƒ‹[ƒv‚ğíœ‚·‚éŠÖ”
-bool CBRep2D::SetHoleLoop(unsigned int id_l)
+bool CBRepSurface::MakeHole_fromLoop(unsigned int id_l)
 {
 	unsigned int id_ul1 = 0;
 	{
@@ -1205,9 +1205,41 @@ bool CBRep2D::SetHoleLoop(unsigned int id_l)
 	return true;
 }
 
-bool CBRep2D::Serialize( Com::CSerializer& arch )
+unsigned int CBRepSurface::SealHole(unsigned int id_e, bool is_left)
+{  
+  unsigned int id_ul = 0;
+	{
+    unsigned int id_he1 = 0;    
+		std::map<unsigned int,unsigned int>::iterator itr = this->map_e2he.find(id_e);
+		if( itr == this->map_e2he.end() ) return 0;
+		id_he1 = itr->second;
+		assert( m_BRep.IsID_HalfEdge(id_he1) );
+		const CHalfEdge& he1 = m_BRep.GetHalfEdge(id_he1);
+    if( he1.is_same_dir == is_left ){ id_ul = he1.id_ul; }
+    else{
+      const unsigned int id_he2 = he1.id_he_o;
+      if( id_he1 == id_he2 ) return 0;  // uv is floating vertex
+      assert( m_BRep.IsID_HalfEdge(id_he2) );
+      const CHalfEdge& he2 = m_BRep.GetHalfEdge(id_he2);
+      id_ul = he2.id_ul;
+    }
+	}
+  assert( m_BRep.IsID_UseLoop(id_ul) );
+  {
+    const CUseLoop& ul = m_BRep.GetUseLoop(id_ul);
+    if( ul.id_l != 0 ){ return 0; }
+  }
+  assert( this->TypeUseLoop(id_ul) == 2 );
+  unsigned int id_l_new = GetFreeKey(map_l2ul);
+  m_BRep.SetLoopIDtoUseLoop(id_ul,id_l_new);
+	map_l2ul.insert( std::make_pair(id_l_new,id_ul) );
+  return id_l_new;
+}
+
+
+bool CBRepSurface::Serialize( Com::CSerializer& arch )
 {
-	if( arch.IsLoading() ){	// “Ç‚İ‚İ‚Ìˆ—
+	if( arch.IsLoading() ){	// èª­ã¿è¾¼ã¿æ™‚ã®å‡¦ç†
 		this->Clear();
 		const unsigned int buff_size = 256;
 		char class_name[buff_size];
@@ -1217,7 +1249,7 @@ bool CBRep2D::Serialize( Com::CSerializer& arch )
 			int ne;
 			arch.Get("%d",&ne);
 			assert(ne>=0);
-            for(unsigned int ie=0;ie<(unsigned int)ne;ie++){
+      for(unsigned int ie=0;ie<(unsigned int)ne;ie++){
 				int id_e, id_he, itmp;
 				arch.Get("%d %d %d", &itmp,&id_e,&id_he);
 				map_e2he.insert( std::make_pair(id_e,id_he) );
@@ -1227,7 +1259,7 @@ bool CBRep2D::Serialize( Com::CSerializer& arch )
 			int nl;
 			arch.Get("%d",&nl);
 			assert(nl>=0);
-            for(unsigned int il=0;il<(unsigned int)nl;il++){
+      for(unsigned int il=0;il<(unsigned int)nl;il++){
 				int id_l, id_ul, itmp;
 				arch.Get("%d %d %d", &itmp,&id_l,&id_ul);
 				map_l2ul.insert( std::make_pair(id_l,id_ul) );
@@ -1244,7 +1276,7 @@ bool CBRep2D::Serialize( Com::CSerializer& arch )
 		}
 		////////////////////////////////////////////////
 		arch.ShiftDepth(true);
-        for(int iuv=0;iuv<nuv;iuv++){
+    for(int iuv=0;iuv<nuv;iuv++){
 			arch.ReadDepthClassName(class_name,buff_size);
 			assert( strncmp(class_name,"CUseVertex",10)  ==0 );
 			int id;		arch.Get("%d",&id);		assert( id>0 );
@@ -1254,11 +1286,11 @@ bool CBRep2D::Serialize( Com::CSerializer& arch )
 			assert( tmp_id == id );
 			m_BRep.SetVertexIDtoUseVertex(id,id_v);
 		}
-        for(int ihe=0;ihe<nhe;ihe++){
+    for(int ihe=0;ihe<nhe;ihe++){
 			arch.ReadDepthClassName(class_name,buff_size);
 			assert( strncmp(class_name,"CHalfEdge",9)==0 );
 			int id;				arch.Get("%d",&id);				assert( id>0 );
-            int id_e;			arch.Get("%d",&id_e);			assert( id_e>=0 );
+      int id_e;			arch.Get("%d",&id_e);			assert( id_e>=0 );
 			int i_is_same_dir;	arch.Get("%d",&i_is_same_dir);	assert( i_is_same_dir>=0 );
 			int id_uv;			arch.Get("%d",&id_uv);			assert( id_uv>0 );
 			int id_he_f, id_he_ccw, id_he_o;
@@ -1270,7 +1302,7 @@ bool CBRep2D::Serialize( Com::CSerializer& arch )
 			assert( tmp_id == id );
 			m_BRep.SetEdgeIDtoHalfEdge(id,id_e,is_same_dir);
 		}
-        for(int iul=0;iul<nul;iul++){
+    for(int iul=0;iul<nul;iul++){
 			arch.ReadDepthClassName(class_name,buff_size);
 			assert( strncmp(class_name,"CUseLoop",8)==0 );
 			int id;			arch.Get("%d",&id);			assert( id>0 );
@@ -1286,8 +1318,8 @@ bool CBRep2D::Serialize( Com::CSerializer& arch )
 		this->AssertValid();
 		return true;
 	}
-	else{ // ‘‚«‚İ‚Ìˆ—
-        // ƒNƒ‰ƒX‚Ì–¼‘O‚Ìw’èCƒTƒCƒY‚Ìw’è
+	else{ // æ›¸ãè¾¼ã¿æ™‚ã®å‡¦ç†
+    // ã‚¯ãƒ©ã‚¹ã®åå‰ã®æŒ‡å®šï¼Œã‚µã‚¤ã‚ºã®æŒ‡å®š
 		arch.WriteDepthClassName("BRep2D");
 		{
 			arch.Out("%d\n",map_e2he.size());
@@ -1310,7 +1342,7 @@ bool CBRep2D::Serialize( Com::CSerializer& arch )
 		arch.Out("%d %d %d\n",this->m_BRep.m_UseVertexSet.GetAry_ObjID().size(), this->m_BRep.m_HalfEdgeSet.GetAry_ObjID().size(),this->m_BRep.m_UseLoopSet.GetAry_ObjID().size());
 		arch.ShiftDepth(true);
 		////////////////
-        // UseVertex‚Ìo—Í
+        // UseVertexã®å‡ºåŠ›
         {
 			const std::vector<unsigned int> id_ary = this->m_BRep.m_UseVertexSet.GetAry_ObjID();
 			for(unsigned int iid=0;iid<id_ary.size();iid++){
@@ -1324,7 +1356,7 @@ bool CBRep2D::Serialize( Com::CSerializer& arch )
 				arch.Out("%d\n",uv.id_he);
 			}
 		}
-        // HalfEdge‚Ìo—Í
+        // HalfEdgeã®å‡ºåŠ›
         {
 			const std::vector<unsigned int> id_ary = this->m_BRep.m_HalfEdgeSet.GetAry_ObjID();
 			for(unsigned int iid=0;iid<id_ary.size();iid++){
@@ -1341,8 +1373,8 @@ bool CBRep2D::Serialize( Com::CSerializer& arch )
 				arch.Out("%d\n",he.id_ul);
 			}
 		}
-        // UseLoop‚Ìo—Í
-        {
+    // UseLoopã®å‡ºåŠ›
+    {
 			const std::vector<unsigned int> id_ary = this->m_BRep.m_UseLoopSet.GetAry_ObjID();
 			for(unsigned int iid=0;iid<id_ary.size();iid++){
 				const unsigned int id_ul = id_ary[iid];

@@ -52,7 +52,7 @@ namespace Field
 {
 
 /*! 
-@brief 節点配列クラス
+@brief class which contains nodes value (coordinte,displacement,temparature....etc )
 @ingroup Fem
 */
 class CNodeAry
@@ -188,7 +188,7 @@ public:
 	////////////////
 	// 値の変更メソッド
 
-	//! Segmentにvectorの値を加える
+	//! set value of vector to the node segment
 	bool SetValueToNodeSegment(unsigned int id_ns, const MatVec::CVector_Blk& vec, unsigned int ioffset=0); // Segmentにvecをセットする
 
 	//! 境界条件設定に使われる。
@@ -197,11 +197,9 @@ public:
 		if( !m_aSeg.IsObjID(id_ns) ) return false;
 		const CNodeSeg& ns = m_aSeg.GetObj(id_ns);
 		assert( idofns < ns.len );
-
 		assert( ea.IsSegID(id_es) );
 		const CElemAry::CElemSeg& es = ea.GetSeg(id_es);
-
-		unsigned int noes[256];
+		unsigned int noes[256]; // ARHHHHH!!!!
 		unsigned int nnoes = es.Length();
 		for(unsigned int ielem=0;ielem<ea.Size();ielem++){
 			es.GetNodes(ielem,noes);

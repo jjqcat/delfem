@@ -59,6 +59,39 @@ public:
   double m_color[3];
 	unsigned int ilayer;
 };
+  
+  
+double GetDist_LineSeg_Point(const Com::CVector2D& po_c,
+                             const Com::CVector2D& po_s, const Com::CVector2D& po_e);
+
+double GetDist_LineSeg_LineSeg(const Com::CVector2D& po_s0, const Com::CVector2D& po_e0,
+                               const Com::CVector2D& po_s1, const Com::CVector2D& po_e1);
+
+  
+
+// line-line intersection detection
+bool IsCross_LineSeg_LineSeg(const Com::CVector2D& po_s0, const Com::CVector2D& po_e0,
+                             const Com::CVector2D& po_s1, const Com::CVector2D& po_e1 );
+  
+//! circle-circle interseciton detection
+bool IsCross_Circle_Circle(const Com::CVector2D& po_c0, double radius0,
+                           const Com::CVector2D& po_c1, double radius1,
+                           Com::CVector2D& po0, Com::CVector2D& po1 );  
+/*!
+ @brief 円弧と直線の交点を求める
+ 交点がある場合は２つの交点のposからpoeへのパラメータがt1,t2に入る．
+ @retval true 交点がある場合
+ @retval false 交点が無い場合
+ */  
+bool IsCross_Line_Circle(const Com::CVector2D& po_c, const double radius, 
+                         const Com::CVector2D& po_s, const Com::CVector2D& po_e, double& t0, double& t1);
+//! 点と直線の一番近い点を探す
+double FindNearestPointParameter_Line_Point(const Com::CVector2D& po_c,
+                                            const Com::CVector2D& po_s, const Com::CVector2D& po_e);    
+  
+Com::CVector2D GetProjectedPointOnCircle(const Com::CVector2D& c, double r, 
+                                         const Com::CVector2D& v);
+  
 
 //! 2dim edge
 class CEdge2D{
@@ -78,25 +111,8 @@ public:
 	{
 		po_s = Com::CVector2D(0,0);
 		po_e = Com::CVector2D(0,0);
-	}
-	//! line-line intersection detection ( if unbiguous, retun -1 )
-	static int NumCross_LineSeg_LineSeg(const Com::CVector2D& po_s0, const Com::CVector2D& po_e0,
-                                      const Com::CVector2D& po_s1, const Com::CVector2D& po_e1 );
-	//! 円同士の交差判定
-	static bool IsCross_Circle_Circle(const Com::CVector2D& po_c0, double radius0,
-                                    const Com::CVector2D& po_c1, double radius1,
-                                    Com::CVector2D& po0, Com::CVector2D& po1 );
-  /*!
-   @brief 円弧と直線の交点を求める
-   交点がある場合は２つの交点のposからpoeへのパラメータがt1,t2に入る．
-   @retval true 交点がある場合
-   @retval false 交点が無い場合
-   */  
-	static bool IsCross_Line_Circle(const Com::CVector2D& po_c, const double radius, 
-                                  const Com::CVector2D& po_s, const Com::CVector2D& po_e, double& t0, double& t1);
-  //! 点と直線の一番近い点を探す
-	static double FindNearestPointParameter_Line_Point(const Com::CVector2D& po_c,
-                                                     const Com::CVector2D& po_s, const Com::CVector2D& po_e);  
+	}  ///////////
+  double Distance(const CEdge2D& e1) const;	// distance between me and e1
 
   ///////////
   
@@ -104,7 +120,13 @@ public:
    @brief get bounding box of edge
    @remarks make sure the value is set in po_s, po_e
    */  
-	void GetBoundingBox( double& x_min, double& x_max, double& y_min, double& y_max ) const;
+  const Com::CBoundingBox2D& GetBoundingBox() const{
+    if( bb_.isnt_empty ){ return bb_; }
+    double xmin,xmax, ymin,ymax;
+    this->GetBoundingBox(xmin,xmax, ymin,ymax);
+    bb_ = Com::CBoundingBox2D(xmin,xmax, ymin,ymax);
+    return bb_;
+  }
 	
 	bool IsCrossEdgeSelf() const;	// check self intersection
 	bool IsCrossEdge(const CEdge2D& e1) const;	// intersection between me and e1
@@ -153,8 +175,10 @@ public:
   // get vertex on edge with distance (len) from point v0 along the edge
   // is_front==true:same direction is_front==false:opposite direciton
   bool GetPointOnCurve_OnCircle(const Com::CVector2D& v0, double len, bool is_front,
-                                bool& is_exceed, Com::CVector2D& out) const;  
+                                bool& is_exceed, Com::CVector2D& out) const;    
+
 private:
+  void GetBoundingBox(double& x_min, double& x_max, double& y_min, double& y_max) const;            
 	//! 線分と円弧の交錯を判定する
 	int NumCross_Arc_LineSeg(const Com::CVector2D& po_s1, const Com::CVector2D& po_e1) const;
 	//! 弦と弧で張られる領域内部に点poが入っているかを調べる
@@ -164,7 +188,7 @@ private:
 public:
   unsigned int itype;		//!< 0:Line, 1:Arc, 2:Mesh
 	// type Arc
-  bool is_left_side;      //!< 左側に円弧があるかどうか
+  bool is_left_side;      //!< is the arc is formed left side of the line po_s, po_e
   double dist;            //!< 線分と円の中心の距離
 	// type Mesh
   std::vector<double> aRelCoMesh;	//!< メッシュの節点の辺に対する相対座標(辺の左側にあったらｙ軸＋)
@@ -172,6 +196,7 @@ public:
   //! 干渉チェックの時にだけ一時的に辺の２頂点の座標が代入される
   mutable unsigned int id_v_s, id_v_e;	//!< start vertex
   mutable Com::CVector2D po_s, po_e;
+  mutable Com::CBoundingBox2D bb_;
 };
 
 //! ２次元幾何頂点クラス

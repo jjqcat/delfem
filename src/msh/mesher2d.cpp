@@ -320,9 +320,9 @@ unsigned int CMesher2D::GetElemID_FromCadID(unsigned int id_cad, Cad::CAD_ELEM_T
 
 // 要素のIndexと種類をCADのIDと種類から見つける
 // private関数
-bool CMesher2D::FindElemLocType_CadIDType(
-	unsigned int& iloc, unsigned int& itype, 
-	unsigned int id_cad, Cad::CAD_ELEM_TYPE itype_cad )
+bool CMesher2D::FindElemLocType_CadIDType
+(unsigned int& iloc, unsigned int& itype, 
+ unsigned int id_cad, Cad::CAD_ELEM_TYPE itype_cad )
 {
 	switch(itype_cad){
 	case Cad::VERTEX:
@@ -331,8 +331,8 @@ bool CMesher2D::FindElemLocType_CadIDType(
 				iloc = iver;
 				itype = 0;
 				unsigned int id_msh = m_aVertex[iver].id;
-                assert( m_ElemLoc[id_msh]  == (int)iloc );
-                assert( m_ElemType[id_msh] == (int)itype );
+        assert( m_ElemLoc[id_msh]  == (int)iloc );
+        assert( m_ElemType[id_msh] == (int)itype );
 				return true;
 			}
 		}
@@ -343,7 +343,7 @@ bool CMesher2D::FindElemLocType_CadIDType(
 				iloc = ibar;
 				itype = 1; 
 				unsigned int id_msh = m_aBarAry[ibar].id;
-                assert( m_ElemLoc[id_msh]  == (int)iloc );
+        assert( m_ElemLoc[id_msh]  == (int)iloc );
                 assert( m_ElemType[id_msh] == (int)itype );
 				return true;
 			}
@@ -355,8 +355,8 @@ bool CMesher2D::FindElemLocType_CadIDType(
 				iloc = itri;
 				itype = 2;
 				unsigned int id_msh = m_aTriAry[itri].id;
-                assert( m_ElemLoc[id_msh]  == (int)iloc );
-                assert( m_ElemType[id_msh] == (int)itype );
+        assert( m_ElemLoc[id_msh]  == (int)iloc );
+        assert( m_ElemType[id_msh] == (int)itype );
 				return true;
 			}
 		}
@@ -365,8 +365,8 @@ bool CMesher2D::FindElemLocType_CadIDType(
 				iloc = iquad;
 				itype = 3;
 				unsigned int id_msh = m_aQuadAry[iquad].id;
-                assert( m_ElemLoc[id_msh]  == (int)iloc );
-                assert( m_ElemType[id_msh] == (int)itype );
+        assert( m_ElemLoc[id_msh]  == (int)iloc );
+        assert( m_ElemType[id_msh] == (int)itype );
 				return true;
 			}
 		}
@@ -412,13 +412,13 @@ void CMesher2D::MakeElemLocationType()
 
 
 // include_relationを作る
-void CMesher2D::MakeIncludeRelation(const Cad::ICad2D& cad)
+void CMesher2D::MakeIncludeRelation(const Cad::ICad2D_Msh& cad)
 {
-	assert( m_ElemLoc.size() != 0 );
-	assert( m_ElemType.size() != 0 );
+  this->m_include_relation.clear();
+  
+	if( m_ElemLoc.size() == 0 || m_ElemType.size() == 0 ) return;
 
 	unsigned int max_id = this->FindMaxID();
-	this->m_include_relation.clear();
 	this->m_include_relation.resize( max_id+1 );
 	////////////////
 	std::vector<unsigned int> id_l_ary = cad.GetAryElemID(Cad::LOOP);
@@ -426,7 +426,7 @@ void CMesher2D::MakeIncludeRelation(const Cad::ICad2D& cad)
 		unsigned int id_l = id_l_ary[iid_l];
 		unsigned int id_atri = this->GetElemID_FromCadID(id_l,Cad::LOOP);
 		if( !this->IsID(id_atri) ) continue;
-        std::auto_ptr<Cad::ICad2D::CItrLoop> pItr_l = cad.GetItrLoop(id_l);
+    std::auto_ptr<Cad::IItrLoop> pItr_l = cad.GetPtrItrLoop(id_l);
 		for(;;){
 			for(;!pItr_l->IsEnd();(*pItr_l)++){
 				unsigned int id_v_cad = pItr_l->GetIdVertex();
@@ -445,12 +445,12 @@ void CMesher2D::MakeIncludeRelation(const Cad::ICad2D& cad)
 		}
 	}
 	////////////////
-    const std::vector<unsigned int>& id_e_ary = cad.GetAryElemID(Cad::EDGE);
+  const std::vector<unsigned int>& id_e_ary = cad.GetAryElemID(Cad::EDGE);
 	for(unsigned int iid_e=0;iid_e<id_e_ary.size();iid_e++){
 		unsigned int id_e = id_e_ary[iid_e];
-        assert( cad.IsElemID(Cad::EDGE,id_e) );
+    assert( cad.IsElemID(Cad::EDGE,id_e) );
 		unsigned int id_abar = this->GetElemID_FromCadID(id_e,Cad::EDGE);
-        if( !this->IsID(id_abar) ){ continue; } // 浮いている辺があって，辺メッシュが切られなかった場合
+    if( !this->IsID(id_abar) ){ continue; } // 浮いている辺があって，辺メッシュが切られなかった場合
 		unsigned int id_v_s, id_v_e;
 		if( !cad.GetIdVertex_Edge(id_v_s,id_v_e,id_e) ) assert(0);
 		unsigned int id_v_s_msh = this->GetElemID_FromCadID(id_v_s,Cad::VERTEX);
@@ -473,7 +473,7 @@ int CMesher2D::CheckMesh()
 			assert( this->m_ElemType[id0] == 0 );
 			assert( this->m_ElemLoc.size() > id0 );
 			const int iloc0 = this->m_ElemLoc[id0];
-            assert( iloc0 == (int)iver );
+      assert( iloc0 == (int)iver );
 			assert( this->m_aVertex.size() > (unsigned int)iloc0 );
 			const SVertex& ver0 = this->m_aVertex[iloc0];
 			assert( ver0.id == id0 );
@@ -485,7 +485,7 @@ int CMesher2D::CheckMesh()
 			assert( this->m_ElemType[id0] == 1 );
 			assert( this->m_ElemLoc.size() > id0 );
 			const int iloc0 = this->m_ElemLoc[id0];
-            assert( iloc0 == (int)ibarary );
+      assert( iloc0 == (int)ibarary );
 			assert( this->m_aBarAry.size() > (unsigned int)iloc0 );
 			const CBarAry& ver0 = this->m_aBarAry[iloc0];
 			assert( ver0.id == id0 );
@@ -497,7 +497,7 @@ int CMesher2D::CheckMesh()
 			assert( this->m_ElemType[id0] == 2 );
 			assert( this->m_ElemLoc.size() > id0 );
 			const int iloc0 = this->m_ElemLoc[id0];
-            assert( iloc0 == (int)itriary );
+      assert( iloc0 == (int)itriary );
 			assert( this->m_aTriAry.size() > (unsigned int)iloc0 );
 			const CTriAry2D& ver0 = this->m_aTriAry[iloc0];
 			assert( ver0.id == id0 );
@@ -509,7 +509,7 @@ int CMesher2D::CheckMesh()
 			assert( this->m_ElemType[id0] == 3 );
 			assert( this->m_ElemLoc.size() > id0 );
 			const int iloc0 = this->m_ElemLoc[id0];
-            assert( iloc0 == (int)iquadary );
+      assert( iloc0 == (int)iquadary );
 			assert( this->m_aQuadAry.size() > (unsigned int)iloc0 );
 			const CQuadAry2D& ver0 = this->m_aQuadAry[iloc0];
 			assert( ver0.id == id0 );
@@ -576,8 +576,7 @@ int CMesher2D::CheckMesh()
 void CMesher2D::SmoothingMesh_Delaunay(unsigned int& num_flip)
 {
 	num_flip = 0;
-	std::vector<int> flg_vec;
-	flg_vec.resize(aVec2D.size(),0);
+	std::vector<int> flg_vec(aVec2D.size(),0);
 	for(unsigned int itriary=0;itriary<m_aTriAry.size();itriary++){
 		std::vector<STri2D>& aTri = m_aTriAry[itriary].m_aTri;
 		for(unsigned int itri=0;itri<aTri.size();itri++){	// 点周りの点を探索して調べる。
@@ -638,8 +637,7 @@ void CMesher2D::SmoothingMesh_Delaunay(unsigned int& num_flip)
 
 void CMesher2D::SmoothingMesh_Laplace(unsigned int num_iter)
 {
-	std::vector<int> flg_vec;
-	flg_vec.resize(aVec2D.size(),0);
+	std::vector<int> flg_vec(aVec2D.size(),0);
 	for(unsigned int iiter=0;iiter<num_iter;iiter++){
 		if( iiter != 0 ){
 			for(unsigned int ivec=0;ivec<aVec2D.size();ivec++){
@@ -674,11 +672,11 @@ void CMesher2D::SmoothingMesh_Laplace(unsigned int num_iter)
 					}
 					if( aTri[itri0].g2[inoel_b0] == -2 ){
 						unsigned int itri1 = aTri[itri0].s2[inoel_b0];
-                        const unsigned int rel01 = (int)aTri[itri0].r2[inoel_b0];
-                        unsigned int inoel_c1 = (unsigned int)relTriTri[rel01][inoel_c0];
-                        unsigned int inoel_b1 = (unsigned int)relTriTri[rel01][ (int)noelTriEdge[inoel_c0][1] ];
+            const unsigned int rel01 = (int)aTri[itri0].r2[inoel_b0];
+            unsigned int inoel_c1 = (unsigned int)relTriTri[rel01][inoel_c0];
+            unsigned int inoel_b1 = (unsigned int)relTriTri[rel01][ (int)noelTriEdge[inoel_c0][1] ];
 						assert( itri1 < aTri.size() );
-                        assert( aTri[itri1].s2[ (unsigned int)relTriTri[rel01][inoel_b0] ] == itri0 );
+            assert( aTri[itri1].s2[ (unsigned int)relTriTri[rel01][inoel_b0] ] == itri0 );
 						assert( aTri[itri1].v[inoel_c1] == ipoin );
 						if( itri1 == itri_ini ) break;
 						itri0 = itri1;
@@ -734,15 +732,15 @@ void CMesher2D::CheckMeshQuality(bool& is_inverted, double& max_aspect, const do
 
 
 // 平均メッシュ長の計算
-double CMesher2D::GetAverageEdgeLength(
-		const Cad::ICad2D& cad_2d, 
-        const std::set<unsigned int>& setIdL)
+double CMesher2D::GetAverageEdgeLength
+(const Cad::ICad2D_Msh& cad_2d, 
+ const std::set<unsigned int>& setIdL)
 {
 	double area = 0; // この点周りのループの面積
 	unsigned int ntri = 0;	// この点周りのループの３角形分割数
-    for(std::set<unsigned int>::const_iterator itrl=setIdL.begin();itrl!=setIdL.end();itrl++){
-        unsigned int id_l_cad = (*itrl);
-        if( !cad_2d.IsElemID(Cad::LOOP,id_l_cad) ) continue;
+  for(std::set<unsigned int>::const_iterator itrl=setIdL.begin();itrl!=setIdL.end();itrl++){
+    unsigned int id_l_cad = (*itrl);
+    if( !cad_2d.IsElemID(Cad::LOOP,id_l_cad) ) continue;
 		unsigned int iloc,itype;
 		if( !this->FindElemLocType_CadIDType(iloc,itype,id_l_cad,Cad::LOOP) ) continue;	// このループにメッシュが切られてなかったら無視
 		ntri += this->m_aTriAry[iloc].m_aTri.size();
@@ -756,9 +754,7 @@ double CMesher2D::GetAverageEdgeLength(
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
-bool CMesher2D::Tessalate_Edge(
-		const Cad::ICad2D& cad_2d, 
-		const unsigned int id_e )
+bool CMesher2D::Tessalate_Edge( const Cad::ICad2D_Msh& cad_2d, const unsigned int id_e )
 {
 	/*
 	このEdgeに含まれるVertexが引数に存在するかどうか
@@ -806,39 +802,39 @@ bool CMesher2D::Tessalate_Edge(
     const unsigned int ndiv = aCo.size()+1;
     std::vector<unsigned int> ipo_ary;
     {
-        ipo_ary.resize(ndiv+1);
-        ipo_ary[0] = ip_s;
-        for(unsigned int i=1;i<ndiv;i++){
-            ipo_ary[i] = aVec2D.size();
-            aVec2D.push_back(aCo[i-1]);
-        }
-        ipo_ary[ndiv] = ip_e;
+      ipo_ary.resize(ndiv+1);
+      ipo_ary[0] = ip_s;
+      for(unsigned int i=1;i<ndiv;i++){
+        ipo_ary[i] = aVec2D.size();
+        aVec2D.push_back(aCo[i-1]);
+      }
+      ipo_ary[ndiv] = ip_e;
     }
     {
-        ref_bar_ary.id = id_new_elem_ary;
-        ref_bar_ary.id_e_cad = id_e;
-		ref_bar_ary.ilayer = cad_2d.GetLayer(Cad::EDGE,id_e);
-        ref_bar_ary.m_aBar.resize(ndiv);
-		ref_bar_ary.id_se[0] = id_msh_s;
-		ref_bar_ary.id_se[1] = id_msh_e;
-        ref_bar_ary.id_lr[0] = 0;
-        ref_bar_ary.id_lr[1] = 0;
-        for(unsigned int ibar=0;ibar<ndiv;ibar++){
-            ref_bar_ary.m_aBar[ibar].v[0] = ipo_ary[ibar];
-            ref_bar_ary.m_aBar[ibar].v[1] = ipo_ary[ibar+1];
-            ref_bar_ary.m_aBar[ibar].s2[0] = 0;
-            ref_bar_ary.m_aBar[ibar].s2[1] = 0;
-            ref_bar_ary.m_aBar[ibar].r2[0] = 0;
-            ref_bar_ary.m_aBar[ibar].r2[1] = 0;
-        }
+      ref_bar_ary.id = id_new_elem_ary;
+      ref_bar_ary.id_e_cad = id_e;
+      ref_bar_ary.ilayer = cad_2d.GetLayer(Cad::EDGE,id_e);
+      ref_bar_ary.m_aBar.resize(ndiv);
+      ref_bar_ary.id_se[0] = id_msh_s;
+      ref_bar_ary.id_se[1] = id_msh_e;
+      ref_bar_ary.id_lr[0] = 0;
+      ref_bar_ary.id_lr[1] = 0;
+      for(unsigned int ibar=0;ibar<ndiv;ibar++){
+        ref_bar_ary.m_aBar[ibar].v[0] = ipo_ary[ibar];
+        ref_bar_ary.m_aBar[ibar].v[1] = ipo_ary[ibar+1];
+        ref_bar_ary.m_aBar[ibar].s2[0] = 0;
+        ref_bar_ary.m_aBar[ibar].s2[1] = 0;
+        ref_bar_ary.m_aBar[ibar].r2[0] = 0;
+        ref_bar_ary.m_aBar[ibar].r2[1] = 0;
+      }
     }
 	assert( this->CheckMesh()==0 );
 
 	return true;
 }
 
-bool CMesher2D::MakeMesh_Edge(
-		const Cad::ICad2D& cad_2d, unsigned int id_e , const double len)
+bool CMesher2D::MakeMesh_Edge
+(const Cad::ICad2D_Msh& cad_2d, unsigned int id_e , const double len)
 {
 	{
 		assert( this->GetElemID_FromCadID(id_e,Cad::EDGE)==0 );
@@ -878,46 +874,44 @@ bool CMesher2D::MakeMesh_Edge(
 		this->m_ElemType[id_new_elem_ary] = 1;
 	}
 	CBarAry& ref_bar_ary = m_aBarAry[ibarary0];
-    std::vector<Com::CVector2D> aCo;
-    cad_2d.GetCurveAsPolyline(id_e,aCo,len);
-    ////////////////
-    const unsigned int ndiv = aCo.size()+1;
-    std::vector<unsigned int> ipo_ary;
-    {
-        ipo_ary.resize(ndiv+1);
-        ipo_ary[0] = ip_s;
-        for(unsigned int i=1;i<ndiv;i++){
-            ipo_ary[i] = aVec2D.size();
-            aVec2D.push_back(aCo[i-1]);
-        }
-        ipo_ary[ndiv] = ip_e;
+  std::vector<Com::CVector2D> aCo;
+  cad_2d.GetCurveAsPolyline(id_e,aCo,len);
+  ////////////////
+  const unsigned int ndiv = aCo.size()+1;
+  std::vector<unsigned int> ipo_ary;
+  {
+    ipo_ary.resize(ndiv+1);
+    ipo_ary[0] = ip_s;
+    for(unsigned int i=1;i<ndiv;i++){
+      ipo_ary[i] = aVec2D.size();
+      aVec2D.push_back(aCo[i-1]);
     }
-    {
-        ref_bar_ary.id = id_new_elem_ary;
-        ref_bar_ary.id_e_cad = id_e;
-		ref_bar_ary.ilayer = cad_2d.GetLayer(Cad::EDGE,id_e);
-		ref_bar_ary.id_se[0] = id_msh_s;
-		ref_bar_ary.id_se[1] = id_msh_e;
-        ref_bar_ary.id_lr[0] = 0;
-        ref_bar_ary.id_lr[1] = 0;
-        ref_bar_ary.m_aBar.resize(ndiv);
-        for(unsigned int ibar=0;ibar<ndiv;ibar++){
-            ref_bar_ary.m_aBar[ibar].v[0] = ipo_ary[ibar];
-            ref_bar_ary.m_aBar[ibar].v[1] = ipo_ary[ibar+1];
-            ref_bar_ary.m_aBar[ibar].s2[0] = 0;
-            ref_bar_ary.m_aBar[ibar].s2[1] = 0;
-            ref_bar_ary.m_aBar[ibar].r2[0] = 0;
-            ref_bar_ary.m_aBar[ibar].r2[1] = 0;
-        }
+    ipo_ary[ndiv] = ip_e;
+  }
+  {
+    ref_bar_ary.id = id_new_elem_ary;
+    ref_bar_ary.id_e_cad = id_e;
+    ref_bar_ary.ilayer = cad_2d.GetLayer(Cad::EDGE,id_e);
+    ref_bar_ary.id_se[0] = id_msh_s;
+    ref_bar_ary.id_se[1] = id_msh_e;
+    ref_bar_ary.id_lr[0] = 0;
+    ref_bar_ary.id_lr[1] = 0;
+    ref_bar_ary.m_aBar.resize(ndiv);
+    for(unsigned int ibar=0;ibar<ndiv;ibar++){
+      ref_bar_ary.m_aBar[ibar].v[0] = ipo_ary[ibar];
+      ref_bar_ary.m_aBar[ibar].v[1] = ipo_ary[ibar+1];
+      ref_bar_ary.m_aBar[ibar].s2[0] = 0;
+      ref_bar_ary.m_aBar[ibar].s2[1] = 0;
+      ref_bar_ary.m_aBar[ibar].r2[0] = 0;
+      ref_bar_ary.m_aBar[ibar].r2[1] = 0;
     }
-	assert( this->CheckMesh()==0 );
-
+  }  
+	assert( this->CheckMesh()==0 );    
 	return true;
 }
 
-bool CMesher2D::Tesselate_Loop(
-		const Cad::ICad2D& cad_2d, 
-		const unsigned int id_l )
+bool CMesher2D::Tesselate_Loop
+( const Cad::ICad2D_Msh& cad_2d, const unsigned int id_l )
 {
 	/*
 	このLoop中のEdgeに含まれるVertexが引数に存在するかどうか
@@ -938,7 +932,7 @@ bool CMesher2D::Tesselate_Loop(
 		////////////////////////////////
 		vec2po.resize( aVec2D.size(), -1 );
 		{	// このループで使用される節点のフラグを立てる
-            std::auto_ptr<Cad::ICad2D::CItrLoop> pItrEdgeLoop = cad_2d.GetItrLoop(id_l);
+      std::auto_ptr<Cad::IItrLoop> pItrEdgeLoop = cad_2d.GetPtrItrLoop(id_l);
 			for(;;){	// ループをめぐる
 				for(;!pItrEdgeLoop->IsEnd();(*pItrEdgeLoop)++){	// このループの中のエッジをめぐる
 					{
@@ -949,8 +943,7 @@ bool CMesher2D::Tesselate_Loop(
 						const SVertex& ver = m_aVertex[iloc];
 						vec2po[ ver.v ] = 1;
 					}
-					unsigned int id_e;
-					bool is_same_dir;
+					unsigned int id_e; bool is_same_dir;
 					if( !pItrEdgeLoop->GetIdEdge(id_e,is_same_dir) ) continue; // 浮遊点は飛ばす
 					unsigned int itype, iloc;
 					if( !this->FindElemLocType_CadIDType(iloc,itype,id_e,Cad::EDGE) ) assert(0);
@@ -985,7 +978,7 @@ bool CMesher2D::Tesselate_Loop(
 				aPo2D[ipoin].p.x = aVec2D[ivec].x;
 				aPo2D[ipoin].p.y = aVec2D[ivec].y;
 				aPo2D[ipoin].e = -1;
-                aPo2D[ipoin].d = 0;
+        aPo2D[ipoin].d = 0;
 			}
 		}
 	}
@@ -1060,10 +1053,10 @@ bool CMesher2D::Tesselate_Loop(
 				const unsigned int ied0 = 3-iflg2;
 				const unsigned int ipo_e0 = ref_tri.v[ noelTriEdge[ied0][0] ];
 				const unsigned int ipo_e1 = ref_tri.v[ noelTriEdge[ied0][1] ];
-                const unsigned int* rel = relTriTri[ ref_tri.r2[ied0] ];
+        const unsigned int* rel = relTriTri[ ref_tri.r2[ied0] ];
 				const unsigned int itri_s = ref_tri.s2[ied0];
-                assert( aTri[itri_s].v[ rel[ noelTriEdge[ied0][0] ] ] == ipo_e0 );
-                assert( aTri[itri_s].v[ rel[ noelTriEdge[ied0][1] ] ] == ipo_e1 );
+        assert( aTri[itri_s].v[ rel[ noelTriEdge[ied0][0] ] ] == ipo_e0 );
+        assert( aTri[itri_s].v[ rel[ noelTriEdge[ied0][1] ] ] == ipo_e1 );
 				const unsigned int inoel_d = rel[ied0];
 				assert( aTri[itri_s].s2[inoel_d] == itri );
 				const unsigned int ipo_d = aTri[itri_s].v[inoel_d];
@@ -1079,9 +1072,9 @@ bool CMesher2D::Tesselate_Loop(
 			}
 		}
 		if( itri_in == -1 ){
-            std::cout << "Super Triangle Failure " << ipoin << " " << po_add.x << " " << po_add.y << std::endl;
+      std::cout << "Super Triangle Failure " << ipoin << " " << po_add.x << " " << po_add.y << std::endl;
 			std::cout << aTri.size() << std::endl;
-            return false;
+      return false;
 			assert(0);
 		}
 		if( iedge == -1 ){
@@ -1098,10 +1091,10 @@ bool CMesher2D::Tesselate_Loop(
 	const unsigned int id_new_tri_ary = this->GetFreeObjID();
 
 	{	// エッジを回復する
-        std::auto_ptr<Cad::ICad2D::CItrLoop> pItrEdgeLoop = cad_2d.GetItrLoop(id_l);
+    std::auto_ptr<Cad::IItrLoop> pItrEdgeLoop = cad_2d.GetPtrItrLoop(id_l);
 		for(;;){	// 子ループのためのループ
-		for(;!pItrEdgeLoop->IsEnd();(*pItrEdgeLoop)++){
-			unsigned int id_e;
+    for(;!pItrEdgeLoop->IsEnd();(*pItrEdgeLoop)++){
+      unsigned int id_e;
 			bool is_same_dir;
 			if( !pItrEdgeLoop->GetIdEdge(id_e,is_same_dir) ) continue;	// ループの中の点
 			unsigned int iloc, itype;
@@ -1132,7 +1125,7 @@ bool CMesher2D::Tesselate_Loop(
 					const unsigned int ied0 = 3 - inotri0 - inotri1;
 					{
 						const unsigned int itri1 = aTri[itri0].s2[ied0];
-                        const unsigned int ied1 = (unsigned int)relTriTri[ (int)aTri[itri0].r2[ied0] ][ied0];
+            const unsigned int ied1 = (unsigned int)relTriTri[ (int)aTri[itri0].r2[ied0] ][ied0];
 						assert( aTri[itri1].s2[ied1] == itri0 );
 						aTri[itri1].g2[ied1] = -3;	
 						aTri[itri0].g2[ied0] = -3;
@@ -1142,7 +1135,7 @@ bool CMesher2D::Tesselate_Loop(
 				else{
 					double ratio;
 					if( !FindEdgePoint_AcrossEdge(ipoi0,ipoi1,   itri0,inotri0,inotri1,ratio,   aPo2D,aTri) ){ 
-                        std::cout << "歪んだメッシュ" << std::endl;
+            std::cout << "歪んだメッシュ" << std::endl;
 						return false;
 						assert(0); 
 					}
@@ -1191,7 +1184,7 @@ bool CMesher2D::Tesselate_Loop(
 	// ここから辺要素の隣接関係を変更する．３角形についてはそのまま
 
 	{	// 辺要素から３角形要素への隣接情報を作成
-        std::auto_ptr<Cad::ICad2D::CItrLoop> pItrEdgeLoop = cad_2d.GetItrLoop(id_l);
+    std::auto_ptr<Cad::IItrLoop> pItrEdgeLoop = cad_2d.GetPtrItrLoop(id_l);
 		for(;;){	// 子ループのためのループ
 		for(;!pItrEdgeLoop->IsEnd();(*pItrEdgeLoop)++){
 			unsigned int id_e;
@@ -1223,12 +1216,12 @@ bool CMesher2D::Tesselate_Loop(
 				const unsigned int ied0 = 3 - inotri0 - inotri1;
 				// 辺要素の隣接情報を作る
 				if( is_same_dir ){	
-                    assert( BarAry.id_lr[0] == id_new_tri_ary || BarAry.id_lr[0] == 0 );
+          assert( BarAry.id_lr[0] == id_new_tri_ary || BarAry.id_lr[0] == 0 );
 					BarAry.id_lr[0] = id_new_tri_ary;
 					aBar[ibar].s2[0]=itri0; aBar[ibar].r2[0]=ied0; 
 				}
 				else{				
-                    assert( BarAry.id_lr[1] == id_new_tri_ary || BarAry.id_lr[1] == 0 );
+          assert( BarAry.id_lr[1] == id_new_tri_ary || BarAry.id_lr[1] == 0 );
 					BarAry.id_lr[1] = id_new_tri_ary;
 					aBar[ibar].s2[1]=itri0; aBar[ibar].r2[1]=ied0; 
 				}
@@ -1244,7 +1237,7 @@ bool CMesher2D::Tesselate_Loop(
 //	OutInp("hoge2.inp",aPo2D,aTri);
 
 	{	// 辺との隣接番号の整合性をとる
-        std::auto_ptr<Cad::ICad2D::CItrLoop> pItrEdgeLoop = cad_2d.GetItrLoop(id_l);
+    std::auto_ptr<Cad::IItrLoop> pItrEdgeLoop = cad_2d.GetPtrItrLoop(id_l);
 		for(;;){	// 子ループのためのループ
 		for(;!pItrEdgeLoop->IsEnd();(*pItrEdgeLoop)++){
 			unsigned int id_e;
@@ -1259,21 +1252,21 @@ bool CMesher2D::Tesselate_Loop(
 			const std::vector<SBar>& aBar = BarAry.m_aBar;
 			const unsigned int id_elem_bar = BarAry.id;
 			assert( id_elem_bar != id_new_tri_ary );
-            if( BarAry.id_lr[0] == id_new_tri_ary ){	// 左側を切り離す
+      if( BarAry.id_lr[0] == id_new_tri_ary ){	// 左側を切り離す
 				for(unsigned int ibar=0;ibar<aBar.size();ibar++){
 					const SBar& bar = aBar[ibar];
 					const unsigned int itri0 = bar.s2[0];
 					const unsigned int ied0  = bar.r2[0];
 					assert( itri0 < aTri.size() );
 					assert( ied0 < 3 );
-                    assert( (int)aTri[itri0].v[noelTriEdge[ied0][0]]==vec2po[bar.v[0]] || (int)aTri[itri0].v[noelTriEdge[ied0][0]]==vec2po[bar.v[1]]);
-                    assert( (int)aTri[itri0].v[noelTriEdge[ied0][1]]==vec2po[bar.v[0]] || (int)aTri[itri0].v[noelTriEdge[ied0][1]]==vec2po[bar.v[1]]);
-                    if( aTri[itri0].g2[ied0] == (int)id_elem_bar ) continue;	// すでに切り離されてる
+          assert( (int)aTri[itri0].v[noelTriEdge[ied0][0]]==vec2po[bar.v[0]] || (int)aTri[itri0].v[noelTriEdge[ied0][0]]==vec2po[bar.v[1]]);
+          assert( (int)aTri[itri0].v[noelTriEdge[ied0][1]]==vec2po[bar.v[0]] || (int)aTri[itri0].v[noelTriEdge[ied0][1]]==vec2po[bar.v[1]]);
+          if( aTri[itri0].g2[ied0] == (int)id_elem_bar ) continue;	// すでに切り離されてる
 					{	// 向かい側の要素の処理
 						const unsigned int itri1 = aTri[itri0].s2[ied0];
-                        const unsigned int ied1 = (unsigned int)relTriTri[ (int)aTri[itri0].r2[ied0] ][ied0];
+            const unsigned int ied1 = (unsigned int)relTriTri[ (int)aTri[itri0].r2[ied0] ][ied0];
 						assert( aTri[itri1].s2[ied1] == itri0 );
-                        if( BarAry.id_lr[1] != id_new_tri_ary ){	// 外側の要素を切り離す
+            if( BarAry.id_lr[1] != id_new_tri_ary ){	// 外側の要素を切り離す
 							assert( aTri[itri1].s2[ied1] == itri0 );
 							aTri[itri1].g2[ied1] = -1;
 						}
@@ -1290,20 +1283,20 @@ bool CMesher2D::Tesselate_Loop(
 					}
 				}
 			}			
-            if( BarAry.id_lr[1] == id_new_tri_ary ){	// 辺の右側を切り離す
+      if( BarAry.id_lr[1] == id_new_tri_ary ){	// 辺の右側を切り離す
 				for(unsigned int ibar=0;ibar<aBar.size();ibar++){
 					const SBar& bar = aBar[ibar];
 					const unsigned int itri0 = bar.s2[1];
 					const unsigned int ied0= bar.r2[1];
-                    if( aTri[itri0].g2[ied0] == (int)id_elem_bar ) continue;	// すでに切り離されてる
+          if( aTri[itri0].g2[ied0] == (int)id_elem_bar ) continue;	// すでに切り離されてる
 					{	// 外側の要素を切り離す
 						const unsigned int itri1 = aTri[itri0].s2[ied0];
-                        const unsigned int ied1 = relTriTri[ (int)aTri[itri0].r2[ied0] ][ied0];
+            const unsigned int ied1 = relTriTri[ (int)aTri[itri0].r2[ied0] ][ied0];
 						assert( itri1 < aTri.size() );
 						assert( ied1 < 3 );
-                        assert( (int)aTri[itri0].v[noelTriEdge[ied0][0]]==vec2po[bar.v[1]] );
-                        assert( (int)aTri[itri0].v[noelTriEdge[ied0][1]]==vec2po[bar.v[0]] );
-                        if( BarAry.id_lr[0] != id_new_tri_ary ){	// 外側の要素を切り離す
+            assert( (int)aTri[itri0].v[noelTriEdge[ied0][0]]==vec2po[bar.v[1]] );
+            assert( (int)aTri[itri0].v[noelTriEdge[ied0][1]]==vec2po[bar.v[0]] );
+            if( BarAry.id_lr[0] != id_new_tri_ary ){	// 外側の要素を切り離す
 							assert( aTri[itri1].s2[ied1] == itri0 );
 							aTri[itri1].g2[ied1] = -1;
 						}
@@ -1335,11 +1328,10 @@ bool CMesher2D::Tesselate_Loop(
 		// 内側にある三角形をひとつ(itri0_ker)見つける
 		unsigned int itri0_ker = aTri.size();
 		{
-            std::auto_ptr<Cad::ICad2D::CItrLoop> pItrEdgeLoop = cad_2d.GetItrLoop(id_l);
-			Cad::ICad2D::CItrLoop& itrEdgeLoop = *pItrEdgeLoop;
+      std::auto_ptr<Cad::IItrLoop> pItrEdgeLoop = cad_2d.GetPtrItrLoop(id_l);
+			Cad::IItrLoop& itrEdgeLoop = *pItrEdgeLoop;
 			for(;!itrEdgeLoop.IsEnd();itrEdgeLoop++){
-				unsigned int id_e;
-				bool is_same_dir;
+				unsigned int id_e; bool is_same_dir;
 				itrEdgeLoop.GetIdEdge(id_e,is_same_dir);
 				unsigned int iloc, itype;
 				if( !FindElemLocType_CadIDType(iloc,itype, id_e,Cad::EDGE) ) assert(0);
@@ -1348,13 +1340,13 @@ bool CMesher2D::Tesselate_Loop(
 				const Msh::CBarAry& BarAry = m_aBarAry[iloc];
 				assert( id_e == BarAry.id_e_cad );
 				const std::vector<SBar>& aBar = BarAry.m_aBar;
-                if(      BarAry.id_lr[0] == id_new_tri_ary ){
+        if(      BarAry.id_lr[0] == id_new_tri_ary ){
 					for(unsigned int ibar=0;ibar<aBar.size();ibar++){
 						itri0_ker = aBar[ibar].s2[0];
 						break;
 					}
 				}
-                else if( BarAry.id_lr[1] == id_new_tri_ary ){
+        else if( BarAry.id_lr[1] == id_new_tri_ary ){
 					for(unsigned int ibar=0;ibar<aBar.size();ibar++){
 						itri0_ker = aBar[ibar].s2[1];
 						break;
@@ -1410,7 +1402,7 @@ bool CMesher2D::Tesselate_Loop(
 			}
 		}
 		{	// 辺の隣接情報を更新
-			std::auto_ptr<Cad::ICad2D::CItrLoop> pItrEdgeLoop = cad_2d.GetItrLoop(id_l);
+			std::auto_ptr<Cad::IItrLoop> pItrEdgeLoop = cad_2d.GetPtrItrLoop(id_l);
 			for(;;){	// 子ループのためのループ
 			for(;!pItrEdgeLoop->IsEnd();(*pItrEdgeLoop)++){
 				unsigned int id_e;
@@ -1454,7 +1446,7 @@ bool CMesher2D::Tesselate_Loop(
 		for(unsigned int ivec=0;ivec<vec2po.size();ivec++){
 			if( vec2po[ivec] != -1 ){
 				const unsigned int ipo0 = vec2po[ivec];
-                if( po2vec[ipo0] != -1 ){ std::cout << "対応しない点" << std::endl; return false; }
+        if( po2vec[ipo0] != -1 ){ std::cout << "対応しない点" << std::endl; return false; }
 				assert( po2vec[ipo0] == -1 );
 				po2vec[ipo0] = ivec;
 			}
@@ -1496,8 +1488,8 @@ bool CMesher2D::Tesselate_Loop(
 	return true;
 }
 
-bool CMesher2D::MakeMesh_Loop(
-		const Cad::ICad2D& cad_2d, unsigned int id_cad_l, const double len )
+bool CMesher2D::MakeMesh_Loop
+( const Cad::ICad2D_Msh& cad_2d, unsigned int id_cad_l, const double len )
 {
 	if( !Tesselate_Loop(cad_2d,id_cad_l) ){
 		std::cout << "Tesselation_Loop Fail" << std::endl;
@@ -1732,16 +1724,16 @@ bool CMesher2D::MakeMesh_Loop(
 	return true;
 }
 
-bool CMesher2D::Tesselate_LoopAround(
-		const Cad::ICad2D& cad_2d,const unsigned int id_l)
+bool CMesher2D::Tesselate_LoopAround
+(const Cad::ICad2D_Msh& cad_2d,const unsigned int id_l)
 {
 	this->aVec2D.reserve(256);
 	aVec2D.reserve(256);
 
 	// Make Points belong to Loop
 	{
-        std::auto_ptr<Cad::ICad2D::CItrLoop> pItrEdgeLoop = cad_2d.GetItrLoop(id_l);
-		Cad::ICad2D::CItrLoop& itrEdgeLoop = *pItrEdgeLoop;
+    std::auto_ptr<Cad::IItrLoop> pItrEdgeLoop = cad_2d.GetPtrItrLoop(id_l);
+		Cad::IItrLoop& itrEdgeLoop = *pItrEdgeLoop;
 		for(;!itrEdgeLoop.IsEnd();itrEdgeLoop++){
 			const unsigned int id_v = itrEdgeLoop.GetIdVertex();
 			assert( this->GetElemID_FromCadID(id_v,Cad::VERTEX) == 0 );
@@ -1767,8 +1759,8 @@ bool CMesher2D::Tesselate_LoopAround(
 
 	// Tessalation Edge
 	{
-        std::auto_ptr<Cad::ICad2D::CItrLoop> pItrEdgeLoop = cad_2d.GetItrLoop(id_l);
-		Cad::ICad2D::CItrLoop& itrEdgeLoop = *pItrEdgeLoop;
+    std::auto_ptr<Cad::IItrLoop> pItrEdgeLoop = cad_2d.GetPtrItrLoop(id_l);
+		Cad::IItrLoop& itrEdgeLoop = *pItrEdgeLoop;
 		for(;!itrEdgeLoop.IsEnd();itrEdgeLoop++){
 			unsigned int id_e;
 			bool is_same_dir;
@@ -1787,15 +1779,15 @@ bool CMesher2D::Tesselate_LoopAround(
 	return true;
 }
 
-bool CMesher2D::Tesselation(const Cad::ICad2D& cad_2d, const std::vector<unsigned int>& aIdLoop)
+bool CMesher2D::Tesselation(const Cad::ICad2D_Msh& cad_2d, const std::vector<unsigned int>& aIdLoop)
 {	
 	this->aVec2D.reserve(cad_2d.GetAryElemID(Cad::VERTEX).size()*10);
 
 	{	// Make Points belong to Loop
-		const std::vector<unsigned int>& id_v_ary = cad_2d.GetAryElemID(Cad::VERTEX);
-		for(unsigned int iid_v=0;iid_v<id_v_ary.size();iid_v++){
-			const unsigned int id_v = id_v_ary[iid_v];
-			assert( this->GetElemID_FromCadID(id_v,Cad::VERTEX)==0 );
+		const std::vector<unsigned int>& aIdV = cad_2d.GetAryElemID(Cad::VERTEX);
+		for(unsigned int iid_v=0;iid_v<aIdV.size();iid_v++){
+			const unsigned int id_v = aIdV[iid_v];
+			assert( this->GetElemID_FromCadID(id_v,Cad::VERTEX)==0 );      
 			const unsigned int id_add = this->GetFreeObjID();
 			const CVector2D& vec2d = cad_2d.GetVertexCoord(id_v);
 			aVec2D.push_back(vec2d);
@@ -1836,19 +1828,19 @@ bool CMesher2D::Tesselation(const Cad::ICad2D& cad_2d, const std::vector<unsigne
 	return true;
 }
 
-bool CMesher2D::Meshing_ElemLength(
-		const Cad::ICad2D& cad_2d, const double len, const std::vector<unsigned int>& aIdLoop)
+bool CMesher2D::Meshing_ElemLength
+(const Cad::ICad2D_Msh& cad_2d, const double len, const std::vector<unsigned int>& aIdLoop)
 {
-    this->ClearMeshData();
+  this->ClearMeshData();
 	assert( len > 0.0 ); 	
 	this->aVec2D.reserve(256);
 
-    {   // ループに使われているVtxをメッシュに生成してフラグを0から1に立てる
+  {   // ループに使われているVtxをメッシュに生成してフラグを0から1に立てる
 		std::vector<unsigned int> aFlgVtx;
-        for(unsigned int iid_l=0;iid_l<aIdLoop.size();iid_l++){
+    for(unsigned int iid_l=0;iid_l<aIdLoop.size();iid_l++){
 			const unsigned int id_l = aIdLoop[iid_l];
-            std::auto_ptr<Cad::ICad2D::CItrLoop> pItr = cad_2d.GetItrLoop(id_l);
-			Cad::ICad2D::CItrLoop& itr = *pItr;
+      std::auto_ptr<Cad::IItrLoop> pItr = cad_2d.GetPtrItrLoop(id_l);
+			Cad::IItrLoop& itr = *pItr;
 			for(;;){
 				for(;!itr.IsEnd();itr++){
 					unsigned int id_v = itr.GetIdVertex();
@@ -1883,22 +1875,22 @@ bool CMesher2D::Meshing_ElemLength(
 		assert( this->CheckMesh() == 0 );
 	}
 
-    for(unsigned int iid_l=0;iid_l<aIdLoop.size();iid_l++)
-    {	// ループに必要な辺を作る
+  for(unsigned int iid_l=0;iid_l<aIdLoop.size();iid_l++)
+  {	// ループに必要な辺を作る
 		const unsigned int id_l = aIdLoop[iid_l];
-		for(std::auto_ptr<Cad::ICad2D::CItrLoop> pItr=cad_2d.GetItrLoop(id_l);!pItr->IsEndChild();pItr->ShiftChildLoop()){
+		for(std::auto_ptr<Cad::IItrLoop> pItr=cad_2d.GetPtrItrLoop(id_l);!pItr->IsEndChild();pItr->ShiftChildLoop()){
 			for(pItr->Begin();!pItr->IsEnd();(*pItr)++){				
 				unsigned int id_e;   bool is_same_dir;
 				if( !pItr->GetIdEdge(id_e,is_same_dir) ) continue;
 				if( this->GetElemID_FromCadID(id_e,Cad::EDGE) != 0 ){ continue; }	// 既にこの辺はMeshに存在
-                this->MakeMesh_Edge(cad_2d, id_e, len);
+        this->MakeMesh_Edge(cad_2d, id_e, len);
 				assert( this->CheckMesh() == 0 );
 			}
 		}
 	}
 	
-    for(unsigned int iid_l=0;iid_l<aIdLoop.size();iid_l++)
-    {	// ループを作る
+  for(unsigned int iid_l=0;iid_l<aIdLoop.size();iid_l++)
+  {	// ループを作る
 		const unsigned int id_l = aIdLoop[iid_l];
 		this->MakeMesh_Loop(cad_2d, id_l, len);
 		assert( this->CheckMesh() == 0 );
@@ -1908,8 +1900,8 @@ bool CMesher2D::Meshing_ElemLength(
 	return true;
 }
 
-bool CMesher2D::Meshing_ElemSize(
-		const Cad::ICad2D& cad_2d, unsigned int esize, const std::vector<unsigned int>& aIdLoop)
+bool CMesher2D::Meshing_ElemSize
+(const Cad::ICad2D_Msh& cad_2d, unsigned int esize, const std::vector<unsigned int>& aIdLoop)
 {
 	assert( esize != 0 );
 	if( esize == 0 ) return false;
@@ -1921,7 +1913,7 @@ bool CMesher2D::Meshing_ElemSize(
 	}
 	const double elen = sqrt( area / (double)esize ) * 1.4;
 
-    return CMesher2D::Meshing_ElemLength(cad_2d,elen,aIdLoop);
+  return CMesher2D::Meshing_ElemLength(cad_2d,elen,aIdLoop);
 }
 
 bool CMesher2D::GetTriMesh_Around(
@@ -2071,8 +2063,7 @@ bool CMesher2D::GetClipedMesh(
 	mapVal2Co.resize(aVec2D.size());
 	for(unsigned int ivec=0;ivec<aVec2D.size();ivec++){ mapVal2Co[ivec] = ivec; }
 
-    std::vector<unsigned int> aDupli;   // 重複数を返す
-	aDupli.resize(aVec2D.size(),0);
+    std::vector<unsigned int> aDupli(aVec2D.size(),0);
 	////////////////////////////////
 	for(unsigned int iid_msh_cut=0;iid_msh_cut<aIdMshBar_Cut.size();iid_msh_cut++)
 	{
@@ -2695,7 +2686,6 @@ bool CMesher2D::ReadFromFile_GiDMsh(const std::string& file_name)
 			aIndVec2IdVer.insert( std::make_pair(iv0,0) );
 			aIndVec2IdVer.insert( std::make_pair(iv1,0) );
 		}
-		std::cout << "Vec size : " << aIndVec2IdVer.size() << std::endl;
 		for(std::map<unsigned int,unsigned int>::iterator itr=aIndVec2IdVer.begin();itr!=aIndVec2IdVer.end();itr++){
 			unsigned int ivec0 = itr->first;
 			unsigned int id_vtx_new = this->GetFreeObjID();

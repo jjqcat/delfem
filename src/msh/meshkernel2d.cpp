@@ -1846,9 +1846,9 @@ void Msh::PliantBossenHeckbertSmoothing( double elen, std::vector<CPoint2D>& aPo
 			bool is_ok_flg = true;
 			for(unsigned int iitri=0;iitri<aIndexTriAround.size();iitri++){
 				unsigned int itri0 = aIndexTriAround[iitri].first;
-                unsigned int inotri0 = noelTriEdge[ aIndexTriAround[iitri].second ][0];
+        unsigned int inotri0 = noelTriEdge[ aIndexTriAround[iitri].second ][0];
 				unsigned int ipo0 = aTri[itri0].v[inotri0];
-                unsigned int inotri1 = noelTriEdge[ aIndexTriAround[iitri].second ][1];
+        unsigned int inotri1 = noelTriEdge[ aIndexTriAround[iitri].second ][1];
 				unsigned int ipo1 = aTri[itri0].v[inotri1];
 				{
 					const double area = Com::TriArea(vec_new, aPo[ipo0].p, aPo[ipo1].p);

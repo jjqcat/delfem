@@ -44,6 +44,35 @@ enum CAD_ELEM_TYPE{
 	SOLID,		//!< solid
 };
 
+//! iterator go around loop
+class IItrLoop
+{
+public:
+  virtual void Begin() = 0;	//!< back to initial point of current use-loop
+  virtual void operator++() = 0; //!< move to next edge
+  virtual void operator++(int n)= 0;	//!< dummy operator (for ++)
+  //! return current edge id and whether if this edge is same dirrection as loop
+  virtual bool GetIdEdge(unsigned int& id_e, bool& is_same_dir) const = 0;	
+  virtual bool ShiftChildLoop() = 0;	//!< move to next use-loop in this loop
+  virtual bool IsEndChild() const = 0;	//!< return true if iterator go around
+  virtual unsigned int GetIdVertex() const = 0;	//!< return current vertex id
+  virtual unsigned int GetIdVertex_Ahead()  const = 0;	//!< return next vertex
+  virtual unsigned int GetIdVertex_Behind() const = 0;	//!< return previous vertex
+  virtual bool IsEnd() const = 0;	//!< return true if iterator go around
+};
+  
+class IItrVertex
+{
+public:		
+  virtual void operator++() = 0; //!< go around (cc-wise) loop around vertex 
+  virtual void operator++(int n) = 0; //!< dummy operator (for ++)		
+  //! cc-wise ahead  edge-id and its direction(true root of edge is this vertex)
+  virtual bool GetIdEdge_Ahead( unsigned int& id_e, bool& is_same_dir) const = 0;
+  //! cc-wise behind edge-id and its direction(true root of edge is this vertex)
+  virtual bool GetIdEdge_Behind(unsigned int& id_e, bool& is_same_dir) const = 0;
+  virtual unsigned int GetIdLoop() const = 0; //!< get loop-id		
+  virtual bool IsEnd() const = 0; //!< return true if iterator go around
+};     
 
 }
 

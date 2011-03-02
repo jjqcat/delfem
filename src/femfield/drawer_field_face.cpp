@@ -176,6 +176,7 @@ void CDrawerFace::EnableUVMap(bool is_uv_map, const Fem::Field::CFieldWorld& wor
 void CDrawerFace::SetTexScale(double scale, const Fem::Field::CFieldWorld& world){
   tex_scale = scale;  
   if( pUVArray != 0 ){
+    if( !world.IsIdField(m_id_field) ) return;
     const Fem::Field::CField& field = world.GetField(m_id_field);
     // set the vertex array
     unsigned int id_na_c_co = field.GetNodeSegInNodeAry(CORNER).id_na_co;

@@ -274,7 +274,7 @@
 		A9EDB2DA11A8ABFF0003AC93 /* vector2d.h */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.c.h; name = vector2d.h; path = ../../include/delfem/vector2d.h; sourceTree = SOURCE_ROOT; };
 		A9EDB2DB11A8ABFF0003AC93 /* vector3d.h */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.c.h; name = vector3d.h; path = ../../include/delfem/vector3d.h; sourceTree = SOURCE_ROOT; };
 		A9EDB33A11A8AC2C0003AC93 /* brep.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = brep.cpp; sourceTree = "<group>"; };
-		A9EDB33B11A8AC2C0003AC93 /* brep2d.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = brep2d.cpp; sourceTree = "<group>"; };
+		A9EDB33B11A8AC2C0003AC93 /* brep2d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = brep2d.cpp; sourceTree = "<group>"; };
 		A9EDB33C11A8AC2C0003AC93 /* cad_elem2d.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = cad_elem2d.cpp; sourceTree = "<group>"; };
 		A9EDB33D11A8AC2C0003AC93 /* cad_obj2d.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = cad_obj2d.cpp; sourceTree = "<group>"; };
 		A9EDB33E11A8AC2C0003AC93 /* drawer_cad.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = drawer_cad.cpp; sourceTree = "<group>"; };

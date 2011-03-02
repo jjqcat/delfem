@@ -84,7 +84,7 @@ public:
   
   // virutal functions which do nothing
   virtual void DrawSelection(unsigned int idraw) const {}
-  virtual Com::CBoundingBox GetBoundingBox(double rot[]) const { return Com::CBoundingBox(); }
+  virtual Com::CBoundingBox3D GetBoundingBox(double rot[]) const { return Com::CBoundingBox3D(); }
   virtual void AddSelected(const int selec_flag[]){}
   virtual void ClearSelected(){}
   
@@ -130,7 +130,7 @@ public:
   
   // vertual function
   virtual void DrawSelection(unsigned int idraw) const {}
-  virtual Com::CBoundingBox GetBoundingBox(double rot[]) const { return Com::CBoundingBox(); }
+  virtual Com::CBoundingBox3D GetBoundingBox(double rot[]) const { return Com::CBoundingBox3D(); }
   virtual void AddSelected(const int selec_flag[]){}
   virtual void ClearSelected(){}
   private :
@@ -159,8 +159,8 @@ public:
   
   // 以下のvirtual関数は実装されない
   virtual void DrawSelection(unsigned int idraw) const {}
-  virtual Com::CBoundingBox GetBoundingBox(double rot[]) const { 
-    return Com::CBoundingBox(x_min,x_max, y_min,y_max, -1,1); 
+  virtual Com::CBoundingBox3D GetBoundingBox(double rot[]) const { 
+    return Com::CBoundingBox3D(x_min,x_max, y_min,y_max, -1,1); 
   }
   virtual void AddSelected(const int selec_flag[]){}
   virtual void ClearSelected(){}

@@ -32,21 +32,20 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <map>
 #include "delfem/cad/brep.h"
 #include "delfem/cad_com.h"
-#include "delfem/cad2d_interface.h"
 #include "delfem/serialize.h"
 
 namespace Cad
 {
 
-class CBRep2D
+class CBRepSurface
 {
 public:
 	//! 面の周りの辺や頂点を巡ることができるイテレータ
-	class CItrLoop : public Cad::ICad2D::CItrLoop
+	class CItrLoop : public Cad::IItrLoop
 	{
 	public:
-		CItrLoop(const CBRep2D* pBRep2D, unsigned int id_l);
-		CItrLoop(const CBRep2D* pBRep2D, unsigned int id_he, unsigned int id_ul);
+		CItrLoop(const CBRepSurface& pBRep2D, unsigned int id_l);
+		CItrLoop(const CBRepSurface& pBRep2D, unsigned int id_he, unsigned int id_ul);
 		void Begin();		
 		bool IsEnd() const;
 		void operator++(); //!< move to next edge
@@ -75,24 +74,25 @@ public:
 		bool is_end_child;
 		unsigned int m_IdHE;
 		unsigned int m_IdUL;
-		const CBRep2D* m_pBRep2D;
+		const CBRepSurface& m_pBRep2D;
 	};
 	//! 頂点周りのループを巡ることができるイテレータ
-	class CItrVertex
+	class CItrVertex : public Cad::IItrVertex
 	{
 	public:
-		CItrVertex(const CBRep2D* pBRep2D, unsigned int id_v);
+		CItrVertex(const CBRepSurface& pBRep2D, unsigned int id_v);
 		//! 反時計周りに頂点まわりをめぐる
 		void operator++();
 		void operator++(int n);	//!< ダミーのオペレータ(++と同じ働き)
 		//! 頂点周りの辺のIDと、その辺の始点がid_vと一致しているかどうか
 		bool GetIdEdge_Ahead( unsigned int& id_e, bool& is_same_dir) const;
 		bool GetIdEdge_Behind(unsigned int& id_e, bool& is_same_dir) const;
-		//! ループの
+		//! Get ID of the loop
 		unsigned int GetIdLoop() const;
-		//! 面周りの辺が一周したらtrueを返す
-		bool IsEnd() const;
+		void Begin();		    
+		bool IsEnd() const; //! return true if iterator goes around vertex
 		////////////////
+    // non virtual hrom here
 		unsigned int GetIdHalfEdge()  const { return m_IdHE; }
 		unsigned int GetIdUseVertex() const { return m_IdUV; }
 		unsigned int CountEdge() const;
@@ -103,21 +103,32 @@ public:
 		bool is_initial;
 		unsigned int m_IdUV;
 		unsigned int m_IdHE;
-		const CBRep2D* m_pBRep2D;
+		const CBRepSurface& m_pBRep2D;
 	};
 	friend class CItrLoop;
 	friend class CItrVertex;
+  ////
+  class CResConnectVertex{
+  public:
+    CResConnectVertex() : id_v1(0), id_v2(0), id_l(0), 
+    id_e_add(0), id_l_add(0), is_left_l_add(true){}
+  public:
+    unsigned int id_v1, id_v2, id_l;
+    unsigned int id_e_add, id_l_add;
+    bool is_left_l_add;
+  };  
 public:
 	bool AssertValid() const;
 	bool IsElemID(Cad::CAD_ELEM_TYPE,unsigned int id) const;
 	const std::vector<unsigned int> GetAryElemID(Cad::CAD_ELEM_TYPE itype) const;
 	bool GetIdLoop_Edge(unsigned int id_e, unsigned int& id_l_l, unsigned int& id_l_r) const;
+  unsigned int GetIdLoop_Edge(unsigned int id_e, bool is_left) const;
 	bool GetIdVertex_Edge(unsigned int id_e, unsigned int& id_v1, unsigned int& id_v2) const;
 	unsigned int GetIdVertex_Edge(unsigned int id_e, bool is_root );
 	
-	CItrLoop GetItrLoop(unsigned int id_l) const { return CItrLoop(this,id_l); }
+	CItrLoop GetItrLoop(unsigned int id_l) const { return CItrLoop(*this,id_l); }
 	CItrLoop GetItrLoop_SideEdge(unsigned int id_e, bool is_left) const;
-	CItrVertex GetItrVertex(unsigned int id_v) const { return CItrVertex(this,id_v); }
+	CItrVertex GetItrVertex(unsigned int id_v) const { return CItrVertex(*this,id_v); }
 
 	////////////////
 
@@ -130,10 +141,12 @@ public:
 	// 要素を消去する関数
 	bool RemoveEdge(unsigned int id_e, bool is_del_cp);
 	bool RemoveVertex(unsigned int id_v);
-	// ループを削除する関数
-	bool SetHoleLoop(unsigned int id_l);
-	// ２つの頂点(ID:id_v1,id_v2)からEdgeを作る関数
-	unsigned int ConnectVertex(const CItrVertex& itrv1, const CItrVertex& itrv2, bool is_id_l_add_left);
+	// 
+	bool MakeHole_fromLoop(unsigned int id_l);
+  unsigned int SealHole(unsigned int id_e, bool is_left);
+  
+	// function to make edge from 2 vertices (ID:id_v1,id_v2)
+	CResConnectVertex ConnectVertex(const CItrVertex& itrv1, const CItrVertex& itrv2, bool is_id_l_add_left);
 	std::vector< std::pair<unsigned int,bool> > GetItrLoop_ConnectVertex(const CItrVertex& itrv1, const CItrVertex& itrv2) const;
 	std::vector< std::pair<unsigned int,bool> > GetItrLoop_RemoveEdge(unsigned int id_e) const;
 

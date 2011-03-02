@@ -126,7 +126,7 @@ public:
 		this->ClearDisplayList();
 	}
 	////////////////	
-	virtual Com::CBoundingBox GetBoundingBox( double rot[] ) const;
+	virtual Com::CBoundingBox3D GetBoundingBox( double rot[] ) const;
     virtual void DrawSelection(unsigned int idraw) const{}
 	virtual void AddSelected(const int selec_flag[]){}
 	virtual void ClearSelected(){}

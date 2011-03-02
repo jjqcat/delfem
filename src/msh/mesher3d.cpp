@@ -172,7 +172,7 @@ bool Msh::CMesher3D::HomogenizeSurface(double elen)
 			const unsigned int ipo0 = aTri[itri].v[ itried ];
 			const unsigned int ipo1 = aTri[itri].v[ noelTriEdge[itried][0] ];
 			const unsigned int ipo2 = aTri[itri].v[ noelTriEdge[itried][1] ];
-			const double len0 = Com::Length( aVec[ipo1], aVec[ipo2] );
+			const double len0 = Com::Distance( aVec[ipo1], aVec[ipo2] );
 			if( len0 < elen*1.4 ){
 //				std::cout << "B : " << len0 << " " << elen << std::endl;
 				continue;
@@ -465,7 +465,7 @@ bool Msh::CMesher3D::EraseSameLocationPointOnSurface()
 			double z_off = (z_max - z_min)*0.01;
 			z_min -= z_off;	z_max += z_off;
 		}
-		oct_tree.SetBoundingBox( CBoundingBox(x_min,x_max, y_min,y_max, z_min,z_max) );
+		oct_tree.SetBoundingBox( CBoundingBox3D(x_min,x_max, y_min,y_max, z_min,z_max) );
 	}
 	for(unsigned int ivec=0;ivec<aVec.size();ivec++){
 //		std::cout << ivec << " " << aVec.size() << std::endl;
@@ -576,7 +576,7 @@ bool Msh::CMesher3D::CutMesh(double elen)
 			z_min -= z_off;	z_max += z_off;
 		}
 //		std::cout << x_min << " " << x_max << "  " << y_min << " " << y_max << "  " << z_min << " " << z_max << std::endl;
-		oct_tree.SetBoundingBox( CBoundingBox(x_min,x_max, y_min,y_max, z_min,z_max) );
+		oct_tree.SetBoundingBox( CBoundingBox3D(x_min,x_max, y_min,y_max, z_min,z_max) );
 		for(unsigned int ipoin=8;ipoin<aPo3D.size();ipoin++){
 			oct_tree.InsertPoint(ipoin,aPo3D[ipoin].p);
 		}
@@ -736,7 +736,7 @@ bool Msh::CMesher3D::CutMesh(double elen)
 			for(unsigned int isedge=0;isedge<nSEdgeTet;isedge++){
 				unsigned int ipo0 = aTet[itet].v[ sEdge2Noel[isedge][0] ];
 				unsigned int ipo1 = aTet[itet].v[ sEdge2Noel[isedge][1] ];
-				const double len = Length( aPo3D[ipo0].p, aPo3D[ipo1].p );
+				const double len = Distance( aPo3D[ipo0].p, aPo3D[ipo1].p );
 				if( len < min_len ){
 					min_len = len;
 					std::cout << min_len << std::endl;
@@ -786,7 +786,7 @@ bool Msh::CMesher3D::CutMesh(double elen)
 			for(unsigned int isedge=0;isedge<nSEdgeTet;isedge++){
 				unsigned int ipo0 = aTet[itet].v[ sEdge2Noel[isedge][0] ];
 				unsigned int ipo1 = aTet[itet].v[ sEdge2Noel[isedge][1] ];
-				const double len = Length( aPo3D[ipo0].p, aPo3D[ipo1].p );
+				const double len = Distance( aPo3D[ipo0].p, aPo3D[ipo1].p );
 				if( len < min_len ){
 					min_len = len;
 					std::cout << min_len << std::endl;
@@ -900,7 +900,7 @@ bool Msh::CMesher3D::CutMesh(double elen)
 			for(unsigned int isedge=0;isedge<nSEdgeTet;isedge++){
 				unsigned int ipo0 = aTet[itet].v[ sEdge2Noel[isedge][0] ];
 				unsigned int ipo1 = aTet[itet].v[ sEdge2Noel[isedge][1] ];
-				const double len = Length( aPo3D[ipo0].p, aPo3D[ipo1].p );
+				const double len = Distance( aPo3D[ipo0].p, aPo3D[ipo1].p );
 				if( len < min_len ){
 					min_len = len;
 					std::cout << min_len << std::endl;

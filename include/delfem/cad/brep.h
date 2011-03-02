@@ -36,7 +36,7 @@ namespace Cad{
 //! @addtogroup CAD
 //! @{
 
-//! 位相面クラス
+//! topology loop class
 class CUseLoop{
 public:
 	CUseLoop(const CUseLoop& rhs)
@@ -46,9 +46,11 @@ public:
   : id(id), id_l(0), id_he(id_he), id_ul_c(id_ul_c), id_ul_p(id_ul_p){}
 public:
   unsigned int id;    //!< ID
-	//ここからは幾何要素ID(brep.cppやbrep2d.cppでは参照されないはず？)
+  
+	// geometry element ID (brep.cppやbrep2d.cppでは参照されないはず？)
   unsigned int id_l;	//!< 外側のループの場合は０
-	//ここから位相要素ID
+  
+	// topology elemnet ID
   unsigned int id_he;   //!< HalfEdgeのID
   unsigned int id_ul_c;	//!< 子ループ、id_ul_c=0の場合はリストの終わり
   unsigned int id_ul_p;	//!< 親ループ。id_lはid_ul_pを持っている．id_ul_p==idの場合は自分が親，id_ul_p==0の場合は外側のループ
@@ -74,11 +76,11 @@ public:
 		id_e(0), is_same_dir(true){}
 public:
   unsigned int id;        //!< ID
-  unsigned int id_uv;     //!< UseVertexのID
-  unsigned int id_he_f;   //!< 前のHalfEdgeのID
-  unsigned int id_he_b;   //!< 後ろのHalfEdgeのID
-  unsigned int id_he_o;	//!< UVを囲むHEの場合は自分のID
-  unsigned int id_ul;     //!< UseLoopのID
+  unsigned int id_uv;     //!< ID of UseVertex
+  unsigned int id_he_f;   //!< ID of previous HalfEdge
+  unsigned int id_he_b;   //!< ID of later HalfEdge
+  unsigned int id_he_o;	  //!< ID of opposite side HalfEdge (if UV is floating point, this become self )
+  unsigned int id_ul;     //!< ID of UseLoop
 	//ここからは幾何要素ID
   unsigned int id_e;		//!< 幾何辺のID.UVを囲むHEの場合は０
   bool is_same_dir;       //!< 幾何辺が同じ向きを向いているかどうか

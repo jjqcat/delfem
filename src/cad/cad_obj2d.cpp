@@ -45,6 +45,8 @@ using namespace Com;
 
 CCadObj2D::CCadObj2D()
 {
+  this->min_clearance = 1.0e-3;
+//  this->min_clearance = 0.1;  
 }
 
 CCadObj2D::CCadObj2D(const CCadObj2D& rhs)
@@ -54,6 +56,7 @@ CCadObj2D::CCadObj2D(const CCadObj2D& rhs)
   this->m_EdgeSet = rhs.m_EdgeSet;
   this->m_VertexSet = rhs.m_VertexSet;
   this->m_BRep = rhs.m_BRep;  
+  this->min_clearance = rhs.min_clearance;
 }
 
 CCadObj2D::~CCadObj2D()
@@ -91,7 +94,7 @@ const std::vector<unsigned int> CCadObj2D::GetAryElemID(Cad::CAD_ELEM_TYPE itype
 	return null_vec;
 }
 
-const CVector2D& CCadObj2D::GetVertexCoord(unsigned int id_v) const
+CVector2D CCadObj2D::GetVertexCoord(unsigned int id_v) const
 {
 	assert( m_VertexSet.IsObjID(id_v) );
 	const CVertex2D& v = m_VertexSet.GetObj(id_v);
@@ -113,6 +116,7 @@ const CEdge2D& CCadObj2D::GetEdge(unsigned int id_e) const
 	assert( m_VertexSet.IsObjID(id_ve) );
 	e.po_s = this->GetVertexCoord(id_vs);
 	e.po_e = this->GetVertexCoord(id_ve);
+  e.bb_.isnt_empty = false;
 	return e;
 }
 
@@ -131,6 +135,7 @@ CEdge2D& CCadObj2D::GetEdgeRef(unsigned int id_e)
 	assert( m_VertexSet.IsObjID(id_ve) );
 	e.po_s = this->GetVertexCoord(id_vs);
 	e.po_e = this->GetVertexCoord(id_ve);
+  e.bb_.isnt_empty = false;  
 	return e;
 }
 
@@ -193,7 +198,8 @@ bool CCadObj2D::GetCurveAsPolyline(
   return e.GetCurve_Mesh(aCo,-1);  
 }
 
-//! ID:id_eの辺をndiv個に分割したものを得る. 但し始点，終点はそれぞれps,peとする
+//! get division points of edge(ID:id_e) into ndiv
+//! the begining and end of devision are ps,pe.
 bool CCadObj2D::GetCurveAsPolyline(unsigned int id_e, std::vector<Com::CVector2D>& aCo,
         unsigned int ndiv, const Com::CVector2D& ps, const Com::CVector2D& pe) const
 {
@@ -211,18 +217,18 @@ bool CCadObj2D::GetCurveAsPolyline(unsigned int id_e, std::vector<Com::CVector2D
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
-double CCadObj2D::GetArea_ItrLoop(ICad2D::CItrLoop& itrl) const
+double CCadObj2D::GetArea_ItrLoop(CBRepSurface::CItrLoop& itrl) const
 {
 	double area = 0.0;
 	for(itrl.Begin();!itrl.IsEnd();itrl++){
 		unsigned int id_e;   bool is_same_dir;
-        itrl.GetIdEdge(id_e,is_same_dir);
-        if( !this->IsElemID(Cad::EDGE,id_e) ) return 0;
-        assert( this->IsElemID(Cad::EDGE,id_e) );
+    itrl.GetIdEdge(id_e,is_same_dir);
+    if( !this->IsElemID(Cad::EDGE,id_e) ) return 0;
+    assert( this->IsElemID(Cad::EDGE,id_e) );
 		const CEdge2D& e = this->GetEdge(id_e);
 		assert( ((is_same_dir) ? e.id_v_s : e.id_v_e) == itrl.GetIdVertex() );
 		assert( ((is_same_dir) ? e.id_v_e : e.id_v_s) == itrl.GetIdVertex_Ahead() );
-		// ここから辺の面積を足し合わせ
+		// add area here
 		const double earea = TriArea(e.po_s, e.po_e, CVector2D(0.0,0.0)) + e.AreaEdge();
 		if( is_same_dir ){ area += earea; }
 		else{              area -= earea; }
@@ -230,18 +236,18 @@ double CCadObj2D::GetArea_ItrLoop(ICad2D::CItrLoop& itrl) const
 	return area;
 }
 
-// ループの面積を返す
+// return the area of loop
 double CCadObj2D::GetArea_Loop(unsigned int id_l) const
 {
 	assert( m_LoopSet.IsObjID(id_l) );
 	double area = 0.0;
-    for(CBRep2D::CItrLoop itrl=m_BRep.GetItrLoop(id_l);!itrl.IsEndChild();itrl.ShiftChildLoop()){
+    for(CBRepSurface::CItrLoop itrl=m_BRep.GetItrLoop(id_l);!itrl.IsEndChild();itrl.ShiftChildLoop()){
 		area += this->GetArea_ItrLoop(itrl);
 	}
 	return area;
 }
 
-// ID:id_lのループの色を返す
+// return the color of the loop (ID:id_l)
 bool CCadObj2D::GetColor_Loop(unsigned int id_l, double color[3] ) const
 {
     if( !m_LoopSet.IsObjID(id_l) ) return false;
@@ -274,11 +280,11 @@ int CCadObj2D::GetLayer(Cad::CAD_ELEM_TYPE type, unsigned int id) const
 	else if( type == Cad::VERTEX ){		
 		int ilayer = 0;
 		bool iflg = true;
-		for(std::auto_ptr<Cad::ICad2D::CItrVertex> itrv = this->GetItrVertex(id);!itrv->IsEnd();(*itrv)++){
-			unsigned int id_l0 = itrv->GetIdLoop();
+		for(CBRepSurface::CItrVertex itrv = m_BRep.GetItrVertex(id);!itrv.IsEnd();itrv++){
+			unsigned int id_l0 = itrv.GetIdLoop();
 			if( !this->IsElemID(Cad::LOOP,id_l0) ) continue;
 			const int ilayer0 = this->GetLayer(Cad::LOOP,id_l0);
-            if( iflg == true ){ ilayer = ilayer0; iflg = false; }
+      if( iflg == true ){ ilayer = ilayer0; iflg = false; }
 			else{ ilayer =  ( ilayer0 > ilayer )	? ilayer0 : ilayer; }
 		}
 		return ilayer;
@@ -332,7 +338,7 @@ bool CCadObj2D::ShiftLayer_Loop(unsigned int id_l, bool is_up)
 	return true;
 }
 
-bool CCadObj2D::CheckIsPointInside_ItrLoop(ICad2D::CItrLoop& itrl, const CVector2D& point) const
+bool CCadObj2D::CheckIsPointInside_ItrLoop(CBRepSurface::CItrLoop& itrl, const CVector2D& point) const
 {
 //	std::cout << "CCadObj2D::CheckIsPointInside_ItrLoop" << std::endl;
 	for(unsigned int i=1;i<29;i++){	// 29 is handy prim number
@@ -355,27 +361,28 @@ bool CCadObj2D::CheckIsPointInside_ItrLoop(ICad2D::CItrLoop& itrl, const CVector
 			return true;
 		}
 	}
-	assert(0);	// ここまで来ることがありませんように！
+	assert(0);	// I hope process don't come here !!!!
 	return false;
 }
 
-
-// 返り値が０ならid_ul1の中の点は全てid_ul2の中
-// 返り値が１ならid_ul1の中の点の一部はid_ul2の中で一部は外
-// 返り値が２ならid_ul1の中の点は全てid_ul2の外
-unsigned int CCadObj2D::CheckInOut_ItrLoopPoint_ItrLoop(
-	ICad2D::CItrLoop& itrl1, ICad2D::CItrLoop& itrl2) const
+// ret:0 all the points in id_ul1 are inside id_ul2
+// ret:1 there are both inside/outside id_ul1 points in id_ul1 or ambiguous
+// ret:2 all the points in id_ul1 are outside id_ul2
+unsigned int CCadObj2D::CheckInOut_ItrLoopPoint_ItrLoop
+(CBRepSurface::CItrLoop& itrl1, CBRepSurface::CItrLoop& itrl2) const
 {
 //	std::cout << "CheckInOut_ItrLoopPoint_ItrLoop " << std::endl;
 	unsigned int count_out=0, count_in=0;
 	for(itrl1.Begin();!itrl1.IsEnd();itrl1++){
 		const unsigned int id_v = itrl1.GetIdVertex();
 		const CVertex2D& v = this->m_VertexSet.GetObj(id_v);
-		if( this->CheckIsPointInside_ItrLoop(itrl2, v.point) ){
+    const double dist = this->DistPointItrLoop(itrl2,v.point);
+    if( fabs(dist) < min_clearance ){ return 1; } // ambiguous
+    if( this->CheckIsPointInside_ItrLoop(itrl2, v.point) ){    
 			if( count_out!=0 ) return 1;
 			count_in++;
 		}
-		else{
+		else{ // outside
 			if( count_in!=0 ) return 1;
 			count_out++;
 		}
@@ -392,7 +399,7 @@ unsigned int CCadObj2D::CheckInOut_ItrLoopPoint_ItrLoop(
 bool CCadObj2D::CheckIsPointInsideLoop(unsigned int id_l1, const CVector2D& point) const
 {
 	assert( m_LoopSet.IsObjID(id_l1) );
-	for(CBRep2D::CItrLoop itrl = m_BRep.GetItrLoop(id_l1);!itrl.IsEndChild();itrl.ShiftChildLoop()){    
+	for(CBRepSurface::CItrLoop itrl = m_BRep.GetItrLoop(id_l1);!itrl.IsEndChild();itrl.ShiftChildLoop()){    
     if( itrl.IsParent() ){
       if( !CheckIsPointInside_ItrLoop(itrl,point) ) return false;   // should be inside parent use loop
     }
@@ -403,14 +410,64 @@ bool CCadObj2D::CheckIsPointInsideLoop(unsigned int id_l1, const CVector2D& poin
 	return true;
 }
 
+
+double CCadObj2D::SignedDistPointLoop
+(unsigned int id_l1, const Com::CVector2D& point, 
+ unsigned int id_v_ignore) const
+{
+  double min_sd = 0;
+	assert( m_LoopSet.IsObjID(id_l1) );
+	for(CBRepSurface::CItrLoop itrl = m_BRep.GetItrLoop(id_l1);!itrl.IsEndChild();itrl.ShiftChildLoop()){    
+    if( itrl.IsParent() ){
+      min_sd = +DistPointItrLoop(itrl,point);
+      assert( min_sd >= 0 );
+      if( !CheckIsPointInside_ItrLoop(itrl,point) ){ min_sd = -min_sd; }
+    }
+    else{
+      if( itrl.GetIdVertex() == itrl.GetIdVertex_Ahead() ){
+        unsigned int id_v = itrl.GetIdVertex();
+        if( id_v == id_v_ignore ) continue;
+      }
+      double sd0 = DistPointItrLoop(itrl,point);  
+      if( sd0 < 0 ) continue;      
+      if( CheckIsPointInside_ItrLoop(itrl,point) ){ sd0 = -sd0; }
+      if( fabs(sd0) < fabs(min_sd) ){ min_sd = sd0; } 
+    }
+	} 
+	return min_sd;
+}
+
+
+double CCadObj2D::DistPointItrLoop(CBRepSurface::CItrLoop& itrl, const CVector2D& point) const
+{
+  double min_dist = -1;
+  for(itrl.Begin();!itrl.IsEnd();itrl++){
+    unsigned int id_e;   bool is_same_dir;
+    itrl.GetIdEdge(id_e,is_same_dir);
+    if( id_e == 0 ){
+      unsigned int id_v0 = itrl.GetIdVertex();
+      assert( this->IsElemID(Cad::VERTEX, id_v0) );
+      const CVector2D& p1 = this->GetVertexCoord(id_v0);
+      return Length(point,p1);
+    }
+    assert( m_EdgeSet.IsObjID(id_e) );
+    const CEdge2D& e = this->GetEdge(id_e);
+    const Com::CVector2D& v = e.GetNearestPoint(point);
+    const double d0 = Length(v,point);
+    if( min_dist < 0 || d0 < min_dist ){ min_dist = d0; }
+	}
+  return min_dist;
+}
+
+
 int CCadObj2D::CheckLoop(unsigned int id_l) const
 {
-//    std::cout << "Check Loop " << id_l << std::endl;
-  {	// ループの自己干渉を調べる
+//  std::cout << "Check Loop " << id_l << std::endl;
+  {	// check self interaction of the loop
 		if( this->CheckIntersection_Loop(id_l) ){ return 1; }
 	}
 	{	// 親ループの面積が正で子ループの面積が負であることを調べる
-		for(CBRep2D::CItrLoop itrl=m_BRep.GetItrLoop(id_l);!itrl.IsEndChild();itrl.ShiftChildLoop()){
+		for(CBRepSurface::CItrLoop itrl=m_BRep.GetItrLoop(id_l);!itrl.IsEndChild();itrl.ShiftChildLoop()){
 			if( itrl.IsParent() ){
 				if( itrl.GetType() != 2 ) return 2;
 				if( this->GetArea_ItrLoop(itrl) < 0 ) return 2;
@@ -421,16 +478,16 @@ int CCadObj2D::CheckLoop(unsigned int id_l) const
 		}
 	}
 	{	// 子ループ内の点が親ループの中に入っているかどうか調べる
-    CBRep2D::CItrLoop itrl_p = m_BRep.GetItrLoop(id_l);
-		for(CBRep2D::CItrLoop itrl_c=m_BRep.GetItrLoop(id_l);!itrl_c.IsEndChild();itrl_c.ShiftChildLoop()){
+    CBRepSurface::CItrLoop itrl_p = m_BRep.GetItrLoop(id_l);
+		for(CBRepSurface::CItrLoop itrl_c=m_BRep.GetItrLoop(id_l);!itrl_c.IsEndChild();itrl_c.ShiftChildLoop()){
 			if( itrl_c.IsParent() ) continue;
       if( this->CheckInOut_ItrLoopPoint_ItrLoop(itrl_c,itrl_p)!=0 ) return 3;
 		}
 	}	
 	{   // 子ループ同士が互いにお互いの頂点を含まないかを調べる
-		for(CBRep2D::CItrLoop itrl1=m_BRep.GetItrLoop(id_l);!itrl1.IsEndChild();itrl1.ShiftChildLoop()){		
+		for(CBRepSurface::CItrLoop itrl1=m_BRep.GetItrLoop(id_l);!itrl1.IsEndChild();itrl1.ShiftChildLoop()){		
 			if( itrl1.IsParent() ){ continue; }
-			for(CBRep2D::CItrLoop itrl2=m_BRep.GetItrLoop(id_l);!itrl2.IsEndChild();itrl2.ShiftChildLoop()){
+			for(CBRepSurface::CItrLoop itrl2=m_BRep.GetItrLoop(id_l);!itrl2.IsEndChild();itrl2.ShiftChildLoop()){
 				if( itrl2.IsParent() ){ continue; }
 				if( itrl1.IsSameUseLoop(itrl2) ){ continue; }
 				if( this->CheckInOut_ItrLoopPoint_ItrLoop(itrl1,itrl2)!=2 ) return 4;
@@ -439,7 +496,7 @@ int CCadObj2D::CheckLoop(unsigned int id_l) const
 	}
 	{	// ループのの中の各角についてその角の中に他の点が入っていないかを確認する
 		Com::CVector2D vec_zero(0,0);
-		for(CBRep2D::CItrLoop itrl=m_BRep.GetItrLoop(id_l);!itrl.IsEndChild();itrl.ShiftChildLoop()){
+		for(CBRepSurface::CItrLoop itrl=m_BRep.GetItrLoop(id_l);!itrl.IsEndChild();itrl.ShiftChildLoop()){
 			for(itrl.Begin();!itrl.IsEnd();itrl++){	// ループの中の点をめぐる
 				unsigned int id_vm, id_vf;
 				Com::CVector2D dir;
@@ -454,7 +511,7 @@ int CCadObj2D::CheckLoop(unsigned int id_l) const
 					assert( ((is_same_dir0) ? e0.id_v_s : e0.id_v_e) == id_vm );
 					assert( ((is_same_dir0) ? e0.id_v_e : e0.id_v_s) == id_vf );
 				}
-				for(CBRep2D::CItrVertex itrv=m_BRep.GetItrVertex(id_vm);!itrv.IsEnd();itrv++){	// 点周りの辺をめぐる
+				for(CBRepSurface::CItrVertex itrv=m_BRep.GetItrVertex(id_vm);!itrv.IsEnd();itrv++){	// 点周りの辺をめぐる
 					unsigned int id_e0;   bool is_same_dir0;
 					itrv.GetIdEdge_Behind(id_e0,is_same_dir0);
 					if( !this->m_EdgeSet.IsObjID(id_e0) ){ continue; }
@@ -485,7 +542,7 @@ int CCadObj2D::CheckLoop(unsigned int id_l) const
 
 int CCadObj2D::AssertValid() const 
 {
-	{	// ループについてチェックする
+	{	// Check each loops
 		std::vector<unsigned int> id_l_ary = m_LoopSet.GetAry_ObjID();
 		for(unsigned iid_l=0;iid_l<id_l_ary.size();iid_l++){
 			const unsigned int id_l = id_l_ary[iid_l];
@@ -501,6 +558,23 @@ int CCadObj2D::AssertValid() const
 		}
 	}
   if( !m_BRep.AssertValid() ){ return 6; }
+  {
+    std::vector<unsigned int> aIdL = m_BRep.GetAryElemID(Cad::LOOP);
+    for(unsigned int iidl=0;iidl<aIdL.size();iidl++){ 
+      if( !this->m_LoopSet.IsObjID(aIdL[iidl]  ) ){
+        std::cout << aIdL[iidl] << std::endl;
+        return 7; 
+      }
+    }
+  }
+  {
+    std::vector<unsigned int> aIdE = m_BRep.GetAryElemID(Cad::EDGE);
+    for(unsigned int iide=0;iide<aIdE.size();iide++){ if( !this->m_EdgeSet.IsObjID(aIdE[iide]  ) ) return 7; }
+  }
+  {
+    std::vector<unsigned int> aIdV = m_BRep.GetAryElemID(Cad::VERTEX);
+    for(unsigned int iidv=0;iidv<aIdV.size();iidv++){ if( !this->m_VertexSet.IsObjID(aIdV[iidv]) ) return 7; }
+  }                                       
 	return 0;
 }
 
@@ -527,13 +601,13 @@ bool CCadObj2D::GetPointOnCurve_OnCircle
 // 返り値は半辺のIDでid_vを基点としたdir1の方向に伸びる半直線からid_vを中心に時計周りに最初に出会う半辺
 // この半辺の属するループはこの半直線と重なっている。
 // id_vが浮遊点の場合は浮遊点周りのループが帰る
-CBRep2D::CItrVertex CCadObj2D::FindCorner_HalfLine(unsigned int id_v, const CVector2D& dir1) const
+CBRepSurface::CItrVertex CCadObj2D::FindCorner_HalfLine(unsigned int id_v, const CVector2D& dir1) const
 {
 	assert( m_VertexSet.IsObjID(id_v) );
 	Com::CVector2D dir = dir1;
 	dir.Normalize();
 	const Com::CVector2D vec_zero(0,0);
-	Cad::CBRep2D::CItrVertex itrv = this->m_BRep.GetItrVertex(id_v);
+	Cad::CBRepSurface::CItrVertex itrv = this->m_BRep.GetItrVertex(id_v);
 	if( itrv.CountEdge() < 2 ){ return itrv; }
 	for(;!itrv.IsEnd();itrv++){
 		unsigned int id_e0;   bool is_same_dir0;
@@ -560,15 +634,16 @@ CBRep2D::CItrVertex CCadObj2D::FindCorner_HalfLine(unsigned int id_v, const CVec
 	return itrv;
 }
 
-CCadObj2D::CResConnectVertex CCadObj2D::ConnectVertex(CEdge2D edge)
+CBRepSurface::CResConnectVertex CCadObj2D::ConnectVertex(CEdge2D edge)
 {
 	const unsigned int id_v1 = edge.id_v_s;
 	const unsigned int id_v2 = edge.id_v_e;
-	if( !m_VertexSet.IsObjID(id_v1) ){ return CResConnectVertex(); }	
-	if( !m_VertexSet.IsObjID(id_v2) ){ return CResConnectVertex(); }
-	if( id_v1 == id_v2 ){ return CResConnectVertex(); }
-	assert( m_VertexSet.IsObjID(id_v1) );
-	assert( m_VertexSet.IsObjID(id_v2) );
+  CBRepSurface::CResConnectVertex res;
+  res.id_v1 = id_v1; res.id_v2 = id_v2;
+  ////  
+	if( !m_VertexSet.IsObjID(id_v1) ){ return res; }	
+	if( !m_VertexSet.IsObjID(id_v2) ){ return res; }
+	if( id_v1 == id_v2 ){ return res; }
 
 	if( edge.itype == 0 ){	// check if there is line edge with end points (v1,v2)
 		const std::vector<unsigned int>& id_ary_e = m_EdgeSet.GetAry_ObjID();
@@ -580,22 +655,21 @@ CCadObj2D::CResConnectVertex CCadObj2D::ConnectVertex(CEdge2D edge)
 			const unsigned int id_v_s = e.id_v_s;
 			if( (id_v_s-id_v1)*(id_v_s-id_v2) != 0 ) continue;
 			if( (id_v_e-id_v1)*(id_v_e-id_v2) != 0 ) continue;
-			return CResConnectVertex();
+			return res;
 		}
 	}
 	edge.po_s = m_VertexSet.GetObj(id_v1).point;
 	edge.po_e = m_VertexSet.GetObj(id_v2).point;
-	if( edge.IsCrossEdgeSelf() ){ return CResConnectVertex(); }	// if this edge have self interesection, it is impossible to create edge
+	if( edge.IsCrossEdgeSelf() ){ return res; }	// if this edge have self interesection, it is impossible to create edge
   
 	////////////////
-  CResConnectVertex res;
 	{
-		const CBRep2D::CItrVertex& itrv1 = this->FindCorner_HalfLine(id_v1, edge.GetTangentEdge(true)  );
-		const CBRep2D::CItrVertex& itrv2 = this->FindCorner_HalfLine(id_v2, edge.GetTangentEdge(false) );
-		if( itrv1.GetIdLoop() != itrv2.GetIdLoop() ){ return CResConnectVertex(); }
+		const CBRepSurface::CItrVertex& itrv1 = this->FindCorner_HalfLine(id_v1, edge.GetTangentEdge(true)  );
+		const CBRepSurface::CItrVertex& itrv2 = this->FindCorner_HalfLine(id_v2, edge.GetTangentEdge(false) );
+		if( itrv1.GetIdLoop() != itrv2.GetIdLoop() ){ return res; }
 		const unsigned int id_l = itrv1.GetIdLoop();
     /////////////
-    if( CheckIntersection_EdgeAgainstLoop(edge, id_l) ){ return CResConnectVertex(); }        
+    if( CheckIntersection_EdgeAgainstLoop(edge, id_l) ){ return res; }
     /////////////
     bool is_left_ladd = false;    
 		if( itrv1.IsSameUseLoop(itrv2) && ( !itrv1.IsParent() || id_l == 0 ) ){
@@ -615,9 +689,7 @@ CCadObj2D::CResConnectVertex CCadObj2D::ConnectVertex(CEdge2D edge)
 		}
     ////////////
     // Leave input check section    
-		res.id_e_add = m_BRep.ConnectVertex(itrv1,itrv2, is_left_ladd);
-    res.id_l = id_l;
-    res.is_left_l_add = is_left_ladd;
+		res = m_BRep.ConnectVertex(itrv1,itrv2, is_left_ladd);
 	}
 	{ // register the edge
 		int tmp_id = this->m_EdgeSet.AddObj( std::make_pair(res.id_e_add,edge) );
@@ -632,17 +704,25 @@ CCadObj2D::CResConnectVertex CCadObj2D::ConnectVertex(CEdge2D edge)
 			return res;
 		}	
 		res.id_l_add = (res.is_left_l_add) ? id_l_l : id_l_r; 
-		assert( res.id_l_add != res.id_l );
-		assert( ((!res.is_left_l_add) ? id_l_l : id_l_r) == res.id_l );
+		assert( res.id_l_add != res.id_l || res.id_l == 0 );
+		assert( ((res.is_left_l_add) ? id_l_l : id_l_r) == res.id_l_add );
 	}
-
-	if( m_BRep.IsElemID(Cad::LOOP,res.id_l) ) {
+  
+  if( !m_BRep.IsElemID(Cad::LOOP,res.id_l) ){	// 外の領域に切った場合に，新しいループが自己干渉している場合はこのループは無し
+    if( this->CheckIntersection_Loop(res.id_l_add) ){
+			m_BRep.MakeHole_fromLoop(res.id_l_add);
+			assert( this->AssertValid()==0 );
+			return res;
+		}
+	}  
+     
+	if( m_BRep.IsElemID(Cad::LOOP,res.id_l)  && m_BRep.IsElemID(Cad::LOOP,res.id_l_add)  ){
     // Here (id_l != id_l_add) and we sort child loop of id_l into id_l or ld_l_add    
 		for(;;){
 			bool iflg = true;
-			CBRep2D::CItrLoop itrl_add_inner = m_BRep.GetItrLoop_SideEdge(res.id_e_add,  res.is_left_l_add);
-			CBRep2D::CItrLoop itrl_add_outer = m_BRep.GetItrLoop_SideEdge(res.id_e_add, !res.is_left_l_add);
-			for(CBRep2D::CItrLoop itrl_c=m_BRep.GetItrLoop(res.id_l);!itrl_c.IsEndChild();itrl_c.ShiftChildLoop()){
+			CBRepSurface::CItrLoop itrl_add_inner = m_BRep.GetItrLoop_SideEdge(res.id_e_add, res.is_left_l_add);
+			CBRepSurface::CItrLoop itrl_add_outer = m_BRep.GetItrLoop_SideEdge(res.id_e_add,!res.is_left_l_add);
+			for(CBRepSurface::CItrLoop itrl_c=m_BRep.GetItrLoop(res.id_l);!itrl_c.IsEndChild();itrl_c.ShiftChildLoop()){
 				if( itrl_c.IsParent() ) continue;
 				if( itrl_c.IsSameUseLoop(itrl_add_outer) ) continue;
 				unsigned int ires = this->CheckInOut_ItrLoopPoint_ItrLoop(itrl_c,itrl_add_inner);
@@ -656,21 +736,15 @@ CCadObj2D::CResConnectVertex CCadObj2D::ConnectVertex(CEdge2D edge)
 			if( iflg ) break;
 		}
 	}
-  else{	// 外の領域に切った場合に，新しいループが自己干渉している場合はこのループは無し
-    if( this->CheckIntersection_Loop(res.id_l_add) ){
-			m_BRep.SetHoleLoop(res.id_l_add);
-			assert( this->AssertValid()==0 );
-			return res;
-		}
-	}
-
-	if( m_LoopSet.IsObjID(res.id_l) ){
+  
+  if( m_LoopSet.IsObjID(res.id_l) ){  // created new loop (id_l_add) by splitting existing loop (id_l)
 		CLoop2D loop_add = this->m_LoopSet.GetObj(res.id_l);
 		this->m_LoopSet.AddObj( std::make_pair(res.id_l_add,loop_add) );
 	}
-	else{
+	else{ // created entirely new loop
 		this->m_LoopSet.AddObj( std::make_pair(res.id_l_add,CLoop2D()) );
 	}
+
 	assert( this->AssertValid()==0 );
 	return res;
 }
@@ -679,14 +753,14 @@ bool CCadObj2D::RemoveElement(Cad::CAD_ELEM_TYPE itype, unsigned int id)
 {
 	if( !this->IsElemID(itype,id) ) return false;
 	if(      itype == Cad::EDGE   ){
-		CBRep2D::CItrLoop itrl_l = m_BRep.GetItrLoop_SideEdge(id,true );
-		CBRep2D::CItrLoop itrl_r = m_BRep.GetItrLoop_SideEdge(id,false);
+		CBRepSurface::CItrLoop itrl_l = m_BRep.GetItrLoop_SideEdge(id,true );
+		CBRepSurface::CItrLoop itrl_r = m_BRep.GetItrLoop_SideEdge(id,false);
 		unsigned int id_l_l = itrl_l.GetIdLoop();
 		unsigned int id_l_r = itrl_r.GetIdLoop();
 		unsigned int id_v1, id_v2;
 		m_BRep.GetIdVertex_Edge(id, id_v1,id_v2);
-		CBRep2D::CItrVertex itrv1 = m_BRep.GetItrVertex(id_v1);
-		CBRep2D::CItrVertex itrv2 = m_BRep.GetItrVertex(id_v2);
+		CBRepSurface::CItrVertex itrv1 = m_BRep.GetItrVertex(id_v1);
+		CBRepSurface::CItrVertex itrv2 = m_BRep.GetItrVertex(id_v2);
 		bool is_del_cp = false;
 		if( itrl_l.IsSameUseLoop(itrl_r) && itrl_l.IsParent() && itrl_l.GetIdLoop()!=0  
 			&& itrv1.CountEdge() > 1 && itrv2.CountEdge() > 1 )	// 親ループと子ループを繋ぐ辺を削除した場合
@@ -721,7 +795,10 @@ bool CCadObj2D::RemoveElement(Cad::CAD_ELEM_TYPE itype, unsigned int id)
 				if( area < 0 ){ is_del_cp = true; }
 			}
 		}
-		if( !m_BRep.RemoveEdge(id,is_del_cp) ){ return false; }
+		if( !m_BRep.RemoveEdge(id,is_del_cp) ){ 
+      std::cout << "Remove Edge B-Rep unsuccessfull : " << id << std::endl;
+      return false; 
+    }
 		m_EdgeSet.DeleteObj(id);
 		if( !m_BRep.IsElemID(Cad::LOOP,id_l_l) ){ m_LoopSet.DeleteObj(id_l_l); }
 		if( !m_BRep.IsElemID(Cad::LOOP,id_l_r) ){ m_LoopSet.DeleteObj(id_l_r); }
@@ -730,7 +807,7 @@ bool CCadObj2D::RemoveElement(Cad::CAD_ELEM_TYPE itype, unsigned int id)
 	}
 	else if( itype == Cad::VERTEX )
 	{ 
-		CBRep2D::CItrVertex itrv = m_BRep.GetItrVertex(id);
+		CBRepSurface::CItrVertex itrv = m_BRep.GetItrVertex(id);
 		if( itrv.CountEdge() == 2 ){
 			unsigned int id_e1,id_e2;   bool btmp1, btmp2;
 			itrv.GetIdEdge_Ahead( id_e1,btmp1); 
@@ -749,9 +826,7 @@ bool CCadObj2D::RemoveElement(Cad::CAD_ELEM_TYPE itype, unsigned int id)
       {   // 辺がとe_tmpが交差していないかを全ての辺について調べる
         const unsigned int ipo0 = e_tmp.id_v_s;
         const unsigned int ipo1 = e_tmp.id_v_e;
-				// edge_iのバウンディングボックスを取得
-				double x_min_i, x_max_i, y_min_i, y_max_i;
-				e_tmp.GetBoundingBox(x_min_i,x_max_i, y_min_i,y_max_i);
+        const Com::CBoundingBox2D& bb_i = e_tmp.GetBoundingBox(); // get bounding box of e_tmp
 				const std::vector<unsigned int>& aIdE = m_BRep.GetAryElemID(Cad::EDGE);
 				for(unsigned int ije=0;ije<aIdE.size();ije++){
 					const unsigned int id_je = aIdE[ije];
@@ -759,14 +834,12 @@ bool CCadObj2D::RemoveElement(Cad::CAD_ELEM_TYPE itype, unsigned int id)
 					const CEdge2D& e_j = this->GetEdge(id_je);
 					const unsigned int jpo0 = e_j.id_v_s;
 					const unsigned int jpo1 = e_j.id_v_e;			
-					if( (ipo0-jpo0)*(ipo0-jpo1)*(ipo1-jpo0)*(ipo1-jpo1) != 0 ){ // 共有点が無い場合
-						// edge_jのバウンディングボックスを取得
-						double x_min_j, x_max_j, y_min_j, y_max_j;
-						e_j.GetBoundingBox(x_min_j,x_max_j, y_min_j,y_max_j);
-						if( x_min_j > x_max_i || x_max_j < x_min_i ) continue;	// 交錯がありえないパターンを除外
-						if( y_min_j > y_max_i || y_max_j < y_min_i ) continue;	// 上に同じ				
-						if( !e_tmp.IsCrossEdge(e_j) ){ continue; } // 交点が無いか判断する
-						return true;
+					if( (ipo0-jpo0)*(ipo0-jpo1)*(ipo1-jpo0)*(ipo1-jpo1) != 0 ){ // no-sharing point
+            const Com::CBoundingBox2D& bb_j = e_j.GetBoundingBox(); // get bounding box of e_j
+            if( !bb_i.IsIntersect(bb_j,min_clearance) ) continue;                    
+            const double dist = e_tmp.Distance(e_j);
+            if( dist > min_clearance ) continue;
+            return true;
 					}
           else if( ipo0 == jpo0 && ipo1 == jpo1 ){ if( e_tmp.IsCrossEdge_ShareBothPoints(e_j,true ) == 1 ){ return false; } }
           else if( ipo0 == jpo1 && ipo1 == jpo0 ){ if( e_tmp.IsCrossEdge_ShareBothPoints(e_j,false) == 1 ){ return false; } }
@@ -887,9 +960,11 @@ CCadObj2D::CResAddVertex CCadObj2D::AddVertex(Cad::CAD_ELEM_TYPE itype, unsigned
 	{
 		unsigned int id_l = id;
 		assert( m_LoopSet.IsObjID(id_l) );    
-		if( !m_LoopSet.IsObjID(id_l) ) return res;
-		// この点がループの中に入っているかどうかを調べる
-		if( !this->CheckIsPointInsideLoop(id_l,vec) ){ return res; }
+		if( !m_LoopSet.IsObjID(id_l) ) return res;    
+    { // check this point is inside the loop with clearance
+      const double dist = this->SignedDistPointLoop(id_l,vec);
+      if( dist < this->min_clearance ){ return res; }
+    }
 		unsigned int id_v_add = m_BRep.AddVertex_Loop(id_l);
 		const int tmp_id = m_VertexSet.AddObj( std::make_pair(id_v_add,CVertex2D(vec)) );
 		assert( tmp_id == (int)id_v_add );
@@ -900,34 +975,31 @@ CCadObj2D::CResAddVertex CCadObj2D::AddVertex(Cad::CAD_ELEM_TYPE itype, unsigned
 	else if( itype == Cad::EDGE )
 	{
 		unsigned int id_e = id;
-		assert( m_EdgeSet.IsObjID(id_e) );
 		if( !m_EdgeSet.IsObjID(id_e) ) return res;
 		CEdge2D edge_old = this->GetEdge(id_e);
-		// 入力点を辺の上に射影できるのか調べる
+		// check if the projection on edge is possible
 		Com::CVector2D vec_add = edge_old.GetNearestPoint(vec);
-		if( SquareLength(vec_add-edge_old.po_e) < 1.0e-20 || SquareLength(vec_add-edge_old.po_s) < 1.0e-20 ){
-			return res;
-		}
+		if(   SquareLength(vec_add-edge_old.po_e) < 1.0e-20 
+       || SquareLength(vec_add-edge_old.po_s) < 1.0e-20 ){ return res; }
 		////////////////////////////////
 		// Leave Input Check Section
 
 		unsigned int id_v_add = m_BRep.AddVertex_Edge(id_e);
 		unsigned int id_e_add;
 		{
-			CBRep2D::CItrVertex itrv = m_BRep.GetItrVertex(id_v_add);
+			CBRepSurface::CItrVertex itrv = m_BRep.GetItrVertex(id_v_add);
 			bool is_same_dir0;
 			unsigned int id_e_b,id_e_a;
 			itrv.GetIdEdge_Behind(id_e_b,is_same_dir0);
 			itrv.GetIdEdge_Ahead( id_e_a,is_same_dir0);
 			id_e_add = ( id_e_b == id_e ) ? id_e_a : id_e_b;
 		}		
-		{	// Vertex追加
+		{	// add vertex
 			const int tmp_id = m_VertexSet.AddObj( std::make_pair(id_v_add,CVertex2D(vec_add)) );
 			assert( tmp_id == (int)id_v_add );
 		}
-		{	// Edge追加
-			const int tmp_id = m_EdgeSet.AddObj( std::make_pair(id_e_add,
-				CEdge2D(id_v_add,edge_old.id_v_e, 0,false,0.0)) );
+		{	// add edge
+			const int tmp_id = m_EdgeSet.AddObj( std::make_pair(id_e_add,CEdge2D(id_v_add,edge_old.id_v_e, 0,false,0.0)) );
 			assert( tmp_id == (int)id_e_add );
 		}
 		{
@@ -985,7 +1057,7 @@ bool CCadObj2D::SetCurve_Arc(const unsigned int id_e, bool is_left_side, double 
 	e.is_left_side = is_left_side;
 	e.dist = rdist;
   // ここまで
-    ////////////////////////////////
+  ////////////////////////////////
 	const std::vector<unsigned int>& aID_Loop = m_LoopSet.GetAry_ObjID();
 	for(unsigned int iid_l=0;iid_l<aID_Loop.size();iid_l++){
 		unsigned int id_l = aID_Loop[iid_l];
@@ -1082,7 +1154,7 @@ bool CCadObj2D::CheckIntersection_Loop(unsigned int id_l) const
 {
 	std::vector<unsigned int> aIdEdge;
   if( m_BRep.IsElemID(Cad::LOOP,id_l) ){
-		for(CBRep2D::CItrLoop itrl=m_BRep.GetItrLoop(id_l);!itrl.IsEndChild();itrl.ShiftChildLoop()){
+		for(CBRepSurface::CItrLoop itrl=m_BRep.GetItrLoop(id_l);!itrl.IsEndChild();itrl.ShiftChildLoop()){
 			for(itrl.Begin();!itrl.IsEnd();itrl++){
 				unsigned int id_e;   bool is_same_dir;
 				if( !itrl.GetIdEdge(id_e,is_same_dir) ) continue;	// skip floating points
@@ -1099,22 +1171,17 @@ bool CCadObj2D::CheckIntersection_Loop(unsigned int id_l) const
 		if( edge.IsCrossEdgeSelf() ){ return true; }
 		const unsigned int ipo0 = edge.id_v_s; 
 		const unsigned int ipo1 = edge.id_v_e;
-		// get bounding box of edge_i
-		double x_min_i, x_max_i, y_min_i, y_max_i;
-		edge.GetBoundingBox(x_min_i,x_max_i, y_min_i,y_max_i);
+    const Com::CBoundingBox2D& bb_i = edge.GetBoundingBox();		// get bounding box of edge_i
 		for(unsigned int je=ie+1;je<ne;je++){
       const CEdge2D& e_j = this->GetEdge( aIdEdge[je] );
 			const unsigned int jpo0 = e_j.id_v_s;
 			const unsigned int jpo1 = e_j.id_v_e;			
 			if( (ipo0-jpo0)*(ipo0-jpo1)*(ipo1-jpo0)*(ipo1-jpo1) != 0 ){ // there is no shared point
-				// get bounding box of edge_j
-				double x_min_j, x_max_j, y_min_j, y_max_j;
-				e_j.GetBoundingBox(x_min_j,x_max_j, y_min_j,y_max_j);
-				if( x_min_j > x_max_i || x_max_j < x_min_i ) continue;	// exclude pattern intersection is impoisslbe
-				if( y_min_j > y_max_i || y_max_j < y_min_i ) continue;	// same as upper state
-				if( !edge.IsCrossEdge(e_j) ){ continue; } // check intersection
-//        std::cout << "intersection no share point" << ipo0 << " " << ipo1 << "   " << jpo0 << " " << jpo1 << std::endl;
-        return true;
+        const Com::CBoundingBox2D& bb_j = e_j.GetBoundingBox();				// get bounding box of edge_j
+        if( !bb_i.IsIntersect(bb_j,min_clearance) ) continue;        
+        const double dist = edge.Distance(e_j);
+        if( dist < min_clearance ) return true;
+        continue;
 			}
       else if( ipo0 == jpo0 && ipo1 == jpo1){ if( edge.IsCrossEdge_ShareBothPoints(e_j,true ) == 1 ){ return true; } }
       else if( ipo0 == jpo1 && ipo1 == jpo0){ if( edge.IsCrossEdge_ShareBothPoints(e_j,false) == 1 ){ return true; } }
@@ -1132,7 +1199,7 @@ bool CCadObj2D::CheckIntersection_EdgeAgainstLoop(const CEdge2D& edge,unsigned i
 {
 	std::vector<unsigned int> aIdEdge;
   if( m_BRep.IsElemID(Cad::LOOP,id_l) ){
-		for(CBRep2D::CItrLoop itrl=m_BRep.GetItrLoop(id_l);!itrl.IsEndChild();itrl.ShiftChildLoop()){
+		for(CBRepSurface::CItrLoop itrl=m_BRep.GetItrLoop(id_l);!itrl.IsEndChild();itrl.ShiftChildLoop()){
 			for(itrl.Begin();!itrl.IsEnd();itrl++){
 				unsigned int id_e;   bool is_same_dir;
 				if( !itrl.GetIdEdge(id_e,is_same_dir) ) continue;	// skip floating points
@@ -1148,21 +1215,17 @@ bool CCadObj2D::CheckIntersection_EdgeAgainstLoop(const CEdge2D& edge,unsigned i
   if( edge.IsCrossEdgeSelf() ){ return true; }
   const unsigned int ipo0 = edge.id_v_s; 
   const unsigned int ipo1 = edge.id_v_e;
-  // get bounding box of edge_i
-  double x_min_i, x_max_i, y_min_i, y_max_i;
-  edge.GetBoundingBox(x_min_i,x_max_i, y_min_i,y_max_i);
+  const Com::CBoundingBox2D& bb_i = edge.GetBoundingBox(); // get bounding box of edge_i  
   for(unsigned int je=0;je<ne;je++){
     const CEdge2D& e_j = this->GetEdge( aIdEdge[je] );
     const unsigned int jpo0 = e_j.id_v_s;
     const unsigned int jpo1 = e_j.id_v_e;			
     if( (ipo0-jpo0)*(ipo0-jpo1)*(ipo1-jpo0)*(ipo1-jpo1) != 0 ){ // there is no shared point
-      // get bounding box of edge_j
-      double x_min_j, x_max_j, y_min_j, y_max_j;
-      e_j.GetBoundingBox(x_min_j,x_max_j, y_min_j,y_max_j);
-      if( x_min_j > x_max_i || x_max_j < x_min_i ) continue;	// exclude pattern intersection is impoisslbe
-      if( y_min_j > y_max_i || y_max_j < y_min_i ) continue;	// same as upper state
-      if( !edge.IsCrossEdge(e_j) ){ continue; } // check intersection
-      return true;
+      const Com::CBoundingBox2D& bb_j = e_j.GetBoundingBox(); // get bounding box of e_j 
+      if( !bb_i.IsIntersect(bb_j,min_clearance) ) continue;
+      double dist = edge.Distance(e_j);
+      if( dist < min_clearance ) return true;
+      continue;      
     }
     else if( ipo0 == jpo0 && ipo1 == jpo1){ if( edge.IsCrossEdge_ShareBothPoints(e_j,true ) == 1 ){ return true; } }
     else if( ipo0 == jpo1 && ipo1 == jpo0){ if( edge.IsCrossEdge_ShareBothPoints(e_j,false) == 1 ){ return true; } }
@@ -1185,32 +1248,22 @@ bool CCadObj2D::WriteToFile_dxf(const std::string& file_name, double scale) cons
 		return false;
 	}
 	// オブジェクトのBoundingBoxを得る
-	double x_min,x_max,  y_min,y_max;
+  CBoundingBox2D bb;
 	{
 		const std::vector<unsigned int>& aIdEdge = this->m_EdgeSet.GetAry_ObjID();
 		assert( aIdEdge.size() > 0 );
-		{
-			const unsigned int id_e = aIdEdge[0];
-			const CEdge2D& edge = this->GetEdge(id_e);
-			edge.GetBoundingBox(x_min,x_max,y_min,y_max);
-		}
-		for(unsigned int iid_e=1;iid_e<aIdEdge.size();iid_e++){
+		for(unsigned int iid_e=0;iid_e<aIdEdge.size();iid_e++){
 			const unsigned int id_e = aIdEdge[iid_e];
 			const CEdge2D& edge = this->GetEdge(id_e);
-			double x_min0,x_max0,  y_min0,y_max0;
-			edge.GetBoundingBox(x_min0,x_max0,y_min0,y_max0);
-			x_min = ( x_min < x_min0 ) ? x_min : x_min0;
-			x_max = ( x_max > x_max0 ) ? x_max : x_max0;
-			y_min = ( y_min < y_min0 ) ? y_min : y_min0;
-			y_max = ( y_max > y_max0 ) ? y_max : y_max0;
+      bb += edge.GetBoundingBox();
 		}
 	}
 	// ヘッダーセクション
 	fprintf(fp, "  0\nSECTION\n");
 	fprintf(fp, "  2\nHEADER\n");
 	fprintf(fp, "  9\n$ACADVER\n  1\nAC1009\n");
-	fprintf(fp, "  9\n$EXTMIN\n  10\n%lf\n  20\n%lf\n",x_min*scale,y_min*scale);
-	fprintf(fp, "  9\n$EXTMAX\n  10\n%lf\n  20\n%lf\n",x_max*scale,y_max*scale);
+	fprintf(fp, "  9\n$EXTMIN\n  10\n%lf\n  20\n%lf\n",bb.x_min*scale,bb.y_min*scale);
+	fprintf(fp, "  9\n$EXTMAX\n  10\n%lf\n  20\n%lf\n",bb.x_max*scale,bb.y_max*scale);
 	fprintf(fp, "  0\nENDSEC\n");
 	// テーブルセクション
 	fprintf(fp, "  0\nSECTION\n");
@@ -1227,11 +1280,11 @@ bool CCadObj2D::WriteToFile_dxf(const std::string& file_name, double scale) cons
 	for(unsigned int iid_l=0;iid_l<aIdLoop.size();iid_l++){
 		const unsigned int id_l = aIdLoop[iid_l];
 		assert( m_LoopSet.IsObjID(id_l) );
-    std::auto_ptr<Cad::ICad2D::CItrLoop> pItr = this->GetItrLoop(id_l);
+    CBRepSurface::CItrLoop pItr = m_BRep.GetItrLoop(id_l);
 		for(;;){
-      for(;!pItr->IsEnd();(*pItr)++){
+      for(;!pItr.IsEnd();pItr++){
 				bool is_same_dir;   unsigned int id_e;
-				if( !pItr->GetIdEdge(id_e,is_same_dir) ){ assert(0); fclose(fp); return false; }
+				if( !pItr.GetIdEdge(id_e,is_same_dir) ){ assert(0); fclose(fp); return false; }
 				unsigned int id_vs, id_ve;
 				this->GetIdVertex_Edge(id_vs, id_ve,id_e);
 				assert( this->IsElemID(Cad::VERTEX,id_vs) );
@@ -1291,13 +1344,14 @@ bool CCadObj2D::WriteToFile_dxf(const std::string& file_name, double scale) cons
           fprintf(fp,"  0\nSEQEND\n");
 				}        
 			}
-			if( !pItr->ShiftChildLoop() ) break;
+			if( !pItr.ShiftChildLoop() ) break;
 		}
 	}
 	fprintf(fp, "  0\nENDSEC\n  0\nEOF\n");
 	fclose(fp);
 	return true;
 }
+
 
 bool CCadObj2D::Serialize( Com::CSerializer& arch )
 {
@@ -1311,14 +1365,14 @@ bool CCadObj2D::Serialize( Com::CSerializer& arch )
 		int nv, ne, nl;
 		{
 			arch.Get("%d%d%d",&nv, &ne, &nl);
-			assert( nv>0 ); assert( ne>0 ); assert( nl>0 );
+//			assert( nv>0 ); assert( ne>0 ); assert( nl>0 );
 			m_VertexSet.Reserve(nv*2);
 			m_EdgeSet.Reserve(ne*2);
 			m_LoopSet.Reserve(nl*2);
 		}
 		arch.ShiftDepth(true);
 		////////////////////////////////////////////////
-        for(int iv=0;iv<nv;iv++){
+    for(int iv=0;iv<nv;iv++){
 			arch.ReadDepthClassName(class_name,buff_size);
 			assert( strncmp(class_name,"CVertex2D",9) == 0 );
 			int id;		arch.Get("%d",&id);		assert( id>0 );
@@ -1326,42 +1380,42 @@ bool CCadObj2D::Serialize( Com::CSerializer& arch )
 			int tmp_id = m_VertexSet.AddObj( std::make_pair(id,CVertex2D(CVector2D(x,y) )) );
 			assert(tmp_id==id);
 		}
-        for(int ie=0;ie<ne;ie++){
+    for(int ie=0;ie<ne;ie++){
 			arch.ReadDepthClassName(class_name,buff_size);
 			assert( strncmp(class_name,"CEdge2D",7) == 0 );
 			int id;				arch.Get("%d",&id);					assert( id>0 );
 			int id_v_s,id_v_e;	arch.Get("%d%d",&id_v_s,&id_v_e);	assert( id_v_s>0 && id_v_e>0 );
-            int itype;			arch.Get("%d",&itype);				assert( itype == 0 || itype == 1 || itype == 2);
+      int itype;			arch.Get("%d",&itype);				assert( itype == 0 || itype == 1 || itype == 2);
 			int i_is_left_side;
 			double dist;
 			arch.Get("%d%lf",&i_is_left_side,&dist);
 			assert( i_is_left_side == 0 || i_is_left_side == 1 );
 			const bool is_left_side = (i_is_left_side != 0 );
-            std::vector<double> aRelCo;
-            int npo;
-            arch.Get("%d",&npo);
-            assert( npo >= 0 );
-            for(unsigned int ipo=0;ipo<(unsigned int)npo;ipo++){
-                double x,y;
-                arch.Get("%lf%lf",&x,&y);
-                aRelCo.push_back(x);
-                aRelCo.push_back(y);
-            }
-            Cad::CEdge2D e(id_v_s,id_v_e,itype,is_left_side,dist);
-            e.aRelCoMesh = aRelCo;
-            const int tmp_id = m_EdgeSet.AddObj( std::make_pair(id,e) );
+      std::vector<double> aRelCo;
+      int npo;
+      arch.Get("%d",&npo);
+      assert( npo >= 0 );
+      for(unsigned int ipo=0;ipo<(unsigned int)npo;ipo++){
+        double x,y;
+        arch.Get("%lf%lf",&x,&y);
+        aRelCo.push_back(x);
+        aRelCo.push_back(y);
+      }
+      Cad::CEdge2D e(id_v_s,id_v_e,itype,is_left_side,dist);
+      e.aRelCoMesh = aRelCo;
+      const int tmp_id = m_EdgeSet.AddObj( std::make_pair(id,e) );
 			assert( tmp_id == id );            
 		}
-        for(int il=0;il<nl;il++){
+    for(int il=0;il<nl;il++){
 			arch.ReadDepthClassName(class_name,buff_size);
 			assert( strncmp(class_name,"CLoop2D",7) == 0 );
-            int id;         arch.Get("%d",&id);		assert( id>0 );
+      int id;         arch.Get("%d",&id);		assert( id>0 );
 			int ilayer;		arch.Get("%d",&ilayer);
-            double c[3];    arch.Get("%lf%lf%lf",&c[0],&c[1],&c[2]);
-            CLoop2D l;
+      double c[3];    arch.Get("%lf%lf%lf",&c[0],&c[1],&c[2]);
+      CLoop2D l;
 			l.ilayer = ilayer;
-            l.m_color[0]=c[0];  l.m_color[1]=c[1];  l.m_color[2]=c[2];
-            const int tmp_id = m_LoopSet.AddObj( std::make_pair(id,l) );
+      l.m_color[0]=c[0];  l.m_color[1]=c[1];  l.m_color[2]=c[2];
+      const int tmp_id = m_LoopSet.AddObj( std::make_pair(id,l) );
 			assert( tmp_id == id );
 		}
 		m_BRep.Serialize(arch);
@@ -1370,12 +1424,12 @@ bool CCadObj2D::Serialize( Com::CSerializer& arch )
 		return true;
 	}
 	else{ // 書き込み時の処理
-        // クラスの名前の指定，サイズの指定
+    // クラスの名前の指定，サイズの指定
 		arch.WriteDepthClassName("CadObj2D");
 		arch.Out("%d %d %d\n",m_VertexSet.GetAry_ObjID().size(), m_EdgeSet.GetAry_ObjID().size(),m_LoopSet.GetAry_ObjID().size());
 		arch.ShiftDepth(true);
-        // Vertex2Dの出力
-        {
+    // Vertex2Dの出力
+    {
 			const std::vector<unsigned int>& id_ary = m_VertexSet.GetAry_ObjID();
 			for(unsigned int iid=0;iid<id_ary.size();iid++){
 				const unsigned int id_v = id_ary[iid];
@@ -1386,8 +1440,8 @@ bool CCadObj2D::Serialize( Com::CSerializer& arch )
 				arch.Out("%lf %lf\n",v.point.x,v.point.y);
 			}
 		}
-        // Edge2Dの出力
-        {
+    // Edge2Dの出力
+    {
 			const std::vector<unsigned int> id_ary = m_EdgeSet.GetAry_ObjID();
 			for(unsigned int iid=0;iid<id_ary.size();iid++){
 				const unsigned int id_e = id_ary[iid];
@@ -1398,16 +1452,16 @@ bool CCadObj2D::Serialize( Com::CSerializer& arch )
 				arch.Out("%d %d\n",e.id_v_s,e.id_v_e);
 				arch.Out("%d\n",e.itype);
 				arch.Out("%d %lf\n",e.is_left_side,e.dist);
-                const unsigned int n = e.aRelCoMesh.size()/2;
-                arch.Out("%d\n",n);
-                for(unsigned int i=0;i<n;i++){
-                    arch.Out("%lf %lf\n",e.aRelCoMesh[i*2+0], e.aRelCoMesh[i*2+1]);
-                }
+        const unsigned int n = e.aRelCoMesh.size()/2;
+        arch.Out("%d\n",n);
+        for(unsigned int i=0;i<n;i++){
+          arch.Out("%lf %lf\n",e.aRelCoMesh[i*2+0], e.aRelCoMesh[i*2+1]);
+        }
 			}
 		}
-        // Loop2Dの出力
-        {
-            const std::vector<unsigned int> id_ary= m_LoopSet.GetAry_ObjID();
+    // Loop2Dの出力
+    {
+      const std::vector<unsigned int> id_ary= m_LoopSet.GetAry_ObjID();
 			for(unsigned int iid=0;iid<id_ary.size();iid++){
 				const unsigned int id_l = id_ary[iid];
 				assert( m_LoopSet.IsObjID(id_l) );
@@ -1415,7 +1469,7 @@ bool CCadObj2D::Serialize( Com::CSerializer& arch )
 				arch.WriteDepthClassName("CLoop2D");
 				arch.Out("%d\n",id_l);
 				arch.Out("%d\n",l.ilayer);
-                arch.Out("%lf %lf %lf\n",l.m_color[0],l.m_color[1],l.m_color[2]);
+        arch.Out("%lf %lf %lf\n",l.m_color[0],l.m_color[1],l.m_color[2]);
 			}
 		}
 		m_BRep.Serialize(arch);
@@ -1423,3 +1477,4 @@ bool CCadObj2D::Serialize( Com::CSerializer& arch )
 	}
 	return true;
 }
+

@@ -97,7 +97,7 @@ public:
 	// Set the size of object in xyz direction
 	void SetObjectSize(double w, double h, double d){ obj_w = w;  obj_h = h;  obj_d = d; }
 
-	void SetObjectBoundingBox(const CBoundingBox& bb){
+	void SetObjectBoundingBox(const CBoundingBox3D& bb){
 		obj_center.x = (bb.x_min + bb.x_max)*0.5;
 		obj_center.y = (bb.y_min + bb.y_max)*0.5;
 		obj_center.z = (bb.z_min + bb.z_max)*0.5;
@@ -118,7 +118,7 @@ public:
 		dist = half_view_height * inv_scale / tan( fov_y*0.5 ) + obj_d * 0.5;
 		win_center_x = 0.0; win_center_y = 0.0;
 	}
-	void Fit(const Com::CBoundingBox& bb ){
+	void Fit(const Com::CBoundingBox3D& bb ){
 		obj_center.x = (bb.x_min + bb.x_max)*0.5;
 		obj_center.y = (bb.y_min + bb.y_max)*0.5;
 		obj_center.z = (bb.z_min + bb.z_max)*0.5;

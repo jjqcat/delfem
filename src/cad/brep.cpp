@@ -400,11 +400,9 @@ bool CBRep::MEVVL(unsigned int& id_he_add1, unsigned int& id_he_add2,
 }
 
 
-// ループをつなげる
-bool CBRep::KEML(unsigned int& id_ul_add, 
-		  const unsigned int& id_he1 )
+// disconnect loop
+bool CBRep::KEML(unsigned int& id_ul_add, const unsigned int& id_he1 )
 {
-
 	unsigned int id_he1f, id_he1b, id_uv1, id_ul1, id_he2;
 	{
 		assert( m_HalfEdgeSet.IsObjID(id_he1) );
@@ -452,7 +450,7 @@ bool CBRep::KEML(unsigned int& id_ul_add,
 	}
 	
 	////////////////////////////////
-	// ここから形状を変化させる。
+	// the data will be changed from here
 
 	id_ul_add = m_UseLoopSet.GetFreeObjID();
 	unsigned int id_ul_p;
@@ -465,16 +463,16 @@ bool CBRep::KEML(unsigned int& id_ul_add,
 			assert( m_UseLoopSet.IsObjID(id_ul_p) );
 			CUseLoop& ul_p = m_UseLoopSet.GetObj(id_ul_p);
 			assert( ul_p.id_ul_p == id_ul_p );
-		}
-		unsigned int id_ul = id_ul1;
-		for(;;){ // 子ループリストの一番最後に追加したループを付け加える
-			CUseLoop& ul = m_UseLoopSet.GetObj(id_ul);
-			if( ul.id_ul_c == 0 ){
-				ul.id_ul_c = id_ul_add;
-				break;
-			}
-			id_ul = ul.id_ul_c;
-		}
+      unsigned int id_ul = id_ul1;
+      for(;;){ // 子ループリストの一番最後に追加したループを付け加える
+        CUseLoop& ul = m_UseLoopSet.GetObj(id_ul);
+        if( ul.id_ul_c == 0 ){
+          ul.id_ul_c = id_ul_add;
+          break;
+        }
+        id_ul = ul.id_ul_c;
+      }
+    }      
 	}
 	{
 		const unsigned int tmp_id = m_UseLoopSet.AddObj( CUseLoop(id_ul_add,id_he1f,0,id_ul_p) );
@@ -698,6 +696,10 @@ bool CBRep::KEML_OneFloatingVertex(unsigned int& id_ul_add, const unsigned int i
 		id_ul1 = he.id_ul;
 		const CUseLoop& ul = m_UseLoopSet.GetObj(id_ul1);
 		id_ul_p = ul.id_ul_p;
+    if( id_ul_p != 0 ){ // if this edge is outside, id_ul_p is 0
+      const CUseLoop ul_p = m_UseLoopSet.GetObj(id_ul_p);
+      assert( ul_p.id_ul_p == id_ul_p );
+    }
 	}
 	unsigned int id_uv2;
 	unsigned int id_he2b;
@@ -713,11 +715,6 @@ bool CBRep::KEML_OneFloatingVertex(unsigned int& id_ul_add, const unsigned int i
 	}
 	
 	{
-		assert( m_UseLoopSet.IsObjID(id_ul_p) );
-		const CUseLoop ul_p = m_UseLoopSet.GetObj(id_ul_p);
-		assert( ul_p.id_ul_p == id_ul_p );
-	}
-	{
 		assert( m_HalfEdgeSet.IsObjID(id_he1f) );
 		CHalfEdge& he = m_HalfEdgeSet.GetObj(id_he1f);
 		assert( he.id == id_he1f );
@@ -731,11 +728,11 @@ bool CBRep::KEML_OneFloatingVertex(unsigned int& id_ul_add, const unsigned int i
 		const unsigned int tmp_id = m_UseLoopSet.AddObj( CUseLoop(id_ul_add,id_he1,0,id_ul_p) );
 		assert( tmp_id == id_ul_add );
 	}
-	{	// 子ループリストにid_ul_addを登録
+	if( id_ul_p !=0 ){	// 子ループリストにid_ul_addを登録
 		unsigned int id_ul = id_ul1;
 		for(;;){
 			CUseLoop&  ul = m_UseLoopSet.GetObj(id_ul);
-			assert( ul.id_ul_p==id_ul_p || ul.id_ul_p==0 );
+			assert( ul.id_ul_p==id_ul_p );
 			if( ul.id_ul_c == 0 ){
 				ul.id_ul_c = id_ul_add;
 				break;
@@ -1014,7 +1011,7 @@ bool CBRep::MEKL(unsigned int& id_he_add1, unsigned int& id_he_add2,
 	////////////////
 	m_UseLoopSet.DeleteObj(id_ul2);
 	assert( !m_UseLoopSet.IsObjID(id_ul2) );
-	if( id_ul2p != id_ul2 ){	// ul2は子ループ
+	if( id_ul2p != id_ul2 && id_ul2p != 0 ){	// ul2は子ループ
 		unsigned int id_ul;
 		if( id_ul1p != id_ul1 ){	// ２つのループの外側に辺を追加した場合
 			assert( id_ul1p == id_ul2p );
@@ -1276,7 +1273,7 @@ bool CBRep::KEL(const unsigned int id_he1){
 				if( id_ul == 0 ) break;
 			}
 		}
-		{
+		if( id_ul2p != 0 ){
 			unsigned int id_ul = id_ul2p;
 			for(;;){
 				assert( m_UseLoopSet.IsObjID(id_ul) );

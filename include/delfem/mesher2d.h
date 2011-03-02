@@ -60,7 +60,7 @@ public:
 	unsigned int v;	//!< index of node
 };
 
-//! 線要素配列
+//! array of line element
 class CBarAry{
 public:
 	CBarAry() : id(0), id_e_cad(0), ilayer(0){}
@@ -70,10 +70,10 @@ public:
 	unsigned int id_se[2];
 	unsigned int id_lr[2];
 	int ilayer;
-	std::vector<SBar> m_aBar;	//!< 辺要素の配列
+	std::vector<SBar> m_aBar;	//!< array of line element
 };
 
-//! ２次元３角形要素配列
+//! array of 2D triangle elemnet
 class CTriAry2D{
 public:
 	CTriAry2D() : id(0), id_l_cad(0), ilayer(0){}
@@ -81,10 +81,10 @@ public:
 	unsigned int id;	//!< ID
 	unsigned int id_l_cad;	//!< CADの面ID（CADに関連されてなければ０）
 	int ilayer;
-	std::vector<STri2D> m_aTri;	//!< ３角形要素の配列
+	std::vector<STri2D> m_aTri;	//!< array of 2d triangle element
 };
 
-//! ２次元４角形要素配列
+//! array of 2D quadric element 
 class CQuadAry2D{
 public:
 	CQuadAry2D() : id(0), id_l_cad(0), ilayer(0){}
@@ -92,7 +92,7 @@ public:
 	unsigned int id;	//!< ID
 	unsigned int id_l_cad;	//!< CADの面ID(CADに関連されてなければ０)
 	int ilayer;
-	std::vector<SQuad2D> m_aQuad;	//!< ４角形要素の配列
+	std::vector<SQuad2D> m_aQuad;	//!< array of 2D quadric element
 };
 
 ////////////////////////////////////////////////
@@ -108,7 +108,7 @@ class CMesher2D : public IMesh
 {
 public:
 	//! できるだけ少ない要素数でメッシュを切る
-	CMesher2D(const Cad::ICad2D& cad_2d){ 
+	CMesher2D(const Cad::ICad2D_Msh& cad_2d){ 
 		this->m_imode_meshing = 0;
 		this->m_elen = 1;
 		this->m_esize = 1000;
@@ -117,7 +117,7 @@ public:
 		this->Meshing(cad_2d);
 	}
 	//! 要素の長さがelenとなるようにメッシュを切る
-	CMesher2D(const Cad::ICad2D& cad_2d, double elen){ 
+	CMesher2D(const Cad::ICad2D_Msh& cad_2d, double elen){ 
 		this->m_imode_meshing = 2;
 		this->m_elen = elen;
 		this->m_esize = 1000;
@@ -161,7 +161,7 @@ public:
 		this->m_esize = esize;
 	}
 	
-	virtual bool Meshing(const Cad::ICad2D& cad_2d){
+	virtual bool Meshing(const Cad::ICad2D_Msh& cad_2d){
 		std::vector<unsigned int> aIdL_Cut;
 		{
 			std::set<unsigned int>::iterator itr = setIdLCad_CutMesh.begin();
@@ -181,18 +181,18 @@ public:
 
 	virtual unsigned int GetDimention() const{ return 2; }	//!< 座標の次元（２）を返す
 	virtual void GetInfo(unsigned int id_msh,
-        unsigned int& id_cad, unsigned int& id_msh_before_ext, unsigned int& inum_ext,
-		int& ilayer) const
-    { 
+                       unsigned int& id_cad, unsigned int& id_msh_before_ext, unsigned int& inum_ext,
+                       int& ilayer) const
+  { 
 		const int itype = m_ElemType[id_msh];
 		const int iloc = m_ElemLoc[id_msh];
 		if(      itype == 0 ){ id_cad=m_aVertex[ iloc].id_v_cad; ilayer=m_aVertex[ iloc].ilayer; }
 		else if( itype == 1 ){ id_cad=m_aBarAry[ iloc].id_e_cad; ilayer=m_aBarAry[ iloc].ilayer; }
 		else if( itype == 2 ){ id_cad=m_aTriAry[ iloc].id_l_cad; ilayer=m_aTriAry[ iloc].ilayer; }
-        else if( itype == 3 ){ id_cad=m_aQuadAry[iloc].id_l_cad; ilayer=m_aQuadAry[iloc].ilayer; }
+    else if( itype == 3 ){ id_cad=m_aQuadAry[iloc].id_l_cad; ilayer=m_aQuadAry[iloc].ilayer; }
 		else{ assert(0); }
-        id_msh_before_ext = 0;
-        inum_ext = 0;
+    id_msh_before_ext = 0;
+    inum_ext = 0;
 	}
 	virtual void GetCoord(std::vector<double>& coord) const{
 		unsigned int nnode = aVec2D.size();
@@ -277,17 +277,17 @@ protected:
 	}
 	
 	//! デフォルトコンストラクタで初期化された後や，Clearされた後でメッシュを切る(elen : メッシュ幅)
-	bool Meshing_ElemLength(const Cad::ICad2D& cad_2d,double elen,  const std::vector<unsigned int>& aIdLoop);
+	bool Meshing_ElemLength(const Cad::ICad2D_Msh& cad_2d,double elen,  const std::vector<unsigned int>& aIdLoop);
 	//! デフォルトコンストラクタで初期化された後や，Clearされた後でメッシュを切る(esize : 要素数)
-	bool Meshing_ElemSize( const Cad::ICad2D& cad_2d, unsigned int esize, const std::vector<unsigned int>& aIdLoop);
+	bool Meshing_ElemSize( const Cad::ICad2D_Msh& cad_2d, unsigned int esize, const std::vector<unsigned int>& aIdLoop);
 	//! 出来るだけ点を追加しないように、メッシュを切る
-	bool Tesselation(const Cad::ICad2D& cad_2d, const std::vector<unsigned int>& aIdLoop);
+	bool Tesselation(const Cad::ICad2D_Msh& cad_2d, const std::vector<unsigned int>& aIdLoop);
 
 	unsigned int FindMaxID() const;
 	int CheckMesh();	// 異常がなければ０を返す
 	unsigned int GetFreeObjID();
 	void MakeElemLocationType(); // 要素の場所と種類をハッシュ（IDが引数）している配列を初期化
-	void MakeIncludeRelation(const Cad::ICad2D& cad);	// include_relationを作る
+	void MakeIncludeRelation(const Cad::ICad2D_Msh& cad);	// include_relationを作る
 
 	////////////////
 	bool MakeBoundary_SplitBarAry(std::vector<SBar>& aBar, unsigned int id_inner);
@@ -297,12 +297,12 @@ protected:
 	////////////////
 	// メッシュ切り関係のルーティン
 
-	bool MakeMesh_Edge(const Cad::ICad2D& cad_2d, unsigned int id_e, const double len);
-	bool MakeMesh_Loop(const Cad::ICad2D& cad_2d, unsigned int id_l, const double len);
+	bool MakeMesh_Edge(const Cad::ICad2D_Msh& cad_2d, unsigned int id_e, const double len);
+	bool MakeMesh_Loop(const Cad::ICad2D_Msh& cad_2d, unsigned int id_l, const double len);
 
-	bool Tesselate_LoopAround(const Cad::ICad2D& cad_2d, const unsigned int id_l);
-	bool Tessalate_Edge(const Cad::ICad2D& cad_2d, const unsigned int id_e );
-	bool Tesselate_Loop(const Cad::ICad2D& cad_2d, const unsigned int id_l);
+	bool Tesselate_LoopAround(const Cad::ICad2D_Msh& cad_2d, const unsigned int id_l);
+	bool Tessalate_Edge(const Cad::ICad2D_Msh& cad_2d, const unsigned int id_e );
+	bool Tesselate_Loop(const Cad::ICad2D_Msh& cad_2d, const unsigned int id_l);
 
 	////////////////////////////////
 	// トポロジー取得
@@ -336,8 +336,8 @@ protected:
 		unsigned int id_cad_part, Cad::CAD_ELEM_TYPE itype_cad );
 
 	// このループの面積と，現在切られているメッシュから最適な辺の長さを決定する
-	double GetAverageEdgeLength(const Cad::ICad2D& cad_2d, 
-        const std::set<unsigned int>& aIdL);
+	double GetAverageEdgeLength(const Cad::ICad2D_Msh& cad_2d, 
+                              const std::set<unsigned int>& aIdL);
 private:
 	std::set<unsigned int> setIdLCad_CutMesh;
 	unsigned int m_imode_meshing;	// 0: tesselation 1:mesh_size 2:mesh_length

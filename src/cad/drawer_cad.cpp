@@ -102,7 +102,7 @@ void CDrawerRubberBand::Draw() const
 	::glEnd();
 }
 
-Com::CBoundingBox CDrawerRubberBand::GetBoundingBox( double rot[] ) const
+Com::CBoundingBox3D CDrawerRubberBand::GetBoundingBox( double rot[] ) const
 {
 	////////////////
 	double x_max,x_min,  y_max,y_min,  z_max,z_min;
@@ -133,31 +133,31 @@ Com::CBoundingBox CDrawerRubberBand::GetBoundingBox( double rot[] ) const
 //	double x_cent = x_cent1*rot[0]+y_cent1*rot[3]+z_cent1*rot[6];
 //	double y_cent = x_cent1*rot[1]+y_cent1*rot[4]+z_cent1*rot[7];
 //  double z_cent = x_cent1*rot[2]+y_cent1*rot[5]+z_cent1*rot[8];
-	return CBoundingBox(
+	return CBoundingBox3D(
 		x_cent1-x_size*0.5,x_cent1+x_size*0.5,
 		y_cent1-y_size*0.5,y_cent1+y_size*0.5,
 		z_cent1-z_size*0.5,z_cent1+z_size*0.5 );
 }
 
-CDrawerRubberBand::CDrawerRubberBand(const Cad::ICad2D& cad, unsigned int id_v)
+CDrawerRubberBand::CDrawerRubberBand(const Cad::CCadObj2D& cad, unsigned int id_v)
 {
 	this->sutable_rot_mode = 1;	
-	std::auto_ptr<ICad2D::CItrVertex> itrv = cad.GetItrVertex(id_v);
-	for(;!itrv->IsEnd();(*itrv)++){
+  Cad::CBRepSurface::CItrVertex itrv = cad.GetItrVertex(id_v);
+	for(;!itrv.IsEnd();itrv++){
 		unsigned int id_e; bool is_same_dir;
-		itrv->GetIdEdge_Behind(id_e,is_same_dir);
+		itrv.GetIdEdge_Behind(id_e,is_same_dir);
 		unsigned int id_vs, id_ve;
 		cad.GetIdVertex_Edge(id_vs,id_ve,id_e);
 		const unsigned int id_v1 = (is_same_dir) ? id_ve : id_vs;
 		assert( ((is_same_dir) ? id_vs : id_ve) == id_v );
-        assert( cad.IsElemID(Cad::VERTEX,id_v1) );
+    assert( cad.IsElemID(Cad::VERTEX,id_v1) );
 		const Com::CVector2D& vec2d = cad.GetVertexCoord(id_v1);
 		fix.push_back( CVector3D(vec2d.x, vec2d.y, 0.0) );
 	}
 	imode = 1;
 }
 
-CDrawerRubberBand::CDrawerRubberBand(const Cad::ICad2D& cad,
+CDrawerRubberBand::CDrawerRubberBand(const Cad::CCadObj2D& cad,
                                      unsigned int id_e, const Com::CVector3D& initial)
 {
 	this->sutable_rot_mode = 1;	
@@ -168,15 +168,15 @@ CDrawerRubberBand::CDrawerRubberBand(const Cad::ICad2D& cad,
 	fix.clear();
 	{
 		{
-            assert( cad.IsElemID(Cad::VERTEX,id_vs) );
+      assert( cad.IsElemID(Cad::VERTEX,id_vs) );
 			const Com::CVector2D& vec2d = cad.GetVertexCoord(id_vs);
 			fix.push_back( CVector3D(vec2d.x,vec2d.y,0) );
 		}
 		{
-			std::auto_ptr<ICad2D::CItrVertex> itrv = cad.GetItrVertex(id_vs);
-			for(;!itrv->IsEnd();(*itrv)++){
+      Cad::CBRepSurface::CItrVertex itrv = cad.GetItrVertex(id_vs);
+			for(;!itrv.IsEnd();itrv++){
 				unsigned int id_e0; bool is_same_dir0;
-				itrv->GetIdEdge_Behind(id_e0,is_same_dir0);
+				itrv.GetIdEdge_Behind(id_e0,is_same_dir0);
 				if( id_e0 == id_e ) continue;
 				unsigned int id_vs0, id_ve0;
 				cad.GetIdVertex_Edge(id_vs0,id_ve0,id_e0);
@@ -188,15 +188,15 @@ CDrawerRubberBand::CDrawerRubberBand(const Cad::ICad2D& cad,
 			}
 		}
 		{
-            assert( cad.IsElemID(Cad::VERTEX,id_ve) );
+      assert( cad.IsElemID(Cad::VERTEX,id_ve) );
 			const Com::CVector2D& vec2d = cad.GetVertexCoord(id_ve);
 			fix.push_back( CVector3D(vec2d.x,vec2d.y,0) );
 		}
 		{
-			std::auto_ptr<ICad2D::CItrVertex> itrv = cad.GetItrVertex(id_ve);
-			for(;!itrv->IsEnd();(*itrv)++){
+      Cad::CBRepSurface::CItrVertex itrv = cad.GetItrVertex(id_ve);
+			for(;!itrv.IsEnd();itrv++){
 				unsigned int id_e0; bool is_same_dir0;
-				itrv->GetIdEdge_Behind(id_e0,is_same_dir0);
+				itrv.GetIdEdge_Behind(id_e0,is_same_dir0);
 				if( id_e0 == id_e ) continue;
 				unsigned int id_vs0, id_ve0;
 				cad.GetIdVertex_Edge(id_vs0,id_ve0,id_e);
@@ -229,8 +229,8 @@ bool CDrawer_Cad2D::CDrawPart::Set(const Msh::CTriAry2D& TriAry)
 			pIndexArray[ielem*npoel+ipoel] = TriAry.m_aTri[ielem].v[ipoel];
 		}
 	}
-    ////////////////
-    color[0]=0.8;   color[1]=0.8;   color[2]=0.8;
+  ////////////////
+  color[0]=0.8;   color[1]=0.8;   color[2]=0.8;
 	return true;
 }
 
@@ -270,7 +270,7 @@ void CDrawer_Cad2D::CDrawPart::DrawElements() const
 
 ////////////////////////////////////////////////////////////////
 
-bool CDrawer_Cad2D::UpdateCAD_TopologyGeometry(const Cad::ICad2D &cad_2d)
+bool CDrawer_Cad2D::UpdateCAD_TopologyGeometry(const Cad::CCadObj2D &cad_2d)
 {
 	this->sutable_rot_mode = 1;	
   //! 今までのDrawerPartの配列を一端バッファにコピーして，必要な物だけを戻す
@@ -380,7 +380,6 @@ bool CDrawer_Cad2D::UpdateCAD_TopologyGeometry(const Cad::ICad2D &cad_2d)
   
 	{	// 頂点をセット
 		const std::vector<Msh::SVertex>& aVertex = mesh.GetVertexAry();
-		assert( aVertex.size() > 0 );
 		for(unsigned int iver=0;iver<aVertex.size();iver++){
 			const unsigned int id_v_cad = aVertex[iver].id_v_cad;
 			int ilayer = cad_2d.GetLayer(Cad::VERTEX,id_v_cad);
@@ -416,7 +415,7 @@ bool CDrawer_Cad2D::UpdateCAD_TopologyGeometry(const Cad::ICad2D &cad_2d)
 	return true;
 }
 
-void CDrawer_Cad2D::UpdateCAD_Geometry(const Cad::ICad2D& cad_2d)
+void CDrawer_Cad2D::UpdateCAD_Geometry(const Cad::CCadObj2D& cad_2d)
 {
 	Msh::CMesher2D mesh(cad_2d);
 	for(unsigned int idp=0;idp<m_apIndexAry.size();idp++){
@@ -467,7 +466,7 @@ void CDrawer_Cad2D::GetCadPartID(const int selec_flag[],
 	for(unsigned int iea=0;iea<m_apIndexAry.size();iea++){
     if( (int)m_apIndexAry[iea]->id_msh == selec_flag[1] ){
 			part_type = m_apIndexAry[iea]->itype;
-			part_id = m_apIndexAry[iea]->id_cad;		assert( part_id != 0 );
+			part_id = m_apIndexAry[iea]->id_cad;  assert( part_id != 0 );
 			return;
 		}
 	}
@@ -508,7 +507,7 @@ void CDrawer_Cad2D::AddSelected(Cad::CAD_ELEM_TYPE itype, unsigned int id)
 void CDrawer_Cad2D::AddSelected(const int selec_flag[])
 {
 	for(unsigned int iea=0;iea<m_apIndexAry.size();iea++){
-        if( (int)m_apIndexAry[iea]->id_msh == selec_flag[1] ){
+    if( (int)m_apIndexAry[iea]->id_msh == selec_flag[1] ){
 			m_apIndexAry[iea]->is_selected = true;
 		}
 	}
@@ -586,51 +585,51 @@ void CDrawer_Cad2D::SetRigidDisp(unsigned int id_l, double xdisp, double ydisp){
 	}
 }
 
-void CDrawer_Cad2D::HideEffected(const Cad::ICad2D& cad_2d,
+void CDrawer_Cad2D::HideEffected(const Cad::CCadObj2D& cad_2d,
                                  Cad::CAD_ELEM_TYPE part_type, unsigned int part_id)
 {
-    if(      part_type == Cad::VERTEX ){
+  if(      part_type == Cad::VERTEX ){
 		const unsigned int id_v = part_id;
-		for(std::auto_ptr<ICad2D::CItrVertex> itrv=cad_2d.GetItrVertex(id_v);!itrv->IsEnd();(*itrv)++){
+    for(Cad::CBRepSurface::CItrVertex itrv=cad_2d.GetItrVertex(id_v);!itrv.IsEnd();itrv++){
 			unsigned int id_e0; bool is_same_dir0;
-			itrv->GetIdEdge_Behind(id_e0,is_same_dir0);
+			itrv.GetIdEdge_Behind(id_e0,is_same_dir0);
 			this->SetIsShow(false,Cad::EDGE,id_e0);
-			const unsigned int id_l = itrv->GetIdLoop();
+			const unsigned int id_l = itrv.GetIdLoop();
 			this->SetIsShow(false,Cad::LOOP,id_l);
 		}
 	}
-    else if( part_type == Cad::EDGE ){
+  else if( part_type == Cad::EDGE ){
 		if( !cad_2d.IsElemID(Cad::EDGE,part_id) ) return;
 		unsigned int id_vs, id_ve;
 		cad_2d.GetIdVertex_Edge(id_vs,id_ve,part_id);		
-		for(std::auto_ptr<ICad2D::CItrVertex> itrv=cad_2d.GetItrVertex(id_vs);!itrv->IsEnd();(*itrv)++){
+    for(Cad::CBRepSurface::CItrVertex itrv=cad_2d.GetItrVertex(id_vs);!itrv.IsEnd();itrv++){
 			unsigned int id_e0; bool is_same_dir0;
-			itrv->GetIdEdge_Behind(id_e0,is_same_dir0);
+			itrv.GetIdEdge_Behind(id_e0,is_same_dir0);
 			this->SetIsShow(false,Cad::EDGE,id_e0);
-			const unsigned int id_l = itrv->GetIdLoop();
+			const unsigned int id_l = itrv.GetIdLoop();
 			this->SetIsShow(false,Cad::LOOP,id_l);
 		}		
-		for(std::auto_ptr<ICad2D::CItrVertex> itrv=cad_2d.GetItrVertex(id_ve);!itrv->IsEnd();(*itrv)++){
+		for(Cad::CBRepSurface::CItrVertex itrv=cad_2d.GetItrVertex(id_ve);!itrv.IsEnd();itrv++){
 			unsigned int id_e0; bool is_same_dir0;
-			itrv->GetIdEdge_Behind(id_e0,is_same_dir0);
+			itrv.GetIdEdge_Behind(id_e0,is_same_dir0);
 			this->SetIsShow(false,Cad::EDGE,id_e0);
-			const unsigned int id_l = itrv->GetIdLoop();
+			const unsigned int id_l = itrv.GetIdLoop();
 			this->SetIsShow(false,Cad::LOOP,id_l);
 		}
 	}
 }
 
-void CDrawer_Cad2D::ShowEffected(const Cad::ICad2D& cad_2d,
+void CDrawer_Cad2D::ShowEffected(const Cad::CCadObj2D& cad_2d,
                                  Cad::CAD_ELEM_TYPE part_type, unsigned int part_id)
 {
 	std::vector<unsigned int> aEdgeID, aLoopID;
 	if( part_type == 1 ){
 		const unsigned int id_v = part_id;
-		for(std::auto_ptr<ICad2D::CItrVertex> itrv=cad_2d.GetItrVertex(id_v);!itrv->IsEnd();(*itrv)++){
+		for(Cad::CBRepSurface::CItrVertex itrv=cad_2d.GetItrVertex(id_v);!itrv.IsEnd();itrv++){
 			unsigned int id_e0; bool is_same_dir0;
-			itrv->GetIdEdge_Behind(id_e0,is_same_dir0);
+			itrv.GetIdEdge_Behind(id_e0,is_same_dir0);
 			this->SetIsShow(true,Cad::EDGE,id_e0);
-			const unsigned int id_l = itrv->GetIdLoop();
+			const unsigned int id_l = itrv.GetIdLoop();
 			this->SetIsShow(true,Cad::LOOP,id_l);
 		}
 	}
@@ -668,6 +667,7 @@ void CDrawer_Cad2D::Draw() const
   ::glDisable(GL_CULL_FACE);    // to make the program simple...
 	const bool is_lighting = ::glIsEnabled(GL_LIGHTING);
   const bool is_texture  = ::glIsEnabled(GL_TEXTURE_2D);  
+  const bool is_blend    = ::glIsEnabled(GL_BLEND);
   ::glDisable(GL_LIGHTING);
 
 	const unsigned int ndim = this->m_vertex_ary.NDim();
@@ -719,12 +719,8 @@ void CDrawer_Cad2D::Draw() const
         ::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         ::glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
       }
-			if( part->is_selected ){ 
-        ::glColor3d(1.0,1.0,0.0); 
-      }
-			else{
-        ::glColor3d(0.0,0.0,0.0); 
-      }
+			if( part->is_selected ){ ::glColor3d(1.0,1.0,0.0);  }
+			else{                    ::glColor3d(0.0,0.0,0.0);  }
 			::glTranslated(0.0,0.0, height);
 			part->DrawElements();
 			::glTranslated(0.0,0.0,-height);
@@ -754,16 +750,20 @@ void CDrawer_Cad2D::Draw() const
 	}
   ::glDisableClientState(GL_VERTEX_ARRAY);
   ::glDisableClientState(GL_TEXTURE_COORD_ARRAY);      
-  if( is_lighting ){ ::glEnable(GL_LIGHTING); }
+  if( is_lighting ){ ::glEnable(GL_LIGHTING);   } else{ ::glDisable(GL_LIGHTING);    }
+  if( is_blend    ){ ::glEnable(GL_BLEND);      } else{ ::glDisable(GL_BLEND);      }
+  if( is_texture  ){ ::glEnable(GL_TEXTURE_2D); } else{ ::glDisable(GL_TEXTURE_2D); }
 	return;
 }
 
 void CDrawer_Cad2D::DrawSelection(unsigned int idraw) const
 {
   ////////////////
+  const bool is_blend       = ::glIsEnabled(GL_BLEND);
+  const bool is_line_smooth = ::glIsEnabled(GL_LINE_SMOOTH);
+  const bool is_texture     = ::glIsEnabled(GL_TEXTURE_2D);
   ::glDisable(GL_BLEND);
   ::glDisable(GL_LINE_SMOOTH);
-  const bool is_texture = ::glIsEnabled(GL_TEXTURE_2D);
   ::glDisable(GL_TEXTURE_2D);
 	const unsigned int ndim = this->m_vertex_ary.NDim();
 	::glPushName(idraw);
@@ -804,7 +804,9 @@ void CDrawer_Cad2D::DrawSelection(unsigned int idraw) const
 	
 	::glPopName();
   
-  if( is_texture ){ ::glEnable(GL_TEXTURE_2D); }
+  if( is_blend       ){ ::glEnable(GL_BLEND);       }
+  if( is_line_smooth ){ ::glEnable(GL_LINE_SMOOTH); }
+  if( is_texture     ){ ::glEnable(GL_TEXTURE_2D);  }
 
 	return;
 }

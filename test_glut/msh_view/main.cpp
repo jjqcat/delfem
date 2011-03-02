@@ -401,7 +401,7 @@ bool SetNewProblem()
 		Msh::CMesher2D mesh_2d(cad_2d,0.05);
     {
       Msh::CMesher2D msh_tmp(mesh_2d);
-      mesh_2d.Clear();
+      mesh_2d.Clear(); 
       mesh_2d = msh_tmp;
     }    
 		{	// write file

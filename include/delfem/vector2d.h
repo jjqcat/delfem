@@ -29,6 +29,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 	#pragma warning(disable:4786)
 #endif
 
+#include <assert.h>
 #include <vector>
 #include "math.h"
 
@@ -102,7 +103,69 @@ public:
 	double x;	//!< ｘ座標値
 	double y;	//!< ｙ座標値
 };
-
+  
+  
+//! 2D bounding box class
+class CBoundingBox2D
+{
+public:
+  CBoundingBox2D(){
+    x_min=0;	x_max=0;
+    y_min=0;	y_max=0;
+    isnt_empty = false;
+  }
+  CBoundingBox2D(double x_min0,double x_max0,  double y_min0,double y_max0)
+  : x_min(x_min0),x_max(x_max0),  y_min(y_min0),y_max(y_max0)
+  {
+    assert( x_min <= x_max );
+    assert( y_min <= y_max );
+    isnt_empty = true;
+  }
+  CBoundingBox2D( const CBoundingBox2D& bb )
+  : x_min(bb.x_min),x_max(bb.x_max), y_min(bb.y_min),y_max(bb.y_max),  
+  isnt_empty(bb.isnt_empty){}
+  
+  CBoundingBox2D& operator+=(const CBoundingBox2D& bb)
+  {
+    if( !bb.isnt_empty ) return *this;
+    if( !isnt_empty ){
+      x_max = bb.x_max;	x_min = bb.x_min;
+      y_max = bb.y_max;	y_min = bb.y_min;
+      this->isnt_empty = bb.isnt_empty;
+      return *this;
+    }
+    x_max = ( x_max > bb.x_max ) ? x_max : bb.x_max;
+    x_min = ( x_min < bb.x_min ) ? x_min : bb.x_min;
+    y_max = ( y_max > bb.y_max ) ? y_max : bb.y_max;
+    y_min = ( y_min < bb.y_min ) ? y_min : bb.y_min;
+    return *this;
+  }
+  bool IsInside(const CVector2D& vec)
+  {
+    if( !isnt_empty ) return false; // 何もない場合は常に偽
+    if(   vec.x >= x_min && vec.x <= x_max
+       && vec.y >= y_min && vec.y <= y_max ) return true;
+    return false;
+  }
+  bool IsIntersectSphere(const CVector2D& vec, const double radius ) const
+  {
+    if( !isnt_empty ) return false; // 何もない場合は常に偽
+    if( vec.x < x_min-radius || vec.x > x_max+radius ||
+       vec.y < y_min-radius || vec.y > y_max+radius ) return false;
+    // 干渉しないやつが含まれているが、アバウトなままでよい．
+    return true;
+  }
+  bool IsIntersect(const CBoundingBox2D& bb_j, double clearance) const
+  {
+    if( bb_j.x_min > x_max+clearance || bb_j.x_max < x_min-clearance ) return false;
+    if( bb_j.y_min > y_max+clearance || bb_j.y_max < y_min-clearance ) return false;
+    return true;
+  }
+public:
+  double x_min,x_max,  y_min,y_max;
+  bool isnt_empty;	//!< false if there is nothing inside
+};  
+  
 
 
 inline CVector2D operator*(double c, const CVector2D& v0)

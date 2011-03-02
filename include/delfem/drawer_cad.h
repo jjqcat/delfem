@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include <vector>
 
-#include "delfem/cad2d_interface.h"
+#include "delfem/cad_obj2d.h"
 #include "delfem/drawer.h"
 #include "delfem/vector3d.h"
 
@@ -55,14 +55,14 @@ public :
    @param[in] imode 表示モード{0:面を描画する,1:面を描画しない(セレクションでは面を描画)}(デフォルトで0)
    @remaks 面を描画しないモードに設定してもセレクションはされるので，ピックは可能
 	*/
-  CDrawer_Cad2D(const Cad::ICad2D& cad)
+  CDrawer_Cad2D(const Cad::CCadObj2D& cad)
   {    
     tex_scale = 1;
     tex_cent_x=0, tex_cent_y=0;    
 		this->m_is_anti_aliasing = false;
     m_linewidth = 3;
     m_pointsize = 5;
-		// 2ptのチェック柄を作る
+		// create check pattern with 2pt interval
 		for(unsigned int j=0;j<4;j++){
 			unsigned int i;
 			for(i=0; i<8 ;i++) m_mask[j*32   +i] = 0x33;
@@ -77,8 +77,8 @@ public :
     tex_cent_x=0, tex_cent_y=0;        
 		this->m_is_anti_aliasing = false;
     m_linewidth = 3;
-    m_pointsize = 5;
-    // 2ptのチェック柄を作る
+    m_pointsize = 5;   
+ 		// create check pattern with 2pt interval
     for(unsigned int j=0;j<4;j++){
       unsigned int i;
       for(i=0; i<8 ;i++) m_mask[j*32   +i] = 0x33;
@@ -93,9 +93,9 @@ public :
 	// virtual関数
 
   //! 幾何形状を更新する(トポロジーの変化は存在しないとして)
-  void UpdateCAD_Geometry(const Cad::ICad2D&);
+  void UpdateCAD_Geometry(const Cad::CCadObj2D&);
   //! トポロジーと幾何を更新する
-  bool UpdateCAD_TopologyGeometry(const Cad::ICad2D&);
+  bool UpdateCAD_TopologyGeometry(const Cad::CCadObj2D&);
 
 	//! @{
 	//! 描画
@@ -116,7 +116,7 @@ public :
     cent_y = this->tex_cent_y;
   }    
 	//! バウンディング・ボックスを得る
-	virtual Com::CBoundingBox GetBoundingBox( double rot[] ) const {
+	virtual Com::CBoundingBox3D GetBoundingBox( double rot[] ) const {
 		return m_vertex_ary.GetBoundingBox(	rot );
 	}
 	//! Hilight表示する要素に加える(selection_flagから)
@@ -128,8 +128,8 @@ public :
     //! @}
 
 	void GetCadPartID(const int selec_flag[], Cad::CAD_ELEM_TYPE& part_type, unsigned int& part_id);
-  void HideEffected(const Cad::ICad2D& cad_2d, Cad::CAD_ELEM_TYPE part_type, unsigned int part_id);
-  void ShowEffected(const Cad::ICad2D& cad_2d, Cad::CAD_ELEM_TYPE part_type, unsigned int part_id);
+  void HideEffected(const Cad::CCadObj2D& cad_2d, Cad::CAD_ELEM_TYPE part_type, unsigned int part_id);
+  void ShowEffected(const Cad::CCadObj2D& cad_2d, Cad::CAD_ELEM_TYPE part_type, unsigned int part_id);
   void SetIsShow(bool is_show, Cad::CAD_ELEM_TYPE part_type, unsigned int part_id);
   void SetIsShow(bool is_show, Cad::CAD_ELEM_TYPE part_type, const std::vector<unsigned int>& aIdPart );
   void SetRigidDisp(unsigned int id_l, double xdisp, double ydisp);
@@ -213,11 +213,11 @@ public:
 		this->initial = initial_position;
 		imode = 0;
 	}
-	CDrawerRubberBand(const Cad::ICad2D& cad, unsigned int id_v_cad);
-	CDrawerRubberBand(const Cad::ICad2D& cad, unsigned int id_v, const Com::CVector3D& initial);
+	CDrawerRubberBand(const Cad::CCadObj2D& cad, unsigned int id_v_cad);
+	CDrawerRubberBand(const Cad::CCadObj2D& cad, unsigned int id_v, const Com::CVector3D& initial);
 	virtual void Draw() const;
 	virtual void DrawSelection(unsigned int idraw) const{}
-	virtual Com::CBoundingBox GetBoundingBox( double rot[] ) const;
+	virtual Com::CBoundingBox3D GetBoundingBox( double rot[] ) const;
 	virtual void AddSelected(const int selec_flag[]){}
 	virtual void ClearSelected(){}
 	virtual unsigned int WhatKindOfYou() const { return 0; }
