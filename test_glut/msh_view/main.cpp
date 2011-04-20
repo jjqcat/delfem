@@ -24,7 +24,7 @@
 #include "delfem/mesher2d.h"
 #include "delfem/mesh3d.h"
 #include "delfem/drawer_msh.h"
-
+#include "delfem/cad/cad_svg.h"
 #include "delfem/camera.h"
 #include "delfem/drawer_gl_utility.h"
 
@@ -153,7 +153,7 @@ void myGlutMouse(int button, int state, int x, int y){
 
 bool SetNewProblem()
 {
-	const unsigned int nprob = 14;
+	const unsigned int nprob = 15;
 	static unsigned int iprob = 0;
 
 	if( iprob == 0 )
@@ -588,7 +588,37 @@ bool SetNewProblem()
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh2D(mesh_2d) );
 		drawer_ary.InitTrans( camera );
-	}
+	}  
+	if( iprob == 14 )
+	{
+		Cad::CCadObj2D cad_2d;
+//    Cad::ReadSVG_AddLoopCad("../input_file/apman.svg",cad_2d);    
+    Cad::ReadSVG_AddLoopCad("../input_file/apman.svg",cad_2d);        
+		Msh::CMesher2D mesh_2d;
+    mesh_2d.SetMeshingMode_ElemSize(400);
+    mesh_2d.AddIdLCad_CutMesh(1);
+    mesh_2d.Meshing(cad_2d);
+    /*
+    ////
+    {
+      Msh::CMesher2D msh_tmp(mesh_2d);
+      mesh_2d.Clear();
+      mesh_2d = msh_tmp;
+    }
+		{	// write file
+			Com::CSerializer fout("hoge.txt",false);
+			mesh_2d.Serialize(fout);
+		}
+		{	// load file
+			Com::CSerializer fin( "hoge.txt",true);
+			mesh_2d.Serialize(fin);
+		}
+     */
+    ////
+		drawer_ary.Clear();
+		drawer_ary.PushBack( new Msh::View::CDrawerMsh2D(mesh_2d) );
+		drawer_ary.InitTrans( camera );
+	}  
 
 	iprob++;
 	if( iprob == nprob ) iprob = 0;
