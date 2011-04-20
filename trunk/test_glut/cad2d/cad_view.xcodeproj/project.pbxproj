@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		8DD76F650486A84900D96B5E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* main.cpp */; settings = {ATTRIBUTES = (); }; };
-		8DD76F6A0486A84900D96B5E /* cad_view.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = C6859E8B029090EE04C91782 /* cad_view.1 */; };
 		A999857111889FB800DBA052 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A999857011889FB800DBA052 /* OpenGL.framework */; };
 		A999857511889FC600DBA052 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A999857411889FC600DBA052 /* GLUT.framework */; };
 		A9EDB44811A8ACBD0003AC93 /* libdfm_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A9EDB43711A8AC640003AC93 /* libdfm_core.a */; };
@@ -38,7 +37,6 @@
 			dstPath = /usr/share/man/man1/;
 			dstSubfolderSpec = 0;
 			files = (
-				8DD76F6A0486A84900D96B5E /* cad_view.1 in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
@@ -50,7 +48,6 @@
 		A999857011889FB800DBA052 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		A999857411889FC600DBA052 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = /System/Library/Frameworks/GLUT.framework; sourceTree = "<absolute>"; };
 		A999857A11889FF900DBA052 /* dfm_core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = dfm_core.xcodeproj; path = ../../lib/xcodelib_core/dfm_core.xcodeproj; sourceTree = SOURCE_ROOT; };
-		C6859E8B029090EE04C91782 /* cad_view.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = cad_view.1; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,7 +104,6 @@
 		C6859E8C029090F304C91782 /* Documentation */ = {
 			isa = PBXGroup;
 			children = (
-				C6859E8B029090EE04C91782 /* cad_view.1 */,
 			);
 			name = Documentation;
 			sourceTree = "<group>";

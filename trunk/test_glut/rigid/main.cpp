@@ -786,7 +786,7 @@ int main(int argc,char* argv[])
     cameras.SetRotationMode(Com::View::ROT_3D);
 //    cameras.SetIsPers(true);
     {
-        Com::CBoundingBox bb(-2,2,-2,2,-2,2);
+        Com::CBoundingBox3D bb(-2,2,-2,2,-2,2);
         cameras.SetObjectBoundingBox(bb);
         cameras.Fit(bb);
     }

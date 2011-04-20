@@ -113,7 +113,7 @@ void myGlutMouse(int button, int state, int x, int y){
 bool SetNewProblem()
 {
 	const unsigned int nprob = 13;
-	static unsigned int iprob = 11;
+	static unsigned int iprob = 0;
   
   std::cout << "SetNewProblem() " << iprob << std::endl;
 
@@ -490,8 +490,7 @@ bool SetNewProblem()
 		drawer_ary.InitTrans(camera);
 	}
 	else if( iprob == 12 ){
-//    Cad::ReadSVG_AddLoopCad("../input_file/shape2d_0.svg",cad_2d);
-    Cad::ReadSVG_AddLoopCad("../input_file/apman.svg",cad_2d);    
+    Cad::ReadSVG_AddLoopCad("../input_file/shape2d_0.svg",cad_2d);
     { // copy shape
       Cad::CCadObj2D cad_tmp(cad_2d);
       cad_2d.Clear();
