@@ -28,9 +28,10 @@
 
 #include "delfem/serialize.h"
 #include "delfem/cad_obj2d.h"
+#include "delfem/cad/cad_svg.h"
 #include "delfem/drawer_cad.h"
 
-Com::View::CCamera mvp_trans;
+Com::View::CCamera camera;
 double mov_begin_x, mov_begin_y;
 int imodifier;
 Com::View::CDrawerArray drawer_ary;
@@ -38,11 +39,11 @@ Com::View::CDrawerArray drawer_ary;
 
 void myGlutResize(int w, int h)
 {
-	mvp_trans.SetWindowAspect((double)w/h);
+	camera.SetWindowAspect((double)w/h);
 	glViewport(0, 0, w, h);
 	::glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	Com::View::SetProjectionTransform(mvp_trans);
+	Com::View::SetProjectionTransform(camera);
 	glutPostRedisplay();
 }
 
@@ -58,7 +59,7 @@ void myGlutDisplay(void)
 
 	::glMatrixMode(GL_MODELVIEW);
 	::glLoadIdentity();
-	Com::View::SetModelViewTransform(mvp_trans);
+	Com::View::SetModelViewTransform(camera);
 
 	drawer_ary.Draw();
 	ShowFPS();
@@ -78,10 +79,10 @@ void myGlutMotion( int x, int y ){
 	const double mov_end_x = (2.0*x-win_w)/win_w;
 	const double mov_end_y = (win_h-2.0*y)/win_h;
 	if(      imodifier == GLUT_ACTIVE_CTRL ){
-		mvp_trans.MouseRotation(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
+		camera.MouseRotation(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
 	}
 	else if( imodifier == GLUT_ACTIVE_SHIFT ){
-		mvp_trans.MousePan(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
+		camera.MousePan(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 
 	}
 	mov_begin_x = mov_end_x;
 	mov_begin_y = mov_end_y;
@@ -99,9 +100,9 @@ void myGlutMouse(int button, int state, int x, int y){
 	if( state == GLUT_DOWN && imodifier == 0 ){
 		const unsigned int size_buffer = 2048;
 		unsigned int selec_buffer[size_buffer];
-		Com::View::PickPre(size_buffer,selec_buffer, x,y,5,5, mvp_trans);
+		Com::View::PickPre(size_buffer,selec_buffer, x,y,5,5, camera);
 		drawer_ary.DrawSelection();
-		std::vector<Com::View::SSelectedObject> aSelecObj = Com::View::PickPost(selec_buffer, x,y, mvp_trans );
+		std::vector<Com::View::SSelectedObject> aSelecObj = Com::View::PickPost(selec_buffer, x,y, camera );
 		drawer_ary.ClearSelected();
 		if( aSelecObj.size() > 0 ){
 			drawer_ary.AddSelected( aSelecObj[0].name );
@@ -111,8 +112,8 @@ void myGlutMouse(int button, int state, int x, int y){
 
 bool SetNewProblem()
 {
-	const unsigned int nprob = 12;
-	static unsigned int iprob = 0;
+	const unsigned int nprob = 13;
+	static unsigned int iprob = 11;
   
   std::cout << "SetNewProblem() " << iprob << std::endl;
 
@@ -152,7 +153,7 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
-		drawer_ary.InitTrans(mvp_trans);
+		drawer_ary.InitTrans(camera);
 	}
 	else if( iprob == 1 )
 	{
@@ -194,7 +195,7 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
-		drawer_ary.InitTrans(mvp_trans);
+		drawer_ary.InitTrans(camera);
 	}
 	else if( iprob == 2 )
 	{
@@ -218,7 +219,7 @@ bool SetNewProblem()
     }
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
-		drawer_ary.InitTrans(mvp_trans);
+		drawer_ary.InitTrans(camera);
 	}
 	else  if( iprob == 3 )
   {
@@ -242,7 +243,7 @@ bool SetNewProblem()
     }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
-		drawer_ary.InitTrans(mvp_trans);
+		drawer_ary.InitTrans(camera);
 	}
 	else if( iprob == 4 )
 	{
@@ -273,7 +274,7 @@ bool SetNewProblem()
     }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
-		drawer_ary.InitTrans(mvp_trans);
+		drawer_ary.InitTrans(camera);
 	}
 	else if( iprob == 5 )
 	{
@@ -293,7 +294,7 @@ bool SetNewProblem()
     }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
-		drawer_ary.InitTrans(mvp_trans);
+		drawer_ary.InitTrans(camera);
 	}
 	else if( iprob == 6 )
 	{
@@ -329,7 +330,7 @@ bool SetNewProblem()
     }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
-		drawer_ary.InitTrans(mvp_trans);
+		drawer_ary.InitTrans(camera);
 	}
 	else if( iprob == 7 )
 	{
@@ -363,10 +364,9 @@ bool SetNewProblem()
     }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
-		drawer_ary.InitTrans(mvp_trans);
+		drawer_ary.InitTrans(camera);
 	}
 	else if( iprob == 8 ){
-		Cad::CCadObj2D cad_2d;
 		unsigned int id_e3, id_e4;
 		{
 			std::vector<Com::CVector2D> vec_ary;
@@ -394,7 +394,7 @@ bool SetNewProblem()
     }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
-		drawer_ary.InitTrans(mvp_trans);
+		drawer_ary.InitTrans(camera);
 	}
 	else if( iprob == 9 )
 	{
@@ -423,7 +423,7 @@ bool SetNewProblem()
     }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
-		drawer_ary.InitTrans(mvp_trans);
+		drawer_ary.InitTrans(camera);
 	}
 	else if( iprob == 10 )
 	{
@@ -445,7 +445,7 @@ bool SetNewProblem()
     }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
-		drawer_ary.InitTrans(mvp_trans);
+		drawer_ary.InitTrans(camera);
 	}
 	else if( iprob == 11 ){
 		{	// define initial loop
@@ -454,8 +454,10 @@ bool SetNewProblem()
       vec_ary.push_back( Com::CVector2D(1.0,0.0) );
       vec_ary.push_back( Com::CVector2D(1.0,1.0) );
       vec_ary.push_back( Com::CVector2D(0.0,1.0) );
+      vec_ary.push_back( Com::CVector2D(0.0,0.5) );      
 			cad_2d.AddPolygon( vec_ary );
 		}
+    /*
 		{
 			std::vector<Com::CVector2D> aRelCo;
 			aRelCo.push_back( Com::CVector2D(0.25, -0.1) );
@@ -466,12 +468,18 @@ bool SetNewProblem()
 		cad_2d.SetCurve_Arc(2,true,-1);
 		{
 			std::vector<Com::CVector2D> aRelCo;
-			aRelCo.push_back( Com::CVector2D(+0.02, 0.75) );
-			aRelCo.push_back( Com::CVector2D(-0.20, 0.50) );
-			aRelCo.push_back( Com::CVector2D(+0.02, 0.25) );
-			cad_2d.SetCurve_Polyline(4,aRelCo);
+			aRelCo.push_back( Com::CVector2D(+0.01, 0.35) );
+			aRelCo.push_back( Com::CVector2D(-0.05, 0.25) );
+			aRelCo.push_back( Com::CVector2D(+0.01, 0.15) );
+			cad_2d.SetCurve_Polyline(5,aRelCo);
 		}
-		cad_2d.RemoveElement(Cad::VERTEX,1);
+		cad_2d.RemoveElement(Cad::VERTEX,1);  // removing this point marges 2 polylines
+     */
+    cad_2d.SetCurve_Bezier(3, 0.2,+0.5, 0.8,-0.5);
+//    cad_2d.SetCurve_Bezier(4, 0.0,-1.0, 0.3,+1.0);
+//    cad_2d.SetCurve_Bezier(5, 0.0,-1.0, 0.3,-1.0);     
+    std::cout << "area : " <<  cad_2d.GetArea_Loop(1) << std::endl;    
+    cad_2d.WriteToFile_dxf("hoge.dxf",1);
     { // copy shape
       Cad::CCadObj2D cad_tmp(cad_2d);
       cad_2d.Clear();
@@ -479,11 +487,23 @@ bool SetNewProblem()
     }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
-		drawer_ary.InitTrans(mvp_trans);
+		drawer_ary.InitTrans(camera);
+	}
+	else if( iprob == 12 ){
+//    Cad::ReadSVG_AddLoopCad("../input_file/shape2d_0.svg",cad_2d);
+    Cad::ReadSVG_AddLoopCad("../input_file/apman.svg",cad_2d);    
+    { // copy shape
+      Cad::CCadObj2D cad_tmp(cad_2d);
+      cad_2d.Clear();
+      cad_2d = cad_tmp;
+    }
+		drawer_ary.Clear();
+		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
+		drawer_ary.InitTrans(camera);
 	}
 	::glMatrixMode(GL_PROJECTION);
 	::glLoadIdentity();
-	Com::View::SetProjectionTransform(mvp_trans);
+	Com::View::SetProjectionTransform(camera);
 
 	iprob++;
 	if( iprob == nprob ) iprob=0;

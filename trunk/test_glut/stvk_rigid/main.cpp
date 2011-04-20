@@ -832,7 +832,7 @@ void myGlutDisplay(void)
     std::cout << cur_time << std::endl;
   }
   
-  DrawBackGround();
+  ShowBackGround();
   
   ::glColor3d(0.7,0.7,0.7);
   ::glBegin(GL_QUADS);
@@ -1242,14 +1242,14 @@ void myGlutKeyboard(unsigned char key, int x, int y)
 }
 
 void myGlutSpecialFunc(int key, int x, int y){
-    switch(key){
+  switch(key){
     case GLUT_KEY_PAGE_UP :     
-        camera.SetScale( camera.GetScale()*0.9    );
-        break;
+      camera.SetScale( camera.GetScale()*0.9    );
+      break;
     case GLUT_KEY_PAGE_DOWN :
-        camera.SetScale( camera.GetScale()*1.1111 );
-        break;
-    }
+      camera.SetScale( camera.GetScale()*1.1111 );
+      break;
+  }
 	::glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	Com::View::SetProjectionTransform(camera);
@@ -1270,17 +1270,17 @@ int main(int argc,char* argv[])
 	::glutDisplayFunc(myGlutDisplay);
 	::glutReshapeFunc(myGlutResize);
 	::glutKeyboardFunc(myGlutKeyboard);
-    ::glutSpecialFunc(myGlutSpecialFunc);
+  ::glutSpecialFunc(myGlutSpecialFunc);
 	::glutIdleFunc(myGlutIdle);
 
-    camera.SetRotationMode(Com::View::ROT_3D);
+  camera.SetRotationMode(Com::View::ROT_3D);
 //    camera.SetIsPers(true);
-    {
-        Com::CBoundingBox bb(-2,2,-2,2,-2,2);
-        camera.SetObjectBoundingBox(bb);
-        camera.Fit(bb);
-    }
-    SetProblem();
+  {
+    Com::CBoundingBox3D bb(-2,2,-2,2,-2,2);
+    camera.SetObjectBoundingBox(bb);
+    camera.Fit(bb);      
+  }
+  SetProblem();
 
 	// Enter main loop
 	::glutMainLoop();
