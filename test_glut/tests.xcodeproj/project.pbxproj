@@ -7,12 +7,26 @@
 	objects = {
 
 /* Begin PBXContainerItemProxy section */
-		A94832941189F07B0041A31C /* PBXContainerItemProxy */ = {
+		A912FE1F135E9DEA00E7C40E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = A948328C1189F07B0041A31C /* cad_view.xcodeproj */;
+			containerPortal = A912FE1B135E9DEA00E7C40E /* cad_view.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 8DD76F6C0486A84900D96B5E;
+			remoteGlobalIDString = 8DD76F6C0486A84900D96B5E /* cad_view */;
 			remoteInfo = cad_view;
+		};
+		A912FE29135E9DF900E7C40E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A912FE21135E9DF900E7C40E /* cad_view.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8DD76F6C0486A84900D96B5E /* cad_view */;
+			remoteInfo = cad_view;
+		};
+		A912FE33135E9E1200E7C40E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A912FE2B135E9E1200E7C40E /* cad.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8DD76F6C0486A84900D96B5E /* cad */;
+			remoteInfo = cad;
 		};
 		A948329A1189F08B0041A31C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -108,7 +122,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		A948328C1189F07B0041A31C /* cad_view.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = cad_view.xcodeproj; path = cad_view/cad_view.xcodeproj; sourceTree = "<group>"; };
+		A912FE1B135E9DEA00E7C40E /* cad_view.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = cad_view.xcodeproj; path = cad2d/cad_view.xcodeproj; sourceTree = "<group>"; };
+		A912FE21135E9DF900E7C40E /* cad_view.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = cad_view.xcodeproj; path = cad3d/cad_view.xcodeproj; sourceTree = "<group>"; };
+		A912FE2B135E9E1200E7C40E /* cad.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = cad.xcodeproj; path = cad2d_edit/cad.xcodeproj; sourceTree = "<group>"; };
 		A94832961189F08B0041A31C /* field_evaluate.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = field_evaluate.xcodeproj; path = field_evaluate/field_evaluate.xcodeproj; sourceTree = "<group>"; };
 		A948329C1189F09B0041A31C /* fluid2d.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = fluid2d.xcodeproj; path = fluid2d/fluid2d.xcodeproj; sourceTree = "<group>"; };
 		A94832A61189F0A60041A31C /* helmholtz2d.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = helmholtz2d.xcodeproj; path = helmholtz2d/helmholtz2d.xcodeproj; sourceTree = "<group>"; };
@@ -125,9 +141,36 @@
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
+		A912FE1C135E9DEA00E7C40E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A912FE20135E9DEA00E7C40E /* cad_view */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A912FE22135E9DF900E7C40E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A912FE2A135E9DF900E7C40E /* cad_view */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A912FE2C135E9E1200E7C40E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A912FE34135E9E1200E7C40E /* cad */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		A948327B1189F0540041A31C = {
 			isa = PBXGroup;
 			children = (
+				A912FE2B135E9E1200E7C40E /* cad.xcodeproj */,
+				A912FE21135E9DF900E7C40E /* cad_view.xcodeproj */,
+				A912FE1B135E9DEA00E7C40E /* cad_view.xcodeproj */,
 				A9A02C2E118F185900F2D39A /* stvk_rigid.xcodeproj */,
 				A9A02C24118F184900F2D39A /* rigid.xcodeproj */,
 				A9A026B0118DA95B00F2D39A /* dkt2d.xcodeproj */,
@@ -141,16 +184,7 @@
 				A94832A61189F0A60041A31C /* helmholtz2d.xcodeproj */,
 				A948329C1189F09B0041A31C /* fluid2d.xcodeproj */,
 				A94832961189F08B0041A31C /* field_evaluate.xcodeproj */,
-				A948328C1189F07B0041A31C /* cad_view.xcodeproj */,
 			);
-			sourceTree = "<group>";
-		};
-		A948328D1189F07B0041A31C /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				A94832951189F07B0041A31C /* cad_view */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		A94832971189F08B0041A31C /* Products */ = {
@@ -276,8 +310,16 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = A948328D1189F07B0041A31C /* Products */;
-					ProjectRef = A948328C1189F07B0041A31C /* cad_view.xcodeproj */;
+					ProductGroup = A912FE2C135E9E1200E7C40E /* Products */;
+					ProjectRef = A912FE2B135E9E1200E7C40E /* cad.xcodeproj */;
+				},
+				{
+					ProductGroup = A912FE22135E9DF900E7C40E /* Products */;
+					ProjectRef = A912FE21135E9DF900E7C40E /* cad_view.xcodeproj */;
+				},
+				{
+					ProductGroup = A912FE1C135E9DEA00E7C40E /* Products */;
+					ProjectRef = A912FE1B135E9DEA00E7C40E /* cad_view.xcodeproj */;
 				},
 				{
 					ProductGroup = A9A026B1118DA95B00F2D39A /* Products */;
@@ -339,11 +381,25 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		A94832951189F07B0041A31C /* cad_view */ = {
+		A912FE20135E9DEA00E7C40E /* cad_view */ = {
 			isa = PBXReferenceProxy;
 			fileType = "compiled.mach-o.executable";
 			path = cad_view;
-			remoteRef = A94832941189F07B0041A31C /* PBXContainerItemProxy */;
+			remoteRef = A912FE1F135E9DEA00E7C40E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		A912FE2A135E9DF900E7C40E /* cad_view */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = cad_view;
+			remoteRef = A912FE29135E9DF900E7C40E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		A912FE34135E9E1200E7C40E /* cad */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = cad;
+			remoteRef = A912FE33135E9E1200E7C40E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		A948329B1189F08B0041A31C /* field_evaluate */ = {

@@ -1,0 +1,42 @@
+This is a document for DelFEM library.
+DelFEM : http://code.google.com/p/delfem/
+
+DelFEM is a library, which try to provide a handy environment for creating Finite Element Method (FEM) programs. 
+
+
+*Build
+
+DelFEM is written in C++, so probably you can compile it with many different C++ compilers. But I recommend you to use gcc with which I usually compile the library. 
+
+GLUT system is also an requirement to build the library.
+
+**Windows
+
+To use gcc in windows, you can use MinGW. 
+MinGW : http://www.mingw.org/
+
+For the GLUT system, please install freeGLUT for MinGW.
+Free GLUT: http://freeglut.sourceforge.net/
+
+Please build the library by execute command "make" for the library Makefile at "DelFEM/Makefile". The make command of MinGW is "mingw32-make".
+
+**Linux
+
+Please build the library by execute command "make" for the library Makefile at "DelFEM/Makefile". 
+
+**Mac
+
+You can either make this system with "make" command or using Mac XCode system. The XCode project file for building DelFEM library is in "DelFEM/lib/xcodelib_core/"
+
+
+
+
+*Examples
+
+Example projects are placed in (DelFEM/test_glut/).
+Since there is no detailed manual for this library, I recommend to learn the usage from the examples.
+
+
+
+----
+Please enjoy!!
