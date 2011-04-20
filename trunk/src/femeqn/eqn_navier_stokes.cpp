@@ -583,7 +583,7 @@ bool Fem::Eqn::AddLinSys_NavierStokes2D_NonStatic_Newmark(
 		return res;
 	}
 	else{
-		const std::vector<unsigned int>& aIdEA = field_velo.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field_velo.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			// Ä‹A•¶
@@ -967,7 +967,7 @@ bool Fem::Eqn::AddLinSys_NavierStokesALE2D_NonStatic_Newmark(
 	if( field_msh_velo.GetFieldType() != VECTOR2 ) return false;
 	if( field_press.GetFieldType() != SCALAR ) return false;
 
-	const std::vector<unsigned int>& aIdEA = field_velo.GetAry_IdElemAry();
+	const std::vector<unsigned int>& aIdEA = field_velo.GetAryIdEA();
 	for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 		const unsigned int id_ea = aIdEA[iiea];
 		if( field_velo.GetInterpolationType(id_ea,world) == TRI11 ){
@@ -1511,7 +1511,7 @@ bool Fem::Eqn::AddLinSys_NavierStokes2DThermalBuoy_NonStatic_Newmark(
 	if( field_velo.GetFieldType()  != VECTOR2 ) return false;
 	if( field_press.GetFieldType() != SCALAR  ) return false;
 
-	const std::vector<unsigned int>& aIdEA = field_velo.GetAry_IdElemAry();
+	const std::vector<unsigned int>& aIdEA = field_velo.GetAryIdEA();
 	if(    ls.FindIndexArray_Seg(id_field_velo, CORNER,world) 
 		== ls.FindIndexArray_Seg(id_field_press,CORNER,world) ){
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){

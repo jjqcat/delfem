@@ -43,38 +43,16 @@ class ICad2D_Msh
 public:	
   ICad2D_Msh(){}	//!< needs defalut constructor
   virtual ~ICad2D_Msh(){}	//!< virtual destructor is must for interface class
-
-
-	//! 辺の始点と終点の頂点のIDを返す
 	virtual bool GetIdVertex_Edge(unsigned int &id_v_s, unsigned int& id_v_e, unsigned int id_e) const = 0;  
-
-	////////////////////////////////////////////////
-	// 構成要素へのアクセス
-
-	//!@{
-	//! idが使われているかどうかを調べる関数
 	virtual bool IsElemID(Cad::CAD_ELEM_TYPE,unsigned int id) const = 0;
-	//! すべてのIDを配列にして返す関数
 	virtual const std::vector<unsigned int> GetAryElemID(Cad::CAD_ELEM_TYPE) const = 0;
-	//!@}
-	
-	// レイヤ関係の関数
   virtual int GetLayer(Cad::CAD_ELEM_TYPE, unsigned int id) const = 0;
 	virtual void GetLayerMinMax(int& layer_min, int& layer_max) const = 0;
-
-	////////////////////////////////
-	// member fucntion for loop
-  
-  //! ID:id_lのループの色を返す(本来このクラスは位相と幾何情報以外を持つべきではないかもしれないので暫定的)
   virtual bool GetColor_Loop(unsigned int id_l, double color[3] ) const = 0;
 	//! get area loop (ID:id_l)
 	virtual double GetArea_Loop(unsigned int id_l) const = 0;
-	//! ID:id_lのループを構成する頂点や辺をめぐるイテレータを返す関数
   virtual std::auto_ptr<IItrLoop> GetPtrItrLoop(unsigned int id_l) const = 0;
-
-  //! ID:id_eの辺のメッシュ分割を得る(elen<=0ならできるだけ詳細にメッシュを切ろうとする)
   virtual bool GetCurveAsPolyline(unsigned int id_e, std::vector<Com::CVector2D>& aCo, double elen) const = 0;
-  
 	virtual Com::CVector2D GetVertexCoord(unsigned int id_v) const = 0;
 };
 

@@ -193,7 +193,7 @@ bool CDrawerEdge::Set(unsigned int id_field, bool isnt_value_disp, const Fem::Fi
 	m_EdgeAry.resize(0);
 	{	// •Ó‚ğƒQƒbƒg‚·‚éŠÖ”
 		std::vector<unsigned int> edge_ary_tmp;
-		const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			const Fem::Field::CElemAry& ea = world.GetEA(id_ea);

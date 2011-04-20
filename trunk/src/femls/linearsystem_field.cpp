@@ -80,7 +80,7 @@ void Fem::Ls::BoundaryCondition
   if( !world.IsIdField(id_field) ) return;
   const Fem::Field::CField& field = world.GetField(id_field);
   assert( (int)idofns < bc_flag.LenBlk()  );
-  const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+  const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
   for(unsigned int iea=0;iea<aIdEA.size();iea++){
     const unsigned int id_ea = aIdEA[iea];
     const CElemAry& ea = world.GetEA(id_ea);
@@ -110,7 +110,7 @@ void Fem::Ls::BoundaryCondition
   }
   const unsigned int nlen = field.GetNLenValue();
   
-  const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+  const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
   for(unsigned int iea=0;iea<aIdEA.size();iea++){
     unsigned int id_ea = aIdEA[iea];
     const CElemAry& ea = world.GetEA(id_ea);
@@ -173,7 +173,7 @@ int CLinearSystem_Field::AddLinSysSeg_Field(
 		if( field.GetIDFieldParent() == 0 ){ id_field_parent = id_field; }
 		else{ id_field_parent = field.GetIDFieldParent(); }
 	}
-	const unsigned int nlen_value = field.GetNLenValue();
+//	const unsigned int nlen_value = field.GetNLenValue();
 	////////////////
 	unsigned int id_na_val = field.GetNodeSegInNodeAry(es_type).id_na_va;
 	if( id_na_val == 0 ) return -1;	
@@ -201,7 +201,7 @@ bool CLinearSystem_Field::AddPattern_Field(const unsigned int id_field, const CF
 	const int ils_c = AddLinSysSeg_Field(id_field,CORNER,world);
 //	std::cout << "AddPattern_Field : " << ils_c << " " << ils_b << " " << ils_e << std::endl;
 	////////////////////////////////
-	const std::vector<unsigned int> aIdEA = field.GetAry_IdElemAry();
+	const std::vector<unsigned int> aIdEA = field.GetAryIdEA();
   assert( aIdEA.size() > 0 );
 	for(unsigned int iiea=0;iiea<aIdEA.size();iiea++)
 	{
@@ -322,8 +322,8 @@ bool CLinearSystem_Field::AddPattern_CombinedField(unsigned id_field1, unsigned 
 		return false;
 	}
 	////////////////////////////////////////////////////////////////
-	const std::vector<unsigned int>& aIdEA1 = field1.GetAry_IdElemAry();
-	const std::vector<unsigned int>& aIdEA2 = field2.GetAry_IdElemAry();
+	const std::vector<unsigned int>& aIdEA1 = field1.GetAryIdEA();
+	const std::vector<unsigned int>& aIdEA2 = field2.GetAryIdEA();
 	if( aIdEA1.size() != aIdEA2.size() ){
 		assert(0);
 		return false;
@@ -385,13 +385,13 @@ bool CLinearSystem_Field::AddPattern_Field(
 		else{ id_field_parent = field1.GetIDFieldParent(); }
 	}
 
-	const unsigned int nlen_value = field1.GetNLenValue();
+//	const unsigned int nlen_value = field1.GetNLenValue();
 
 	const int ils_c = this->AddLinSysSeg_Field(id_field1,CORNER,world);
 	const int ils_b = this->AddLinSysSeg_Field(id_field1,BUBBLE,world);
 
 	const CField& field2 = world.GetField(id_field2);
-	const std::vector<unsigned int>& aIdEA1 = field1.GetAry_IdElemAry();
+	const std::vector<unsigned int>& aIdEA1 = field1.GetAryIdEA();
 
 	if( field1.GetNodeSegInNodeAry(CORNER).id_na_va != 0 &&
 		field1.GetNodeSegInNodeAry(CORNER).id_na_co == 0 &&
@@ -399,8 +399,8 @@ bool CLinearSystem_Field::AddPattern_Field(
 		field1.GetNodeSegInNodeAry(BUBBLE).id_na_va == 0 )
 	{
 		// Lagrange未定乗数のための接続（これはどこかに移す可能性が大きい）
-		const unsigned int id_na_co1 = field1.GetNodeSegInNodeAry(BUBBLE).id_na_co;
-		const unsigned int id_na_va2 = field1.GetNodeSegInNodeAry(CORNER).id_na_va;
+//		const unsigned int id_na_co1 = field1.GetNodeSegInNodeAry(BUBBLE).id_na_co;
+//		const unsigned int id_na_va2 = field1.GetNodeSegInNodeAry(CORNER).id_na_va;
 			
 		const unsigned int id_ea1 = aIdEA1[0];
 		assert( field1.GetIdElemSeg(id_ea1,CORNER,true,world) != 0 );
@@ -430,7 +430,7 @@ bool CLinearSystem_Field::AddPattern_Field(
 		return true;
 	}
 
-	const std::vector<unsigned int>& aIdEA2 = field2.GetAry_IdElemAry();
+	const std::vector<unsigned int>& aIdEA2 = field2.GetAryIdEA();
 
 	for(;;){	// ダミーのfor文を使ってbreakで抜けられるようにする
 		// Corner-Corner関係を作る
@@ -1096,7 +1096,7 @@ bool CLinearSystem_Field::UpdateValueOfField_BackwardEular
 			assert(0);
 		}
 	}
-	
+	return true;
 }
 
 

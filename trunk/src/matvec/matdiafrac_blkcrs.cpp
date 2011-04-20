@@ -768,95 +768,96 @@ bool CMatDiaFrac_BlkCrs::DoILUDecompLowUp(
 // numerical factorization
 bool CMatDiaFrac_BlkCrs::DoILUDecomp()
 {
+  
 	assert( NBlkMatRow() == NBlkMatCol() );
 	assert( this->LenBlkRow() == LenBlkCol() );
 	const unsigned int nmax_sing = 10;	// ƒuƒƒbƒNILU•ª‰ð‚ÉŽ¸”s‚µ‚Ä‚¢‚¢”‚ÌãŒÀ
 	unsigned int icnt_sing = 0;
-
-    if( LenBlkCol() == -1 || LenBlkRow() == -1 ){
-        if( LenBlkCol() >= 0 || LenBlkRow() >= 0 ){
-            std::cout << "Error!-->Not Implemented" << std::endl;
-            assert(0);
-            return false;
+  
+  if( LenBlkCol() == -1 || LenBlkRow() == -1 ){
+    if( LenBlkCol() >= 0 || LenBlkRow() >= 0 ){
+      std::cout << "Error!-->Not Implemented" << std::endl;
+      assert(0);
+      return false;
+    }
+    assert( this->m_ValPtr != 0 );
+    const unsigned int nblk = this->NBlkMatCol();
+    
+    double* pTmpBlk;
+    {
+      unsigned int maxlen = 0;
+      for(unsigned int iblk=0;iblk<nblk;iblk++){
+        maxlen = ( maxlen > this->LenBlkCol(iblk) ) ? maxlen : this->LenBlkCol(iblk);
+      }
+      pTmpBlk = new double [maxlen*maxlen];
+    }
+    int* row2crs_f = new int [nblk];
+    for(unsigned int iblk=0;iblk<nblk;iblk++){
+      const unsigned int lenblk_i = this->LenBlkCol(iblk);
+      for(unsigned int ijcrs=m_colInd_Blk[iblk];ijcrs<m_colInd_Blk[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
+        const unsigned int jblk0 = m_rowPtr_Blk[ijcrs]; assert( jblk0<nblk );
+        row2crs_f[jblk0] = ijcrs;
+      }
+      for(unsigned int ikcrs=m_colInd_Blk[iblk];ikcrs<m_DiaInd[iblk];ikcrs++){
+        const unsigned int kblk0 = m_rowPtr_Blk[ikcrs]; assert( kblk0<nblk );
+        const unsigned int lenblk_k = this->LenBlkCol(kblk0); 
+        const double* pVal_ik = &this->m_valCrs_Blk[ m_ValPtr[ikcrs] ];
+        for(unsigned int kjcrs=m_DiaInd[kblk0];kjcrs<m_colInd_Blk[kblk0+1];kjcrs++){
+          const unsigned int jblk0 = m_rowPtr_Blk[kjcrs]; assert( jblk0<nblk && jblk0>kblk0 );
+          const unsigned int lenblk_j = this->LenBlkRow(jblk0);
+          const double* pVal_kj = &m_valCrs_Blk[ m_ValPtr[kjcrs] ]; assert( pVal_kj != 0 );
+          double* pVal_ij = 0;
+          if( jblk0 != iblk ){
+            const int ijcrs0 = row2crs_f[jblk0];
+            if( ijcrs0 == -1 ){ continue; }
+            pVal_ij = &m_valCrs_Blk[ m_ValPtr[ijcrs0] ];
+          }
+          else{ pVal_ij = &m_valDia_Blk[ m_DiaValPtr[iblk] ]; }
+          assert( pVal_ij != 0 );
+          CalcSubMatPr(pVal_ij,pVal_ik,pVal_kj, lenblk_i,lenblk_k,lenblk_j);
         }
-        assert( this->m_ValPtr != 0 );
-        const unsigned int nblk = this->NBlkMatCol();
-
-	    double* pTmpBlk;
-        {
-            unsigned int maxlen = 0;
-            for(unsigned int iblk=0;iblk<nblk;iblk++){
-                maxlen = ( maxlen > this->LenBlkCol(iblk) ) ? maxlen : this->LenBlkCol(iblk);
-            }
-            pTmpBlk = new double [maxlen*maxlen];
-        }
-        int* row2crs_f = new int [nblk];
-	    for(unsigned int iblk=0;iblk<nblk;iblk++){
-            const unsigned int lenblk_i = this->LenBlkCol(iblk);
-            for(unsigned int ijcrs=m_colInd_Blk[iblk];ijcrs<m_colInd_Blk[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
-			    const unsigned int jblk0 = m_rowPtr_Blk[ijcrs]; assert( jblk0<nblk );
-			    row2crs_f[jblk0] = ijcrs;
-		    }
-		    for(unsigned int ikcrs=m_colInd_Blk[iblk];ikcrs<m_DiaInd[iblk];ikcrs++){
-			    const unsigned int kblk0 = m_rowPtr_Blk[ikcrs]; assert( kblk0<nblk );
-                const unsigned int lenblk_k = this->LenBlkCol(kblk0); 
-			    const double* pVal_ik = &this->m_valCrs_Blk[ m_ValPtr[ikcrs] ];
-			    for(unsigned int kjcrs=m_DiaInd[kblk0];kjcrs<m_colInd_Blk[kblk0+1];kjcrs++){
-				    const unsigned int jblk0 = m_rowPtr_Blk[kjcrs]; assert( jblk0<nblk && jblk0>kblk0 );
-                    const unsigned int lenblk_j = this->LenBlkRow(jblk0);
-                    const double* pVal_kj = &m_valCrs_Blk[ m_ValPtr[kjcrs] ]; assert( pVal_kj != 0 );
-                    double* pVal_ij = 0;
-                    if( jblk0 != iblk ){
-				        const int ijcrs0 = row2crs_f[jblk0];
-                        if( ijcrs0 == -1 ){ continue; }
-				        pVal_ij = &m_valCrs_Blk[ m_ValPtr[ijcrs0] ];
-                    }
-                    else{ pVal_ij = &m_valDia_Blk[ m_DiaValPtr[iblk] ]; }
-				    assert( pVal_ij != 0 );
-                    CalcSubMatPr(pVal_ij,pVal_ik,pVal_kj, lenblk_i,lenblk_k,lenblk_j);
-			    }
-		    }
-		    {
-			    double* pVal_ii = &m_valDia_Blk[ m_DiaValPtr[iblk] ];
-			    int info = 0;
-			    CalcInvMat(pVal_ii,lenblk_i,info);
-			    if( info==1 ){
-//				    std::cout << "frac false" << iblk << std::endl;
+      }
+      {
+        double* pVal_ii = &m_valDia_Blk[ m_DiaValPtr[iblk] ];
+        int info = 0;
+        CalcInvMat(pVal_ii,lenblk_i,info);
+        if( info==1 ){
+          //				    std::cout << "frac false" << iblk << std::endl;
 					icnt_sing++;
 					if( icnt_sing > nmax_sing ){ 
 						delete[] row2crs_f;
 						delete[] pTmpBlk;
 						return false; 
 					}
-			    }
-		    }
-            for(unsigned int ijcrs=m_DiaInd[iblk];ijcrs<m_colInd_Blk[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
-			    double* pVal_ij = &m_valCrs_Blk[ m_ValPtr[ijcrs] ];
-			    const double* pVal_ii = &m_valDia_Blk[ m_DiaValPtr[iblk] ];
-                const unsigned int jblk0 = m_rowPtr_Blk[ijcrs]; assert( jblk0<NBlkMatRow() );
-                const unsigned int lenblk_j = this->LenBlkRow(jblk0);
-                CalcMatPr(pVal_ij,pVal_ii,pTmpBlk,  lenblk_i,lenblk_j);
-		    }
-            for(unsigned int ijcrs=m_colInd_Blk[iblk];ijcrs<m_colInd_Blk[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
-			    const unsigned int jblk0 = m_rowPtr_Blk[ijcrs]; assert( jblk0<nblk );
-			    row2crs_f[jblk0] = -1;
-		    }
-	    }	// end iblk
-	    delete[] row2crs_f;
-        delete[] pTmpBlk;
-        return true;
-    }
-
+        }
+      }
+      for(unsigned int ijcrs=m_DiaInd[iblk];ijcrs<m_colInd_Blk[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
+        double* pVal_ij = &m_valCrs_Blk[ m_ValPtr[ijcrs] ];
+        const double* pVal_ii = &m_valDia_Blk[ m_DiaValPtr[iblk] ];
+        const unsigned int jblk0 = m_rowPtr_Blk[ijcrs]; assert( jblk0<NBlkMatRow() );
+        const unsigned int lenblk_j = this->LenBlkRow(jblk0);
+        CalcMatPr(pVal_ij,pVal_ii,pTmpBlk,  lenblk_i,lenblk_j);
+      }
+      for(unsigned int ijcrs=m_colInd_Blk[iblk];ijcrs<m_colInd_Blk[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
+        const unsigned int jblk0 = m_rowPtr_Blk[ijcrs]; assert( jblk0<nblk );
+        row2crs_f[jblk0] = -1;
+      }
+    }	// end iblk
+    delete[] row2crs_f;
+    delete[] pTmpBlk;
+    return true;
+  }
+  
 	const unsigned int BlkLen = LenBlkCol();
 	const unsigned int BlkSize = BlkLen*BlkLen;
-
-//	int info= 0;
+  
+  //	int info= 0;
 	int* row2crs_f = new int [NBlkMatRow()];
 	for(unsigned int jblk=0;jblk<NBlkMatRow();jblk++){ row2crs_f[jblk] = -1; }
 	if( BlkLen == 1 ){
 		for(unsigned int iblk=0;iblk<NBlkMatCol();iblk++){
 			// ”ñƒ[ƒƒtƒ‰ƒO‚Ì‰Šú‰»
-            for(unsigned int ijcrs=m_colInd_Blk[iblk];ijcrs<m_colInd_Blk[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
+      for(unsigned int ijcrs=m_colInd_Blk[iblk];ijcrs<m_colInd_Blk[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
 				const unsigned int jblk0 = m_rowPtr_Blk[ijcrs]; assert( jblk0<NBlkMatRow() );
 				row2crs_f[jblk0] = ijcrs;
 			}
@@ -888,11 +889,11 @@ bool CMatDiaFrac_BlkCrs::DoILUDecomp()
 				}
 			}
 			// ‘ÎŠp‚Ì‹t”‚ðŒvŽZ‚µ‚ÄãŽOŠps—ñ‚ÉŠ|‚¯‚é
-            for(unsigned int ijcrs=m_DiaInd[iblk];ijcrs<m_colInd_Blk[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
+      for(unsigned int ijcrs=m_DiaInd[iblk];ijcrs<m_colInd_Blk[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
 				m_valCrs_Blk[ijcrs] = m_valCrs_Blk[ijcrs] * m_valDia_Blk[iblk];
 			}
 			// ”ñƒ[ƒƒtƒ‰ƒO‚ð‚à‚Æ‚É–ß‚·
-            for(unsigned int ijcrs=m_colInd_Blk[iblk];ijcrs<m_colInd_Blk[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
+      for(unsigned int ijcrs=m_colInd_Blk[iblk];ijcrs<m_colInd_Blk[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
 				const unsigned int jblk0 = m_rowPtr_Blk[ijcrs]; assert( jblk0<NBlkMatRow() );
 				row2crs_f[jblk0] = -1;
 			}
@@ -910,7 +911,7 @@ bool CMatDiaFrac_BlkCrs::DoILUDecomp()
 		double TmpBlk[4];
 		for(unsigned int iblk=0;iblk<nblk;iblk++){
 			// ”ñƒ[ƒƒtƒ‰ƒO‚Ì‰Šú‰»
-            for(unsigned int ijcrs=colind[iblk];ijcrs<colind[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
+      for(unsigned int ijcrs=colind[iblk];ijcrs<colind[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
 				const unsigned int jblk0 = rowptr[ijcrs]; assert( jblk0<NBlkMatRow() );
 				row2crs_f[jblk0] = ijcrs;
 			}
@@ -927,8 +928,8 @@ bool CMatDiaFrac_BlkCrs::DoILUDecomp()
 						if( ijcrs0 == -1 ) continue;	// ‚à‚µƒpƒ^[ƒ“‚ª‚È‚¯‚ê‚Î–ß‚é
 						pVal_ij = &matval_nd[ijcrs0*4];
 					}
-                    else{ pVal_ij = &matval_dia[iblk *4]; }
-                    assert( pVal_ij != 0 );
+          else{ pVal_ij = &matval_dia[iblk *4]; }
+          assert( pVal_ij != 0 );
 					pVal_ij[0] -= pVal_ik[0]*pVal_kj[0]+pVal_ik[1]*pVal_kj[2];
 					pVal_ij[1] -= pVal_ik[0]*pVal_kj[1]+pVal_ik[1]*pVal_kj[3];
 					pVal_ij[2] -= pVal_ik[2]*pVal_kj[0]+pVal_ik[3]*pVal_kj[2];
@@ -956,7 +957,7 @@ bool CMatDiaFrac_BlkCrs::DoILUDecomp()
 				}
 			}
 			// ‘ÎŠp‚Ì‹t”‚ðŒvŽZ‚µ‚ÄãŽOŠps—ñ‚ÉŠ|‚¯‚éB[U] = [1/D][U]
-            for(unsigned int ijcrs=diaind[iblk];ijcrs<colind[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
+      for(unsigned int ijcrs=diaind[iblk];ijcrs<colind[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
 				double* pVal_ij = &matval_nd[ijcrs*4];
 				const double* pVal_ii = &matval_dia[iblk*4];
 				for(unsigned int i=0;i<4;i++){ TmpBlk[i] = pVal_ij[i]; }
@@ -966,7 +967,7 @@ bool CMatDiaFrac_BlkCrs::DoILUDecomp()
 				pVal_ij[3] = pVal_ii[2]*TmpBlk[1] + pVal_ii[3]*TmpBlk[3];
 			}
 			// ”ñƒ[ƒƒtƒ‰ƒO‚ð‚à‚Æ‚É–ß‚·
-            for(unsigned int ijcrs=colind[iblk];ijcrs<colind[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
+      for(unsigned int ijcrs=colind[iblk];ijcrs<colind[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
 				const unsigned int jblk0 = rowptr[ijcrs]; assert( jblk0<nblk );
 				row2crs_f[jblk0] = -1;
 			}
@@ -977,7 +978,7 @@ bool CMatDiaFrac_BlkCrs::DoILUDecomp()
 		double tmpBlk[9];
 		for(unsigned int iblk=0;iblk<NBlkMatCol();iblk++){
 			// ”ñƒ[ƒƒtƒ‰ƒO‚Ì‰Šú‰»
-            for(unsigned int ijcrs=m_colInd_Blk[iblk];ijcrs<m_colInd_Blk[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
+      for(unsigned int ijcrs=m_colInd_Blk[iblk];ijcrs<m_colInd_Blk[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
 				const unsigned int jblk0 = m_rowPtr_Blk[ijcrs]; assert( jblk0<NBlkMatRow() );
 				row2crs_f[jblk0] = ijcrs;
 			}
@@ -991,58 +992,59 @@ bool CMatDiaFrac_BlkCrs::DoILUDecomp()
 					double* pVal_ij = 0;
 					if( jblk0 != iblk ){
 						const int ijcrs0 = row2crs_f[jblk0];
-                        if( ijcrs0 == -1 ){ continue; }// ‚à‚µƒpƒ^[ƒ“‚ª‚È‚¯‚ê‚Î–ß‚é
+            if( ijcrs0 == -1 ){ continue; }// ‚à‚µƒpƒ^[ƒ“‚ª‚È‚¯‚ê‚Î–ß‚é
 						pVal_ij = &m_valCrs_Blk[ijcrs0*BlkSize];
 					}
-                    else{ pVal_ij = &m_valDia_Blk[iblk *BlkSize]; }
+          else{ pVal_ij = &m_valDia_Blk[iblk *BlkSize]; }
 					assert( pVal_ij != 0 );
-                    for(unsigned int i=0;i<3;i++){
-                        pVal_ij[i*3+0] -= pVal_ik[i*3+0]*pVal_kj[0] + pVal_ik[i*3+1]*pVal_kj[3] + pVal_ik[i*3+2]*pVal_kj[6];
-                        pVal_ij[i*3+1] -= pVal_ik[i*3+0]*pVal_kj[1] + pVal_ik[i*3+1]*pVal_kj[4] + pVal_ik[i*3+2]*pVal_kj[7];
-                        pVal_ij[i*3+2] -= pVal_ik[i*3+0]*pVal_kj[2] + pVal_ik[i*3+1]*pVal_kj[5] + pVal_ik[i*3+2]*pVal_kj[8];
-                    }
+          for(unsigned int i=0;i<3;i++){
+            pVal_ij[i*3+0] -= pVal_ik[i*3+0]*pVal_kj[0] + pVal_ik[i*3+1]*pVal_kj[3] + pVal_ik[i*3+2]*pVal_kj[6];
+            pVal_ij[i*3+1] -= pVal_ik[i*3+0]*pVal_kj[1] + pVal_ik[i*3+1]*pVal_kj[4] + pVal_ik[i*3+2]*pVal_kj[7];
+            pVal_ij[i*3+2] -= pVal_ik[i*3+0]*pVal_kj[2] + pVal_ik[i*3+1]*pVal_kj[5] + pVal_ik[i*3+2]*pVal_kj[8];
+          }
 				}
 			}
 			{   // ‘ÎŠp‚Ì‹t”‚ðŒvŽZ
 				double* a_ii = &m_valDia_Blk[iblk*BlkSize];
 				const double det = a_ii[0]*a_ii[4]*a_ii[8] + a_ii[3]*a_ii[7]*a_ii[2] + a_ii[6]*a_ii[1]*a_ii[5]
-							     - a_ii[0]*a_ii[7]*a_ii[5] - a_ii[6]*a_ii[4]*a_ii[2] - a_ii[3]*a_ii[1]*a_ii[8];				
+        - a_ii[0]*a_ii[7]*a_ii[5] - a_ii[6]*a_ii[4]*a_ii[2] - a_ii[3]*a_ii[1]*a_ii[8];				
 				if( fabs(det) > 1.0e-30 ){
 					CalcInvMat3(a_ii,tmpBlk);
 				}
 				else{
-					std::cout << "frac false " << iblk << std::endl;
+					std::cout << "frac false 3 " << iblk << std::endl;
 					icnt_sing++;
 					if( icnt_sing > nmax_sing ){
 						delete[] row2crs_f;
+            std::cout << "ilu frac false exceeds tolerance" << std::endl;
 						return false;
 					}
 				}
 			}
 			// ‘ÎŠp‚Ì‹t”‚ðŒvŽZ‚µ‚ÄãŽOŠps—ñ‚ÉŠ|‚¯‚éB[U] = [1/D][U]
-            for(unsigned int ijcrs=m_DiaInd[iblk];ijcrs<m_colInd_Blk[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
+      for(unsigned int ijcrs=m_DiaInd[iblk];ijcrs<m_colInd_Blk[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
 				double* pVal_ij = &m_valCrs_Blk[ijcrs*BlkSize];
 				const double* pVal_ii = &m_valDia_Blk[iblk *BlkSize];
-                for(unsigned int i=0;i<9;i++){ tmpBlk[i] = pVal_ij[i]; }
-                for(unsigned int i=0;i<3;i++){
-                    pVal_ij[i*3+0] = pVal_ii[i*3+0]*tmpBlk[0] + pVal_ii[i*3+1]*tmpBlk[3] + pVal_ii[i*3+2]*tmpBlk[6];
-                    pVal_ij[i*3+1] = pVal_ii[i*3+0]*tmpBlk[1] + pVal_ii[i*3+1]*tmpBlk[4] + pVal_ii[i*3+2]*tmpBlk[7];
-                    pVal_ij[i*3+2] = pVal_ii[i*3+0]*tmpBlk[2] + pVal_ii[i*3+1]*tmpBlk[5] + pVal_ii[i*3+2]*tmpBlk[8];
-                }
+        for(unsigned int i=0;i<9;i++){ tmpBlk[i] = pVal_ij[i]; }
+        for(unsigned int i=0;i<3;i++){
+          pVal_ij[i*3+0] = pVal_ii[i*3+0]*tmpBlk[0] + pVal_ii[i*3+1]*tmpBlk[3] + pVal_ii[i*3+2]*tmpBlk[6];
+          pVal_ij[i*3+1] = pVal_ii[i*3+0]*tmpBlk[1] + pVal_ii[i*3+1]*tmpBlk[4] + pVal_ii[i*3+2]*tmpBlk[7];
+          pVal_ij[i*3+2] = pVal_ii[i*3+0]*tmpBlk[2] + pVal_ii[i*3+1]*tmpBlk[5] + pVal_ii[i*3+2]*tmpBlk[8];
+        }
 			}
 			// ”ñƒ[ƒƒtƒ‰ƒO‚ð‚à‚Æ‚É–ß‚·
-            for(unsigned int ijcrs=m_colInd_Blk[iblk];ijcrs<m_colInd_Blk[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
+      for(unsigned int ijcrs=m_colInd_Blk[iblk];ijcrs<m_colInd_Blk[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
 				const unsigned int jblk0 = m_rowPtr_Blk[ijcrs]; assert( jblk0<NBlkMatRow() );
 				row2crs_f[jblk0] = -1;
 			}
 		}	// end iblk
 	}
-    ////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////
 	else{	// lenBlk >= 4
 		double* pTmpBlk = new double [BlkSize];
 		for(unsigned int iblk=0;iblk<NBlkMatCol();iblk++){
 			// ”ñƒ[ƒƒtƒ‰ƒO‚Ì‰Šú‰»
-            for(unsigned int ijcrs=m_colInd_Blk[iblk];ijcrs<m_colInd_Blk[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
+      for(unsigned int ijcrs=m_colInd_Blk[iblk];ijcrs<m_colInd_Blk[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
 				const unsigned int jblk0 = m_rowPtr_Blk[ijcrs]; assert( jblk0<NBlkMatRow() );
 				row2crs_f[jblk0] = ijcrs;
 			}
@@ -1056,12 +1058,12 @@ bool CMatDiaFrac_BlkCrs::DoILUDecomp()
 					double* pVal_ij = 0;
 					if( jblk0 != iblk ){
 						const int ijcrs0 = row2crs_f[jblk0];
-                        if( ijcrs0 == -1 ){ continue; }// ‚à‚µƒpƒ^[ƒ“‚ª‚È‚¯‚ê‚Î–ß‚é
+            if( ijcrs0 == -1 ){ continue; }// ‚à‚µƒpƒ^[ƒ“‚ª‚È‚¯‚ê‚Î–ß‚é
 						pVal_ij = &m_valCrs_Blk[ijcrs0*BlkSize];
 					}
-                    else{ pVal_ij = &m_valDia_Blk[iblk *BlkSize]; }
+          else{ pVal_ij = &m_valDia_Blk[iblk *BlkSize]; }
 					assert( pVal_ij != 0 );
-                    CalcSubMatPr(pVal_ij,pVal_ik,pVal_kj, BlkLen,BlkLen,BlkLen);
+          CalcSubMatPr(pVal_ij,pVal_ik,pVal_kj, BlkLen,BlkLen,BlkLen);
 				}
 			}
 			// ‘ÎŠp‚Ì‹t”‚ðŒvŽZ
@@ -1080,23 +1082,23 @@ bool CMatDiaFrac_BlkCrs::DoILUDecomp()
 				}
 			}
 			// ‘ÎŠp‚Ì‹t”‚ðŒvŽZ‚µ‚ÄãŽOŠps—ñ‚ÉŠ|‚¯‚éB[U] = [1/D][U]
-            for(unsigned int ijcrs=m_DiaInd[iblk];ijcrs<m_colInd_Blk[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
+      for(unsigned int ijcrs=m_DiaInd[iblk];ijcrs<m_colInd_Blk[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
 				double* pVal_ij = &m_valCrs_Blk[ijcrs*BlkSize];
 				const double* pVal_ii = &m_valDia_Blk[iblk *BlkSize];
-                CalcMatPr(pVal_ij,pVal_ii,pTmpBlk,  BlkLen,BlkLen);
+        CalcMatPr(pVal_ij,pVal_ii,pTmpBlk,  BlkLen,BlkLen);
 			}
 			// ”ñƒ[ƒƒtƒ‰ƒO‚ð‚à‚Æ‚É–ß‚·
-            for(unsigned int ijcrs=m_colInd_Blk[iblk];ijcrs<m_colInd_Blk[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
+      for(unsigned int ijcrs=m_colInd_Blk[iblk];ijcrs<m_colInd_Blk[iblk+1];ijcrs++){ assert( ijcrs<m_ncrs_Blk );
 				const unsigned int jblk0 = m_rowPtr_Blk[ijcrs]; assert( jblk0<NBlkMatRow() );
 				row2crs_f[jblk0] = -1;
 			}
 		}	// end iblk
 		delete[] pTmpBlk;
 	}
-
+  
 	delete[] row2crs_f;
-
-	return true;
+  
+	return true;  
 }
 
 

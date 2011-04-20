@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 /*! @file
-@brief 要素配列クラス(Fem::Field::CElemAry)のインターフェース
+@brief interface of element array class (Fem::Field::CElemAry)
 @author Nobuyuki Umetani
 */
 
@@ -75,14 +75,13 @@ public:
 		CElemSeg(unsigned int id_na, ELSEG_TYPE elseg_type)
 			: m_id_na(id_na), m_elseg_type(elseg_type){}
 
-		// Getメソッド
 		unsigned int GetMaxNoes() const { return max_noes; }	//!< ノード番号の一番大きなものを得る（このnoesを格納するためには一つ大きな配列が必要なので注意）
 		unsigned int Length() const { return m_nnoes; }	//!< return the node size per elem seg  ( will be renamed to Length() );
 		unsigned int Size() const { return nelem; }	  //!< get the number of elements ( will be renamed to Size() )
-		unsigned int GetIdNA() const { return m_id_na; }	    //!< この要素セグメントが参照する節点配列IDを得る
+		unsigned int GetIdNA() const { return m_id_na; }	    //!< get ID of node array this element segment refers
 		ELSEG_TYPE GetElSegType() const { return m_elseg_type; }	//!< 要素セグメントタイプ(Fem::Field::CORNER,Fem::Field::BUBBLE,Fem::Field::EDGE)を得る
 
-		//! 節点番号を取得
+		//! get node indexes of element (ielem)
 		void GetNodes(const unsigned int& ielem, unsigned int* noes ) const {
 			for(unsigned int inoes=0;inoes<m_nnoes;inoes++){ 
 				assert( ielem*npoel+begin+inoes < nelem*npoel );
@@ -165,11 +164,8 @@ public:
 		m_nElem = 0; npoel = 0; m_pLnods = 0;
 	}
   CElemAry(const CElemAry& ea);
-	/*! 
-	@brief constructor
-	@param [in] nelem 要素数
-	@param [in] elem_type 要素の種類(TRIとかHEXとか)
-	*/
+  
+  // Constructor with elem number (nelem) and elem type (elemtype)
 	CElemAry(unsigned int nelem, ELEM_TYPE elem_type) : m_nElem(nelem), m_ElemType(elem_type){
 		npoel = 0; m_pLnods = 0;
 	}
@@ -178,10 +174,10 @@ public:
 		if( this->m_pLnods != 0 ) delete[] m_pLnods;
 	}
 
-	bool IsSegID( unsigned int id_es ) const { return m_aSeg.IsObjID(id_es); }	//!< 引数が使用されている要素セグメントのIDか調べる関数
+	bool IsSegID( unsigned int id_es ) const { return m_aSeg.IsObjID(id_es); }	//!< Check if there are elem segment with ID:id_es
 	const std::vector<unsigned int>& GetAry_SegID() const { return this->m_aSeg.GetAry_ObjID(); } //!< 要素セグメントIDの配列を得る関数
 	unsigned int GetFreeSegID() const{ return m_aSeg.GetFreeObjID(); }	//!< 使われていない要素セグメントIDを取得する関数
-	//! 要素セグメントを取得する関数
+  
 	const CElemSeg& GetSeg(unsigned int id_es) const{			
 		assert( this->m_aSeg.IsObjID(id_es) );
 		if( !m_aSeg.IsObjID(id_es) ) throw;
@@ -201,15 +197,15 @@ public:
 		return es;
 	}
 
-	virtual ELEM_TYPE ElemType() const { return m_ElemType; }	//!< 要素の種類を取得
-	virtual unsigned int Size() const { return m_nElem; }	//!< 要素数を取得
+	virtual ELEM_TYPE ElemType() const { return m_ElemType; }	//!< get type of element
+	virtual unsigned int Size() const { return m_nElem; }	//!< get number of elements
 
-	//! CRSデータを作る(非対角用)
+	//! make CRS data (for the off-diaglnal block)
 	virtual bool MakePattern_FEM(	
 		const unsigned int& id_es0, const unsigned int& id_es1, 
         Com::CIndexedArray& crs ) const;
 
-	//! CRSデータを作る(対角用)
+	//! make CRS data (for the diaglnal)
 	virtual bool MakePattern_FEM(	
 		const unsigned int& id_es0, 
         Com::CIndexedArray& crs ) const;
@@ -230,8 +226,8 @@ public:
 	int InitializeFromFile(const std::string& file_name, long& offset);
 	int WriteToFile(       const std::string& file_name, long& offset, unsigned int id) const;
 
-	// lnodsはunsigned int にすべきでは？
-	//! 要素セグメントの追加
+	// lnods should be unsigned int?
+	//! Add element segment
 	std::vector<int> AddSegment(const std::vector< std::pair<unsigned int,CElemSeg> >& es_ary, const std::vector<int>& lnods );
 	int              AddSegment(unsigned int id, const CElemSeg& es,					 const std::vector<int>& lnods );
 

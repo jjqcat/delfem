@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 /*! @file
-@brief B-repを用いた位相情報格納クラス(Cad::CBrep)のインターフェース
+@brief interface of the class (Cad::CBRep) wich represents topology with B-Rep data strcutre
 @author Nobuyuki Umetani
 */
 
@@ -56,7 +56,7 @@ public:
   unsigned int id_ul_p;	//!< 親ループ。id_lはid_ul_pを持っている．id_ul_p==idの場合は自分が親，id_ul_p==0の場合は外側のループ
 };
 
-//! 位相HalfEdgeクラス
+//! topoloty HalfEdge class
 class CHalfEdge{
 public:
 	CHalfEdge(const CHalfEdge& rhs)
@@ -81,9 +81,10 @@ public:
   unsigned int id_he_b;   //!< ID of later HalfEdge
   unsigned int id_he_o;	  //!< ID of opposite side HalfEdge (if UV is floating point, this become self )
   unsigned int id_ul;     //!< ID of UseLoop
-	//ここからは幾何要素ID
-  unsigned int id_e;		//!< 幾何辺のID.UVを囲むHEの場合は０
-  bool is_same_dir;       //!< 幾何辺が同じ向きを向いているかどうか
+  
+  ////
+  unsigned int id_e;      //!< id of edge geometry. 0 if uv is a floating vertex
+  bool is_same_dir;       //!< is the geometry edge goes same direction as topology edge
 };
 
 //! 位相頂点クラス

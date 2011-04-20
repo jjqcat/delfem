@@ -293,7 +293,7 @@ bool Fem::Eqn::AddLinSys_StVenant2D_Static
         return false;
 	}
 	else{
-		const std::vector<unsigned int>& aIdEA = field_disp.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field_disp.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = Fem::Eqn::AddLinSys_StVenant2D_Static
@@ -487,7 +487,7 @@ bool Fem::Eqn::AddLinSys_StVenant2D_NonStatic_NewmarkBeta
 		else{ assert(0); }
 	}
 	else{
-		const std::vector<unsigned int>& aIdEA = field_disp.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field_disp.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = Fem::Eqn::AddLinSys_StVenant2D_NonStatic_NewmarkBeta
@@ -696,7 +696,7 @@ bool Fem::Eqn::AddLinSys_StVenant2D_NonStatic_BackwardEular
 		else{ assert(0); }
 	}
 	else{
-		const std::vector<unsigned int>& aIdEA = field_disp.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field_disp.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = Fem::Eqn::AddLinSys_StVenant2D_NonStatic_BackwardEular
@@ -1087,7 +1087,7 @@ bool Fem::Eqn::AddLinSys_StVenant3D_Static
         return false;
 	}
 	else{
-		const std::vector<unsigned int>& aIdEA = field_disp.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field_disp.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = Fem::Eqn::AddLinSys_StVenant3D_Static
@@ -1267,7 +1267,7 @@ bool Fem::Eqn::AddLinSys_StVenant3D_NonStatic_NewmarkBeta
         return false;
 	}
 	else{
-		const std::vector<unsigned int>& aIdEA = field_disp.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field_disp.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = Fem::Eqn::AddLinSys_StVenant3D_NonStatic_NewmarkBeta

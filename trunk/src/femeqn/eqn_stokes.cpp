@@ -593,7 +593,7 @@ bool Fem::Eqn::AddLinSys_Stokes2D_Static(
 	if( field_velo.GetFieldType() != VECTOR2 ) return false;
 	if( field_press.GetFieldType() != SCALAR ) return false;
 
-	const std::vector<unsigned int>& aIdEA = field_velo.GetAry_IdElemAry();
+	const std::vector<unsigned int>& aIdEA = field_velo.GetAryIdEA();
 	for(unsigned int iiea=0;iiea<aIdEA.size();iiea++)
 	{
 		const unsigned int id_ea = aIdEA[iiea];
@@ -1075,7 +1075,7 @@ bool Fem::Eqn::AddLinSys_Stokes2D_NonStatic_Newmark(
 		return res;
 	}
 	else{   // field‚É‘®‚·‚é‘S‚Ä‚Ì‚d‚`‚Éƒ}[ƒW
-		const std::vector<unsigned int>& aIdEA = field_velo.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field_velo.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res;
@@ -1481,7 +1481,7 @@ bool Fem::Eqn::AddLinSys_Stokes3D_Static(
 	if( field_velo.GetFieldType() != VECTOR3 ) return false;
 	if( field_press.GetFieldType() != SCALAR ) return false;
 		
-	const std::vector<unsigned int>& aIdEA = field_velo.GetAry_IdElemAry();
+	const std::vector<unsigned int>& aIdEA = field_velo.GetAryIdEA();
 	for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 		const unsigned int id_ea = aIdEA[iiea];
 		if(    field_velo.GetInterpolationType( id_ea,world) == TET11

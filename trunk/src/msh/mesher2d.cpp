@@ -1008,7 +1008,7 @@ bool CMesher2D::Tesselate_Loop
 //		std::cout << "center " << center[0] << " " << center[1] << std::endl;
 //		std::cout << "max_len " << max_len << std::endl;
 
-		const double tri_len = max_len * 4.0;
+		const double tri_len = max_len * 8.0;
 		const double tmp_len = tri_len * sqrt(3.0) / 6.0;
 
 		const int npo = aPo2D.size();
@@ -1912,7 +1912,6 @@ bool CMesher2D::Meshing_ElemSize
 		area += cad_2d.GetArea_Loop(id_l);
 	}
 	const double elen = sqrt( area / (double)esize ) * 1.4;
-
   return CMesher2D::Meshing_ElemLength(cad_2d,elen,aIdLoop);
 }
 

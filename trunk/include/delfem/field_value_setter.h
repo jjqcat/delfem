@@ -60,7 +60,56 @@ void SetFieldValue_Copy
 bool SetFieldValue_Gradient
   (unsigned int id_field_to, Fem::Field::CFieldWorld& world,
    unsigned int id_field_from);
-
+  
+class CValueFieldDof
+{
+public:
+  CValueFieldDof(double val){ this->SetValue(val); }
+  CValueFieldDof(const std::string str){ 	this->SetValue(str); }
+  CValueFieldDof(){ itype=0; }
+  ////////////////
+  void SetValue(std::string str){
+    itype = 2;
+    math_exp = str;
+  }
+  void SetValue(double val){
+    itype =1;
+    this->val = val;
+  }
+  bool IsTimeDependent() const{
+    if( itype != 2 ) return false;
+    Fem::Field::CEval eval;
+    eval.SetKey("t",0);
+    eval.SetExp(math_exp);
+    return eval.IsKeyUsed("t");
+  }
+  bool GetValue(double cur_t, double& value) const{
+    Fem::Field::CEval eval;
+    eval.SetKey("t",cur_t);
+    if( !eval.SetExp(math_exp) ){ value=0; return false; }
+    value = eval.Calc();
+    return true;
+  }
+  const std::string GetString() const{
+    if( itype == 1 ){
+      char buff[16];
+      sprintf(buff,"%lf",val);
+      return std::string(buff);
+    }
+    else{
+      return math_exp;
+    }
+  }
+public:
+  // 0 : not set
+  // 1 : const value 
+  // 2 : math_exp
+  int itype; 
+  double val;
+  std::string math_exp;
+};    
+  
+  
   
 class CFieldValueSetter
 {	//! set saved value to the entire field
@@ -84,46 +133,6 @@ public:
 	bool ExecuteValue(double time, Fem::Field::CFieldWorld& world);
   
 private:
-	class CValueFieldDof{
-	public:
-		CValueFieldDof(double val){ this->SetValue(val); }
-		CValueFieldDof(const std::string str){ 	this->SetValue(str); }
-		CValueFieldDof(){ itype=0; }
-		////////////////
-		void SetValue(std::string str){
-			itype = 2;
-			math_exp = str;
-		}
-		void SetValue(double val){
-			itype =1;
-			this->val = val;
-		}
-		bool IsTimeDependent() const{
-			if( itype != 2 ) return false;
-			Fem::Field::CEval eval;
-			eval.SetKey("t",0);
-			eval.SetExp(math_exp);
-			return eval.IsKeyUsed("t");
-		}
-    bool GetValue(double cur_t, double& value) const;
-		const std::string GetString() const{
-			if( itype == 1 ){
-				char buff[16];
-				sprintf(buff,"%lf",val);
-				return std::string(buff);
-			}
-			else{
-				return math_exp;
-			}
-		}
-	public:
-    // 0 : not set
-    // 1 : const value 
-    // 2 : math_exp
-		int itype; 
-		double val;
-		std::string math_exp;
-	};  
 private:
   unsigned int id_field_;
   std::vector<CValueFieldDof> aValueFieldDof_;

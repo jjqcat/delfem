@@ -20,7 +20,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /*! @file
 @brief 移流拡散方程式の要素剛性作成関数のインターフェース
 @author Nobuyuki Umetani
-@sa http://ums.futene.net/wiki/FEM/46454D20666F7220416476656374696F6E2D446966667573696F6E204571756174696F6E.html
 */
 
 

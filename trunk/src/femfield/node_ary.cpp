@@ -44,14 +44,14 @@ using namespace MatVec;
 
 CNodeAry::CNodeAry(const unsigned int size) : m_Size(size)
 {
-	std::cout << "Construction of class CNodeAry : from size" << std::endl;
+//	std::cout << "Construction of class CNodeAry : from size" << std::endl;
 	m_DofSize = 0;
 	m_paValue = 0;
 }
 
 CNodeAry::CNodeAry() : m_Size(0)
 {
-	std::cout << "Construction of class CNodeAry : default" << std::endl;
+//	std::cout << "Construction of class CNodeAry : default" << std::endl;
 	m_DofSize = 0;
 	m_paValue = 0;
 }
@@ -72,7 +72,7 @@ CNodeAry::CNodeAry(const CNodeAry& na){
 
 CNodeAry::~CNodeAry()
 {
-	std::cout << "Destruction of class CNodeAry" << std::endl;
+//	std::cout << "Destruction of class CNodeAry" << std::endl;
 
 	ClearSegment();
 }

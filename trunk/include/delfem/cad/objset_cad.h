@@ -156,7 +156,7 @@ protected:
 	}
 protected:
 	std::vector<unsigned int> m_aIndex2ID;
-    std::vector<int> m_aID2Index;   // ‚È‚¯‚ê‚Î-1
+  std::vector<int> m_aID2Index;   // ‚È‚¯‚ê‚Î-1
 	std::vector<T> m_aObj;
 };
 

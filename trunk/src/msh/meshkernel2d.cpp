@@ -1451,7 +1451,7 @@ bool Msh::Tesselate_GiftWrapping(
 	unsigned int ipo1 = ipo_st;
 	for(;;){
 		int ipo_min = -1;
-        double r_min = 0;
+    double r_min = 0;
 		for(unsigned int ipo=(ipo0==npo-1)?0:ipo0+1;ipo!=ipo1;ipo=(ipo==npo-1)?0:ipo+1){
 			if( Com::TriArea(aVec[ipo1],aVec[ipo0],aVec[ipo]) < 1.0e-10 ) continue;
 			if( ipo_min == -1 ){
@@ -1516,13 +1516,13 @@ bool Msh::Tesselate_GiftWrapping(
 			}
 		}
 
-        if(      ipo_min==(int)ipo0+1 || (ipo_min==0&&ipo0==npo-1) ){
+    if(      ipo_min==(int)ipo0+1 || (ipo_min==0&&ipo0==npo-1) ){
 			aTri[itri0].g2[0] = -1;
 			aTri[itri0].s2[0] = ipo0;
 			aTriEd[ipo0].first = itri0;
 			aTriEd[ipo0].second = 0;
 //			std::cout << "left  " << ipo_min << " " << ipo1 << std::endl;
-            if( ipo_min==(int)ipo1-1 || (ipo_min==(int)npo-1&&ipo1==0) ){
+      if( ipo_min==(int)ipo1-1 || (ipo_min==(int)npo-1&&ipo1==0) ){
 				aTri[itri0].g2[1] = -1;
 				aTri[itri0].s2[1] = ipo_min;
 				aTriEd[ipo_min].first = itri0;
@@ -1534,13 +1534,13 @@ bool Msh::Tesselate_GiftWrapping(
 			aTri[itri0].r2[1] = noel2RelTriTri[ 0*3+2 ];
 			ipo0 = ipo_min;
 		}
-        else if( ipo_min==(int)ipo1-1 || (ipo_min==(int)npo-1&&ipo1==0) ){
+    else if( ipo_min==(int)ipo1-1 || (ipo_min==(int)npo-1&&ipo1==0) ){
 //			std::cout << "right " << ipo0 << " " << ipo_min << std::endl;
 			aTri[itri0].g2[1] = -1;
 			aTri[itri0].s2[1] = ipo_min;
 			aTriEd[ipo_min].first = itri0;
 			aTriEd[ipo_min].second = 1;
-            if( ipo_min==(int)ipo0+1 || (ipo_min==0&&ipo0==npo-1) ){
+      if( ipo_min==(int)ipo0+1 || (ipo_min==0&&ipo0==npo-1) ){
 				aTri[itri0].g2[0] = -1;
 				aTri[itri0].s2[0] = ipo0;
 				aTriEd[ipo0].first = itri0;
@@ -1596,7 +1596,7 @@ bool Msh::DeleteTri(unsigned int itri_to, std::vector<CPoint2D>& aPo, std::vecto
 		if( aTri[itri_to].g2[iedtri] != -2 ) continue;
 		const unsigned int itri_adj = aTri[itri_to].s2[iedtri];
 		assert( itri_adj < aTri.size() );
-        const unsigned int* rel = relTriTri[ (int)aTri[itri_to].r2[iedtri] ];
+    const unsigned int* rel = relTriTri[ (int)aTri[itri_to].r2[iedtri] ];
 		const unsigned int iedtri_adj = rel[iedtri];
 		assert( aTri[itri_adj].g2[iedtri_adj] == -2 );
 		assert( aTri[itri_adj].s2[iedtri_adj] == itri_from );
@@ -1639,11 +1639,11 @@ bool Msh::DeletePointFromMesh(
 			}
 			if( aTri[itri0].g2[inoel_b0] == -2 ){
 				unsigned int itri1 = aTri[itri0].s2[inoel_b0];
-                const unsigned int rel01 = aTri[itri0].r2[inoel_b0];
-                const unsigned int inoel_c1 = relTriTri[rel01][inoel_c0];
-                const unsigned int inoel_b1 = relTriTri[rel01][ noelTriEdge[inoel_c0][1] ];
+        const unsigned int rel01 = aTri[itri0].r2[inoel_b0];
+        const unsigned int inoel_c1 = relTriTri[rel01][inoel_c0];
+        const unsigned int inoel_b1 = relTriTri[rel01][ noelTriEdge[inoel_c0][1] ];
 				assert( itri1 < aTri.size() );
-                assert( aTri[itri1].s2[ relTriTri[rel01][inoel_b0] ] == itri0 );
+        assert( aTri[itri1].s2[ relTriTri[rel01][inoel_b0] ] == itri0 );
 				assert( aTri[itri1].v[inoel_c1] == ipo_del );
 				if( itri1 == itri_ini ) break;
 				itri0 = itri1;
@@ -1669,18 +1669,18 @@ bool Msh::DeletePointFromMesh(
 		for(unsigned int itri=0;itri<aTri_tmp.size();itri++){
 		for(unsigned int iedtri=0;iedtri<nEdTri;iedtri++){
 			if( aTri_tmp[itri].g2[iedtri] == -1 ){	// ŠO‘¤‚Ì‚RŠpŒ`‚ÆÚ‚µ‚Ä‚¢‚é
-                const unsigned int ied1 = aTri_tmp[itri].s2[iedtri];
+        const unsigned int ied1 = aTri_tmp[itri].s2[iedtri];
 				assert( ied1 < aEdAround.size() );
 				assert( aEdAround[ied1].first == itri );
-                assert( aEdAround[ied1].second == iedtri );
+        assert( aEdAround[ied1].second == iedtri );
 			}
 			else{	// “à‘¤‚Ì‚RŠpŒ`‚ÆÚ‚µ‚Ä‚¢‚éD
 				assert( aTri_tmp[itri].g2[iedtri] == -2 );
 				const unsigned int itri1 = aTri_tmp[itri].s2[iedtri];
 				assert( itri1 < aTri_tmp.size() );
-                const unsigned int* rel0 = relTriTri[ aTri_tmp[itri].r2[iedtri] ];
-                assert( aTri_tmp[itri1].g2[ rel0[iedtri] ] == -2 );
-                assert( aTri_tmp[itri1].s2[ rel0[iedtri] ] == itri );
+        const unsigned int* rel0 = relTriTri[ aTri_tmp[itri].r2[iedtri] ];
+        assert( aTri_tmp[itri1].g2[ rel0[iedtri] ] == -2 );
+        assert( aTri_tmp[itri1].s2[ rel0[iedtri] ] == itri );
 			}
 		}
 		}
@@ -1700,7 +1700,7 @@ bool Msh::DeletePointFromMesh(
 		}
 		for(unsigned int iitri=0;iitri<ntri_new;iitri++){
 			unsigned int itri0 = aIndexTriAroundOld[iitri].first;
-            assert( aTriAroundOld[iitri].v[ (int)aIndexTriAroundOld[iitri].second ] == ipo_del );
+      assert( aTriAroundOld[iitri].v[ (int)aIndexTriAroundOld[iitri].second ] == ipo_del );
 			aTri[itri0].v[0] = aIndexPoAround[ aTri_tmp[iitri].v[0] ];
 			aTri[itri0].v[1] = aIndexPoAround[ aTri_tmp[iitri].v[1] ];
 			aTri[itri0].v[2] = aIndexPoAround[ aTri_tmp[iitri].v[2] ];
@@ -1724,13 +1724,13 @@ bool Msh::DeletePointFromMesh(
 					if( aTri[itri0].g2[iedtri] == -2 ){
 						unsigned int itri_dia = aTriAroundOld[ied0].s2[iedtri_old];
 						assert( itri_dia < aTri.size() );
-                        const unsigned int* rel0 = relTriTri[ aTriAroundOld[ied0].r2[iedtri_old] ];
+            const unsigned int* rel0 = relTriTri[ aTriAroundOld[ied0].r2[iedtri_old] ];
 						unsigned int iedtri_dia = rel0[iedtri_old];
 						assert( aTri[itri_dia].g2[iedtri_dia] == -2 );
 						assert( aTri[itri_dia].s2[iedtri_dia] == aIndexTriAroundOld[ied0].first );
 						aTri[itri0].r2[iedtri] = ed2RelTriTri[ iedtri*3+iedtri_dia ];
 						aTri[itri_dia].s2[iedtri_dia] = itri0;
-                        aTri[itri_dia].r2[iedtri_dia] = invRelTriTri[ aTri[itri0].r2[iedtri] ];
+            aTri[itri_dia].r2[iedtri_dia] = invRelTriTri[ aTri[itri0].r2[iedtri] ];
 					}
 				}
 			}

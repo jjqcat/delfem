@@ -362,7 +362,7 @@ bool Fem::Eqn::AddLinearSystem_DKT2D_Static(
         return false;
 	}
 	else{
-		const std::vector<unsigned int> aIdEA = field_deflect.GetAry_IdElemAry();
+		const std::vector<unsigned int> aIdEA = field_deflect.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = Fem::Eqn::AddLinearSystem_DKT2D_Static(
@@ -773,7 +773,7 @@ bool Fem::Eqn::AddLinearSystem_DKT3D_Linear_Static(
 		}
 	}
 	else{
-		const std::vector<unsigned int> aIdEA = field_deflect.GetAry_IdElemAry();
+		const std::vector<unsigned int> aIdEA = field_deflect.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = Fem::Eqn::AddLinearSystem_DKT3D_Linear_Static(
@@ -1135,7 +1135,7 @@ bool Fem::Eqn::AddLinearSystem_DKT3D_Linear_Static_Save(
 		return false;
 	}
 	else{
-		const std::vector<unsigned int> aIdEA = field_deflect.GetAry_IdElemAry();
+		const std::vector<unsigned int> aIdEA = field_deflect.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = Fem::Eqn::AddLinearSystem_DKT3D_Linear_Static_Save(
@@ -1665,7 +1665,7 @@ bool Fem::Eqn::AddLinearSystem_DKT3D_Linear_NonStatic(
         return false;
 	}
 	else{
-		const std::vector<unsigned int> aIdEA = field_deflect.GetAry_IdElemAry();
+		const std::vector<unsigned int> aIdEA = field_deflect.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = Fem::Eqn::AddLinearSystem_DKT3D_Linear_NonStatic(
@@ -2115,7 +2115,7 @@ bool Fem::Eqn::AddLinearSystem_DKT3D_Linear_NonStatic_Save(
         }
 	}
 	else{
-		const std::vector<unsigned int> aIdEA = field_deflect.GetAry_IdElemAry();
+		const std::vector<unsigned int> aIdEA = field_deflect.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = Fem::Eqn::AddLinearSystem_DKT3D_Linear_NonStatic_Save(
@@ -3082,7 +3082,7 @@ bool Fem::Eqn::AddLinearSystem_DKT3D_NonLinear_Static(
         return false;
 	}
 	else{
-		const std::vector<unsigned int> aIdEA = field_deflect.GetAry_IdElemAry();
+		const std::vector<unsigned int> aIdEA = field_deflect.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = Fem::Eqn::AddLinearSystem_DKT3D_NonLinear_Static(
@@ -3462,7 +3462,7 @@ bool Fem::Eqn::AddLinearSystem_DKT3D_NonLinear_NonStatic(
 		}
 	}
 	else{
-		const std::vector<unsigned int> aIdEA = field_deflect.GetAry_IdElemAry();
+		const std::vector<unsigned int> aIdEA = field_deflect.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = Fem::Eqn::AddLinearSystem_DKT3D_NonLinear_NonStatic(

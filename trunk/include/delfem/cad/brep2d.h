@@ -40,7 +40,7 @@ namespace Cad
 class CBRepSurface
 {
 public:
-	//! 面の周りの辺や頂点を巡ることができるイテレータ
+	//! iterator goes edge and vetex around one specific loop
 	class CItrLoop : public Cad::IItrLoop
 	{
 	public:
@@ -76,7 +76,8 @@ public:
 		unsigned int m_IdUL;
 		const CBRepSurface& m_pBRep2D;
 	};
-	//! 頂点周りのループを巡ることができるイテレータ
+  
+	//! iterator goes through loops and edges around one vertex
 	class CItrVertex : public Cad::IItrVertex
 	{
 	public:
@@ -124,7 +125,7 @@ public:
 	bool GetIdLoop_Edge(unsigned int id_e, unsigned int& id_l_l, unsigned int& id_l_r) const;
   unsigned int GetIdLoop_Edge(unsigned int id_e, bool is_left) const;
 	bool GetIdVertex_Edge(unsigned int id_e, unsigned int& id_v1, unsigned int& id_v2) const;
-	unsigned int GetIdVertex_Edge(unsigned int id_e, bool is_root );
+	unsigned int GetIdVertex_Edge(unsigned int id_e, bool is_root ) const;
 	
 	CItrLoop GetItrLoop(unsigned int id_l) const { return CItrLoop(*this,id_l); }
 	CItrLoop GetItrLoop_SideEdge(unsigned int id_e, bool is_left) const;
@@ -134,14 +135,14 @@ public:
 
 	void Clear();
 
-	// 辺に頂点を加える関数(失敗したら０を返す)
-	unsigned int AddVertex_Edge(unsigned int id_e);
+	// Add vertex to edge; ret val is id of vertex; ret 0 if it fails
+	unsigned int AddVertex_Edge(unsigned int id_e); 
 	// 面に頂点を加える関数(失敗したら０を返す)
 	unsigned int AddVertex_Loop(unsigned int id_l);
-	// 要素を消去する関数
+  
 	bool RemoveEdge(unsigned int id_e, bool is_del_cp);
 	bool RemoveVertex(unsigned int id_v);
-	// 
+  
 	bool MakeHole_fromLoop(unsigned int id_l);
   unsigned int SealHole(unsigned int id_e, bool is_left);
   
@@ -152,7 +153,7 @@ public:
 
 	bool SwapItrLoop(const CItrLoop& itrl, unsigned int id_l_to );
 	
-	//! 読み込み書き出し
+	//! save and load file
 	bool Serialize( Com::CSerializer& serialize );	
 private:
 	static unsigned int GetFreeKey(const std::map<unsigned int,unsigned int>& map);

@@ -742,7 +742,7 @@ void Rigid::CFix_HingeRange::AddLinearSystem(Ls::CLinearSystem_RigidBody& ls, un
             ls.AddMatrix(icst,false,5,1,  icst,false,5,1,  &val0, dtmp2);
             ls.AddResidual(icst,false,5,1, &val1,-1 );
         }*/
-		const double dtmp1 = dt*dt*newmark_beta;
+//		const double dtmp1 = dt*dt*newmark_beta;
         const double dtmp2 = dt*newmark_gamma;
         if( flg == true && is_initial ){
             std::cout << "consider contact" << std::endl;

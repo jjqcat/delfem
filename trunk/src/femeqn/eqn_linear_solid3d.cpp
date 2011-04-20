@@ -110,7 +110,7 @@ bool Fem::Eqn::AddLinSys_LinearSolid3D_Static_SaveStiffMat(
 	const CField& field_val = world.GetField(id_field_val);
 	if( field_val.GetFieldType() != VECTOR3 ) return false;
 
-	const std::vector<unsigned int>& aIdEA = field_val.GetAry_IdElemAry();
+	const std::vector<unsigned int>& aIdEA = field_val.GetAryIdEA();
 	for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 		const unsigned int id_ea = aIdEA[iiea];
 		if( field_val.GetInterpolationType(id_ea,world) == TET11 ){
@@ -142,7 +142,7 @@ bool Fem::Eqn::AddLinSys_LinearSolid3D_Eigen(
 		return false;
 	}
 
-	const std::vector<unsigned int>& aIdEA = field_disp.GetAry_IdElemAry();
+	const std::vector<unsigned int>& aIdEA = field_disp.GetAryIdEA();
 	for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 		const unsigned int id_ea = aIdEA[iiea];
 		if( field_disp.GetInterpolationType(id_ea,world) == TET11 ){
@@ -170,7 +170,7 @@ bool Fem::Eqn::AddLinSys_LinearSolid3D_Static(
 	const CField& field_val = world.GetField(id_field_val);
 	if( field_val.GetFieldType() != VECTOR3 ) return false;
 
-	const std::vector<unsigned int>& aIdEA = field_val.GetAry_IdElemAry();
+	const std::vector<unsigned int>& aIdEA = field_val.GetAryIdEA();
 	for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 		const unsigned int id_ea = aIdEA[iiea];
 		if( field_val.GetInterpolationType(id_ea,world) == TET11 ){
@@ -206,7 +206,7 @@ bool Fem::Eqn::AddLinSys_LinearSolid3D_NonStatic_NewmarkBeta(
 	const CField& field_val = world.GetField(id_field_val);
 	if( field_val.GetFieldType() != VECTOR3 ) return false;
 
-	const std::vector<unsigned int>& aIdEA = field_val.GetAry_IdElemAry();
+	const std::vector<unsigned int>& aIdEA = field_val.GetAryIdEA();
 	for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 		const unsigned int id_ea = aIdEA[iiea];
 		if( field_val.GetInterpolationType(id_ea,world) == TET11 ){

@@ -148,7 +148,7 @@ bool Fem::Eqn::AddLinSys_LinearSolid2D_Static_SaveStiffMat(
 		return false;
 	}
 	else{
-		const std::vector<unsigned int>& aIdEA = field_val.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field_val.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = Fem::Eqn::AddLinSys_LinearSolid2D_Static_SaveStiffMat(// Ä‹A•¶
@@ -195,7 +195,7 @@ bool Fem::Eqn::AddLinSys_LinearSolidThermalStress2D_Static(
 		return res;
 	}
 	else{
-		const std::vector<unsigned int>& aIdEA = field_val.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field_val.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			// Ä‹A•¶
@@ -248,7 +248,7 @@ bool Fem::Eqn::AddLinSys_LinearSolid2D_Static(
 		else{ assert(0); }
 	}
 	else{
-		const std::vector<unsigned int>& aIdEA = field_val.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field_val.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = Fem::Eqn::AddLinSys_LinearSolid2D_Static(
@@ -294,7 +294,7 @@ bool Fem::Eqn::AddLinSys_LinearSolid2D_Eigen(
 		else{ assert(0); }
 	}
 	else{
-		const std::vector<unsigned int>& aIdEA = field_disp.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field_disp.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = Fem::Eqn::AddLinSys_LinearSolid2D_Eigen(
@@ -337,7 +337,7 @@ bool Fem::Eqn::AddLinSys_LinearSolid2D_NonStatic_Save_NewmarkBeta(
 		else{ assert(0); }
 	}
 	else{
-		const std::vector<unsigned int>& aIdEA = field_disp.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field_disp.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = Fem::Eqn::AddLinSys_LinearSolid2D_NonStatic_Save_NewmarkBeta(
@@ -379,7 +379,7 @@ bool Fem::Eqn::AddLinSys_LinearSolid2D_NonStatic_NewmarkBeta(
 		else{ assert(0); }
 	}
 	else{
-		const std::vector<unsigned int>& aIdEA = field_val.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field_val.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = Fem::Eqn::AddLinSys_LinearSolid2D_NonStatic_NewmarkBeta(
@@ -426,7 +426,7 @@ bool Fem::Eqn::AddLinSys_LinearSolid2D_NonStatic_BackwardEular
 		else{ assert(0); }
 	}
 	else{
-		const std::vector<unsigned int>& aIdEA = field_val.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field_val.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = Fem::Eqn::AddLinSys_LinearSolid2D_NonStatic_BackwardEular
@@ -479,7 +479,7 @@ bool Fem::Eqn::AddLinSys_LinearSolidThermalStress2D_NonStatic_NewmarkBeta(
 		return res;
 	}
 	else{
-		const std::vector<unsigned int>& aIdEA = field_val.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field_val.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			// Ä‹A•¶

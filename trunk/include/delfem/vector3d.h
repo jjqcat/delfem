@@ -186,7 +186,6 @@ inline double ScalarTripleProduct3D(const double a[], const double b[], const do
 inline double Dot3D(const double a[], const double b[]){
 	return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
 }
-
   
 inline void Cross3D(double r[3], const double v1[3], const double v2[3]){
   r[0] = v1[1]*v2[2] - v2[1]*v1[2];
@@ -194,11 +193,50 @@ inline void Cross3D(double r[3], const double v1[3], const double v2[3]){
   r[2] = v1[0]*v2[1] - v2[0]*v1[1];
 }
   
-  
 inline double Length3D(const double v[3]){
     return sqrt( v[0]*v[0] + v[1]*v[1] + v[2]*v[2] );
 }  
 
+static inline double Distance3D(const double p0[3], const double p1[3]){
+  return sqrt( (p1[0]-p0[0])*(p1[0]-p0[0]) + (p1[1]-p0[1])*(p1[1]-p0[1]) + (p1[2]-p0[2])*(p1[2]-p0[2]) );
+}
+
+static inline double TriArea3D(const double v1[3], const double v2[3], const double v3[3]){
+  double x, y, z;
+  x = ( v2[1] - v1[1] )*( v3[2] - v1[2] ) - ( v3[1] - v1[1] )*( v2[2] - v1[2] );
+  y = ( v2[2] - v1[2] )*( v3[0] - v1[0] ) - ( v3[2] - v1[2] )*( v2[0] - v1[0] );
+  z = ( v2[0] - v1[0] )*( v3[1] - v1[1] ) - ( v3[0] - v1[0] )*( v2[1] - v1[1] );
+  return 0.5*sqrt( x*x + y*y + z*z );
+}
+
+inline void  UnitNormalAreaTri3D(double n[3], double& a, const double v1[3], const double v2[3], const double v3[3]){
+    n[0] = ( v2[1] - v1[1] )*( v3[2] - v1[2] ) - ( v3[1] - v1[1] )*( v2[2] - v1[2] );
+    n[1] = ( v2[2] - v1[2] )*( v3[0] - v1[0] ) - ( v3[2] - v1[2] )*( v2[0] - v1[0] );
+    n[2] = ( v2[0] - v1[0] )*( v3[1] - v1[1] ) - ( v3[0] - v1[0] )*( v2[1] - v1[1] );
+    a = sqrt(n[0]*n[0]+n[1]*n[1]+n[2]*n[2])*0.5;
+    const double invlen = 0.5/a;
+    n[0]*=invlen;	n[1]*=invlen;	n[2]*=invlen;
+}
+  
+inline void NormalTri3D(double n[3], const double v1[3], const double v2[3], const double v3[3]){
+  n[0] = ( v2[1] - v1[1] )*( v3[2] - v1[2] ) - ( v3[1] - v1[1] )*( v2[2] - v1[2] );
+  n[1] = ( v2[2] - v1[2] )*( v3[0] - v1[0] ) - ( v3[2] - v1[2] )*( v2[0] - v1[0] );
+  n[2] = ( v2[0] - v1[0] )*( v3[1] - v1[1] ) - ( v3[0] - v1[0] )*( v2[1] - v1[1] );
+}
+  
+static inline double TetVolume3D(const double v1[3],
+                                 const double v2[3], 
+                                 const double v3[3], 
+                                 const double v4[3] )
+{
+  return	
+  (   ( v2[0] - v1[0] )*( ( v3[1] - v1[1] )*( v4[2] - v1[2] ) - ( v4[1] - v1[1] )*( v3[2] - v1[2] ) )		
+   -	( v2[1] - v1[1] )*( ( v3[0] - v1[0] )*( v4[2] - v1[2] ) - ( v4[0] - v1[0] )*( v3[2] - v1[2] ) )		
+   +	( v2[2] - v1[2] )*( ( v3[0] - v1[0] )*( v4[1] - v1[1] ) - ( v4[0] - v1[0] )*( v3[1] - v1[1] ) )
+   ) * 0.16666666666666666666666666666667;		
+}
+
+  
 
 static void GetVertical2Vector3D
 (const double vec_n[3], 
@@ -226,128 +264,130 @@ static void GetVertical2Vector3D
 class CMatrix3
 {
 public:
-    CMatrix3(const CVector3D& vec0){
-        this->SetSpinTensor(vec0);
+  CMatrix3(const CVector3D& vec0){
+    this->SetSpinTensor(vec0);
+  }
+  CMatrix3(){}
+  CMatrix3(double m[9]){ for(unsigned int i=0;i<9;i++){ mat[i]=m[i]; } }
+  ////
+  CVector3D MatVec(const CVector3D& vec0) const{
+    CVector3D vec1;
+    vec1.x = mat[0]*vec0.x + mat[1]*vec0.y + mat[2]*vec0.z;
+    vec1.y = mat[3]*vec0.x + mat[4]*vec0.y + mat[5]*vec0.z;
+    vec1.z = mat[6]*vec0.x + mat[7]*vec0.y + mat[8]*vec0.z;
+    return vec1;
+  }
+  void MatVec(const double vec0[], double vec1[]) const{
+    vec1[0] = mat[0]*vec0[0] + mat[1]*vec0[1] + mat[2]*vec0[2];
+    vec1[1] = mat[3]*vec0[0] + mat[4]*vec0[1] + mat[5]*vec0[2];
+    vec1[2] = mat[6]*vec0[0] + mat[7]*vec0[1] + mat[8]*vec0[2];
+  }
+  void MatVecTrans(const double vec0[], double vec1[]) const{
+    vec1[0] = mat[0]*vec0[0] + mat[3]*vec0[1] + mat[6]*vec0[2];
+    vec1[1] = mat[1]*vec0[0] + mat[4]*vec0[1] + mat[7]*vec0[2];
+    vec1[2] = mat[2]*vec0[0] + mat[5]*vec0[1] + mat[8]*vec0[2];
+  }
+  CVector3D MatVecTrans(const CVector3D& vec0) const{
+    CVector3D vec1;
+    vec1.x = mat[0]*vec0.x + mat[3]*vec0.y + mat[6]*vec0.z;
+    vec1.y = mat[1]*vec0.x + mat[4]*vec0.y + mat[7]*vec0.z;
+    vec1.z = mat[2]*vec0.x + mat[5]*vec0.y + mat[8]*vec0.z;
+    return vec1;
+  }
+  CMatrix3 MatMat(const CMatrix3& mat0) const{
+    CMatrix3 m;
+    for(unsigned int i=0;i<3;i++){
+      for(unsigned int j=0;j<3;j++){
+        m.mat[i*3+j] = mat[i*3+0]*mat0.mat[0*3+j] + mat[i*3+1]*mat0.mat[1*3+j] + mat[i*3+2]*mat0.mat[2*3+j];
+      }
     }
-    CMatrix3(){}
-    CVector3D MatVec(const CVector3D& vec0) const{
-        CVector3D vec1;
-        vec1.x = mat[0]*vec0.x + mat[1]*vec0.y + mat[2]*vec0.z;
-        vec1.y = mat[3]*vec0.x + mat[4]*vec0.y + mat[5]*vec0.z;
-        vec1.z = mat[6]*vec0.x + mat[7]*vec0.y + mat[8]*vec0.z;
-        return vec1;
+    return m;
+  }
+  CMatrix3 MatMatTrans(const CMatrix3& mat0) const{
+    CMatrix3 m;
+    for(unsigned int i=0;i<3;i++){
+      for(unsigned int j=0;j<3;j++){
+        m.mat[i*3+j] = 
+        mat[0*3+i]*mat0.mat[0*3+j] 
+        + mat[1*3+i]*mat0.mat[1*3+j] 
+        + mat[2*3+i]*mat0.mat[2*3+j];
+      }
     }
-    void MatVec(const double vec0[], double vec1[]) const{
-        vec1[0] = mat[0]*vec0[0] + mat[1]*vec0[1] + mat[2]*vec0[2];
-        vec1[1] = mat[3]*vec0[0] + mat[4]*vec0[1] + mat[5]*vec0[2];
-        vec1[2] = mat[6]*vec0[0] + mat[7]*vec0[1] + mat[8]*vec0[2];
-    }
-    void MatVecTrans(const double vec0[], double vec1[]) const{
-        vec1[0] = mat[0]*vec0[0] + mat[3]*vec0[1] + mat[6]*vec0[2];
-        vec1[1] = mat[1]*vec0[0] + mat[4]*vec0[1] + mat[7]*vec0[2];
-        vec1[2] = mat[2]*vec0[0] + mat[5]*vec0[1] + mat[8]*vec0[2];
-    }
-    CVector3D MatVecTrans(const CVector3D& vec0) const{
-        CVector3D vec1;
-        vec1.x = mat[0]*vec0.x + mat[3]*vec0.y + mat[6]*vec0.z;
-        vec1.y = mat[1]*vec0.x + mat[4]*vec0.y + mat[7]*vec0.z;
-        vec1.z = mat[2]*vec0.x + mat[5]*vec0.y + mat[8]*vec0.z;
-        return vec1;
-    }
-    CMatrix3 MatMat(const CMatrix3& mat0) const{
-        CMatrix3 m;
-        for(unsigned int i=0;i<3;i++){
-        for(unsigned int j=0;j<3;j++){
-            m.mat[i*3+j] = mat[i*3+0]*mat0.mat[0*3+j] + mat[i*3+1]*mat0.mat[1*3+j] + mat[i*3+2]*mat0.mat[2*3+j];
-        }
-        }
-        return m;
-    }
-    CMatrix3 MatMatTrans(const CMatrix3& mat0) const{
-        CMatrix3 m;
-        for(unsigned int i=0;i<3;i++){
-        for(unsigned int j=0;j<3;j++){
-            m.mat[i*3+j] = 
-                  mat[0*3+i]*mat0.mat[0*3+j] 
-                + mat[1*3+i]*mat0.mat[1*3+j] 
-                + mat[2*3+i]*mat0.mat[2*3+j];
-        }
-        }
-        return m;
-    }
-    void SetRotMatrix_Rodrigues(const double vec[]){
-        const double sqlen = vec[0]*vec[0]+vec[1]*vec[1]+vec[2]*vec[2];
-        const double tmp1 = 1.0/(1+0.25*sqlen);
+    return m;
+  }
+  void SetRotMatrix_Rodrigues(const double vec[]){
+    const double sqlen = vec[0]*vec[0]+vec[1]*vec[1]+vec[2]*vec[2];
+    const double tmp1 = 1.0/(1+0.25*sqlen);
 		mat[0] = 1+tmp1*(       +0.5*vec[0]*vec[0]-0.5*sqlen);
-        mat[1] =  +tmp1*(-vec[2]+0.5*vec[0]*vec[1]          );
-        mat[2] =  +tmp1*(+vec[1]+0.5*vec[0]*vec[2]          );
-        mat[3] =  +tmp1*(+vec[2]+0.5*vec[1]*vec[0]          );
-        mat[4] = 1+tmp1*(       +0.5*vec[1]*vec[1]-0.5*sqlen);
-        mat[5] =  +tmp1*(-vec[0]+0.5*vec[1]*vec[2]          );
-        mat[6] =  +tmp1*(-vec[1]+0.5*vec[2]*vec[0]          );  
-        mat[7] =  +tmp1*(+vec[0]+0.5*vec[2]*vec[1]          );   
-        mat[8] = 1+tmp1*(       +0.5*vec[2]*vec[2]-0.5*sqlen);
+    mat[1] =  +tmp1*(-vec[2]+0.5*vec[0]*vec[1]          );
+    mat[2] =  +tmp1*(+vec[1]+0.5*vec[0]*vec[2]          );
+    mat[3] =  +tmp1*(+vec[2]+0.5*vec[1]*vec[0]          );
+    mat[4] = 1+tmp1*(       +0.5*vec[1]*vec[1]-0.5*sqlen);
+    mat[5] =  +tmp1*(-vec[0]+0.5*vec[1]*vec[2]          );
+    mat[6] =  +tmp1*(-vec[1]+0.5*vec[2]*vec[0]          );  
+    mat[7] =  +tmp1*(+vec[0]+0.5*vec[2]*vec[1]          );   
+    mat[8] = 1+tmp1*(       +0.5*vec[2]*vec[2]-0.5*sqlen);
+  }
+  void SetRotMatrix_CRV(const double crv[]){
+    const double c0 = 0.125*( 16.0 - crv[0]*crv[0] - crv[1]*crv[1] - crv[2]*crv[2] );
+    const double tmp = 1.0/( (4.0-c0)*(4.0-c0) );
+    mat[0*3+0] = tmp*( (c0*c0+8*c0-16) + 2*crv[0]*crv[0] );
+    mat[0*3+1] = tmp*(                   2*crv[0]*crv[1] - 2*c0*crv[2] );
+    mat[0*3+2] = tmp*(                   2*crv[0]*crv[2] + 2*c0*crv[1] );
+    mat[1*3+0] = tmp*(                   2*crv[1]*crv[0] + 2*c0*crv[2] );
+    mat[1*3+1] = tmp*( (c0*c0+8*c0-16) + 2*crv[1]*crv[1] );
+    mat[1*3+2] = tmp*(                   2*crv[1]*crv[2] - 2*c0*crv[0] );
+    mat[2*3+0] = tmp*(                   2*crv[2]*crv[0] - 2*c0*crv[1] );
+    mat[2*3+1] = tmp*(                   2*crv[2]*crv[1] + 2*c0*crv[0] );
+    mat[2*3+2] = tmp*( (c0*c0+8*c0-16) + 2*crv[2]*crv[2] );
+  }
+  void GetCRV_RotMatrix(double crv[]) const{
+    const double smat[16] = {
+      1+mat[0*3+0]+mat[1*3+1]+mat[2*3+2],  
+      mat[2*3+1]-mat[1*3+2],
+      mat[0*3+2]-mat[2*3+0],
+      mat[1*3+0]-mat[0*3+1],
+      mat[2*3+1]-mat[1*3+2],
+      1+mat[0*3+0]-mat[1*3+1]-mat[2*3+2],
+      mat[0*3+1]+mat[1*3+0],
+      mat[0*3+2]+mat[2*3+0],
+      mat[0*3+2]-mat[2*3+0],
+      mat[1*3+0]+mat[0*3+1],
+      1-mat[0*3+0]+mat[1*3+1]-mat[2*3+2],
+      mat[1*3+2]+mat[2*3+1],
+      mat[1*3+0]-mat[0*3+1],
+      mat[0*3+2]+mat[2*3+0],
+      mat[1*3+2]+mat[2*3+1],
+      1-mat[0*3+0]-mat[1*3+1]+mat[2*3+2],
+    };
+    
+    unsigned int imax;
+    imax = ( smat[0   *4+   0] > smat[1*4+1] ) ? 0    : 1;
+    imax = ( smat[imax*4+imax] > smat[2*4+2] ) ? imax : 2;
+    imax = ( smat[imax*4+imax] > smat[3*4+3] ) ? imax : 3;
+    
+    double eparam2[4];  // オイラーパラメータ
+    eparam2[imax] = 0.5*sqrt(smat[imax*4+imax]);
+    for(unsigned int k=0;k<4;k++){
+      if( k==imax ) continue;
+      eparam2[k] = smat[imax*4+k]*0.25/eparam2[imax];
     }
-    void SetRotMatrix_CRV(const double crv[]){
-        const double c0 = 0.125*( 16.0 - crv[0]*crv[0] - crv[1]*crv[1] - crv[2]*crv[2] );
-        const double tmp = 1.0/( (4.0-c0)*(4.0-c0) );
-        mat[0*3+0] = tmp*( (c0*c0+8*c0-16) + 2*crv[0]*crv[0] );
-        mat[0*3+1] = tmp*(                   2*crv[0]*crv[1] - 2*c0*crv[2] );
-        mat[0*3+2] = tmp*(                   2*crv[0]*crv[2] + 2*c0*crv[1] );
-        mat[1*3+0] = tmp*(                   2*crv[1]*crv[0] + 2*c0*crv[2] );
-        mat[1*3+1] = tmp*( (c0*c0+8*c0-16) + 2*crv[1]*crv[1] );
-        mat[1*3+2] = tmp*(                   2*crv[1]*crv[2] - 2*c0*crv[0] );
-        mat[2*3+0] = tmp*(                   2*crv[2]*crv[0] - 2*c0*crv[1] );
-        mat[2*3+1] = tmp*(                   2*crv[2]*crv[1] + 2*c0*crv[0] );
-        mat[2*3+2] = tmp*( (c0*c0+8*c0-16) + 2*crv[2]*crv[2] );
-    }
-    void GetCRV_RotMatrix(double crv[]) const{
-        const double smat[16] = {
-            1+mat[0*3+0]+mat[1*3+1]+mat[2*3+2],  
-            mat[2*3+1]-mat[1*3+2],
-            mat[0*3+2]-mat[2*3+0],
-            mat[1*3+0]-mat[0*3+1],
-            mat[2*3+1]-mat[1*3+2],
-            1+mat[0*3+0]-mat[1*3+1]-mat[2*3+2],
-            mat[0*3+1]+mat[1*3+0],
-            mat[0*3+2]+mat[2*3+0],
-            mat[0*3+2]-mat[2*3+0],
-            mat[1*3+0]+mat[0*3+1],
-            1-mat[0*3+0]+mat[1*3+1]-mat[2*3+2],
-            mat[1*3+2]+mat[2*3+1],
-            mat[1*3+0]-mat[0*3+1],
-            mat[0*3+2]+mat[2*3+0],
-            mat[1*3+2]+mat[2*3+1],
-            1-mat[0*3+0]-mat[1*3+1]+mat[2*3+2],
-        };
-
-        unsigned int imax;
-        imax = ( smat[0   *4+   0] > smat[1*4+1] ) ? 0    : 1;
-        imax = ( smat[imax*4+imax] > smat[2*4+2] ) ? imax : 2;
-        imax = ( smat[imax*4+imax] > smat[3*4+3] ) ? imax : 3;
-
-        double eparam2[4];  // オイラーパラメータ
-        eparam2[imax] = 0.5*sqrt(smat[imax*4+imax]);
-        for(unsigned int k=0;k<4;k++){
-            if( k==imax ) continue;
-            eparam2[k] = smat[imax*4+k]*0.25/eparam2[imax];
-        }
-        crv[0] = 4*eparam2[1]/(1+eparam2[0]);
-        crv[1] = 4*eparam2[2]/(1+eparam2[0]);
-        crv[2] = 4*eparam2[3]/(1+eparam2[0]);
-    }
-    void SetSpinTensor(const CVector3D& vec0){
+    crv[0] = 4*eparam2[1]/(1+eparam2[0]);
+    crv[1] = 4*eparam2[2]/(1+eparam2[0]);
+    crv[2] = 4*eparam2[3]/(1+eparam2[0]);
+  }
+  void SetSpinTensor(const CVector3D& vec0){
 		mat[0] =  0;       mat[1] = -vec0.z;   mat[2] = +vec0.y;
-        mat[3] = +vec0.z;  mat[4] = 0;         mat[5] = -vec0.x;
-        mat[6] = -vec0.y;  mat[7] = +vec0.x;   mat[8] = 0;
-    }
-    void SetIdentity(double scale = 1){
+    mat[3] = +vec0.z;  mat[4] = 0;         mat[5] = -vec0.x;
+    mat[6] = -vec0.y;  mat[7] = +vec0.x;   mat[8] = 0;
+  }
+  void SetIdentity(double scale = 1){
 		mat[0] = scale; mat[1] = 0;     mat[2] = 0;
-        mat[3] = 0;     mat[4] = scale; mat[5] = 0;
-        mat[6] = 0;     mat[7] = 0;     mat[8] = scale;
-    }
+    mat[3] = 0;     mat[4] = scale; mat[5] = 0;
+    mat[6] = 0;     mat[7] = 0;     mat[8] = scale;
+  }
 public:
-    double mat[9];
+  double mat[9];  
 };
 
 
@@ -403,15 +443,58 @@ public:
 			&& vec.z >= z_min && vec.z <= z_max ) return true;
 		return false;
 	}
-	bool IsIntersectSphere(const CVector3D& vec, const double radius ) const
+	bool IsPossibilityIntersectSphere(const CVector3D& vec, const double radius ) const
 	{
 		if( !isnt_empty ) return false; // 何もない場合は常に偽
-		if( vec.x < x_min-radius || vec.x > x_max+radius ||
-			vec.y < y_min-radius || vec.y > y_max+radius || 
-			vec.z < z_min-radius || vec.z > z_max+radius ) return false;
+		if(vec.x < x_min-radius || vec.x > x_max+radius ||
+       vec.y < y_min-radius || vec.y > y_max+radius || 
+       vec.z < z_min-radius || vec.z > z_max+radius ) return false;
 		// 干渉しないやつが含まれているが、アバウトなままでよい．
 		return true;
 	}
+  bool AddPoint(const Com::CVector3D& vec, double eps){
+    if( eps <= 0 ){ return false; }
+    if( isnt_empty ){
+      x_min = ( x_min < vec.x-eps ) ? x_min : vec.x-eps;
+      y_min = ( y_min < vec.y-eps ) ? y_min : vec.y-eps;
+      z_min = ( z_min < vec.z-eps ) ? z_min : vec.z-eps;
+      x_max = ( x_max > vec.x+eps ) ? x_max : vec.x+eps;
+      y_max = ( y_max > vec.y+eps ) ? y_max : vec.y+eps;
+      z_max = ( z_max > vec.z+eps ) ? z_max : vec.z+eps;                    
+    }
+    else{
+      isnt_empty = true;
+      x_min = vec.x-eps;
+      y_min = vec.y-eps;
+      z_min = vec.z-eps;      
+      x_max = vec.x+eps;      
+      y_max = vec.y+eps;      
+      z_max = vec.z+eps;            
+    }
+    return true;
+  }
+  void SetValueToArray(double bb[8]) const{
+    bb[0] = x_min;  bb[2] = y_min;  bb[4] = z_min;
+    bb[1] = x_max;  bb[3] = y_max;  bb[5] = z_max;    
+  }
+  void ProjectOnLine(double& min_r, double& max_r, 
+                   const Com::CVector3D& org, const Com::CVector3D& dir) const
+  {
+    const double d[8] = {
+      Dot(dir,Com::CVector3D(x_min,y_min,z_min)-org),
+      Dot(dir,Com::CVector3D(x_max,y_min,z_min)-org),
+      Dot(dir,Com::CVector3D(x_min,y_max,z_min)-org),
+      Dot(dir,Com::CVector3D(x_max,y_max,z_min)-org),
+      Dot(dir,Com::CVector3D(x_min,y_min,z_max)-org),
+      Dot(dir,Com::CVector3D(x_max,y_min,z_max)-org),
+      Dot(dir,Com::CVector3D(x_min,y_max,z_max)-org),
+      Dot(dir,Com::CVector3D(x_max,y_max,z_max)-org) };
+    min_r = max_r = d[0];
+    for(unsigned int i=1;i<8;i++){
+      min_r = ( d[i] < min_r ) ? d[i] : min_r;
+      max_r = ( d[i] > max_r ) ? d[i] : max_r;
+    }
+  }
 public:
 	double x_min,x_max,  y_min,y_max,  z_min,z_max;
 	bool isnt_empty;	//!< false if there is nothing inside

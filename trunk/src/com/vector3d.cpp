@@ -242,7 +242,7 @@ bool COctTree::IsPointInSphere( double radius, const CVector3D& vec ) const
 			const unsigned int icell_cur = stack_next.top().first;
 			const CBoundingBox3D bb_cur = stack_next.top().second;
 			stack_next.pop();
-			assert( bb_cur.IsIntersectSphere(vec,radius) );
+			assert( bb_cur.IsPossibilityIntersectSphere(vec,radius) );
 			// 干渉を確認するルーティンがここに欲しい．
 			if( m_aCell[icell_cur].size >= 0 ){	// データ型
 				stack_int_sect.push( icell_cur );
@@ -255,56 +255,56 @@ bool COctTree::IsPointInSphere( double radius, const CVector3D& vec ) const
 			{
 				CBoundingBox3D bb = bb_cur;
 				bb.x_max=x_cent;  bb.y_max=y_cent;  bb.z_max=z_cent;
-				if( bb.IsIntersectSphere(vec,radius) ){
+				if( bb.IsPossibilityIntersectSphere(vec,radius) ){
 					stack_next.push( std::make_pair(m_aCell[icell_cur].data[0],bb) );
 				}
 			}
 			{
 				CBoundingBox3D bb = bb_cur;
 				bb.x_max=x_cent;  bb.y_max=y_cent;  bb.z_min=z_cent;
-				if( bb.IsIntersectSphere(vec,radius) ){
+				if( bb.IsPossibilityIntersectSphere(vec,radius) ){
 					stack_next.push( std::make_pair(m_aCell[icell_cur].data[1],bb) );
 				}
 			}
 			{
 				CBoundingBox3D bb = bb_cur;
 				bb.x_max=x_cent;  bb.y_min=y_cent;  bb.z_max=z_cent;
-				if( bb.IsIntersectSphere(vec,radius) ){
+				if( bb.IsPossibilityIntersectSphere(vec,radius) ){
 					stack_next.push( std::make_pair(m_aCell[icell_cur].data[2],bb) );
 				}
 			}
 			{
 				CBoundingBox3D bb = bb_cur;
 				bb.x_max=x_cent;  bb.y_min=y_cent;  bb.z_min=z_cent;
-				if( bb.IsIntersectSphere(vec,radius) ){
+				if( bb.IsPossibilityIntersectSphere(vec,radius) ){
 					stack_next.push( std::make_pair(m_aCell[icell_cur].data[3],bb) );
 				}
 			}
 			{
 				CBoundingBox3D bb = bb_cur;
 				bb.x_min=x_cent;  bb.y_max=y_cent;  bb.z_max=z_cent;
-				if( bb.IsIntersectSphere(vec,radius) ){
+				if( bb.IsPossibilityIntersectSphere(vec,radius) ){
 					stack_next.push( std::make_pair(m_aCell[icell_cur].data[4],bb) );
 				}
 			}
 			{
 				CBoundingBox3D bb = bb_cur;
 				bb.x_min=x_cent;  bb.y_max=y_cent;  bb.z_min=z_cent;
-				if( bb.IsIntersectSphere(vec,radius) ){
+				if( bb.IsPossibilityIntersectSphere(vec,radius) ){
 					stack_next.push( std::make_pair(m_aCell[icell_cur].data[5],bb) );
 				}
 			}
 			{
 				CBoundingBox3D bb = bb_cur;
 				bb.x_min=x_cent;  bb.y_min=y_cent;  bb.z_max=z_cent;
-				if( bb.IsIntersectSphere(vec,radius) ){
+				if( bb.IsPossibilityIntersectSphere(vec,radius) ){
 					stack_next.push( std::make_pair(m_aCell[icell_cur].data[6],bb) );
 				}
 			}
 			{
 				CBoundingBox3D bb = bb_cur;
 				bb.x_min=x_cent;  bb.y_min=y_cent;  bb.z_min=z_cent;
-				if( bb.IsIntersectSphere(vec,radius) ){
+				if( bb.IsPossibilityIntersectSphere(vec,radius) ){
 					stack_next.push( std::make_pair(m_aCell[icell_cur].data[7],bb) );
 				}
 			}

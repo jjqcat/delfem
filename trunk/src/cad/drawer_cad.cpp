@@ -146,9 +146,9 @@ CDrawerRubberBand::CDrawerRubberBand(const Cad::CCadObj2D& cad, unsigned int id_
 	for(;!itrv.IsEnd();itrv++){
 		unsigned int id_e; bool is_same_dir;
 		itrv.GetIdEdge_Behind(id_e,is_same_dir);
-		unsigned int id_vs, id_ve;
-		cad.GetIdVertex_Edge(id_vs,id_ve,id_e);
-		const unsigned int id_v1 = (is_same_dir) ? id_ve : id_vs;
+		unsigned int id_vs = cad.GetIdVertex_Edge(id_e,true );
+    unsigned int id_ve = cad.GetIdVertex_Edge(id_e,false);
+    const unsigned int id_v1 = (is_same_dir) ? id_ve : id_vs;
 		assert( ((is_same_dir) ? id_vs : id_ve) == id_v );
     assert( cad.IsElemID(Cad::VERTEX,id_v1) );
 		const Com::CVector2D& vec2d = cad.GetVertexCoord(id_v1);
@@ -163,8 +163,8 @@ CDrawerRubberBand::CDrawerRubberBand(const Cad::CCadObj2D& cad,
 	this->sutable_rot_mode = 1;	
 	if( !cad.IsElemID(Cad::EDGE,id_e) ) return;
 	this->initial = initial;
-	unsigned int id_vs, id_ve;
-	cad.GetIdVertex_Edge(id_vs,id_ve,id_e);
+	const unsigned int id_vs = cad.GetIdVertex_Edge(id_e,true );
+  const unsigned int id_ve = cad.GetIdVertex_Edge(id_e,false);
 	fix.clear();
 	{
 		{
@@ -178,9 +178,9 @@ CDrawerRubberBand::CDrawerRubberBand(const Cad::CCadObj2D& cad,
 				unsigned int id_e0; bool is_same_dir0;
 				itrv.GetIdEdge_Behind(id_e0,is_same_dir0);
 				if( id_e0 == id_e ) continue;
-				unsigned int id_vs0, id_ve0;
-				cad.GetIdVertex_Edge(id_vs0,id_ve0,id_e0);
-				const unsigned int id_v1 = (is_same_dir0) ? id_ve0 : id_vs0;
+				unsigned int id_vs0 = cad.GetIdVertex_Edge(id_e0,true);
+        unsigned int id_ve0 = cad.GetIdVertex_Edge(id_e0,false);
+        const unsigned int id_v1 = (is_same_dir0) ? id_ve0 : id_vs0;
 				assert( ((is_same_dir0) ? id_vs0 : id_ve0) == id_vs );
 				assert( cad.IsElemID(Cad::VERTEX,id_v1) );
 				const Com::CVector2D& vec2d = cad.GetVertexCoord(id_v1);
@@ -198,8 +198,8 @@ CDrawerRubberBand::CDrawerRubberBand(const Cad::CCadObj2D& cad,
 				unsigned int id_e0; bool is_same_dir0;
 				itrv.GetIdEdge_Behind(id_e0,is_same_dir0);
 				if( id_e0 == id_e ) continue;
-				unsigned int id_vs0, id_ve0;
-				cad.GetIdVertex_Edge(id_vs0,id_ve0,id_e);
+				unsigned int id_vs0 =	cad.GetIdVertex_Edge(id_e,true );
+        unsigned int id_ve0 = cad.GetIdVertex_Edge(id_e,false);
 				const unsigned int id_v1 = (is_same_dir0) ? id_ve0 : id_vs0;
 				assert( ((is_same_dir0) ? id_vs0 : id_ve0) == id_ve );
 				assert( cad.IsElemID(Cad::VERTEX,id_v1) );
@@ -600,8 +600,8 @@ void CDrawer_Cad2D::HideEffected(const Cad::CCadObj2D& cad_2d,
 	}
   else if( part_type == Cad::EDGE ){
 		if( !cad_2d.IsElemID(Cad::EDGE,part_id) ) return;
-		unsigned int id_vs, id_ve;
-		cad_2d.GetIdVertex_Edge(id_vs,id_ve,part_id);		
+		unsigned int id_vs = cad_2d.GetIdVertex_Edge(part_id,true );		
+    unsigned int id_ve = cad_2d.GetIdVertex_Edge(part_id,false);		
     for(Cad::CBRepSurface::CItrVertex itrv=cad_2d.GetItrVertex(id_vs);!itrv.IsEnd();itrv++){
 			unsigned int id_e0; bool is_same_dir0;
 			itrv.GetIdEdge_Behind(id_e0,is_same_dir0);

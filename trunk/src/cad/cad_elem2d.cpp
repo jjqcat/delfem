@@ -1,21 +1,21 @@
 /*
-DelFEM (Finite Element Analysis)
-Copyright (C) 2009  Nobuyuki Umetani    n.umetani@gmail.com
-
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+ DelFEM (Finite Element Analysis)
+ Copyright (C) 2009  Nobuyuki Umetani    n.umetani@gmail.com
+ 
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 2.1 of the License, or (at your option) any later version.
+ 
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+ 
+ You should have received a copy of the GNU Lesser General Public
+ License along with this library; if not, write to the Free Software
+ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 #if defined(__VISUALC__)
 #pragma warning ( disable : 4786 )
@@ -37,13 +37,13 @@ void Cad::CEdge2D::GetBoundingBox( double& x_min, double& x_max, double& y_min, 
 	x_max = ( po_s.x > po_e.x ) ? po_s.x : po_e.x;
 	y_min = ( po_s.y < po_e.y ) ? po_s.y : po_e.y;
 	y_max = ( po_s.y > po_e.y ) ? po_s.y : po_e.y;
-	if( itype == 0 ){ return; }	// íºê¸ÇÃèÍçáÇÕÇªÇÃÇ‹Ç‹
-	else if( itype == 1 ){	// â~å ÇÃèÍçá
+	if(      itype == CURVE_LINE ){ return; }	// íºê¸ÇÃèÍçáÇÕÇªÇÃÇ‹Ç‹
+	else if( itype == CURVE_ARC ){	// â~å ÇÃèÍçá
 		Com::CVector2D po_c;
 		double radius;
 		this->GetCenterRadius(po_c,radius);
 		Com::CVector2D tmp_v;
-
+    
 		tmp_v.x = po_c.x+radius;
 		tmp_v.y = po_c.y;
 		if( this->IsDirectionArc(tmp_v) == 1 ){
@@ -54,20 +54,20 @@ void Cad::CEdge2D::GetBoundingBox( double& x_min, double& x_max, double& y_min, 
 		if( this->IsDirectionArc(tmp_v) == 1 ){
 			x_min = ( tmp_v.x < x_min ) ? tmp_v.x : x_min; 
 		}
-
+    
 		tmp_v.x = po_c.x;
 		tmp_v.y = po_c.y+radius;
 		if( this->IsDirectionArc(tmp_v) == 1 ){
 			y_max = ( tmp_v.y > y_max ) ? tmp_v.y : y_max; 
 		}
-
+    
 		tmp_v.x = po_c.x;
 		tmp_v.y = po_c.y-radius;
 		if( this->IsDirectionArc(tmp_v) == 1 ){
 			y_min = ( tmp_v.y < y_min ) ? tmp_v.y : y_min; 
 		}
 	}
-	else if( itype == 2 ){
+	else if( itype == CURVE_POLYLINE ){
 		const unsigned int n = aRelCoMesh.size()/2;
 		Com::CVector2D v0 = po_e-po_s;
 		Com::CVector2D v1(-v0.y,v0.x);
@@ -79,16 +79,27 @@ void Cad::CEdge2D::GetBoundingBox( double& x_min, double& x_max, double& y_min, 
 			y_max = ( po0.y > y_max ) ? po0.y : y_max; 
 		}
 	}
+  else if( itype == CURVE_BEZIER ){    
+    Com::CVector2D v0 = po_e-po_s;
+		Com::CVector2D v1(-v0.y,v0.x);
+    for(unsigned int i=0;i<2;i++){
+			Com::CVector2D po0 = po_s + v0*aRelCoBezier[i*2+0] + v1*aRelCoBezier[i*2+1];
+			x_min = ( po0.x < x_min ) ? po0.x : x_min; 
+			x_max = ( po0.x > x_max ) ? po0.x : x_max; 
+			y_min = ( po0.y < y_min ) ? po0.y : y_min; 
+			y_max = ( po0.y > y_max ) ? po0.y : y_max; 
+		}    
+  }
 	else{ assert(0); abort(); }
 }
 
 // ï”Ç∆í∏ì_ÇåãÇ‘íºê¸Ç≈àÕÇ‹ÇÍÇÈñ êœÇåvéZ(âEë§Ç…Ç†ÇÍÇŒÅ{)
 double Cad::CEdge2D::AreaEdge() const
 {
-	if( this->itype == 0 ){
+	if( this->itype == CURVE_LINE ){
 		return 0;
 	}
-	else if( this->itype == 1 ){
+	else if( this->itype == CURVE_ARC ){
 		Com::CVector2D pc;
 		double radius;
 		this->GetCenterRadius(pc,radius);
@@ -109,8 +120,10 @@ double Cad::CEdge2D::AreaEdge() const
 		if( this->is_left_side ){ segment_area *= -1; }
 		return segment_area;
 	}
-	else if( this->itype == 2 ){
+	else if( this->itype == CURVE_POLYLINE ){
+    std::cout << aRelCoMesh.size() << std::endl;
 		const unsigned int n = aRelCoMesh.size()/2;
+    if( n == 0 ){ return 0; }
 		double area_ratio = 0;
 		for(unsigned int i=0;i<n+1;i++){
 			double divx, h0, h1;
@@ -135,17 +148,39 @@ double Cad::CEdge2D::AreaEdge() const
 		double segment_area = -sqlen * area_ratio;
 		return segment_area;
 	}
+  else if( this->itype == CURVE_BEZIER ){ // TODO:
+    const Com::CVector2D& gh = po_e - po_s;
+    const Com::CVector2D gv(-gh.y, gh.x);
+    const Com::CVector2D posc = po_s + gh*aRelCoBezier[0] + gv*aRelCoBezier[1];
+    const Com::CVector2D poec = po_s + gh*aRelCoBezier[2] + gv*aRelCoBezier[3];
+    const unsigned int ndiv = 32;
+    const double div_t = 1.0/(ndiv);
+    double area = 0;
+    for(unsigned int i=0;i<(unsigned int)ndiv;i++){
+      const double t0 = (i+0)*div_t;
+      const double t1 = (i+1)*div_t;      
+      Com::CVector2D vec0 = (1-t0)*(1-t0)*(1-t0)*po_s + 3*(1-t0)*(1-t0)*t0*posc + 3*(1-t0)*t0*t0*poec + t0*t0*t0*po_e;
+      Com::CVector2D vect0 = -3*(1-t0)*(1-t0)*po_s + 3*(3*t0-1)*(t0-1)*posc - 3*t0*(3*t0-2)*poec + 3*t0*t0*po_e;      
+      const double area0 = Com::TriArea(po_s,vec0,vect0+vec0);
+      Com::CVector2D vec1 = (1-t1)*(1-t1)*(1-t1)*po_s + 3*(1-t1)*(1-t1)*t1*posc + 3*(1-t1)*t1*t1*poec + t1*t1*t1*po_e;      
+      Com::CVector2D vect1 = -3*(1-t1)*(1-t1)*po_s + 3*(3*t1-1)*(t1-1)*posc - 3*t1*(3*t1-2)*poec + 3*t1*t1*po_e; 
+      const double area1 = Com::TriArea(po_s,vec1,vect1+vec1);
+      const double ave_len = (area0+area1)*0.5;
+      area += ave_len*div_t;
+    }
+    return area;
+  }
 	else{ assert(0); }
 	return 0;
 }
 
 Com::CVector2D Cad::CEdge2D::GetTangentEdge(bool is_s) const {
-	if( this->itype == 0 ){
+	if( this->itype == CURVE_LINE ){
 		Com::CVector2D d = (is_s ) ? po_e-po_s : po_s-po_e;
 		d.Normalize();
 		return d;
 	}
-	else if( this->itype == 1 ){
+	else if( this->itype == CURVE_ARC ){
 		double radius;
 		Com::CVector2D po_c;
 		this->GetCenterRadius(po_c,radius);
@@ -156,22 +191,33 @@ Com::CVector2D Cad::CEdge2D::GetTangentEdge(bool is_s) const {
 		v.Normalize();
 		return v;
 	}
-	else if( this->itype == 2 ){
+	else if( this->itype == CURVE_POLYLINE ){
 		const std::vector<double>& relcomsh = aRelCoMesh;
 		const unsigned int ndiv = relcomsh.size()/2+1;
 		const Com::CVector2D& h0 = po_e-po_s;
 		const Com::CVector2D v0(-h0.y,h0.x);
 		if( is_s ){
+      if( ndiv == 1 ){ return h0; }
 			Com::CVector2D d = h0*relcomsh[0] + v0*relcomsh[1];
 			d.Normalize();
 			return d;
 		}
 		else{
+      if( ndiv == 1 ){ return h0*-1; }
 			Com::CVector2D d = po_s + h0*relcomsh[(ndiv-2)*2+0] + v0*relcomsh[(ndiv-2)*2+1] - po_e;
 			d.Normalize();
 			return d;
 		}
 	}
+  else if( this->itype == CURVE_BEZIER ){ // TODO:
+    const Com::CVector2D& gh = po_e - po_s;
+    const Com::CVector2D gv(-gh.y, gh.x);
+    const Com::CVector2D posc = po_s + gh*aRelCoBezier[0] + gv*aRelCoBezier[1];
+    const Com::CVector2D poec = po_s + gh*aRelCoBezier[2] + gv*aRelCoBezier[3];    
+		Com::CVector2D d = (is_s) ? posc-po_s : poec-po_e;
+		d.Normalize();
+		return d;
+	}  
 	assert(0);
 	Com::CVector2D v(0,0);
 	return v;
@@ -180,19 +226,19 @@ Com::CVector2D Cad::CEdge2D::GetTangentEdge(bool is_s) const {
 //! return the point on this edge that is nearest from (po_in)
 Com::CVector2D Cad::CEdge2D::GetNearestPoint(const Com::CVector2D& po_in) const
 {
-	if( itype == 0 ){
+	if( itype == CURVE_LINE ){
 		const double t = FindNearestPointParameter_Line_Point(po_in,po_s,po_e);
 		if( t < 0 ){ return po_s; }
 		if( t > 1 ){ return po_e; }
 		else{ return po_s + (po_e-po_s)*t; }
 	}
-	else if( itype ==1 ){
+	else if( itype == CURVE_ARC ){
 		double radius;
 		Com::CVector2D po_c;
 		this->GetCenterRadius(po_c,radius);
-		double len = Com::Length(po_c,po_in);
+		double len = Com::Distance(po_c,po_in);
 		if( len < 1.0e-10 ){ return po_s; }
-//		double dist = fabs(len-radius);
+    //		double dist = fabs(len-radius);
 		const Com::CVector2D& po_p = po_c*(1-radius/len)+po_in*(radius/len);	// projected point
 		if( this->IsDirectionArc(po_p) ){ return po_p; }
 		const double dist_s = Com::SquareLength(po_in,po_s);
@@ -200,12 +246,12 @@ Com::CVector2D Cad::CEdge2D::GetNearestPoint(const Com::CVector2D& po_in) const
 		if( dist_s < dist_e ){ return po_s; }
 		else{ return po_e; }
 	}
-	else if( itype ==2 ){
+	else if( itype == CURVE_POLYLINE ){
 		const std::vector<double>& relcomsh = aRelCoMesh;
 		const unsigned int ndiv = relcomsh.size()/2+1;
 		const Com::CVector2D& h0 = po_e-po_s;
 		const Com::CVector2D v0(-h0.y,h0.x);
-		double min_dist = Com::Length(po_s,po_in);
+		double min_dist = Com::Distance(po_s,po_in);
 		Com::CVector2D cand = po_s;
 		for(unsigned int idiv=0;idiv<ndiv;idiv++){
 			Com::CVector2D poi0;
@@ -214,15 +260,15 @@ Com::CVector2D Cad::CEdge2D::GetNearestPoint(const Com::CVector2D& po_in) const
 			Com::CVector2D poi1;
 			if( idiv == ndiv-1 ){ poi1 = po_e; }
 			else{ poi1 = po_s + h0*relcomsh[idiv*2+0]     + v0*relcomsh[idiv*2+1]; }
-			if( Com::Length(po_in,poi1) < min_dist ){ 
-				min_dist = Com::Length(po_in,poi1);	
+			if( Com::Distance(po_in,poi1) < min_dist ){ 
+				min_dist = Com::Distance(po_in,poi1);	
 				cand = poi1; 
 			}
 			const double t = FindNearestPointParameter_Line_Point(po_in,poi0,poi1);
 			if( t < 0.01 || t > 0.99 ) continue;
 			Com::CVector2D po_mid = poi0 + (poi1-poi0)*t;
-			if( Com::Length(po_in,po_mid) < min_dist ){ 
-				min_dist = Com::Length(po_in,po_mid);	
+			if( Com::Distance(po_in,po_mid) < min_dist ){ 
+				min_dist = Com::Distance(po_in,po_mid);	
 				cand = po_mid;
 			}
 		}
@@ -236,8 +282,8 @@ Com::CVector2D Cad::CEdge2D::GetNearestPoint(const Com::CVector2D& po_in) const
 //! check self interaction inside edge
 bool Cad::CEdge2D::IsCrossEdgeSelf() const
 {
-	if( this->itype == 0 || this->itype == 1 ){ return false; } // line segment and arc never intersect in itself
-	if( this->itype == 2 ){	// Mesh
+	if( this->itype == CURVE_LINE || this->itype == CURVE_ARC ){ return false; } // line segment and arc never intersect in itself
+	if( this->itype == CURVE_POLYLINE ){	// Mesh
 		const std::vector<double>& relcomsh = aRelCoMesh;
 		const unsigned int ndiv = relcomsh.size()/2+1;
 		const Com::CVector2D& h0 = po_e-po_s;
@@ -261,6 +307,9 @@ bool Cad::CEdge2D::IsCrossEdgeSelf() const
 		}
 		return false;
 	}
+  else if( this->itype == CURVE_BEZIER ){ // TODO
+    return false;
+  }
 	else{ 
 		assert(0);
 	}
@@ -321,13 +370,13 @@ static double GetDist_Point_Arc(const Com::CVector2D& po,
                                 const Com::CVector2D& po_s1, const Com::CVector2D& po_e1,
                                 const Com::CVector2D& po_c1, double radius1, bool is_left_side1)
 {  
-  double min_dist = Length(po,po_s1);
+  double min_dist = Distance(po,po_s1);
   {
-    double d0 = Length(po,po_e1);
+    double d0 = Distance(po,po_e1);
     min_dist = ( min_dist < d0 ) ? min_dist : d0;
   }
   if( IsDirectionArc( Cad::GetProjectedPointOnCircle(po_c1,radius1,po), po_s1,po_e1,po_c1,is_left_side1) ){
-    double d0 = fabs(Length(po,po_c1)-radius1);      
+    double d0 = fabs(Distance(po,po_c1)-radius1);      
     min_dist = ( d0 < min_dist ) ? d0 : min_dist;
   }
   return min_dist;
@@ -353,7 +402,7 @@ static double GetDist_LineSeg_Arc(const Com::CVector2D& po_s0, const Com::CVecto
     const double t = Cad::FindNearestPointParameter_Line_Point(po_c1,po_s0,po_e0);
     if( t > 0 && t < 1){
       const Com::CVector2D& v = po_s0 + (po_e0-po_s0)*t;
-      double d0 = Length(v,po_c1)-radius1;
+      double d0 = Distance(v,po_c1)-radius1;
       std::cout << "arc seg shortese cand dist : " << d0 << std::endl;
       if( d0 > 0 ){
         if( IsDirectionArc( Cad::GetProjectedPointOnCircle(po_c1,radius1,v), po_s1,po_e1,po_c1,is_left_side1 ) ){
@@ -372,19 +421,19 @@ double Cad::CEdge2D::Distance(const CEdge2D& e1) const
 {
 	const Com::CVector2D& po_s1 = e1.po_s;
 	const Com::CVector2D& po_e1 = e1.po_e;
-	if( this->itype == 0 && e1.itype == 0 ){	// intersection between lines
+	if( this->itype == CURVE_LINE && e1.itype == CURVE_LINE ){	// intersection between lines
     return GetDist_LineSeg_LineSeg(po_s,po_e,po_s1,po_e1);
 	}
-	else if( this->itype == 0 && e1.itype == 1 ){
+	else if( this->itype == CURVE_LINE && e1.itype == CURVE_ARC ){
 		Com::CVector2D po_c1;
 		double radius1;
 		e1.GetCenterRadius(po_c1,radius1);
     return GetDist_LineSeg_Arc(po_s,po_e, e1.po_s,e1.po_e,po_c1,radius1,e1.is_left_side);
 	}
-	else if( this->itype == 1 && e1.itype == 0 ){
+	else if( this->itype == CURVE_ARC && e1.itype == CURVE_LINE ){
 		return e1.Distance(*this);
 	}
-	else if( this->itype == 1 && e1.itype == 1 ){
+	else if( this->itype == CURVE_ARC && e1.itype == CURVE_ARC ){
 		Com::CVector2D po_c0; double radius0;  this->GetCenterRadius(po_c0,radius0);
 		Com::CVector2D po_c1; double radius1;  e1.GetCenterRadius(po_c1,radius1);
 		////////////////
@@ -403,13 +452,13 @@ double Cad::CEdge2D::Distance(const CEdge2D& e1) const
     const double min_dist1 = ( min_dist_s1 < min_dist_e1 ) ? min_dist_s1 : min_dist_e1;    
     double min_dist = ( min_dist0 < min_dist1 ) ? min_dist0 : min_dist1;
     if( !is_cross_circle01 ){
-      const bool is_c0_inside_c1 = Length(po_c0,po_c1) < radius1;
-      const bool is_c1_inside_c0 = Length(po_c1,po_c0) < radius0;
+      const bool is_c0_inside_c1 = Com::Distance(po_c0,po_c1) < radius1;
+      const bool is_c1_inside_c0 = Com::Distance(po_c1,po_c0) < radius0;
       if( !is_c0_inside_c1 && !is_c1_inside_c0 ){
         const Com::CVector2D& v1 = Cad::GetProjectedPointOnCircle(po_c1,radius1, po_c0);
         const Com::CVector2D& v0 = Cad::GetProjectedPointOnCircle(po_c0,radius0, po_c1);      
         if( e1.IsDirectionArc( v1 ) && this->IsDirectionArc( v0 ) ){        
-          double d0 = Length(v0,v1);
+          double d0 = Com::Distance(v0,v1);
           min_dist = ( d0 < min_dist ) ? d0 : min_dist;
         }
       }
@@ -418,7 +467,7 @@ double Cad::CEdge2D::Distance(const CEdge2D& e1) const
           const Com::CVector2D& v1 = Cad::GetProjectedPointOnCircle(po_c1,radius1, po_c0);        
           const Com::CVector2D& v0 = Cad::GetProjectedPointOnCircle(po_c0,radius0, v1);               
           if( e1.IsDirectionArc( v1 ) && this->IsDirectionArc( v0 ) ){        
-            double d0 = Length(v0,v1);
+            double d0 = Com::Distance(v0,v1);
             min_dist = ( d0 < min_dist ) ? d0 : min_dist;
           }        
         }
@@ -427,7 +476,7 @@ double Cad::CEdge2D::Distance(const CEdge2D& e1) const
           const Com::CVector2D& v0 = Cad::GetProjectedPointOnCircle(po_c0,radius0, po_c1);              
           const Com::CVector2D& v1 = Cad::GetProjectedPointOnCircle(po_c1,radius1, v0);
           if( e1.IsDirectionArc( v1 ) && this->IsDirectionArc( v0 ) ){        
-            double d0 = Length(v0,v1);
+            double d0 = Com::Distance(v0,v1);
             min_dist = ( d0 < min_dist ) ? d0 : min_dist;
           }
         }
@@ -435,7 +484,7 @@ double Cad::CEdge2D::Distance(const CEdge2D& e1) const
     }            
 		return min_dist;
 	}
-	else if( this->itype == 0 && e1.itype == 2 ){
+	else if( this->itype == CURVE_LINE && e1.itype == CURVE_POLYLINE ){
 		const std::vector<double>& relcomsh1 = e1.aRelCoMesh;
 		const unsigned int ndiv1 = relcomsh1.size()/2+1;
 		const Com::CVector2D& h1 = e1.po_e-e1.po_s;
@@ -455,13 +504,13 @@ double Cad::CEdge2D::Distance(const CEdge2D& e1) const
 		}
 		return min_dist;
 	}
-	else if( this->itype == 2 && e1.itype == 0 ){
+	else if( this->itype == CURVE_POLYLINE && e1.itype == CURVE_LINE ){
 		return e1.Distance(*this);
 	}
-	else if( this->itype == 2 && e1.itype == 1 ){
+	else if( this->itype == CURVE_POLYLINE && e1.itype == CURVE_ARC ){
 		return e1.Distance(*this);
 	}
-	else if( this->itype == 1 && e1.itype == 2 ){
+	else if( this->itype == CURVE_ARC && e1.itype == CURVE_POLYLINE ){
 		Com::CVector2D po_c0;
 		double radius0;
 		this->GetCenterRadius(po_c0,radius0);
@@ -486,7 +535,7 @@ double Cad::CEdge2D::Distance(const CEdge2D& e1) const
 		}
 		return min_dist;
 	}
-	else if( this->itype == 2 && e1.itype == 2 ){
+	else if( this->itype == CURVE_POLYLINE && e1.itype == CURVE_POLYLINE ){
 		const Com::CVector2D& h0 = po_e-po_s;
 		const Com::CVector2D v0(-h0.y,h0.x);
 		const Com::CVector2D& h1 = e1.po_e-e1.po_s;
@@ -526,10 +575,10 @@ bool Cad::CEdge2D::IsCrossEdge(const CEdge2D& e1) const
 {
 	const Com::CVector2D& po_s1 = e1.po_s;
 	const Com::CVector2D& po_e1 = e1.po_e;
-	if( this->itype == 0 && e1.itype == 0 ){	// intersection between lines
+	if( this->itype == CURVE_LINE && e1.itype == CURVE_LINE ){	// intersection between lines
 		return ( IsCross_LineSeg_LineSeg(po_s,po_e, po_s1,po_e1) != 0 );
 	}
-	else if( this->itype == 0 && e1.itype == 1 ){
+	else if( this->itype == CURVE_LINE && e1.itype == CURVE_ARC ){
 		Com::CVector2D po_c1;
 		double radius1;
 		e1.GetCenterRadius(po_c1,radius1);
@@ -539,10 +588,10 @@ bool Cad::CEdge2D::IsCrossEdge(const CEdge2D& e1) const
 		if( 0 < t1 && t1 < 1 && e1.IsDirectionArc(po_s + (po_e-po_s)*t1) == 1 ){ return true; }
 		return false;
 	}
-	else if( this->itype == 1 && e1.itype == 0 ){
+	else if( this->itype == CURVE_ARC && e1.itype == CURVE_LINE ){
 		return e1.IsCrossEdge(*this);
 	}
-	else if( this->itype == 1 && e1.itype == 1 ){
+	else if( this->itype == CURVE_ARC && e1.itype == CURVE_ARC ){
 		Com::CVector2D po_c0;
 		double radius0;
 		this->GetCenterRadius(po_c0,radius0);
@@ -556,7 +605,7 @@ bool Cad::CEdge2D::IsCrossEdge(const CEdge2D& e1) const
 		if( this->IsDirectionArc(po1) && e1.IsDirectionArc(po1) ){ return true; }
 		return false;
 	}
-	else if( this->itype == 0 && e1.itype == 2 ){
+	else if( this->itype == CURVE_LINE && e1.itype == CURVE_POLYLINE ){
 		const std::vector<double>& relcomsh1 = e1.aRelCoMesh;
 		const unsigned int ndiv1 = relcomsh1.size()/2+1;
 		const Com::CVector2D& h1 = e1.po_e-e1.po_s;
@@ -573,13 +622,13 @@ bool Cad::CEdge2D::IsCrossEdge(const CEdge2D& e1) const
 		}
 		return false;
 	}
-	else if( this->itype == 2 && e1.itype == 0 ){
+	else if( this->itype == CURVE_POLYLINE && e1.itype == CURVE_LINE ){
 		return e1.IsCrossEdge(*this);
 	}
-	else if( this->itype == 2 && e1.itype == 1 ){
+	else if( this->itype == CURVE_POLYLINE && e1.itype == CURVE_ARC ){
 		return e1.IsCrossEdge(*this);
 	}
-	else if( this->itype == 1 && e1.itype == 2 ){
+	else if( this->itype == CURVE_ARC && e1.itype == CURVE_POLYLINE ){
 		Com::CVector2D po_c0;
 		double radius0;
 		this->GetCenterRadius(po_c0,radius0);
@@ -604,7 +653,7 @@ bool Cad::CEdge2D::IsCrossEdge(const CEdge2D& e1) const
 		}
 		return false;
 	}
-	else if( this->itype == 2 && e1.itype == 2 ){
+	else if( this->itype == CURVE_POLYLINE && e1.itype == CURVE_POLYLINE ){
 		const Com::CVector2D& h0 = po_e-po_s;
 		const Com::CVector2D v0(-h0.y,h0.x);
 		const Com::CVector2D& h1 = e1.po_e-e1.po_s;
@@ -646,10 +695,10 @@ bool Cad::CEdge2D::IsCrossEdge_ShareOnePoint(const CEdge2D& e1, bool is_share_s0
 	if( !is_share_s0 &&  is_share_s1 ){ assert( Com::SquareLength(po_e,po_s1) < 1.0e-20 ); }
 	if( !is_share_s0 && !is_share_s1 ){ assert( Com::SquareLength(po_e,po_e1) < 1.0e-20 ); }
 	////////////////////////////////
-	if( this->itype == 0 && e1.itype == 0 ){	// line-line intersection
+	if( this->itype == CURVE_LINE && e1.itype == CURVE_LINE ){	// line-line intersection
 		return false;
 	}
-	else if( this->itype == 0 && e1.itype == 1 ){	// line-arc intersection
+	else if( this->itype == CURVE_LINE && e1.itype == CURVE_ARC ){	// line-arc intersection
 		Com::CVector2D po_c1;
 		double radius1;
 		e1.GetCenterRadius(po_c1,radius1);
@@ -664,10 +713,10 @@ bool Cad::CEdge2D::IsCrossEdge_ShareOnePoint(const CEdge2D& e1, bool is_share_s0
 		if( fabs(t0) > fabs(t1) && 0 < t0 && t0 < 1 && e1.IsDirectionArc(p0) ){ assert(fabs(t1)<1.0e-5); return true; }
 		return false;
 	}
-	else if( this->itype == 1 && e1.itype == 0 ){
+	else if( this->itype == CURVE_ARC && e1.itype == CURVE_LINE ){
 		return e1.IsCrossEdge_ShareOnePoint(*this,is_share_s1,is_share_s0);
 	}
-	else if( this->itype == 1 && e1.itype == 1 ){	// â~å ìØémÇÃåç∑
+	else if( this->itype == CURVE_ARC && e1.itype == CURVE_ARC ){	// â~å ìØémÇÃåç∑
 		Com::CVector2D po_c0;
 		double radius0;
 		this->GetCenterRadius(po_c0,radius0);
@@ -689,7 +738,7 @@ bool Cad::CEdge2D::IsCrossEdge_ShareOnePoint(const CEdge2D& e1, bool is_share_s0
 		if( sqdist0 > sqdist1 && this->IsDirectionArc(po0) && e1.IsDirectionArc(po0) ){ assert(sqdist1<1.0e-20); return true; }
 		return false;
 	}
-	else if( this->itype == 0 && e1.itype == 2 ){	// íºê¸Ç∆ê‹ÇÍê¸ÇÃåç∑
+	else if( this->itype == CURVE_LINE && e1.itype == CURVE_POLYLINE ){	// íºê¸Ç∆ê‹ÇÍê¸ÇÃåç∑
 		const std::vector<double>& relcomsh1 = e1.aRelCoMesh;
 		const unsigned int ndiv1 = relcomsh1.size()/2+1;
 		Com::CVector2D v0 = e1.po_e-e1.po_s;
@@ -707,10 +756,10 @@ bool Cad::CEdge2D::IsCrossEdge_ShareOnePoint(const CEdge2D& e1, bool is_share_s0
 		}
 		return false;
 	}
-	else if( this->itype == 2 && e1.itype == 0 ){
+	else if( this->itype == CURVE_POLYLINE && e1.itype == CURVE_LINE ){
 		return e1.IsCrossEdge_ShareOnePoint(*this,is_share_s1,is_share_s0);
 	}
-	else if( this->itype == 1 && e1.itype == 2 ){	// â~å Ç∆ê‹ÇÍê¸ÇÃåç∑
+	else if( this->itype == CURVE_ARC && e1.itype == CURVE_POLYLINE ){	// â~å Ç∆ê‹ÇÍê¸ÇÃåç∑
 		Com::CVector2D po_c0;
 		double radius0;
 		this->GetCenterRadius(po_c0,radius0);
@@ -751,10 +800,10 @@ bool Cad::CEdge2D::IsCrossEdge_ShareOnePoint(const CEdge2D& e1, bool is_share_s0
 		}
 		return false;
 	}
-	else if( this->itype == 2 && e1.itype == 1 ){
+	else if( this->itype == CURVE_POLYLINE && e1.itype == CURVE_ARC ){
 		return e1.IsCrossEdge_ShareOnePoint(*this,is_share_s1,is_share_s0);
 	}
-	else if( this->itype == 2 && e1.itype == 2 ){	// ê‹ÇÍê¸ìØémÇÃåç∑
+	else if( this->itype == CURVE_POLYLINE && e1.itype == CURVE_POLYLINE ){	// ê‹ÇÍê¸ìØémÇÃåç∑
 		const Com::CVector2D& h0 = po_e-po_s;
 		const Com::CVector2D v0(-h0.y,h0.x);
 		const Com::CVector2D& h1 = e1.po_e-e1.po_s;
@@ -787,6 +836,9 @@ bool Cad::CEdge2D::IsCrossEdge_ShareOnePoint(const CEdge2D& e1, bool is_share_s0
 		}
 		return false;
 	}
+  else if( this->itype == CURVE_BEZIER || e1.itype == CURVE_BEZIER ){
+    return false;
+  }
 	else{
 		assert(0);
 	}
@@ -801,16 +853,16 @@ bool Cad::CEdge2D::IsCrossEdge_ShareBothPoints(const CEdge2D& e1, bool is_share_
 	if(  is_share_s0s1 ){ assert( Com::SquareLength(po_s,po_s1) < 1.0e-20 && Com::SquareLength(po_e,po_e1) < 1.0e-20); }
 	else{                 assert( Com::SquareLength(po_s,po_e1) < 1.0e-20 && Com::SquareLength(po_e,po_s1) < 1.0e-20); }
 	////////////////////////////////
-	if( this->itype == 0 && e1.itype == 0 ){	// intersection between lines
+	if( this->itype == CURVE_LINE && e1.itype == CURVE_LINE ){	// intersection between lines
 		return true;
 	}
-	else if( this->itype == 0 && e1.itype == 1 ){	// intersection between line and arc
+	else if( this->itype == CURVE_LINE && e1.itype == CURVE_ARC ){	// intersection between line and arc
 		return false;
 	}
-	else if( this->itype == 1 && e1.itype == 0 ){
+	else if( this->itype == CURVE_ARC && e1.itype == CURVE_LINE ){
 		return e1.IsCrossEdge_ShareBothPoints(*this,is_share_s0s1);
 	}
-	else if( this->itype == 1 && e1.itype == 1 ){	// â~å ìØémÇÃåç∑
+	else if( this->itype == CURVE_ARC && e1.itype == CURVE_ARC ){	// â~å ìØémÇÃåç∑
 		Com::CVector2D po_c0;
 		double radius0;
 		this->GetCenterRadius(po_c0,radius0);
@@ -821,7 +873,7 @@ bool Cad::CEdge2D::IsCrossEdge_ShareBothPoints(const CEdge2D& e1, bool is_share_
 		if( Com::SquareLength(po_c0-po_c1) < 1.0e-10 ) return true;
 		return false;
 	}
-	else if( this->itype == 0 && e1.itype == 2 ){	// íºê¸Ç∆ê‹ÇÍê¸ÇÃåç∑
+	else if( this->itype == CURVE_LINE && e1.itype == CURVE_POLYLINE ){	// íºê¸Ç∆ê‹ÇÍê¸ÇÃåç∑
 		const std::vector<double>& relcomsh1 = e1.aRelCoMesh;
 		const unsigned int ndiv1 = relcomsh1.size()/2+1;
 		Com::CVector2D v0 = e1.po_e-e1.po_s;
@@ -837,10 +889,10 @@ bool Cad::CEdge2D::IsCrossEdge_ShareBothPoints(const CEdge2D& e1, bool is_share_
 		}
 		return false;
 	}
-	else if( this->itype == 2 && e1.itype == 0 ){
+	else if( this->itype == CURVE_POLYLINE && e1.itype == CURVE_LINE ){
 		return e1.IsCrossEdge_ShareBothPoints(*this,is_share_s0s1);
 	}
-	else if( this->itype == 1 && e1.itype == 2 ){	// â~å Ç∆ê‹ÇÍê¸ÇÃåç∑
+	else if( this->itype == CURVE_ARC && e1.itype == CURVE_POLYLINE ){	// â~å Ç∆ê‹ÇÍê¸ÇÃåç∑
 		Com::CVector2D po_c0;
 		double radius0;
 		this->GetCenterRadius(po_c0,radius0);
@@ -865,10 +917,10 @@ bool Cad::CEdge2D::IsCrossEdge_ShareBothPoints(const CEdge2D& e1, bool is_share_
 		}
 		return false;
 	}
-	else if( this->itype == 2 && e1.itype == 1 ){
+	else if( this->itype == CURVE_POLYLINE && e1.itype == CURVE_ARC ){
 		return e1.IsCrossEdge_ShareBothPoints(*this,is_share_s0s1);
 	}
-	else if( this->itype == 2 && e1.itype == 2 ){	// ê‹ÇÍê¸ìØémÇÃåç∑
+	else if( this->itype == CURVE_POLYLINE && e1.itype == CURVE_POLYLINE ){	// ê‹ÇÍê¸ìØémÇÃåç∑
 		const Com::CVector2D& h0 = po_e-po_s;
 		const Com::CVector2D v0(-h0.y,h0.x);
 		const Com::CVector2D& h1 = e1.po_e-e1.po_s;
@@ -918,13 +970,13 @@ bool Cad::CEdge2D::GetNearestIntersectionPoint_AgainstHalfLine(Com::CVector2D& s
 		double area4 = Com::TriArea(org,po_d, Com::CVector2D(max_x,max_y) );
 		if( area1<0 && area2<0 && area3<0 && area4<0 ) return false;
 		if( area1>0 && area2>0 && area3>0 && area4>0 ) return false;
-		const double len0 = sqrt( Com::Length(org, Com::CVector2D(0.5*(min_x+max_x),0.5*(min_y+max_y)) ));
+		const double len0 = Com::Distance(org, Com::CVector2D(0.5*(min_x+max_x),0.5*(min_y+max_y)) );
 		const double len1 = max_x - min_x;
 		const double len2 = max_y - min_y;
 		lenlong = 2*(len0+len1+len2);
 	}
 	const Com::CVector2D end = org + dir1*lenlong;
-  if(      itype == 0 ){
+  if(      itype == CURVE_LINE ){
     const double area1 = Com::TriArea(po_s,po_e,org);
     const double area2 = Com::TriArea(po_s,po_e,end);    
     if( (area1>0) == (area2>0) ) return false;
@@ -935,7 +987,7 @@ bool Cad::CEdge2D::GetNearestIntersectionPoint_AgainstHalfLine(Com::CVector2D& s
     sec = org + (end-org)*t;
     return true;
 	}
-	else if( itype == 1 ){    
+	else if( itype == CURVE_ARC ){    
 		Com::CVector2D po_c1;
 		double radius1;
 		this->GetCenterRadius(po_c1,radius1);
@@ -951,12 +1003,11 @@ bool Cad::CEdge2D::GetNearestIntersectionPoint_AgainstHalfLine(Com::CVector2D& s
     if(  is_sec0 &&  is_sec1 ){ sec = ( t0 < t1 ) ? p0 : p1; return true; }
     return false;
 	}
-	else if( itype == 2 ){
+	else if( itype == CURVE_POLYLINE ){
 		const std::vector<double>& relcomsh = aRelCoMesh;
 		const unsigned int ndiv = relcomsh.size()/2+1;
 		const Com::CVector2D& h0 = po_e-po_s;
 		const Com::CVector2D v0(-h0.y,h0.x);
-		unsigned int icnt = 0;
 		for(unsigned int idiv=0;idiv<ndiv;idiv++){
 			Com::CVector2D poi0;
 			if( idiv == 0 ){ poi0 = po_s; }
@@ -997,19 +1048,19 @@ int Cad::CEdge2D::NumIntersect_AgainstHalfLine(const Com::CVector2D& po_b, const
 		double area4 = Com::TriArea(po_b,po_d, Com::CVector2D(max_x,max_y) );
 		if( area1<0 && area2<0 && area3<0 && area4<0 ) return 0;
 		if( area1>0 && area2>0 && area3>0 && area4>0 ) return 0;
-		const double len0 = sqrt( Com::Length(po_b, Com::CVector2D(0.5*(min_x+max_x),0.5*(min_y+max_y)) ));
+		const double len0 = Com::Distance(po_b, Com::CVector2D(0.5*(min_x+max_x),0.5*(min_y+max_y)) );
 		const double len1 = max_x - min_x;
 		const double len2 = max_y - min_y;
 		lenlong = 2*(len0+len1+len2);
 	}
 	const Com::CVector2D po_d = po_b + dir1*lenlong;
-  if(      itype == 0 ){
+  if(      itype == CURVE_LINE ){
     return IsCross_LineSeg_LineSeg(po_s,po_e,po_b,po_d);
 	}
-	else if( itype == 1 ){
+	else if( itype == CURVE_ARC ){
 		return this->NumCross_Arc_LineSeg(po_b,po_d);
 	}
-	else if( itype == 2 ){
+	else if( itype == CURVE_POLYLINE ){
 		const std::vector<double>& relcomsh = aRelCoMesh;
 		const unsigned int ndiv = relcomsh.size()/2+1;
 		const Com::CVector2D& h0 = po_e-po_s;
@@ -1034,42 +1085,65 @@ int Cad::CEdge2D::NumIntersect_AgainstHalfLine(const Com::CVector2D& po_b, const
 
 double Cad::CEdge2D::GetCurveLength() const
 {
-    if(      this->itype == 0 )
-    {
-        return sqrt( (po_s.x-po_e.x)*(po_s.x-po_e.x)+(po_s.y-po_e.y)*(po_s.y-po_e.y) );
+  if(      this->itype == CURVE_LINE )
+  {
+    return sqrt( (po_s.x-po_e.x)*(po_s.x-po_e.x)+(po_s.y-po_e.y)*(po_s.y-po_e.y) );
+  }
+  else if( this->itype == CURVE_ARC )
+  {
+    double radius, theta;
+    Com::CVector2D pc, lx,ly;
+    this->GetCenterRadiusThetaLXY(pc,radius, theta,lx,ly);
+    return radius*theta;
+  }
+  else if( this->itype == CURVE_POLYLINE )
+  {
+    const unsigned int npo_cad = this->aRelCoMesh.size()/2;
+    double lenrel_tot = 0;
+    for(unsigned int idiv=0;idiv<npo_cad+1;idiv++){
+      double x0,y0;
+      if( idiv == 0 ){ x0=0; y0=0; }
+      else{ x0=aRelCoMesh[idiv*2-2]; y0=aRelCoMesh[idiv*2-1]; }
+      double x1,y1;
+      if( idiv == npo_cad ){ x1=1; y1=0; }
+      else{ x1=aRelCoMesh[idiv*2+0]; y1=aRelCoMesh[idiv*2+1]; }
+      lenrel_tot += sqrt( (x0-x1)*(x0-x1) + (y0-y1)*(y0-y1) );
     }
-    else if( this->itype == 1 )
-    {
-        double radius, theta;
-        Com::CVector2D pc, lx,ly;
-        this->GetCenterRadiusThetaLXY(pc,radius, theta,lx,ly);
-        return radius*theta;
-    }
-    else if( this->itype == 2 )
-    {
-        const unsigned int npo_cad = this->aRelCoMesh.size()/2;
-        double lenrel_tot = 0;
-        for(unsigned int idiv=0;idiv<npo_cad+1;idiv++){
-            double x0,y0;
-            if( idiv == 0 ){ x0=0; y0=0; }
-            else{ x0=aRelCoMesh[idiv*2-2]; y0=aRelCoMesh[idiv*2-1]; }
-            double x1,y1;
-            if( idiv == npo_cad ){ x1=1; y1=0; }
-            else{ x1=aRelCoMesh[idiv*2+0]; y1=aRelCoMesh[idiv*2+1]; }
-            lenrel_tot += sqrt( (x0-x1)*(x0-x1) + (y0-y1)*(y0-y1) );
-        }
-        const double edge_len = sqrt( (po_s.x-po_e.x)*(po_s.x-po_e.x)+(po_s.y-po_e.y)*(po_s.y-po_e.y) );
-        return lenrel_tot*edge_len;
-    }
-    return 0;
+    const double edge_len = sqrt( (po_s.x-po_e.x)*(po_s.x-po_e.x)+(po_s.y-po_e.y)*(po_s.y-po_e.y) );
+    return lenrel_tot*edge_len;
+  }
+  else if(      this->itype == CURVE_BEZIER )
+  { // TODO :  use the Sympthon's rule integration 
+    const Com::CVector2D& gh = po_e - po_s;
+    const Com::CVector2D gv(-gh.y, gh.x);
+    const Com::CVector2D posc = po_s + gh*aRelCoBezier[0] + gv*aRelCoBezier[1];
+    const Com::CVector2D poec = po_s + gh*aRelCoBezier[2] + gv*aRelCoBezier[3];
+    const unsigned int ndiv = 16;
+    const double div_t = 1.0/(ndiv);
+    double edge_len = 0;
+    for(unsigned int i=0;i<(unsigned int)ndiv;i++){
+      const double t0 = (i+0)*div_t;
+      const double t1 = (i+1)*div_t;      
+//      Com::CVector2D vec0 = (1-t0)*(1-t0)*(1-t0)*po_s + 3*(1-t0)*(1-t0)*t0*posc + 3*(1-t0)*t0*t0*poec + t0*t0*t0*po_e;
+//      Com::CVector2D vec1 = (1-t1)*(1-t1)*(1-t1)*po_s + 3*(1-t1)*(1-t1)*t1*posc + 3*(1-t1)*t1*t1*poec + t1*t1*t1*po_e;      
+//      edge_len += Com::Distance(vec0,vec1);      
+      Com::CVector2D vect0 = -3*(1-t0)*(1-t0)*po_s + 3*(3*t0-1)*(t0-1)*posc - 3*t0*(3*t0-2)*poec + 3*t0*t0*po_e;
+      Com::CVector2D vect1 = -3*(1-t1)*(1-t1)*po_s + 3*(3*t1-1)*(t1-1)*posc - 3*t1*(3*t1-2)*poec + 3*t1*t1*po_e; 
+      const double ave_len = (Com::Length(vect0)+Com::Length(vect1))*0.5;
+//      std::cout << "cmp len " << ave_len*div_t << " " << Com::Distance(vec0,vec1) << std::endl;
+      edge_len += ave_len*div_t;
+    }    
+    return edge_len;
+  }
+  return 0;
 }
 
 // â~ÇÃíÜêSÇ∆îºåaÇåvéZÇ∑ÇÈ
 bool Cad::CEdge2D::GetCenterRadius(Com::CVector2D& po_c, double& radius) const
 {
-	if( itype != 1 ) return false;
-
-	const double len_edge = Com::Length(po_s,po_e);
+	if( itype != CURVE_ARC ) return false;
+  
+	const double len_edge = Com::Distance(po_s,po_e);
 	{
 		Com::CVector2D ph((po_s.x+po_e.x)*0.5, (po_s.y+po_e.y)*0.5);
 		Com::CVector2D vv(po_s.y-ph.y, ph.x-po_s.x);
@@ -1087,129 +1161,137 @@ bool Cad::CEdge2D::GetCenterRadius(Com::CVector2D& po_c, double& radius) const
 }
 
 bool Cad::CEdge2D::GetCenterRadiusThetaLXY(Com::CVector2D& pc, double& radius,
-        double& theta, Com::CVector2D& lx, Com::CVector2D& ly) const
+                                           double& theta, Com::CVector2D& lx, Com::CVector2D& ly) const
 {
-    if( itype != 1 ) return false;
-    this->GetCenterRadius(pc,radius);
-    Com::CVector2D prs(po_s.x-pc.x,po_s.y-pc.y);
-    lx.x = prs.x / radius;
-    lx.y = prs.y / radius;
-    if( is_left_side ){  ly.x =  lx.y;  ly.y = -lx.x;  }
-    else{                ly.x = -lx.y;  ly.y =  lx.x;  }
-    Com::CVector2D pre(po_e.x-pc.x,po_e.y-pc.y);
-    assert( fabs( Com::SquareLength(prs)-Com::SquareLength(pre) ) < 1.0e-10 );
-    double x=Com::Dot(pre,lx);
-    double y=Com::Dot(pre,ly);
-    theta = atan2(y,x);
-    const double PI = 3.14159265;
-    if( theta < 0.0 ) theta += 2.0*PI;
-    return true;
+  if( itype != CURVE_ARC ) return false;
+  this->GetCenterRadius(pc,radius);
+  Com::CVector2D prs(po_s.x-pc.x,po_s.y-pc.y);
+  lx.x = prs.x / radius;
+  lx.y = prs.y / radius;
+  if( is_left_side ){  ly.x =  lx.y;  ly.y = -lx.x;  }
+  else{                ly.x = -lx.y;  ly.y =  lx.x;  }
+  Com::CVector2D pre(po_e.x-pc.x,po_e.y-pc.y);
+  assert( fabs( Com::SquareLength(prs)-Com::SquareLength(pre) ) < 1.0e-10 );
+  double x=Com::Dot(pre,lx);
+  double y=Com::Dot(pre,ly);
+  theta = atan2(y,x);
+  const double PI = 3.14159265;
+  if( theta < 0.0 ) theta += 2.0*PI;
+  return true;
 }
 
-bool Cad::CEdge2D::GetCurve_Mesh(std::vector<Com::CVector2D>& aCo, int ndiv) const
+bool Cad::CEdge2D::GetCurveAsPolyline(std::vector<Com::CVector2D>& aCo, int ndiv) const
 {
-    aCo.clear();
-    if( ndiv <= 0 ){    // èoóàÇÈÇæÇØì_ëΩÇ≠ÇµÇƒíâé¿Ç»ã»ê¸ÇÃï\åª
-        if(      this->itype == 0 ) // íºê¸ÇÃèÍçá
-        {
-            return true;
-        }
-        else if( this->itype == 1 ) // â~å ÇÃèÍçá
-        {
-            double radius, theta;
-            Com::CVector2D pc, lx,ly;
-            this->GetCenterRadiusThetaLXY(pc,radius, theta,lx,ly);
-            const unsigned int ndiv = (unsigned int)( theta*360/(6.0*6.28) ) + 1; // 6ìxÇ≤Ç∆ÇÃï™äÑ
-            // çƒãAåƒÇ—èoÇµÇÃÇ∆Ç´ÇÕndiv=0ÇÕê‚ëŒì¸ÇÍÇøÇ·ÇæÇﬂ(ñ≥å¿ÉãÅ[Év)
-            return this->GetCurve_Mesh(aCo,ndiv);
-        }
-        else if( this->itype == 2 ) // ÉÅÉbÉVÉÖÇÃèÍçá
-        {
-            const Com::CVector2D& v0 = po_e - po_s;
-            const Com::CVector2D v1(-v0.y, v0.x);
-            ////////////////
-            const unsigned int npo = aRelCoMesh.size()/2;
-            for(unsigned int i=0;i<npo;i++){
-               Com::CVector2D vec0 = po_s + v0*aRelCoMesh[i*2+0] + v1*aRelCoMesh[i*2+1];
-               aCo.push_back(vec0);
-            }
-            return true;
-        }
+  aCo.clear();
+  if( ndiv <= 0 ){    // èoóàÇÈÇæÇØì_ëΩÇ≠ÇµÇƒíâé¿Ç»ã»ê¸ÇÃï\åª
+    if(      this->itype == CURVE_LINE ){ // íºê¸ÇÃèÍçá
+      return true;
     }
-    else{    // elenÇÃí∑Ç≥Ç≈ÉÅÉbÉVÉÖÇêÿÇÈ
-        aCo.reserve(ndiv);
-        if(      this->itype == 0 ) // íºê¸ÇÃèÍçá
-        {
-            Com::CVector2D div_t = ( po_e - po_s )*(1.0/ndiv);
-            for(unsigned int idiv=1;idiv<(unsigned int)ndiv;idiv++){
-                Com::CVector2D vec0 = po_s + div_t*idiv;
-                aCo.push_back(vec0);
-            }
-            return true;
-        }
-        else if( this->itype == 1 ) // â~å ÇÃèÍçá
-        {
-            double radius, theta;
-            Com::CVector2D pc, lx,ly;
-            this->GetCenterRadiusThetaLXY(pc,radius, theta,lx,ly);
-            const double div_theta = theta/ndiv;
-//            std::cout << ndiv << std::endl;
-            for(unsigned int i=1;i<(unsigned int)ndiv;i++){
-                const double cur_theta = i*div_theta;
-                Com::CVector2D vec0 = ( cos(cur_theta)*lx + sin(cur_theta)*ly )*radius + pc;
-                aCo.push_back(vec0);
-            }
-            return true;
-        }
-        else if( this->itype == 2 ) // ÉÅÉbÉVÉÖÇÃèÍçá
-        {
-            const unsigned int npo_cad = aRelCoMesh.size()/2;
-            double lenrel_tot = 0;
-            for(unsigned int idiv=0;idiv<npo_cad+1;idiv++){
-                double x0,y0;
-                if( idiv == 0 ){ x0=0; y0=0; }
-                else{ x0=aRelCoMesh[idiv*2-2]; y0=aRelCoMesh[idiv*2-1]; }
-                double x1,y1;
-                if( idiv == npo_cad ){ x1=1; y1=0; }
-                else{ x1=aRelCoMesh[idiv*2+0]; y1=aRelCoMesh[idiv*2+1]; }
-                lenrel_tot += sqrt( (x0-x1)*(x0-x1) + (y0-y1)*(y0-y1) );
-            }
-            const unsigned int ndiv1 = ndiv;
-            const unsigned int npo1 = ndiv-1;
-            const double divrel = lenrel_tot / ndiv1;
-            const Com::CVector2D& gh = po_e - po_s;
-            const Com::CVector2D gv(-gh.y, gh.x);
-            aCo.reserve(npo1);
-            unsigned int idiv0_cur = 0;
-            double ratio0_cur = 0;
-            for(unsigned int ipo1=0;ipo1<npo1;ipo1++){
-                double restlen0_cur = divrel;
-                for(;;){
-                    assert( idiv0_cur < npo_cad+1 );
-                    assert( ratio0_cur >= 0 && ratio0_cur <= 1);
-                    double x0,y0;
-                    if( idiv0_cur == 0 ){ x0=0; y0=0; }
-                    else{ x0=aRelCoMesh[idiv0_cur*2-2]; y0=aRelCoMesh[idiv0_cur*2-1]; }
-                    double x1,y1;
-                    if( idiv0_cur == npo_cad ){ x1=1; y1=0; }
-                    else{ x1=aRelCoMesh[idiv0_cur*2+0]; y1=aRelCoMesh[idiv0_cur*2+1]; }
-                    const double len_idiv0 = sqrt( (x0-x1)*(x0-x1) + (y0-y1)*(y0-y1) );
-                    if( len_idiv0*(1-ratio0_cur) > restlen0_cur ){
-                        ratio0_cur += restlen0_cur/len_idiv0;
-                        const double xintp = x0*(1.0-ratio0_cur)+x1*ratio0_cur;
-                        const double yintp = y0*(1.0-ratio0_cur)+y1*ratio0_cur;
-                        aCo.push_back( po_s + gh*xintp + gv*yintp );
-                        break;
-                    }
-                    restlen0_cur -= len_idiv0*(1-ratio0_cur);
-                    idiv0_cur += 1;
-                    ratio0_cur = 0;
-                }
-            }
-            return true;
-        }
+    else if( this->itype == CURVE_ARC ){ // â~å ÇÃèÍçá
+      double radius, theta;
+      Com::CVector2D pc, lx,ly;
+      this->GetCenterRadiusThetaLXY(pc,radius, theta,lx,ly);
+      const unsigned int ndiv = (unsigned int)( theta*360/(5.0*6.28) ) + 1; // kink is 5 degree
+      return this->GetCurveAsPolyline(aCo,ndiv); // Beware (ndiv != 0) to avoid infinite loop in the recursive call
     }
-    return false;
+    else if( this->itype == CURVE_POLYLINE ){ // ÉÅÉbÉVÉÖÇÃèÍçá
+      const Com::CVector2D& v0 = po_e - po_s;
+      const Com::CVector2D v1(-v0.y, v0.x);
+      ////////////////
+      const unsigned int npo = aRelCoMesh.size()/2;
+      for(unsigned int i=0;i<npo;i++){
+        Com::CVector2D vec0 = po_s + v0*aRelCoMesh[i*2+0] + v1*aRelCoMesh[i*2+1];
+        aCo.push_back(vec0);
+      }
+      return true;
+    }
+    else if( this->itype == CURVE_BEZIER ){
+      return this->GetCurveAsPolyline(aCo,16);  // TODO:find good param
+    }
+  }
+  else{    // elenÇÃí∑Ç≥Ç≈ÉÅÉbÉVÉÖÇêÿÇÈ
+    aCo.reserve(ndiv);
+    if(      this->itype == CURVE_LINE ){ // íºê¸ÇÃèÍçá
+      Com::CVector2D div_t = ( po_e - po_s )*(1.0/ndiv);
+      for(unsigned int idiv=1;idiv<(unsigned int)ndiv;idiv++){
+        Com::CVector2D vec0 = po_s + div_t*idiv;
+        aCo.push_back(vec0);
+      }
+      return true;
+    }
+    else if( this->itype == CURVE_ARC ){ // â~å ÇÃèÍçá
+      double radius, theta;
+      Com::CVector2D pc, lx,ly;
+      this->GetCenterRadiusThetaLXY(pc,radius, theta,lx,ly);
+      const double div_theta = theta/ndiv;
+      for(unsigned int i=1;i<(unsigned int)ndiv;i++){
+        const double cur_theta = i*div_theta;
+        Com::CVector2D vec0 = ( cos(cur_theta)*lx + sin(cur_theta)*ly )*radius + pc;
+        aCo.push_back(vec0);
+      }
+      return true;
+    }
+    else if( this->itype == CURVE_POLYLINE ){ // ÉÅÉbÉVÉÖÇÃèÍçá
+      const unsigned int npo_cad = aRelCoMesh.size()/2;
+      double lenrel_tot = 0;
+      for(unsigned int idiv=0;idiv<npo_cad+1;idiv++){
+        double x0,y0;
+        if( idiv == 0 ){ x0=0; y0=0; }
+        else{ x0=aRelCoMesh[idiv*2-2]; y0=aRelCoMesh[idiv*2-1]; }
+        double x1,y1;
+        if( idiv == npo_cad ){ x1=1; y1=0; }
+        else{ x1=aRelCoMesh[idiv*2+0]; y1=aRelCoMesh[idiv*2+1]; }
+        lenrel_tot += sqrt( (x0-x1)*(x0-x1) + (y0-y1)*(y0-y1) );
+      }
+      const unsigned int ndiv1 = ndiv;
+      const unsigned int npo1 = ndiv-1;
+      const double divrel = lenrel_tot / ndiv1;
+      const Com::CVector2D& gh = po_e - po_s;
+      const Com::CVector2D gv(-gh.y, gh.x);
+      aCo.reserve(npo1);
+      unsigned int idiv0_cur = 0;
+      double ratio0_cur = 0;
+      for(unsigned int ipo1=0;ipo1<npo1;ipo1++){
+        double restlen0_cur = divrel;
+        for(;;){
+          assert( idiv0_cur < npo_cad+1 );
+          assert( ratio0_cur >= 0 && ratio0_cur <= 1);
+          double x0,y0;
+          if( idiv0_cur == 0 ){ x0=0; y0=0; }
+          else{ x0=aRelCoMesh[idiv0_cur*2-2]; y0=aRelCoMesh[idiv0_cur*2-1]; }
+          double x1,y1;
+          if( idiv0_cur == npo_cad ){ x1=1; y1=0; }
+          else{ x1=aRelCoMesh[idiv0_cur*2+0]; y1=aRelCoMesh[idiv0_cur*2+1]; }
+          const double len_idiv0 = sqrt( (x0-x1)*(x0-x1) + (y0-y1)*(y0-y1) );
+          if( len_idiv0*(1-ratio0_cur) > restlen0_cur ){
+            ratio0_cur += restlen0_cur/len_idiv0;
+            const double xintp = x0*(1.0-ratio0_cur)+x1*ratio0_cur;
+            const double yintp = y0*(1.0-ratio0_cur)+y1*ratio0_cur;
+            aCo.push_back( po_s + gh*xintp + gv*yintp );
+            break;
+          }
+          restlen0_cur -= len_idiv0*(1-ratio0_cur);
+          idiv0_cur += 1;
+          ratio0_cur = 0;
+        }
+      }
+      return true;
+    }
+    else if( this->itype == CURVE_BEZIER ){      
+      const Com::CVector2D& gh = po_e - po_s;
+      const Com::CVector2D gv(-gh.y, gh.x);
+      const Com::CVector2D posc = po_s + gh*aRelCoBezier[0] + gv*aRelCoBezier[1];
+      const Com::CVector2D poec = po_s + gh*aRelCoBezier[2] + gv*aRelCoBezier[3];
+      const double div_t = 1.0/(ndiv);
+      for(unsigned int i=1;i<(unsigned int)ndiv;i++){
+        const double t = i*div_t;
+        Com::CVector2D vec0 = (1-t)*(1-t)*(1-t)*po_s + 3*(1-t)*(1-t)*t*posc + 3*(1-t)*t*t*poec + t*t*t*po_e;
+        aCo.push_back(vec0);
+      }
+      return true;
+    }    
+  }
+  return false;
 }
 
 ////////////////////////////////
@@ -1227,7 +1309,7 @@ bool Cad::IsCross_LineSeg_LineSeg(const Com::CVector2D& po_s0, const Com::CVecto
 		const double max1y = ( po_s1.y > po_e1.y ) ? po_s1.y : po_e1.y;
 		const double min1y = ( po_s1.y < po_e1.y ) ? po_s1.y : po_e1.y;
 		const double len = ((max0x-min0x)+(max0y-min0y)+(max1x-min1x)+(max1y-min1y))*0.0001;
-//		std::cout << len << std::endl;
+    //		std::cout << len << std::endl;
 		if( max1x+len < min0x ) return false;
 		if( max0x+len < min1x ) return false;
 		if( max1y+len < min0y ) return false;
@@ -1237,39 +1319,15 @@ bool Cad::IsCross_LineSeg_LineSeg(const Com::CVector2D& po_s0, const Com::CVecto
 	const double area2 = Com::TriArea(po_s0,po_e0,po_e1);
 	const double area3 = Com::TriArea(po_s1,po_e1,po_s0);
 	const double area4 = Com::TriArea(po_s1,po_e1,po_e0);  
-//	std::cout << area1 << " " << area2 << " " << area3 << " " << area4 << std::endl;
+  //	std::cout << area1 << " " << area2 << " " << area3 << " " << area4 << std::endl;
   const double a12 = area1*area2; if( a12 > 0 ) return false;
   const double a34 = area3*area4; if( a34 > 0 ) return false;
   return true;
-  /*
-  if( fabs(a12) > fabs(a34) ){
-    if( a12 > 0 ){
-      if( fabs(area1) > fabs(area2)*0.000000001 && fabs(area1) > fabs(area2)*0.000000001 ){ return 0; }
-      return -1;
-    }
-    if( a34 > 0 ){
-      if( fabs(area3) > fabs(area4)*0.000000001 && fabs(area3) > fabs(area4)*0.000000001 ){ return 0; }
-      return -1;
-    }
-  }
-  else{
-    if( a34 > 0 ){
-      if( fabs(area3) > fabs(area4)*0.000000001 && fabs(area3) > fabs(area4)*0.000000001 ){ return 0; }
-      return -1;
-    }
-    else if( a12 > 0 ){
-      if( fabs(area1) > fabs(area2)*0.000000001 && fabs(area1) > fabs(area2)*0.000000001 ){ return 0; }
-      return -1;
-    }    
-  }
-  return 1;
-   */
 }
 
-bool Cad::IsCross_Circle_Circle(
-		const Com::CVector2D& po_c0, double radius0,
-		const Com::CVector2D& po_c1, double radius1,
-		Com::CVector2D& po0, Com::CVector2D& po1 )
+bool Cad::IsCross_Circle_Circle(const Com::CVector2D& po_c0, double radius0,
+                                const Com::CVector2D& po_c1, double radius1,
+                                Com::CVector2D& po0, Com::CVector2D& po1 )
 {
 	const double sq_dist = Com::SquareLength(po_c0,po_c1);
 	const double dist = sqrt( sq_dist );
@@ -1290,22 +1348,22 @@ bool Cad::IsCross_Circle_Circle(
 // ê¸ï™Ç∆â~å ÇÃåçˆÇîªíËÇ∑ÇÈ
 int Cad::CEdge2D::NumCross_Arc_LineSeg(const Com::CVector2D& po_s1, const Com::CVector2D& po_e1) const
 {
-	if( itype != 1 ) return -1;
-
+	if( itype != CURVE_ARC ) return -1;
+  
 	Com::CVector2D po_c0;
 	double radius0;
 	this->GetCenterRadius(po_c0,radius0);
-
+  
 	bool is_out0 = Com::SquareLength(po_c0,po_s1) > radius0*radius0;
 	bool is_out1 = Com::SquareLength(po_c0,po_e1) > radius0*radius0;
 	// í∏ì_Ç™óºï˚Ç∆Ç‡â~ÇÃíÜÇ»ÇÁåçˆÇµÇ»Ç¢
 	if( !is_out0 && !is_out1 ){	return 0; }
-
+  
 	// Ç«ÇøÇÁÇ©àÍÇ¬ÇÃì_Ç™ï”Ç©ÇÁå©Çƒâ~å ÇÃë§Ç…Ç»ÇØÇÍÇŒåçˆÇµÇ»Ç¢
   bool is_arc_side0 = (Com::TriArea(po_e,po_s1,po_s) > 0.0) == is_left_side;
   bool is_arc_side1 = (Com::TriArea(po_e,po_e1,po_s) > 0.0) == is_left_side;
 	if( !is_arc_side0 && !is_arc_side1 ){ return 0; }
-		
+  
 	// ï–ï˚Ç™â~ÇÃì‡ë§ÅCï–ï˚Ç™â~ÇÃäOë§ÇÃèÍçá
 	if( (!is_out0 && is_out1 ) || (is_out0 && !is_out1 ) ){
 		if( is_arc_side0 && is_arc_side1 ){ return 1; }
@@ -1322,7 +1380,7 @@ int Cad::CEdge2D::NumCross_Arc_LineSeg(const Com::CVector2D& po_s1, const Com::C
 		if( is_cross ) return 1;
 		return 0;
 	}
-
+  
 	// óºï˚Ç™â~ÇÃäOë§ÇÃèÍçá
 	if( is_out0 && is_out1 ){
 		// å Ç∆íºê¸Ç™åçˆÇ∑ÇÈÇ©í≤Ç◊ÇÈÅDåçˆÇ»ÇÁâ~å Ç∆Ç‡åçˆ
@@ -1340,10 +1398,10 @@ int Cad::CEdge2D::NumCross_Arc_LineSeg(const Com::CVector2D& po_s1, const Com::C
 			const double r1 =  dc1 / (-dc0+dc1);
 			foot = po_s1*r1+po_e1*r0;
 		}
-		 // êÇê¸ÇÃë´Ç™â~ÇÃäOÇ»ÇÁåçˆÇµÇ»Ç¢
+    // êÇê¸ÇÃë´Ç™â~ÇÃäOÇ»ÇÁåçˆÇµÇ»Ç¢
 		if( Com::SquareLength(po_c0,foot) > radius0*radius0 ){ return 0; }
 		// êÇê¸ÇÃë´Ç™å ÇÃë§Ç…Ç»ÇØÇÍÇŒåçˆÇµÇ»Ç¢
-        if( (Com::TriArea( po_s, foot, po_e ) > 0.0) == is_left_side ){ return 0; }
+    if( (Com::TriArea( po_s, foot, po_e ) > 0.0) == is_left_side ){ return 0; }
 		return 2;
 	}
 	assert(0);
@@ -1353,10 +1411,9 @@ int Cad::CEdge2D::NumCross_Arc_LineSeg(const Com::CVector2D& po_s1, const Com::C
 // â~å Ç∆ï”(íºê¸Ç≈Ç»ÇØÇÍÇŒÇ»ÇÁÇ»Ç¢)ÇÃåì_ÇãÅÇﬂÇÈ
 // ÇQÇ¬Ç†ÇÈèÍçáÇÕåì_ÇÃposÇ©ÇÁpoeÇ÷ÇÃÉpÉâÉÅÅ[É^Ç™t1,t2Ç…ì¸ÇËÅAï‘ÇËílÇ™ÇPÇ∆Ç»ÇÈ
 // åì_Ç™ñ≥Ç¢èÍçáÇÕÇOÇ™ï‘ÇËílÇ∆Ç»ÇÈ
-bool Cad::IsCross_Line_Circle(
-		const Com::CVector2D& poc, const double radius, 
-		const Com::CVector2D& pos, const Com::CVector2D& poe,
-		double& t0, double& t1)
+bool Cad::IsCross_Line_Circle(const Com::CVector2D& poc, const double radius, 
+                              const Com::CVector2D& pos, const Com::CVector2D& poe,
+                              double& t0, double& t1)
 {
 	{
 		double min_x = ( pos.x < poe.x ) ? pos.x : poe.x; if( poc.x+radius < min_x ) return false;
@@ -1364,7 +1421,7 @@ bool Cad::IsCross_Line_Circle(
 		double min_y = ( pos.y < poe.y ) ? pos.y : poe.y; if( poc.y+radius < min_y ) return false;
 		double max_y = ( pos.y > poe.y ) ? pos.y : poe.y; if( poc.y-radius > max_y ) return false;
 	}
-
+  
 	const Com::CVector2D& es = poe-pos;
 	const Com::CVector2D& cs = poc-pos;
 	const double a = es.SqLength();
@@ -1380,7 +1437,7 @@ bool Cad::IsCross_Line_Circle(
 
 // get parameter 't' of the line against point. t=0 is po_s, t=1 is po_e
 double Cad::FindNearestPointParameter_Line_Point(const Com::CVector2D& po_c,
-	const Com::CVector2D& po_s, const Com::CVector2D& po_e)
+                                                 const Com::CVector2D& po_s, const Com::CVector2D& po_e)
 {
 	const Com::CVector2D& es = po_e-po_s;
 	const Com::CVector2D& sc = po_s-po_c;
@@ -1398,48 +1455,49 @@ double Cad::GetDist_LineSeg_Point(const Com::CVector2D& po_c,
 	const double a = Com::SquareLength(es);
 	const double b = Com::Dot(es,sc);
 	const double t =  - b/a;
-  if( t < 0 ){ return Length(po_s,po_c); }
-  if( t > 1 ){ return Length(po_e,po_c); }
+  if( t < 0 ){ return Distance(po_s,po_c); }
+  if( t > 1 ){ return Distance(po_e,po_c); }
   Com::CVector2D p = po_s + t*(po_e-po_s);
-  return Length(p,po_c);
+  return Distance(p,po_c);
 }
 
 
 // å∑Ç∆å Ç≈í£ÇÁÇÍÇÈóÃàÊì‡ïîÇ…ì_poÇ™ì¸Ç¡ÇƒÇ¢ÇÈÇ©Çí≤Ç◊ÇÈ
 int Cad::CEdge2D::IsInsideArcSegment(const Com::CVector2D& po) const
 {
-	if( itype != 1 ) return -1;
+	if( itype != CURVE_ARC ) return -1;
 	Com::CVector2D po_c0;
 	double radius;
 	this->GetCenterRadius(po_c0,radius);
 	if( (po_c0.x-po.x)*(po_c0.x-po.x)+(po_c0.y-po.y)*(po_c0.y-po.y) > radius*radius ){ return 0; }
-    if( (Com::TriArea( po_e, po, po_s ) > 0.0) == is_left_side ){ return 1; }
+  if( (Com::TriArea( po_e, po, po_s ) > 0.0) == is_left_side ){ return 1; }
 	return 0;
 }
 
 // â~å ÇÃíÜêSÇ©ÇÁÇ›ÇƒÅCì_poÇ∆â~å Ç™ìØÇ∂ï˚å¸Ç…èdÇ»Ç¡ÇƒÇ¢ÇÈÇ©ÅH
-int Cad::CEdge2D::IsDirectionArc(const Com::CVector2D& po) const{
-	if( itype != 1 ) return -1;
+int Cad::CEdge2D::IsDirectionArc(const Com::CVector2D& po) const
+{
+	if( itype != CURVE_ARC ) return -1;
 	Com::CVector2D po_c;
 	double radius;
 	this->GetCenterRadius(po_c,radius);
 	if( is_left_side ){
 		if( Com::TriArea(po_s,po_c,po_e) > 0.0 ){
-			if(    Com::TriArea(po_s,po_c,po) > 0.0 && Com::TriArea(po,po_c,po_e) > 0.0 ){ return 1; }
+			if( Com::TriArea(po_s,po_c,po) > 0.0 && Com::TriArea(po,po_c,po_e) > 0.0 ){ return 1; }
 			else{ return 0; }
 		}
 		else{
-			if(    Com::TriArea(po_s,po_c,po) > 0.0 || Com::TriArea(po,po_c,po_e) > 0.0 ){ return 1; }
+			if( Com::TriArea(po_s,po_c,po) > 0.0 || Com::TriArea(po,po_c,po_e) > 0.0 ){ return 1; }
 			else{ return 0; }
 		}
 	}
 	else{
 		if( Com::TriArea(po_e,po_c,po_s) > 0.0 ){
-			if(    Com::TriArea(po_e,po_c,po) > 0.0 && Com::TriArea(po,po_c,po_s) > 0.0 ){ return 1; }
+			if( Com::TriArea(po_e,po_c,po) > 0.0 && Com::TriArea(po,po_c,po_s) > 0.0 ){ return 1; }
 			else{ return 0; }
 		}
 		else{
-			if(    Com::TriArea(po_e,po_c,po) > 0.0 || Com::TriArea(po,po_c,po_s) > 0.0 ){ return 1; }
+			if( Com::TriArea(po_e,po_c,po) > 0.0 || Com::TriArea(po,po_c,po_s) > 0.0 ){ return 1; }
 			else{ return 0; }
 		}
 	}
@@ -1452,7 +1510,7 @@ bool Cad::CEdge2D::ConnectEdge(const Cad::CEdge2D& e1, bool is_add_ahead, bool i
 	else if(  is_add_ahead && !is_same_dir ){ assert( id_v_e == e1.id_v_e ); }
 	else if( !is_add_ahead &&  is_same_dir ){ assert( id_v_s == e1.id_v_e ); }
 	else if( !is_add_ahead && !is_same_dir ){ assert( id_v_s == e1.id_v_s ); }
-	if( this->itype == 2 ){		
+	if( this->itype == CURVE_POLYLINE ){		
 		std::vector<Com::CVector2D> aPo0;
 		{
 			const Com::CVector2D& ps = this->po_s;
@@ -1470,7 +1528,7 @@ bool Cad::CEdge2D::ConnectEdge(const Cad::CEdge2D& e1, bool is_add_ahead, bool i
 		std::vector<Com::CVector2D> aPo1;
 		{
 			const unsigned int ndiv1 = e1.GetCurveLength()/ave_elen;
-			e1.GetCurve_Mesh(aPo1,ndiv1);
+			e1.GetCurveAsPolyline(aPo1,ndiv1);
 		}
 		std::vector<Com::CVector2D> aPo2;
 		if( is_add_ahead ){
@@ -1503,11 +1561,11 @@ bool Cad::CEdge2D::ConnectEdge(const Cad::CEdge2D& e1, bool is_add_ahead, bool i
 				this->po_s = e1.po_e;
 			}
 		}
-/*		std::cout << po_s.x << " " << po_s.y << std::endl;
-		for(unsigned int i=0;i<aPo2.size();i++){
-			std::cout << i << " " << aPo2[i].x << " " << aPo2[i].y << std::endl;
-		}
-		std::cout << po_e.x << " " << po_e.y << std::endl;*/
+    /*		std::cout << po_s.x << " " << po_s.y << std::endl;
+     for(unsigned int i=0;i<aPo2.size();i++){
+     std::cout << i << " " << aPo2[i].x << " " << aPo2[i].y << std::endl;
+     }
+     std::cout << po_e.x << " " << po_e.y << std::endl;*/
 		{
 			const Com::CVector2D& ps = this->po_s;
 			const Com::CVector2D& pe = this->po_e;
@@ -1529,18 +1587,18 @@ bool Cad::CEdge2D::ConnectEdge(const Cad::CEdge2D& e1, bool is_add_ahead, bool i
 
 bool Cad::CEdge2D::Split(Cad::CEdge2D& edge_a, const Com::CVector2D& pa)
 {
-	if(      this->itype == 0 ){}
-	else if( this->itype == 1 ){
+	if(      this->itype == CURVE_LINE ){}
+	else if( this->itype == CURVE_ARC ){
 		const Com::CVector2D& ps = this->po_s;
 		const Com::CVector2D& pe = this->po_e;
 		Com::CVector2D pc; double r;
 		this->GetCenterRadius(pc,r);
-		this->dist = Com::TriHeight(pc,ps,pa)/Com::Length(ps,pa);
-		edge_a.itype = 1;
+		this->dist = Com::TriHeight(pc,ps,pa)/Com::Distance(ps,pa);
+		edge_a.itype = CURVE_ARC;
 		edge_a.is_left_side = this->is_left_side;
-		edge_a.dist = Com::TriHeight(pc,pa,pe)/Com::Length(pa,pe);
+		edge_a.dist = Com::TriHeight(pc,pa,pe)/Com::Distance(pa,pe);
 	}
-	else if( this->itype == 2 ){
+	else if( this->itype == CURVE_POLYLINE ){
 		const Com::CVector2D& ps = this->po_s;
 		const Com::CVector2D& pe = this->po_e;
 		std::vector<Com::CVector2D> aPo;
@@ -1559,21 +1617,21 @@ bool Cad::CEdge2D::Split(Cad::CEdge2D& edge_a, const Com::CVector2D& pa)
 		{
 	 		bool is_segment = false;
 			int ind = -1;
-			double min_dist = Com::Length(ps,pa);
+			double min_dist = Com::Distance(ps,pa);
 			for(unsigned int idiv=0;idiv<aPo.size()+1;idiv++){
 				Com::CVector2D poi0 = ( idiv==0          ) ? ps : aPo[idiv-1];
 				Com::CVector2D poi1 = ( idiv==aPo.size() ) ? pe : aPo[idiv];
-				if( Com::Length(pa,poi1) < min_dist ){ 
+				if( Com::Distance(pa,poi1) < min_dist ){ 
 					is_segment = false;
 					ind = idiv;
-					min_dist = Com::Length(pa,poi1);	
+					min_dist = Com::Distance(pa,poi1);	
 				}
 				const double t = FindNearestPointParameter_Line_Point(pa,poi0,poi1);
 				if( t < 0.01 || t > 0.99 ) continue;
 				Com::CVector2D po_mid = poi0 + (poi1-poi0)*t;
-				if( Com::Length(pa,po_mid) < min_dist ){ 
+				if( Com::Distance(pa,po_mid) < min_dist ){ 
 					is_segment = true;
-					min_dist = Com::Length(pa,po_mid);	
+					min_dist = Com::Distance(pa,po_mid);	
 					ind = idiv;
 				}
 			}
@@ -1583,14 +1641,14 @@ bool Cad::CEdge2D::Split(Cad::CEdge2D& edge_a, const Com::CVector2D& pa)
 		}
 		////////////////////////////////
 		if( ipo0_e > 0 ){
-			this->itype = 2;
+			this->itype = CURVE_POLYLINE;
 			const unsigned int npo = ipo0_e+1;
 			this->aRelCoMesh.resize(npo*2);
 			const double sqlen = Com::SquareLength(pa-ps);
 			const Com::CVector2D& eh = (pa-ps)*(1/sqlen);
 			const Com::CVector2D ev(-eh.y,eh.x);
-	//		double x0=0, y0=0;
-	//		const double elen = 0.1;
+      //		double x0=0, y0=0;
+      //		const double elen = 0.1;
 			for(unsigned int ipo=0;ipo<npo;ipo++){
 				double x1 = Com::Dot(aPo[ipo]-ps,eh);
 				double y1 = Com::Dot(aPo[ipo]-ps,ev);
@@ -1598,17 +1656,17 @@ bool Cad::CEdge2D::Split(Cad::CEdge2D& edge_a, const Com::CVector2D& pa)
 				this->aRelCoMesh[ipo*2+1] = y1;
 			}
 		}
-		else{ this->itype = 0; }
+		else{ this->itype = CURVE_LINE; }
 		////////////////
 		if( ipo1_s < (int)aPo.size() ){
-			edge_a.itype = 2;
+			edge_a.itype = CURVE_POLYLINE;
 			const unsigned int npo = aPo.size()-ipo1_s;
 			edge_a.aRelCoMesh.resize(npo*2);
 			const double sqlen = Com::SquareLength(pe-pa);
 			const Com::CVector2D& eh = (pe-pa)*(1/sqlen);
 			const Com::CVector2D ev(-eh.y,eh.x);
-	//		double x0=0, y0=0;
-	//		const double elen = 0.1;
+      //		double x0=0, y0=0;
+      //		const double elen = 0.1;
 			for(unsigned int ipo=0;ipo<npo;ipo++){
 				double x1 = Com::Dot(aPo[ipo+ipo1_s]-pa,eh);
 				double y1 = Com::Dot(aPo[ipo+ipo1_s]-pa,ev);
@@ -1616,7 +1674,7 @@ bool Cad::CEdge2D::Split(Cad::CEdge2D& edge_a, const Com::CVector2D& pa)
 				edge_a.aRelCoMesh[ipo*2+1] = y1;
 			}
 		}
-		else{ edge_a.itype = 0; }
+		else{ edge_a.itype = CURVE_LINE; }
 	}
 	return true;
 }
@@ -1629,18 +1687,18 @@ bool Cad::CEdge2D::GetPointOnCurve_OnCircle
  bool& is_exceed, Com::CVector2D& out) const
 {
   if( len <= 0 ) return false;
-  if( this->itype == 0 ) // íºê¸ÇÃèÍçá
+  if( this->itype == CURVE_LINE ) // íºê¸ÇÃèÍçá
   {
     const Com::CVector2D& v1 = this->GetNearestPoint(v0);
     if( is_front ){
-      double len1e = Com::Length(v1,this->po_e);
+      double len1e = Com::Distance(v1,this->po_e);
       if( len1e < len ){ is_exceed=true; out=po_e; return true; }
       out = (len/len1e)*po_e + (1-len/len1e)*v1;
       is_exceed = false;
       return true;
     }
     else{
-      double len1s = Com::Length(v1,this->po_s);
+      double len1s = Com::Distance(v1,this->po_s);
       if( len1s < len ){ is_exceed=true; out=po_s; return true; }
       out = (len/len1s)*po_s + (1-len/len1s)*v1;
       is_exceed = false;
@@ -1658,8 +1716,8 @@ int Cad::CheckEdgeIntersection(const std::vector<CEdge2D>& aEdge)
 	for(unsigned int iedge=0;iedge<nedge;iedge++){
 		const CEdge2D& e_i = aEdge[iedge];
 		if( e_i.IsCrossEdgeSelf() ){ return 1; }
-		const unsigned int ipo0 = e_i.id_v_s; 
-		const unsigned int ipo1 = e_i.id_v_e;
+		const unsigned int ipo0 = e_i.GetIdVtx(true);
+		const unsigned int ipo1 = e_i.GetIdVtx(false);
 		// edge_iÇÃÉoÉEÉìÉfÉBÉìÉOÉ{ÉbÉNÉXÇéÊìæ
     const Com::CBoundingBox2D& bb_i = e_i.GetBoundingBox();
     //		double x_min_i, x_max_i, y_min_i, y_max_i;
@@ -1667,8 +1725,8 @@ int Cad::CheckEdgeIntersection(const std::vector<CEdge2D>& aEdge)
 		////////////////
 		for(unsigned int jedge=iedge+1;jedge<nedge;jedge++){
 			const CEdge2D& e_j = aEdge[jedge];
-			const unsigned int jpo0 = e_j.id_v_s;
-			const unsigned int jpo1 = e_j.id_v_e;
+			const unsigned int jpo0 = e_j.GetIdVtx(true);
+			const unsigned int jpo1 = e_j.GetIdVtx(false);
 			// ã§óLì_Ç™ñ≥Ç¢èÍçá
 			if( (ipo0-jpo0)*(ipo0-jpo1)*(ipo1-jpo0)*(ipo1-jpo1) != 0 ){
 				// BoundingBoxÇópÇ¢ÇƒÅCåçˆÇµÇ»Ç¢ÉpÉ^Å[ÉìÇèúäO

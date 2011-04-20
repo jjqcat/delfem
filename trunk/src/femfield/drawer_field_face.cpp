@@ -149,7 +149,7 @@ void CDrawerFace::EnableUVMap(bool is_uv_map, const Fem::Field::CFieldWorld& wor
   if( (pUVArray != 0 ) == is_uv_map ){ return; }
   if( is_uv_map ){
     const unsigned int nnode = this->m_vertex_ary.NPoin();
-    const unsigned int ndim  = this->m_vertex_ary.NDim();
+//    const unsigned int ndim  = this->m_vertex_ary.NDim();
     delete[] pUVArray;
     pUVArray = new double [nnode*2];
     if( !world.IsIdField(m_id_field) ) return;
@@ -181,7 +181,7 @@ void CDrawerFace::SetTexScale(double scale, const Fem::Field::CFieldWorld& world
     // set the vertex array
     unsigned int id_na_c_co = field.GetNodeSegInNodeAry(CORNER).id_na_co;
     assert( world.IsIdNA(id_na_c_co) );
-    const Fem::Field::CNodeAry& na_c_co = world.GetNA(id_na_c_co);
+//    const Fem::Field::CNodeAry& na_c_co = world.GetNA(id_na_c_co);
     assert( field.IsNodeSeg(CORNER,false,world) );
     const Fem::Field::CNodeAry::CNodeSeg& ns_c_co = field.GetNodeSeg(CORNER,false,world);      
     for(unsigned int ino=0;ino<ns_c_co.Size();ino++){
@@ -494,7 +494,7 @@ bool CDrawerFace::Set
 
 	////////////////////////////////
 	{	// setting of element array        
-		const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			assert( world.IsIdEA(id_ea) );

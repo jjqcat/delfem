@@ -285,7 +285,7 @@ bool CEqn_Solid3D_Linear::ClearFixElemAry(
 	for(unsigned int ifix=0;ifix<m_aIdFixField.size();ifix++){
 		const unsigned int id_field_fix = m_aIdFixField[ifix].first;
 		const Fem::Field::CField& field = world.GetField(id_field_fix);
-		const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
 		if( aIdEA.size() != 1 ){
 			std::cout << "Error!-->Not Implimented" << std::endl;
 			assert(0);
@@ -755,7 +755,7 @@ bool CEqnSystem_Solid2D::UpdateDomain_Field(unsigned int id_base, Fem::Field::CF
 		std::vector<CEqn_Solid2D> aEqn_old = m_aEqn;
 		m_aEqn.clear();
 		const CField& field = world.GetField(m_IdFieldDisp);
-		const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			unsigned int ieqn0=0;
@@ -806,7 +806,7 @@ bool CEqnSystem_Solid2D::SetDomain_Field(unsigned int id_field_base, Fem::Field:
 	{
 		m_aEqn.clear();
 		const CField& field = world.GetField(m_IdFieldDisp);
-		const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			assert( world.IsIdEA(id_ea) );
@@ -834,7 +834,7 @@ bool CEqnSystem_Solid2D::SetDomain_FieldEA(unsigned int id_field_base, unsigned 
 	{
 		m_aEqn.clear();
 		const CField& field = world.GetField(m_IdFieldDisp);
-		const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			assert( world.IsIdEA(id_ea) );
@@ -863,7 +863,7 @@ bool CEqnSystem_Solid2D::ToplogicalChangeCad_InsertLoop(Fem::Field::CFieldWorld&
 	{
 		m_aEqn.clear();
 		const CField& field = world.GetField(m_id_val);
-		const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			m_aEqn.push_back( CEqn_Solid2D(id_ea,m_id_val) );
@@ -993,8 +993,8 @@ bool CEqnSystem_Solid2D::SetEquivStressValue(unsigned int id_field_str, Fem::Fie
 	if( !world.IsIdField(m_IdFieldDisp) ) return false;
 	Fem::Field::CField& field_dis = world.GetField(m_IdFieldDisp);
 
-	const std::vector<unsigned int>& aIdEA_from = field_dis.GetAry_IdElemAry();
-	const std::vector<unsigned int>& aIdEA_to   = field_str.GetAry_IdElemAry();
+	const std::vector<unsigned int>& aIdEA_from = field_dis.GetAryIdEA();
+	const std::vector<unsigned int>& aIdEA_to   = field_str.GetAryIdEA();
 	if( aIdEA_from.size() != aIdEA_to.size() ) return false;
 
 	const unsigned int niea = aIdEA_from.size();
@@ -1147,8 +1147,8 @@ bool CEqnSystem_Solid2D::SetStressValue(unsigned int id_field_str, Fem::Field::C
 	if( !world.IsIdField(m_IdFieldDisp) ) return false;
 	Fem::Field::CField& field_dis = world.GetField(m_IdFieldDisp);
 
-	const std::vector<unsigned int>& aIdEA_from = field_dis.GetAry_IdElemAry();
-	const std::vector<unsigned int>& aIdEA_to   = field_str.GetAry_IdElemAry();
+	const std::vector<unsigned int>& aIdEA_from = field_dis.GetAryIdEA();
+	const std::vector<unsigned int>& aIdEA_to   = field_str.GetAryIdEA();
 	if( aIdEA_from.size() != aIdEA_to.size() ) return false;
 
 	const unsigned int niea = aIdEA_from.size();
@@ -1303,7 +1303,7 @@ bool CEqnSystem_Solid2D::ClearFixElemAry(
 	for(unsigned int ifix=0;ifix<m_aIdFixField.size();ifix++){
 		const unsigned int id_field_fix = m_aIdFixField[ifix].first;
 		const Fem::Field::CField& field = world.GetField(id_field_fix);
-		const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
 		if( aIdEA.size() != 1 ){
 			std::cout << "Error!-->Not Implimented" << std::endl;
 			assert(0);

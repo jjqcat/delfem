@@ -170,7 +170,7 @@ bool CEqnSystem_Scalar2D::SetDomain_Field(unsigned int id_base, Fem::Field::CFie
 	{
 		m_aEqn.clear();
 		const CField& field = world.GetField(m_IdFieldVal);
-		const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			m_aEqn.push_back( CEqn_Scalar2D(id_ea,m_IdFieldVal) );
@@ -187,7 +187,7 @@ bool CEqnSystem_Scalar2D::SetDomain_FieldElemAry(unsigned int id_base, unsigned 
 	{
 		m_aEqn.clear();
 		const CField& field = world.GetField(m_IdFieldVal);
-		const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			m_aEqn.push_back( CEqn_Scalar2D(id_ea,m_IdFieldVal) );
@@ -307,7 +307,7 @@ bool CEqnSystem_Scalar2D::Solve(Fem::Field::CFieldWorld& world)
 		if( this->m_is_cleared_value_ls || this->m_is_cleared_value_prec ){
 			this->MakeLinearSystem(world);  
 		}
-		double res = pLS->MakeResidual(world); 
+//		double res = pLS->MakeResidual(world); 
 //		std::cout << "Residual : " << res << std::endl;
 	}
 	assert( this->m_is_cleared_value_ls   == false );
@@ -452,7 +452,7 @@ bool CEqnSystem_Scalar2D::ClearFixElemAry(
 	for(unsigned int ifix=0;ifix<m_aIdFixField.size();ifix++){
 		const unsigned int id_field_fix = m_aIdFixField[ifix].first;
 		const Fem::Field::CField& field = world.GetField(id_field_fix);
-		const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
 		if( aIdEA.size() != 1 ){
 			std::cout << "Error!-->Not Implimented" << std::endl;
 			assert(0);
@@ -607,7 +607,7 @@ bool CEqn_Scalar3D::ClearFixElemAry(
 	for(unsigned int ifix=0;ifix<m_aIdFixField.size();ifix++){
 		const unsigned int id_field_fix = m_aIdFixField[ifix].first;
 		const Fem::Field::CField& field = world.GetField(id_field_fix);
-		const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
 		if( aIdEA.size() != 1 ){
 			std::cout << "Error!-->Not Implimented" << std::endl;
 			assert(0);
