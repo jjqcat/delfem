@@ -268,7 +268,6 @@ double CEqnSystem_Scalar2D::MakeLinearSystem( const Fem::Field::CFieldWorld& wor
 				m_aEqn[ieqn].AddLinSys( *pLS, world);
 			}
 		}
-			
 	}
 	////////////////
 	// マージの終了
@@ -303,11 +302,12 @@ bool CEqnSystem_Scalar2D::Solve(Fem::Field::CFieldWorld& world)
 	else{
 		if( !this->m_IsSaveStiffMat ){ this->MakeLinearSystem(world); }
 	}
+  
 	if( this->m_IsSaveStiffMat ){ 
 		if( this->m_is_cleared_value_ls || this->m_is_cleared_value_prec ){
 			this->MakeLinearSystem(world);  
 		}
-//		double res = pLS->MakeResidual(world); 
+		double res = pLS->MakeResidual(world); 
 //		std::cout << "Residual : " << res << std::endl;
 	}
 	assert( this->m_is_cleared_value_ls   == false );
