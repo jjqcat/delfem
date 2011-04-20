@@ -8,22 +8,22 @@
 
 /* Begin PBXBuildFile section */
 		8DD76F650486A84900D96B5E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* main.cpp */; settings = {ATTRIBUTES = (); }; };
-		A99986B11188CFEB00DBA052 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A99986B01188CFEB00DBA052 /* GLUT.framework */; };
-		A99986B31188CFF500DBA052 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A99986B21188CFF500DBA052 /* OpenGL.framework */; };
-		A9EDB4A711A8AD800003AC93 /* libdfm_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A9EDB4A611A8AD740003AC93 /* libdfm_core.a */; };
+		A9B28C5211D42246000CF08E /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B28C5111D42246000CF08E /* GLUT.framework */; };
+		A9B28C5611D42253000CF08E /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B28C5511D42253000CF08E /* OpenGL.framework */; };
+		A9B28C6211D42553000CF08E /* libdfm_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A9B28C6111D4254B000CF08E /* libdfm_core.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		A9EDB4A511A8AD740003AC93 /* PBXContainerItemProxy */ = {
+		A9B28C6011D4254B000CF08E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = A99986A91188CF8D00DBA052 /* dfm_core.xcodeproj */;
+			containerPortal = A9B28C5911D4254B000CF08E /* dfm_core.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = D2AAC046055464E500DB518D;
 			remoteInfo = dfm_core;
 		};
-		A9EDB4A811A8AD8B0003AC93 /* PBXContainerItemProxy */ = {
+		A9B28CC911D43A95000CF08E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = A99986A91188CF8D00DBA052 /* dfm_core.xcodeproj */;
+			containerPortal = A9B28C5911D4254B000CF08E /* dfm_core.xcodeproj */;
 			proxyType = 1;
 			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = dfm_core;
@@ -43,11 +43,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		08FB7796FE84155DC02AAC07 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		8DD76F6C0486A84900D96B5E /* fluid2d */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = fluid2d; sourceTree = BUILT_PRODUCTS_DIR; };
-		A99986A91188CF8D00DBA052 /* dfm_core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = dfm_core.xcodeproj; path = ../../lib/xcodelib_core/dfm_core.xcodeproj; sourceTree = SOURCE_ROOT; };
-		A99986B01188CFEB00DBA052 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = /System/Library/Frameworks/GLUT.framework; sourceTree = "<absolute>"; };
-		A99986B21188CFF500DBA052 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
+		08FB7796FE84155DC02AAC07 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		8DD76F6C0486A84900D96B5E /* cad */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = cad; sourceTree = BUILT_PRODUCTS_DIR; };
+		A9B28C5111D42246000CF08E /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
+		A9B28C5511D42253000CF08E /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		A9B28C5911D4254B000CF08E /* dfm_core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = dfm_core.xcodeproj; path = ../../../DelFEM/lib/xcodelib_core/dfm_core.xcodeproj; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,26 +55,26 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A9EDB4A711A8AD800003AC93 /* libdfm_core.a in Frameworks */,
-				A99986B11188CFEB00DBA052 /* GLUT.framework in Frameworks */,
-				A99986B31188CFF500DBA052 /* OpenGL.framework in Frameworks */,
+				A9B28C6211D42553000CF08E /* libdfm_core.a in Frameworks */,
+				A9B28C5211D42246000CF08E /* GLUT.framework in Frameworks */,
+				A9B28C5611D42253000CF08E /* OpenGL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		08FB7794FE84155DC02AAC07 /* fluid2d */ = {
+		08FB7794FE84155DC02AAC07 /* cad */ = {
 			isa = PBXGroup;
 			children = (
-				A99986A91188CF8D00DBA052 /* dfm_core.xcodeproj */,
+				A9B28C5911D4254B000CF08E /* dfm_core.xcodeproj */,
 				08FB7795FE84155DC02AAC07 /* Source */,
 				C6859E8C029090F304C91782 /* Documentation */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,
-				A99986B01188CFEB00DBA052 /* GLUT.framework */,
-				A99986B21188CFF500DBA052 /* OpenGL.framework */,
+				A9B28C5111D42246000CF08E /* GLUT.framework */,
+				A9B28C5511D42253000CF08E /* OpenGL.framework */,
 			);
-			name = fluid2d;
+			name = cad;
 			sourceTree = "<group>";
 		};
 		08FB7795FE84155DC02AAC07 /* Source */ = {
@@ -88,15 +88,15 @@
 		1AB674ADFE9D54B511CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8DD76F6C0486A84900D96B5E /* fluid2d */,
+				8DD76F6C0486A84900D96B5E /* cad */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		A9EDB4A211A8AD740003AC93 /* Products */ = {
+		A9B28C5A11D4254B000CF08E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A9EDB4A611A8AD740003AC93 /* libdfm_core.a */,
+				A9B28C6111D4254B000CF08E /* libdfm_core.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -111,9 +111,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		8DD76F620486A84900D96B5E /* fluid2d */ = {
+		8DD76F620486A84900D96B5E /* cad */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1DEB923108733DC60010E9CD /* Build configuration list for PBXNativeTarget "fluid2d" */;
+			buildConfigurationList = 1DEB923108733DC60010E9CD /* Build configuration list for PBXNativeTarget "cad" */;
 			buildPhases = (
 				8DD76F640486A84900D96B5E /* Sources */,
 				8DD76F660486A84900D96B5E /* Frameworks */,
@@ -122,12 +122,12 @@
 			buildRules = (
 			);
 			dependencies = (
-				A9EDB4A911A8AD8B0003AC93 /* PBXTargetDependency */,
+				A9B28CCA11D43A95000CF08E /* PBXTargetDependency */,
 			);
-			name = fluid2d;
+			name = cad;
 			productInstallPath = "$(HOME)/bin";
-			productName = fluid2d;
-			productReference = 8DD76F6C0486A84900D96B5E /* fluid2d */;
+			productName = cad;
+			productReference = 8DD76F6C0486A84900D96B5E /* cad */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -135,7 +135,7 @@
 /* Begin PBXProject section */
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
-			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "fluid2d" */;
+			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "cad" */;
 			compatibilityVersion = "Xcode 3.1";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
@@ -145,27 +145,27 @@
 				French,
 				German,
 			);
-			mainGroup = 08FB7794FE84155DC02AAC07 /* fluid2d */;
+			mainGroup = 08FB7794FE84155DC02AAC07 /* cad */;
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = A9EDB4A211A8AD740003AC93 /* Products */;
-					ProjectRef = A99986A91188CF8D00DBA052 /* dfm_core.xcodeproj */;
+					ProductGroup = A9B28C5A11D4254B000CF08E /* Products */;
+					ProjectRef = A9B28C5911D4254B000CF08E /* dfm_core.xcodeproj */;
 				},
 			);
 			projectRoot = "";
 			targets = (
-				8DD76F620486A84900D96B5E /* fluid2d */,
+				8DD76F620486A84900D96B5E /* cad */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		A9EDB4A611A8AD740003AC93 /* libdfm_core.a */ = {
+		A9B28C6111D4254B000CF08E /* libdfm_core.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libdfm_core.a;
-			remoteRef = A9EDB4A511A8AD740003AC93 /* PBXContainerItemProxy */;
+			remoteRef = A9B28C6011D4254B000CF08E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -182,10 +182,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		A9EDB4A911A8AD8B0003AC93 /* PBXTargetDependency */ = {
+		A9B28CCA11D43A95000CF08E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = dfm_core;
-			targetProxy = A9EDB4A811A8AD8B0003AC93 /* PBXContainerItemProxy */;
+			targetProxy = A9B28CC911D43A95000CF08E /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -199,9 +199,8 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = "";
 				INSTALL_PATH = /usr/local/bin;
-				PRODUCT_NAME = fluid2d;
+				PRODUCT_NAME = cad;
 			};
 			name = Debug;
 		};
@@ -212,7 +211,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				INSTALL_PATH = /usr/local/bin;
-				PRODUCT_NAME = fluid2d;
+				PRODUCT_NAME = cad;
 			};
 			name = Release;
 		};
@@ -224,10 +223,10 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = ../../../DelFEM/include;
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
 				SDKROOT = macosx10.6;
-				USER_HEADER_SEARCH_PATHS = ../../include/;
 			};
 			name = Debug;
 		};
@@ -238,17 +237,16 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				ONLY_ACTIVE_ARCH = YES;
+				HEADER_SEARCH_PATHS = ../../../DelFEM/include;
 				PREBINDING = NO;
 				SDKROOT = macosx10.6;
-				USER_HEADER_SEARCH_PATHS = ../../include/;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1DEB923108733DC60010E9CD /* Build configuration list for PBXNativeTarget "fluid2d" */ = {
+		1DEB923108733DC60010E9CD /* Build configuration list for PBXNativeTarget "cad" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB923208733DC60010E9CD /* Debug */,
@@ -257,7 +255,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "fluid2d" */ = {
+		1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "cad" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB923608733DC60010E9CD /* Debug */,

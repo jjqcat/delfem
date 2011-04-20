@@ -592,8 +592,7 @@ bool SetNewProblem()
 	if( iprob == 14 )
 	{
 		Cad::CCadObj2D cad_2d;
-//    Cad::ReadSVG_AddLoopCad("../input_file/apman.svg",cad_2d);    
-    Cad::ReadSVG_AddLoopCad("../input_file/apman.svg",cad_2d);        
+    Cad::ReadSVG_AddLoopCad("../input_file/shape2d_0.svg",cad_2d);        
 		Msh::CMesher2D mesh_2d;
     mesh_2d.SetMeshingMode_ElemSize(400);
     mesh_2d.AddIdLCad_CutMesh(1);
