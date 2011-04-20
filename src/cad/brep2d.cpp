@@ -653,7 +653,8 @@ bool CBRepSurface::GetIdVertex_Edge(unsigned int id_e, unsigned int& id_v1, unsi
 	return true;
 }
 
-unsigned int CBRepSurface::GetIdVertex_Edge(unsigned int id_e, bool is_root ){
+unsigned int CBRepSurface::GetIdVertex_Edge(unsigned int id_e, bool is_root ) const
+{
 	unsigned int id_he;
 	{
 		std::map<unsigned int,unsigned int>::const_iterator itr = map_e2he.find(id_e);

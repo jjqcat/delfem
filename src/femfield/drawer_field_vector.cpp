@@ -113,7 +113,7 @@ bool CDrawerVector::Update_VECTOR(const Fem::Field::CFieldWorld& world)
 
 	int ilayer_min, ilayer_max;
 	{
-		const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
 		if( aIdEA.size() > 0 ){
 			ilayer_min = field.GetLayer(aIdEA[0]);
 			ilayer_max = ilayer_min;
@@ -191,7 +191,7 @@ bool CDrawerVector::Update_VECTOR(const Fem::Field::CFieldWorld& world)
 			}
 		}
 		if( ilayer_min != ilayer_max ){ // consider layer
-			const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+			const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
 			for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 				const unsigned int id_ea = aIdEA[iiea];
 				const int ilayer = field.GetLayer(id_ea);
@@ -255,7 +255,7 @@ bool CDrawerVector::Update_VECTOR(const Fem::Field::CFieldWorld& world)
 			const CNodeAry& na_va = world.GetNA(nsna_b.id_na_va);
 			assert( na_va.IsSegID(id_ns_v) );
 			unsigned int noes[64];
-			const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+			const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
 			for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 				unsigned int id_ea = aIdEA[iiea];
 				const CElemAry& ea = world.GetEA(id_ea);
@@ -372,7 +372,7 @@ bool CDrawerVector::Update_SSTR2(const Fem::Field::CFieldWorld& world)
 	}
 	int ilayer_min, ilayer_max;
 	{
-		const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
 		if( aIdEA.size() > 0 ){
 			ilayer_min = field.GetLayer(aIdEA[0]);
 			ilayer_max = ilayer_min;
@@ -420,7 +420,7 @@ bool CDrawerVector::Update_SSTR2(const Fem::Field::CFieldWorld& world)
 			const CNodeAry& na_va = world.GetNA(nsna_b.id_na_va);
 			assert( na_va.IsSegID(id_ns_v) );
 			unsigned int noes[64];
-			const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+			const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
 			for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 				unsigned int id_ea = aIdEA[iiea];
 				const CElemAry& ea = world.GetEA(id_ea);

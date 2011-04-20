@@ -160,7 +160,7 @@ bool Fem::Eqn::AddLinSys_Helmholtz(
 		delete[] tmp_buffer;
 	}
 	else{
-		const std::vector<unsigned int> aIdEA = val_field.GetAry_IdElemAry();
+		const std::vector<unsigned int> aIdEA = val_field.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = Fem::Eqn::AddLinSys_Helmholtz(
@@ -306,7 +306,7 @@ bool Fem::Eqn::AddLinSys_Helmholtz_AxalSym(
 		delete[] tmp_buffer;
 	}
 	else{
-		const std::vector<unsigned int> aIdEA = val_field.GetAry_IdElemAry();
+		const std::vector<unsigned int> aIdEA = val_field.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = Fem::Eqn::AddLinSys_Helmholtz_AxalSym(
@@ -410,7 +410,7 @@ bool Fem::Eqn::AddLinSys_MassMatrixEigen_AxalSym(
 		delete[] tmp_buffer;
 	}
 	else{
-		const std::vector<unsigned int> aIdEA = val_field.GetAry_IdElemAry();
+		const std::vector<unsigned int> aIdEA = val_field.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = Fem::Eqn::AddLinSys_MassMatrixEigen_AxalSym(
@@ -536,7 +536,7 @@ bool Fem::Eqn::AddLinSys_SommerfeltRadiationBC(
 		delete[] tmp_buffer;
 	}
 	else{
-		const std::vector<unsigned int> aIdEA = val_field.GetAry_IdElemAry();
+		const std::vector<unsigned int> aIdEA = val_field.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = Fem::Eqn::AddLinSys_SommerfeltRadiationBC(
@@ -660,7 +660,7 @@ bool Fem::Eqn::AddLinSys_SommerfeltRadiationBC_AxalSym(
 		delete[] tmp_buffer;
 	}
 	else{
-		const std::vector<unsigned int> aIdEA = val_field.GetAry_IdElemAry();
+		const std::vector<unsigned int> aIdEA = val_field.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = Fem::Eqn::AddLinSys_SommerfeltRadiationBC_AxalSym(

@@ -38,8 +38,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////
 
 namespace Cad{
-
-/*!
+  
+enum CURVE_TYPE {
+  CURVE_END_POINT,
+  CURVE_LINE,
+  CURVE_ARC,
+  CURVE_POLYLINE,
+  CURVE_BEZIER
+};
+  
+  /*!
 @addtogroup CAD
 */
 //!@{
@@ -91,7 +99,6 @@ double FindNearestPointParameter_Line_Point(const Com::CVector2D& po_c,
   
 Com::CVector2D GetProjectedPointOnCircle(const Com::CVector2D& c, double r, 
                                          const Com::CVector2D& v);
-  
 
 //! 2dim edge
 class CEdge2D{
@@ -100,26 +107,32 @@ public:
   itype(rhs.itype),
   is_left_side(rhs.is_left_side), dist(rhs.dist), 
   aRelCoMesh(rhs.aRelCoMesh),
-  id_v_s(rhs.id_v_s), id_v_e(rhs.id_v_e),
-  po_s(rhs.po_s), po_e(rhs.po_e){}
-	CEdge2D(const int id_v_s, const int id_v_e, 
-          const int itype, 
-          const bool is_left_side, const double dist)
-  :	itype(itype),
-  is_left_side(is_left_side), dist(dist),
-  id_v_s(id_v_s), id_v_e(id_v_e)
-	{
-		po_s = Com::CVector2D(0,0);
-		po_e = Com::CVector2D(0,0);
-	}  ///////////
-  double Distance(const CEdge2D& e1) const;	// distance between me and e1
-
-  ///////////
+  id_v_s(rhs.id_v_s), id_v_e(rhs.id_v_e), po_s(rhs.po_s), po_e(rhs.po_e){
+    aRelCoBezier[0] = rhs.aRelCoBezier[0];
+    aRelCoBezier[1] = rhs.aRelCoBezier[1];
+    aRelCoBezier[2] = rhs.aRelCoBezier[2];
+    aRelCoBezier[3] = rhs.aRelCoBezier[3];
+  }
+  CEdge2D() : id_v_s(0), id_v_e(0), itype(CURVE_LINE){}
+  CEdge2D(unsigned int id_v_s, unsigned int id_v_e) : id_v_s(id_v_s), id_v_e(id_v_e), itype(CURVE_LINE){}
   
-  /*!
-   @brief get bounding box of edge
-   @remarks make sure the value is set in po_s, po_e
-   */  
+  void SetVtxCoords(const Com::CVector2D& ps, const Com::CVector2D& pe) const {
+    po_s = ps;
+    po_e = pe;
+    bb_.isnt_empty = false;
+  }
+  void SetIdVtx(unsigned int id_vs, unsigned int id_ve) const{
+    this->id_v_s = id_vs;
+    this->id_v_e = id_ve;
+  }
+  
+  // return minimum distance between this edge and e1
+  // if the edge obviouly intersects, this function return 0 or -1
+  double Distance(const CEdge2D& e1) const;
+
+  // get bounding box of edge
+  // lazy evaluation
+  // make sure the value is set in po_s, po_e
   const Com::CBoundingBox2D& GetBoundingBox() const{
     if( bb_.isnt_empty ){ return bb_; }
     double xmin,xmax, ymin,ymax;
@@ -150,11 +163,18 @@ public:
   // this function is used for in-out detection
 	int NumIntersect_AgainstHalfLine(const Com::CVector2D& org, const Com::CVector2D& dir) const;
   bool GetNearestIntersectionPoint_AgainstHalfLine(Com::CVector2D& sec, const Com::CVector2D& org, const Com::CVector2D& dir) const;
-  bool GetCurve_Mesh(std::vector<Com::CVector2D>& aCo, int ndiv) const;
+  bool GetCurveAsPolyline(std::vector<Com::CVector2D>& aCo, int ndiv) const;
   double GetCurveLength() const;
 
   ////////////////////////////////
-  
+
+  // Get Arc property if this curve is not arc, this returns false
+  // if is_left_side is true, this arc lies left side from the line connect start and end point of this edge (ID:id_e).
+  // The dist means how far is the center of the circle from the line connect start and end point of edge (ID:id_e).  
+  void GetCurve_Arc(bool& is_left_side, double& dist) const{
+    is_left_side = this->is_left_side;
+    dist = this->dist;
+  }  
   /*!
    @brief 円が円弧の時、円の中心と半径を計算する
    @remarks 円弧じゃなかったらfalseを返す
@@ -162,6 +182,7 @@ public:
 	bool GetCenterRadius(Com::CVector2D& po_c, double& radius) const;
   bool GetCenterRadiusThetaLXY(Com::CVector2D& pc, double& radius,
                                double& theta, Com::CVector2D& lx, Com::CVector2D& ly) const;
+  
     
   
 	////////////////////////////////
@@ -176,6 +197,41 @@ public:
   // is_front==true:same direction is_front==false:opposite direciton
   bool GetPointOnCurve_OnCircle(const Com::CVector2D& v0, double len, bool is_front,
                                 bool& is_exceed, Com::CVector2D& out) const;    
+  
+  CURVE_TYPE GetCurveType() const { return itype; }
+  void SetCurve_Line(){ itype = CURVE_LINE; }
+  void SetCurve_Arc(bool is_left_side,double dist){ 
+    this->itype = CURVE_ARC;
+    this->dist = dist;
+    this->is_left_side = is_left_side;
+  }
+  void SetCurve_Polyline(const std::vector<double>& aRelCo){
+    this->itype = CURVE_POLYLINE;
+    this->aRelCoMesh = aRelCo;
+  }
+  void SetCurve_Bezier(double cx0, double cy0, double cx1, double cy1){
+    this->itype = CURVE_BEZIER;
+    this->aRelCoBezier[0] = cx0;
+    this->aRelCoBezier[1] = cy0;
+    this->aRelCoBezier[2] = cx1;
+    this->aRelCoBezier[3] = cy1;
+  }
+  
+  
+  const std::vector<double>& GetCurve_Polyline() const { return aRelCoMesh; }
+  void GetCurve_Bezier(double aRelCo[]) const{
+    aRelCo[0] = aRelCoBezier[0];
+    aRelCo[1] = aRelCoBezier[1];
+    aRelCo[2] = aRelCoBezier[2];
+    aRelCo[3] = aRelCoBezier[3];    
+  }
+  
+  inline unsigned int GetIdVtx(bool is_root) const {
+    return is_root ? id_v_s : id_v_e;
+  }
+  inline Com::CVector2D GetVtxCoord(bool is_root) const {
+    return is_root ? po_s : po_e;
+  }
 
 private:
   void GetBoundingBox(double& x_min, double& x_max, double& y_min, double& y_max) const;            
@@ -185,14 +241,18 @@ private:
 	int IsInsideArcSegment(const Com::CVector2D& po) const;
 	//! 円弧の中心からみて，点poと円弧が同じ方向に重なっているか？
 	int IsDirectionArc(const Com::CVector2D& po) const;
-public:
-  unsigned int itype;		//!< 0:Line, 1:Arc, 2:Mesh
+private:
+  CURVE_TYPE itype;		//!< 0:Line, 1:Arc, 2:Mesh 3:Bezier
+private:
 	// type Arc
   bool is_left_side;      //!< is the arc is formed left side of the line po_s, po_e
-  double dist;            //!< 線分と円の中心の距離
+  double dist;            //!< the minimum distance between line and arc center point
 	// type Mesh
   std::vector<double> aRelCoMesh;	//!< メッシュの節点の辺に対する相対座標(辺の左側にあったらｙ軸＋)
-public:
+  // type Bezier
+  double aRelCoBezier[4];
+private:
+//public:
   //! 干渉チェックの時にだけ一時的に辺の２頂点の座標が代入される
   mutable unsigned int id_v_s, id_v_e;	//!< start vertex
   mutable Com::CVector2D po_s, po_e;

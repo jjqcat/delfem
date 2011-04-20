@@ -203,11 +203,16 @@ inline double SquareLength(const CVector2D& ipo0, const CVector2D& ipo1){
 inline double SquareLength(const CVector2D& point){
 	return	point.x*point.x + point.y*point.y;
 }
+  
+inline double Length(const CVector2D& point){
+  return	point.Length();
+}
+  
 
 ////////////////
 
 //! ’·‚³
-inline double Length(const CVector2D& ipo0, const CVector2D& ipo1){
+inline double Distance(const CVector2D& ipo0, const CVector2D& ipo1){
 	return	sqrt( ( ipo1.x - ipo0.x )*( ipo1.x - ipo0.x ) + ( ipo1.y - ipo0.y )*( ipo1.y - ipo0.y ) );
 }
 
@@ -310,6 +315,23 @@ inline int DetDelaunay(
 }
 
 ////////////////////////////////////////////////
+  
+  
+static inline double TriArea2D(const double v1[2], const double v2[2], const double v3[2]){
+  double z = ( v2[0] - v1[0] )*( v3[1] - v1[1] ) - ( v3[0] - v1[0] )*( v2[1] - v1[1] );
+  return z*0.5;
+}
+  
+inline double SqDistance2D(const double v1[2], const double v2[2]){
+    return (v1[0]-v2[0])*(v1[0]-v2[0]) + (v1[1]-v2[1])*(v1[1]-v2[1]);
+}
+
+inline double Distance2D(const double v1[2], const double v2[2]){
+  return sqrt( (v1[0]-v2[0])*(v1[0]-v2[0]) + (v1[1]-v2[1])*(v1[1]-v2[1]) );
+}
+  
+  
+
 
 } // end namespace Com
 

@@ -110,7 +110,7 @@ bool CZLinearSystem::AddPattern_Field(const unsigned int id_field, const CFieldW
 		else{ ESType2iLS[0] = -1; }
 	}
 	////////////////////////////////
-	const std::vector<unsigned int> aIdEA = field.GetAry_IdElemAry();
+	const std::vector<unsigned int> aIdEA = field.GetAryIdEA();
 	if( aIdEA.size() == 0 ){ // çÑëÃÉÇÅ[ÉhÇÃÇΩÇﬂÇÃçsóÒ
 		unsigned int ils0 = ESType2iLS[0];
 		if( m_Matrix_Dia[ils0] == 0 ){
@@ -363,7 +363,7 @@ static void BoundaryCondition
   if( !world.IsIdField(id_field) ) return;
   const Fem::Field::CField& field = world.GetField(id_field);
   assert( (int)idofns < bc_flag.LenBlk()  );
-  const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+  const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
   for(unsigned int iea=0;iea<aIdEA.size();iea++){
     const unsigned int id_ea = aIdEA[iea];
     const CElemAry& ea = world.GetEA(id_ea);
@@ -392,7 +392,7 @@ static void BoundaryCondition
   }
   const unsigned int nlen = field.GetNLenValue();
   
-  const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+  const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
   for(unsigned int iea=0;iea<aIdEA.size();iea++){
     unsigned int id_ea = aIdEA[iea];
     const CElemAry& ea = world.GetEA(id_ea);

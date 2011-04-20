@@ -348,7 +348,7 @@ void Fem::Field::View::MakeStreamLine(
 	std::vector<double> idea2height;
 	{
 		int ilayer_min, ilayer_max;
-		const std::vector<unsigned int>& aIdEA = fv.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = fv.GetAryIdEA();
 		if( aIdEA.size() > 0 ){
 			ilayer_min = fv.GetLayer(aIdEA[0]);
 			ilayer_max = ilayer_min;
@@ -376,7 +376,7 @@ void Fem::Field::View::MakeStreamLine(
 	// É}ÉXÉNÇçÏÇÈ
 	std::vector< std::vector<unsigned int> > aMaskElem;
 	aMaskElem.clear();
-	const std::vector<unsigned int> aIdEA = fv.GetAry_IdElemAry();
+	const std::vector<unsigned int> aIdEA = fv.GetAryIdEA();
 	{
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			unsigned int id_ea = aIdEA[iiea];

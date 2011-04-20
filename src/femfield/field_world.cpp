@@ -256,6 +256,7 @@ bool CFieldWorld::UpdateMeshCoord(const unsigned int id_base, const unsigned int
       ns_u.AddValue(inode, 2, co0[2]-co1_z);            
 		}
 	}  
+  return true;
 }
 
 
@@ -497,7 +498,7 @@ bool CFieldWorld::UpdateConnectivity_CustomBaseField(const unsigned int id_base,
 {
 	Fem::Field::CField& fb = this->GetField(id_base);
 	const unsigned int id_na = fb.GetNodeSegInNodeAry(Fem::Field::CORNER).id_na_va;
-	const std::vector<unsigned int>& aIdEA = fb.GetAry_IdElemAry();
+	const std::vector<unsigned int>& aIdEA = fb.GetAryIdEA();
 	assert( aIdEA_Inc.size() == aIdEA.size() );
 	for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 		unsigned int id_ea = aIdEA[iiea];
@@ -819,7 +820,7 @@ unsigned int CFieldWorld::MakeField_FieldElemDim
 	na_c.id_na_va = 0;
   
   {
-    const std::vector<unsigned int>& aIdEA = field_base.GetAry_IdElemAry();
+    const std::vector<unsigned int>& aIdEA = field_base.GetAryIdEA();
     for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
       const unsigned int id_ea = aIdEA[iiea];
       if( idim_elem != -1 ){
@@ -915,7 +916,7 @@ bool CFieldWorld::UpdateConnectivity_EdgeField_Tri(unsigned int id_field, unsign
 	std::vector<unsigned int> edge_ary;
 	unsigned int nedge;
 	{
-		unsigned int id_ea0 = field_base.GetAry_IdElemAry()[0];
+		unsigned int id_ea0 = field_base.GetAryIdEA()[0];
 		unsigned int id_es_co = field_base.GetIdElemSeg(id_ea0,CORNER,false,*this);
 		const CElemAry& ea = this->GetEA(id_ea0);
 		ea.MakeEdge(id_es_co,nedge,edge_ary);
@@ -924,7 +925,7 @@ bool CFieldWorld::UpdateConnectivity_EdgeField_Tri(unsigned int id_field, unsign
 	assert( this->IsIdField(id_field) );
 	const CField& field = this->GetField(id_field);
 	{
-		unsigned int id_ea0 = field.GetAry_IdElemAry()[0];
+		unsigned int id_ea0 = field.GetAryIdEA()[0];
 		CElemAry& ea0 = this->GetEA(id_ea0);
 		unsigned int id_es0 = ea0.GetAry_SegID()[0];
 		CElemAry::CElemSeg& es0 = ea0.GetSeg(id_es0);
@@ -948,7 +949,7 @@ bool CFieldWorld::UpdateConnectivity_HingeField_Tri( unsigned int id_field_edge,
 
 //	unsigned int id_na = field_base.GetNodeSegInNodeAry(CORNER).id_na_va;
   
-  const std::vector<unsigned int>& aIdEA_base = field_base.GetAry_IdElemAry();  
+  const std::vector<unsigned int>& aIdEA_base = field_base.GetAryIdEA();  
   
   for(unsigned int iiea=0;iiea<aIdEA_base.size();iiea++){
     unsigned int id_ea0 = aIdEA_base[iiea];
@@ -1009,11 +1010,11 @@ bool CFieldWorld::UpdateConnectivity_HingeField_Tri( unsigned int id_field_edge,
         }
         assert( iedge == nedge );
       }
-      std::cout << "nedge : " << nedge << std::endl;
+//      std::cout << "nedge : " << nedge << std::endl;
     }
     
     {
-      unsigned int id_ea1 = field_edge.GetAry_IdElemAry()[iiea];
+      unsigned int id_ea1 = field_edge.GetAryIdEA()[iiea];
       CElemAry& ea1 = this->GetEA(id_ea1);
       unsigned int id_es_co = field_edge.GetIdElemSeg(id_ea1,CORNER,false,*this);
       assert( ea1.IsSegID(id_es_co) );
@@ -1051,7 +1052,7 @@ unsigned int CFieldWorld::GetPartialField(unsigned int id_field_val, unsigned in
 			unsigned int id_f = aIdField[iid_f];
 			const Fem::Field::CField& field = *m_apField.GetObj(id_f);
 			if( field.GetIDFieldParent() != id_field_val ) continue;
-			const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+			const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
 			if( aIdEA.size() != 1 ) continue;
 			if( aIdEA[0] == id_ea ){ return id_f; }
 		}
@@ -1065,7 +1066,7 @@ unsigned int CFieldWorld::GetPartialField(unsigned int id_field_val, unsigned in
 		const unsigned int id_na_co_c = field_val.GetNodeSegInNodeAry(CORNER).id_na_co;
 		assert( this->IsIdEA(id_na_co_c) );
 		const CNodeAry& na_co = this->GetNA(id_na_co_c);
-		const std::vector<unsigned int>& aIdEA = field_val.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field_val.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			unsigned int id_ea0 = aIdEA[iiea];
 			unsigned int id_es0 = field_val.GetIdElemSeg(id_ea0,CORNER,true,*this);
@@ -1366,7 +1367,7 @@ void CFieldWorld::DeleteField( const std::vector<unsigned int>& aIdFieldDel )
       InsertIdToSetSet(NaNs_InUse, nans.id_na_va, nans.id_ns_ve);
       InsertIdToSetSet(NaNs_InUse, nans.id_na_va, nans.id_ns_ac);
     }
-    const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+    const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
     for(unsigned int iid_ea=0;iid_ea<aIdEA.size();iid_ea++){
       const unsigned int id_ea = aIdEA[iid_ea];
       InsertIdToSetSet(EaEs_InUse, id_ea, field.GetIdElemSeg(id_ea,CORNER,false,*this) );
@@ -1377,7 +1378,7 @@ void CFieldWorld::DeleteField( const std::vector<unsigned int>& aIdFieldDel )
   }
 
   for(mapsetID::iterator itr=NaNs_InUse.begin();itr!=NaNs_InUse.end();itr++){
-    unsigned int id_na = itr->first;
+//    unsigned int id_na = itr->first;
 //    std::cout << "Id NA in use" << id_na << "  NS : ";
     const std::set<unsigned int>& setID = itr->second;
     for(std::set<unsigned int>::iterator itrID=setID.begin();itrID!=setID.end();itrID++){
@@ -1386,7 +1387,7 @@ void CFieldWorld::DeleteField( const std::vector<unsigned int>& aIdFieldDel )
 //    std::cout << std::endl;
   }
   for(mapsetID::iterator itr=EaEs_InUse.begin();itr!=EaEs_InUse.end();itr++){
-    unsigned int id_ea = itr->first;
+//    unsigned int id_ea = itr->first;
 //    std::cout << "Id EA in use" << id_ea << "  ES : ";
     const std::set<unsigned int>& setID = itr->second;
     for(std::set<unsigned int>::iterator itrID=setID.begin();itrID!=setID.end();itrID++){

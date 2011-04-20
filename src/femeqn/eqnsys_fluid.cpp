@@ -227,7 +227,7 @@ bool CEqnSystem_Fluid2D::UpdateDomain_Field(unsigned int id_base, Fem::Field::CF
 		std::vector<CEqn_Fluid2D> aEqn_old = m_aEqn;
 		m_aEqn.clear();
 		const CField& field = world.GetField(m_id_velo);
-		const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			unsigned int ieqn0=0;
@@ -288,7 +288,7 @@ bool CEqnSystem_Fluid2D::UpdateDomain_FieldVeloPress(
 		std::vector<CEqn_Fluid2D> aEqn_old = m_aEqn;
 		m_aEqn.clear();
 		const CField& field = world.GetField(m_id_velo);
-		const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			unsigned int ieqn0=0;
@@ -343,7 +343,7 @@ bool CEqnSystem_Fluid2D::UpdateDomain_FieldElemAry(unsigned int id_base,unsigned
 		std::vector<CEqn_Fluid2D> aEqn_old = m_aEqn;
 		m_aEqn.clear();
 		const CField& field = world.GetField(m_id_velo);
-		const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			unsigned int ieqn0=0;
@@ -394,7 +394,7 @@ unsigned int CEqnSystem_Fluid2D::AddFixElemAry( const std::vector<unsigned int>&
 	const unsigned int id_field = world.GetPartialField(m_id_velo, aIdEA );
 	if( id_field == 0 ) return 0;
 	assert( world.IsIdField(id_field) );
-	CField& field = world.GetField(id_field);
+//	CField& field = world.GetField(id_field);
   Fem::Field::SetFieldValue_Constant(id_field,0,Fem::Field::VELOCITY,world,0);
   Fem::Field::SetFieldValue_Constant(id_field,1,Fem::Field::VELOCITY,world,0);
 	m_aIdFixField.push_back( std::make_pair(id_field,-1) );
@@ -458,7 +458,7 @@ void CEqnSystem_Fluid2D::SetIsStationary(bool is_stat)
 bool CEqnSystem_Fluid2D::Solve(Fem::Field::CFieldWorld& world)
 {
 	if( pLS == 0 || pPrec == 0 ) this->InitializeLinearSystem(world);
-    double res = this->MakeLinearSystem(world);
+//    double res = this->MakeLinearSystem(world);
 	{
 		double conv_ratio = 1.0e-5;
 		unsigned int max_iter = 100;
@@ -496,7 +496,7 @@ bool CEqnSystem_Fluid2D::ClearFixElemAry(
 	for(unsigned int ifix=0;ifix<m_aIdFixField.size();ifix++){
 		const unsigned int id_field_fix = m_aIdFixField[ifix].first;
 		const Fem::Field::CField& field = world.GetField(id_field_fix);
-		const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
 		if( aIdEA.size() != 1 ){
 			std::cout << "Error!-->Not Implimented" << std::endl;
 			assert(0);
@@ -566,7 +566,7 @@ bool CEqn_Fluid3D::SetDomain(unsigned int id_base, Fem::Field::CFieldWorld& worl
 	{
         assert( world.IsIdField(id_base) );
 		const CField& field_base = world.GetField(id_base);
-		const std::vector<unsigned int>& aIdEA = field_base.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field_base.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			unsigned int id_ea = aIdEA[iiea];
 			CElemAry& ea = world.GetEA(id_ea);
@@ -688,7 +688,7 @@ bool CEqn_Fluid3D::ClearFixElemAry(
 	for(unsigned int ifix=0;ifix<m_aIdFixField.size();ifix++){
 		const unsigned int id_field_fix = m_aIdFixField[ifix].first;
 		const Fem::Field::CField& field = world.GetField(id_field_fix);
-		const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
 		if( aIdEA.size() != 1 ){
 			std::cout << "Error!-->Not Implimented" << std::endl;
 			assert(0);

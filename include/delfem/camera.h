@@ -90,6 +90,7 @@ public:
 
 	void GetObjectCenter(double& x, double& y, double& z) const 
 	{ x=obj_center.x; y=obj_center.y; z=obj_center.z; }
+  CVector3D GetObjectCenter() const { return obj_center; }
 	// Set the center of object witch is used for Fit
 	void SetObjectCenter(const double& x, const double& y, const double& z)
 	{ obj_center.x=x; obj_center.y=y; obj_center.z=z; }
@@ -185,6 +186,10 @@ public:
 			z = 0.0; 
 		}
 	}
+  CVector3D GetCenterPosition(){
+    double x,y,z; this->GetCenterPosition(x,y,z);
+    return CVector3D(x,y,z);
+  }
 	void MousePan(const double& mov_begin_x, const double& mov_begin_y,
 		const double& mov_end_x, const double& mov_end_y ){
 			win_center_x += (mov_end_x - mov_begin_x)*inv_scale;
@@ -215,6 +220,10 @@ public:
 		}
 		else if( rot_mode == ROT_3D ){  rot_quat.RotMatrix33(m);  }
 	}
+  CMatrix3 RotMatrix33() const{
+    double r[9];  this->RotMatrix33(r);
+    return CMatrix3(r);
+  }
 	void RotMatrix44Trans(double m[]) const {
 		double m1[9];
 		this->RotMatrix33(m1);

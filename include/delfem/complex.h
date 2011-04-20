@@ -62,10 +62,8 @@ public:
 	Complex(const double& real);
 	Complex(){};
 
-	//! ŽÀ•”‚ð“¾‚é
-	inline double Real() const { return real; }
-	//! ‹••”‚ð“¾‚é
-	inline double Imag() const { return imag; }
+	inline double Real() const { return real; }	//!< Get Real Part
+	inline double Imag() const { return imag; }	//!< Get Imaginary Part
 
 private:
 	double real;	//!< ŽÀ•”

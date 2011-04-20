@@ -414,7 +414,7 @@ bool CEqnSystem_DKT::ClearFixElemAry(
 	for(unsigned int ifix=0;ifix<m_aIdFixField.size();ifix++){
 		const unsigned int id_field_fix = m_aIdFixField[ifix].first;
 		const Fem::Field::CField& field = world.GetField(id_field_fix);
-		const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
 		if( aIdEA.size() != 1 ){
 			std::cout << "Error!-->Not Implimented" << std::endl;
 			assert(0);

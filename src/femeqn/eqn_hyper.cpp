@@ -99,7 +99,7 @@ bool Fem::Eqn::AddLinSys_Hyper2D_Static(
         }
     }
 	else{
-		const std::vector<unsigned int>& aIdEA = field_disp.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field_disp.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = AddLinSys_Hyper2D_Static(ls,
@@ -133,7 +133,7 @@ bool Fem::Eqn::AddLinSys_Hyper3D_Static(
         }
     }
 	else{
-		const std::vector<unsigned int>& aIdEA = field_disp.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field_disp.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = AddLinSys_Hyper3D_Static(ls,
@@ -173,7 +173,7 @@ bool Fem::Eqn::AddLinSys_Hyper3D_NonStatic_NewmarkBeta(
 		}
 	}
 	else{
-		const std::vector<unsigned int>& aIdEA = field_disp.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = field_disp.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = AddLinSys_Hyper3D_NonStatic_NewmarkBeta(

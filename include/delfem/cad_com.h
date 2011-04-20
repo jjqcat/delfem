@@ -43,6 +43,8 @@ enum CAD_ELEM_TYPE{
   LOOP,     //!< loop
 	SOLID,		//!< solid
 };
+  
+  
 
 //! iterator go around loop
 class IItrLoop

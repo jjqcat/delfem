@@ -84,7 +84,7 @@ public:
 		assert( world.IsIdEA(id_ea) );
 		if( !world.IsIdField(id_field_velo) ) return false;
 		if( !world.IsIdEA(id_ea) ) return false;
-		const Fem::Field::CField& fv = world.GetField(id_field_velo);
+//		const Fem::Field::CField& fv = world.GetField(id_field_velo);
 		const Fem::Field::CElemAry& ea = world.GetEA(id_ea);
 		assert( ea.ElemType() == Fem::Field::LINE );
 		if( ea.ElemType() != Fem::Field::LINE ) return false;

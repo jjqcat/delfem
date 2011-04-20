@@ -378,7 +378,7 @@ bool Fem::Eqn::AddLinSys_Diffusion(
 		}
 	}
 	else{
-		const std::vector<unsigned int> aIdEA = field_val.GetAry_IdElemAry();
+		const std::vector<unsigned int> aIdEA = field_val.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = Fem::Eqn::AddLinSys_Diffusion(
@@ -542,7 +542,7 @@ bool Fem::Eqn::AddLinSys_Diffusion_AxSym(
 		}
 	}
 	else{
-		const std::vector<unsigned int> aIdEA = field_val.GetAry_IdElemAry();
+		const std::vector<unsigned int> aIdEA = field_val.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = Fem::Eqn::AddLinSys_Diffusion(
@@ -798,7 +798,7 @@ bool Fem::Eqn::AddLinSys_Diffusion(
 		}
 	}
 	else{
-		const std::vector<unsigned int> aIdEA = field_val.GetAry_IdElemAry();
+		const std::vector<unsigned int> aIdEA = field_val.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res =  Fem::Eqn::AddLinSys_Diffusion(

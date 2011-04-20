@@ -350,7 +350,7 @@ double LsSol::MinimumEigenValueVector_InvPower(
 		ls.SCAL(1.0/normx,iupd);
 	}
 
-    double min_eigen;
+  double min_eigen;
 	for(itr_invp=0;itr_invp<max_itr_invp;itr_invp++)
 	{
 		ls.COPY(iupd,ires);
@@ -358,8 +358,8 @@ double LsSol::MinimumEigenValueVector_InvPower(
 		{	// s—ñ‚Ì‹t‚ð‹‚ß‚é
 			double conv_ratio = conv_ratio_lssol;
 			unsigned int num_iter = itr_lssol;
-            LsSol::CLinearSystemPreconditioner lsp(ls,pls);
-            bool res = LsSol::Solve_PCG(conv_ratio, num_iter, lsp);
+      LsSol::CLinearSystemPreconditioner lsp(ls,pls);
+      bool res = LsSol::Solve_PCG(conv_ratio, num_iter, lsp);
 //			std::cout << "PCG iter : " << num_iter << " " << conv_ratio << std::endl;
 			if( !res ){ 
 				iflag_conv = 1;	// ICCG‚ªŽû‘©‚µ‚È‚©‚Á‚½ƒtƒ‰ƒO

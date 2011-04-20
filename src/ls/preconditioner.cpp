@@ -216,9 +216,10 @@ void LsSol::CPreconditioner_ILU::SetLinearSystem(const CLinearSystem& ls)
 // ILU分解が成功しているかどうかはもっと詳細なデータを返したい
 bool LsSol::CPreconditioner_ILU::SetValue(const LsSol::CLinearSystem& ls)
 {
-//    std::cout << "0 prec : set linsys " << std::endl;
-//    std::cout << "SetValue and LU decompose " << std::endl;
-
+  
+  //    std::cout << "0 prec : set linsys " << std::endl;
+  //    std::cout << "SetValue and LU decompose " << std::endl;
+  
 	const unsigned int nlss = ls.GetNLinSysSeg();
 	if( m_is_ordering ){
 		assert( nlss == 1 );
@@ -226,70 +227,73 @@ bool LsSol::CPreconditioner_ILU::SetValue(const LsSol::CLinearSystem& ls)
 		if( !m_Matrix_Dia[0]->DoILUDecomp() ){ return false; }
 		return true;
 	}
-        
+  
 	////////////////
 	// 値をコピー
 	for(unsigned int ilss=0;ilss<nlss;ilss++){
-//        std::cout << "   0SetValue Dia : " << ilss << std::endl;
-        assert( m_Matrix_Dia[ilss] != 0 );
+    //        std::cout << "   0SetValue Dia : " << ilss << std::endl;
+    assert( m_Matrix_Dia[ilss] != 0 );
 		m_Matrix_Dia[ilss]->SetValue_Initialize( ls.GetMatrix(ilss) );
-//        std::cout << "   1SetValue Dia : " << ilss << std::endl;
+    //        std::cout << "   1SetValue Dia : " << ilss << std::endl;
 		for(unsigned int jlss=0;jlss<nlss;jlss++){
-            if( ilss == jlss ){ continue; }
-            if( !ls.IsMatrix(ilss,jlss) && m_Matrix_NonDia[ilss][jlss] != 0 ){ 
-                m_Matrix_NonDia[ilss][jlss] -> SetZero();
-                continue;
-            }
-            if( !ls.IsMatrix(ilss,jlss) ) continue;
-//            std::cout << "   0Set Value : " << ilss << " " << jlss << std::endl;
-    		m_Matrix_NonDia[ilss][jlss]->SetValue_Initialize( ls.GetMatrix(ilss,jlss) );
-//            std::cout << "   1Set Value : " << ilss << " " << jlss << std::endl;
-    	}
+      if( ilss == jlss ){ continue; }
+      if( !ls.IsMatrix(ilss,jlss) && m_Matrix_NonDia[ilss][jlss] != 0 ){ 
+        m_Matrix_NonDia[ilss][jlss] -> SetZero();
+        continue;
+      }
+      if( !ls.IsMatrix(ilss,jlss) ) continue;
+      //            std::cout << "   0Set Value : " << ilss << " " << jlss << std::endl;
+      m_Matrix_NonDia[ilss][jlss]->SetValue_Initialize( ls.GetMatrix(ilss,jlss) );
+      //            std::cout << "   1Set Value : " << ilss << " " << jlss << std::endl;
+    }
 	}
-    
-//    std::cout << "1 prec : set linsys " << std::endl;
+  
+  //    std::cout << "1 prec : set linsys " << std::endl;
 	////////////////
 	// ILU分解
-    for(unsigned int ilss=0;ilss<nlss;ilss++){
+  for(unsigned int ilss=0;ilss<nlss;ilss++){
     for(unsigned int jlss=0;jlss<nlss;jlss++){
-        if( ilss == jlss ){
-            for(unsigned int klss=0;klss<ilss;klss++){
-				if( m_Matrix_NonDia[ilss][klss] && m_Matrix_NonDia[klss][ilss] ){
-//					std::cout << "ILU Frac Dia LowUp:" << ilss << " " << klss << " " << ilss << std::endl;
-					if( !m_Matrix_Dia[ilss]->DoILUDecompLowUp( 
-						*m_Matrix_NonDia[ilss][klss],
-						*m_Matrix_NonDia[klss][ilss] ) ){ return false; }
-				}
-            }
-//		    std::cout << "ILU Frac Dia:" << ilss << std::endl;
-			if( !m_Matrix_Dia[ilss]->DoILUDecomp() ){ return false; }
+      if( ilss == jlss ){
+        for(unsigned int klss=0;klss<ilss;klss++){
+          if( m_Matrix_NonDia[ilss][klss] && m_Matrix_NonDia[klss][ilss] ){
+            //					std::cout << "ILU Frac Dia LowUp:" << ilss << " " << klss << " " << ilss << std::endl;
+            if( !m_Matrix_Dia[ilss]->DoILUDecompLowUp( 
+                                                      *m_Matrix_NonDia[ilss][klss],
+                                                      *m_Matrix_NonDia[klss][ilss] ) ){ return false; }
+          }
         }
-        else{
-            if( m_Matrix_NonDia[ilss][jlss] == 0 ) continue;
-            const unsigned int kmax = ( ilss < jlss ) ? ilss : jlss;
-            for(unsigned int klss=0;klss<kmax+1;klss++){
-                if( klss == ilss && klss < jlss ){
-//				    std::cout << "ILU Frac Up:" << ilss << " " << klss << " " << jlss << std::endl;
-					if( !m_Matrix_NonDia[ilss][jlss]->DoILUDecompUp(  *m_Matrix_Dia[ilss] ) ){ return false; }
-                    continue;
-                }
-                if( klss == jlss && klss < ilss ){
-//				    std::cout << "ILU Frac Low:" << ilss << " " << klss << " " << jlss << std::endl;
-					if( !m_Matrix_NonDia[ilss][jlss]->DoILUDecompLow( *m_Matrix_Dia[jlss] ) ){ return false; }
-                    continue;
-                }
-                if( m_Matrix_NonDia[ilss][klss] == 0 || m_Matrix_NonDia[klss][jlss] == 0 ){ continue; }
-                assert( klss < ilss );
-                assert( klss < jlss );
-//				std::cout << "ILU Frac LowUp:" << ilss << " " << klss << " " << jlss << std::endl;
-                if( !m_Matrix_NonDia[ilss][jlss]->DoILUDecompLowUp( 
-					*m_Matrix_NonDia[ilss][klss],
-					*m_Matrix_NonDia[klss][jlss] ) ){ return false; }
-            }
+        //		    std::cout << "ILU Frac Dia:" << ilss << std::endl;
+        if( !m_Matrix_Dia[ilss]->DoILUDecomp() ){ 
+          std::cout << "ilu frac false 33 matrix non-ordered" << std::endl;
+          return false; 
         }
+      }
+      else{
+        if( m_Matrix_NonDia[ilss][jlss] == 0 ) continue;
+        const unsigned int kmax = ( ilss < jlss ) ? ilss : jlss;
+        for(unsigned int klss=0;klss<kmax+1;klss++){
+          if( klss == ilss && klss < jlss ){
+            //				    std::cout << "ILU Frac Up:" << ilss << " " << klss << " " << jlss << std::endl;
+            if( !m_Matrix_NonDia[ilss][jlss]->DoILUDecompUp(  *m_Matrix_Dia[ilss] ) ){ return false; }
+            continue;
+          }
+          if( klss == jlss && klss < ilss ){
+            //				    std::cout << "ILU Frac Low:" << ilss << " " << klss << " " << jlss << std::endl;
+            if( !m_Matrix_NonDia[ilss][jlss]->DoILUDecompLow( *m_Matrix_Dia[jlss] ) ){ return false; }
+            continue;
+          }
+          if( m_Matrix_NonDia[ilss][klss] == 0 || m_Matrix_NonDia[klss][jlss] == 0 ){ continue; }
+          assert( klss < ilss );
+          assert( klss < jlss );
+          //				std::cout << "ILU Frac LowUp:" << ilss << " " << klss << " " << jlss << std::endl;
+          if( !m_Matrix_NonDia[ilss][jlss]->DoILUDecompLowUp( 
+                                                             *m_Matrix_NonDia[ilss][klss],
+                                                             *m_Matrix_NonDia[klss][jlss] ) ){ return false; }
+        }
+      }
     }
-    }
-	return true;
+  }
+	return true;  
 }
 
 

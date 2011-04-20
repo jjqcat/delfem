@@ -452,7 +452,7 @@ bool Fem::Eqn::AddLinSys_Poisson(
 		}
 	}
 	else{
-		const std::vector<unsigned int> aIdEA = val_field.GetAry_IdElemAry();
+		const std::vector<unsigned int> aIdEA = val_field.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = Fem::Eqn::AddLinSys_Poisson(
@@ -707,7 +707,7 @@ bool Fem::Eqn::AddLinSys_Poisson(
 		}
 	}
 	else{
-		const std::vector<unsigned int>& aIdEA = val_field.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = val_field.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			bool res = Fem::Eqn::AddLinSys_Poisson(
@@ -811,7 +811,7 @@ bool Fem::Eqn::AddLinearSystem_Wave(
 
 	if( val_field.GetFieldType() != SCALAR ) return false;
 
-	const std::vector<unsigned int>& aIdEA = val_field.GetAry_IdElemAry();
+	const std::vector<unsigned int>& aIdEA = val_field.GetAryIdEA();
 	for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 		const unsigned int id_ea = aIdEA[iiea];
 		if( val_field.GetInterpolationType(id_ea,world) == TRI11 ){

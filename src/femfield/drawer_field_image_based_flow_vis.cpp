@@ -270,8 +270,8 @@ void CDrawerImageBasedFlowVis::SetColorField(unsigned int id_field_color, const 
 	if( !world.IsIdField(this->m_IdFieldVelo) ) return;
 	const Fem::Field::CField& fv = world.GetField(m_IdFieldVelo);
 	const Fem::Field::CField& fc = world.GetField(id_field_color);
-	const std::vector<unsigned int>& aIdEA_v = fv.GetAry_IdElemAry();
-	const std::vector<unsigned int>& aIdEA_c = fc.GetAry_IdElemAry();
+	const std::vector<unsigned int>& aIdEA_v = fv.GetAryIdEA();
+	const std::vector<unsigned int>& aIdEA_c = fc.GetAryIdEA();
 	assert( aIdEA_v.size() == aIdEA_c.size() );
 	if( aIdEA_v.size() != aIdEA_c.size() ) return;
 	for(unsigned int iiea=0;iiea<aIdEA_v.size();iiea++){
@@ -295,7 +295,7 @@ bool CDrawerImageBasedFlowVis::Set(unsigned int id_field_velo, const Fem::Field:
 	
 	////////////////////////////////
 	{	// óvëfîzóÒÇÃê›íË
-		const std::vector<unsigned int>& aIdEA = fv.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = fv.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			assert( world.IsIdEA(id_ea) );
@@ -310,7 +310,7 @@ bool CDrawerImageBasedFlowVis::Set(unsigned int id_field_velo, const Fem::Field:
 //	if( aVelo ==0 ){ aVelo  = new double [nnode*2]; }
 //	if( aCoord == 0 ){ aCoord = new double [nnode*2]; }
 /*
-	const std::vector<unsigned int>& aIdEA = fv.GetAry_IdElemAry();
+	const std::vector<unsigned int>& aIdEA = fv.GetAryIdEA();
 	unsigned int nelem0 = 0;
 	for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 		const unsigned int id_ea = aIdEA[iiea];
@@ -339,7 +339,7 @@ bool CDrawerImageBasedFlowVis::Update(const Fem::Field::CFieldWorld& world)
 	const Fem::Field::CField& fv = world.GetField(this->m_IdFieldVelo);
 	////////////////////////////////
 	{	// óvëfîzóÒÇÃê›íË
-		const std::vector<unsigned int>& aIdEA = fv.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA = fv.GetAryIdEA();
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){
 			const unsigned int id_ea = aIdEA[iiea];
 			assert( world.IsIdEA(id_ea) );
@@ -350,7 +350,7 @@ bool CDrawerImageBasedFlowVis::Update(const Fem::Field::CFieldWorld& world)
 			this->m_apIndexArrayElem.push_back( pIAE );
 		}
 	}
-/*	const std::vector<unsigned int>& aIdEA = fv.GetAry_IdElemAry();
+/*	const std::vector<unsigned int>& aIdEA = fv.GetAryIdEA();
 	{
 		unsigned int nelem0 = 0;
 		for(unsigned int iiea=0;iiea<aIdEA.size();iiea++){

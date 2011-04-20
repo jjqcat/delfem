@@ -108,7 +108,7 @@ public:
 	class CNodeSegInNodeAry{
   public:
 		unsigned int id_na_co;
-    bool is_part_co;		//!< 要素によってこの座標NAが全て参照されるかどうか//!< 要素によってこの値NAが全て参照されるかどうか
+    bool is_part_co;		//!< is all the nodes are refered by element
     unsigned int id_ns_co;
 		unsigned int id_na_va;
     bool is_part_va;
@@ -156,8 +156,7 @@ public:
 	// 親フィールドなら０を返す
 	unsigned int GetIDFieldParent() const {	return this->m_id_field_parent; }
 
-	// 補間のタイプを取得する
-	std::vector<unsigned int> GetAry_IdElemAry() const {
+	std::vector<unsigned int> GetAryIdEA() const {
 		std::vector<unsigned int> aIdEA;
 		for(unsigned int iei=0;iei<m_aElemIntp.size();iei++){
 			aIdEA.push_back( m_aElemIntp[iei].id_ea );
@@ -225,11 +224,6 @@ private:
 
 	////////////////
 	unsigned int m_DofSize;
-
-	// 外部依存場の場合（FieldWorldに依存関係の木を作成するつもり）
-	// 勾配と歪（線形，非線形）ぐらい？
-//	unsigned int m_id_field_dep;
-//	bool m_is_gradient;
 };	// end class CField;
 
 }	// end namespace Field

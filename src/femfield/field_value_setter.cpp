@@ -27,7 +27,7 @@ bool Fem::Field::SetFieldValue_Constant
 	if( idofns >= field.GetNLenValue() ) return false;
 	if( !(field.GetFieldDerivativeType() & fdt) ) return false;
   
-  const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();
+  const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();
   
   if( field.GetNodeSegInNodeAry(CORNER).id_na_va != 0 ){
     const CField::CNodeSegInNodeAry& nsna = field.GetNodeSegInNodeAry(CORNER);      
@@ -113,7 +113,7 @@ bool Fem::Field::SetFieldValue_MathExp
 	if( idofns >= field.GetNLenValue() ) return false;
 	if( !(field.GetFieldDerivativeType() & fdt) ) return false;
   
-  const std::vector<unsigned int>& aIdEA = field.GetAry_IdElemAry();  
+  const std::vector<unsigned int>& aIdEA = field.GetAryIdEA();  
   
   if( field.GetNodeSegInNodeAry(CORNER).id_na_va != 0 ){
     CEval eval;
@@ -376,7 +376,7 @@ bool Fem::Field::SetFieldValue_Gradient
 	if( !world.IsIdField(id_field_to) ) return false;
 	Fem::Field::CField& field_to = world.GetField(id_field_to);  
   
-	if( field_to.GetAry_IdElemAry().size() != 1 ){
+	if( field_to.GetAryIdEA().size() != 1 ){
 		std::cout << "Error!-->Not Implimented" << std::endl;
 		getchar();
 		assert(0);
@@ -384,8 +384,8 @@ bool Fem::Field::SetFieldValue_Gradient
   
 	Fem::Field::INTERPOLATION_TYPE type_from, type_to;
 	{
-		const std::vector<unsigned int>& aIdEA_from = field_from.GetAry_IdElemAry();
-		const std::vector<unsigned int>& aIdEA_to   = field_to.GetAry_IdElemAry();
+		const std::vector<unsigned int>& aIdEA_from = field_from.GetAryIdEA();
+		const std::vector<unsigned int>& aIdEA_to   = field_to.GetAryIdEA();
 		if( aIdEA_from.size() != aIdEA_to.size() ) return false;
 		const unsigned int niea = aIdEA_from.size();
 		assert( niea == 1 );
@@ -411,7 +411,7 @@ bool Fem::Field::SetFieldValue_Gradient
 		getchar();
 	}
   
-	unsigned int id_ea = field_to.GetAry_IdElemAry()[0];
+	unsigned int id_ea = field_to.GetAryIdEA()[0];
 	const CElemAry& ea = world.GetEA(id_ea);
 	const CElemAry::CElemSeg& es_c_co = field_from.GetElemSeg(id_ea,CORNER,false,world);
 	const CElemAry::CElemSeg& es_c_va = field_from.GetElemSeg(id_ea,CORNER,true, world);
@@ -517,6 +517,7 @@ bool Fem::Field::SetFieldValue_Gradient
 			}
 		}
 	}  
+  return true;
 }
 
 Fem::Field::CFieldValueSetter::CFieldValueSetter
@@ -615,5 +616,6 @@ bool Fem::Field::CFieldValueSetter::ExecuteValue
       SetFieldValue_MathExp(id_field_,ilen,ACCELERATION,world,aValueFieldDof_[ilen+nlen*2].math_exp,cur_time);
     }
   }    
+  return true;
 }
 
