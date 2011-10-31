@@ -440,7 +440,7 @@ bool CDrawerImageBasedFlowVis::Update(const Fem::Field::CFieldWorld& world)
 	return true;
 }
 
-Com::CBoundingBox3D CDrawerImageBasedFlowVis::GetBoundingBox( double rot[] ) const
+Com::CBoundingBox3D CDrawerImageBasedFlowVis::GetBoundingBox( const double rot[] ) const
 {
 	if( nnode == 0 ){ return Com::CBoundingBox3D(-1,1, -1,1, 0,0); }
 	double x_min,x_max, y_min,y_max;

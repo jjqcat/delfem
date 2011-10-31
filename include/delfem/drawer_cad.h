@@ -115,8 +115,8 @@ public :
     cent_x = this->tex_cent_x;
     cent_y = this->tex_cent_y;
   }    
-	//! バウンディング・ボックスを得る
-	virtual Com::CBoundingBox3D GetBoundingBox( double rot[] ) const {
+	//! get bounding box. z direction is -1 to 1.
+	virtual Com::CBoundingBox3D GetBoundingBox( const double rot[] ) const {
 		return m_vertex_ary.GetBoundingBox(	rot );
 	}
 	//! Hilight表示する要素に加える(selection_flagから)

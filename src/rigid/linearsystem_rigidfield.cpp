@@ -560,9 +560,10 @@ void Ls::CLinearSystem_RigidField2::SetRigidSystem(const std::vector<Rigid::CRig
 }
 
 
-bool Ls::CLinearSystem_RigidField2::UpdateValueOfRigidSystem(
-                                                             std::vector<Rigid::CRigidBody3D>& aRB, std::vector<Rigid::CConstraint*>& aConst, 
-                                                             double dt, double newmark_gamma, double newmark_beta,         bool is_first) const
+bool Ls::CLinearSystem_RigidField2::UpdateValueOfRigidSystem
+(std::vector<Rigid::CRigidBody3D>& aRB, std::vector<Rigid::CConstraint*>& aConst, 
+ double dt, double newmark_gamma, double newmark_beta,         
+ bool is_first) const
 {
   assert( ilss_rigid < m_ls.GetNLinSysSeg() );
   const MatVec::CVector_Blk& upd = m_ls.GetVector(-2,ilss_rigid);
@@ -578,9 +579,9 @@ bool Ls::CLinearSystem_RigidField2::UpdateValueOfRigidSystem(
     for(unsigned int ilen=0;ilen<nlen;ilen++){
       tmp[ilen] = upd.GetValue(irb,ilen);
     }
-    aRB[irb].UpdateSolution( tmp, 
-                            dt, newmark_gamma, newmark_beta, 
-                            is_first);
+    aRB[irb].UpdateSolution_NewmarkBetaAPrime( tmp, 
+                                              dt, newmark_gamma, newmark_beta, 
+                                              is_first);
   }
   for(unsigned int icst=0;icst<aConst.size();icst++){
     const unsigned int nlen = upd.Len(icst+nRB);
@@ -588,9 +589,7 @@ bool Ls::CLinearSystem_RigidField2::UpdateValueOfRigidSystem(
     for(unsigned int ilen=0;ilen<nlen;ilen++){
       tmp[ilen] = upd.GetValue(icst+nRB,ilen);
     }
-    aConst[icst]->UpdateSolution( tmp, 
-                                 dt, newmark_gamma, newmark_beta );
-  }
+    aConst[icst]->UpdateLambda_NewmarkBetaAPrime( tmp, dt,newmark_gamma,newmark_beta );  }
   return true;
   return true;
 }

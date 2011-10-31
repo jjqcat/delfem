@@ -40,7 +40,7 @@ using namespace Fem::Ls;
 Fem::Field::CFieldWorld world;
 double dt = 0.02;
 View::CDrawerArrayField drawer_ary;
-Com::View::CCamera camera;
+Com::View::CCamera_2D camera;
 double mov_begin_x, mov_begin_y;
 
 bool SetNewProblem()
@@ -123,8 +123,8 @@ bool SetNewProblem()
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_val,true,world, id_field_val,-0.05,0.05) );
 //		drawer_ary.PushBack( new View::CDrawerFaceContour(id_field_val,world) );
-		drawer_ary.PushBack( new View::CDrawerEdge(id_field_val,true,world) );
-		drawer_ary.InitTrans(camera);	
+		drawer_ary.PushBack( new View::CDrawerEdge(id_field_val,true,world) );    
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3() ) );
 	}
 	iprob++;
 	if( iprob == nprob ) iprob=0;

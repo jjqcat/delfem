@@ -105,7 +105,7 @@ public:
 		MakeStreamLine(m_IdFieldVelo, world, aStLine);
 		return true;
 	}
-	Com::CBoundingBox3D GetBoundingBox( double rot[] ) const;
+	Com::CBoundingBox3D GetBoundingBox( const double rot[] ) const;
 	virtual void AddSelected(const int selec_flag[]){}
 	virtual void ClearSelected(){}
 	virtual void DrawSelection(unsigned int idraw) const {}

@@ -582,7 +582,7 @@ CBRepSurface::CItrVertex CCadObj2D::FindCorner_HalfLine(unsigned int id_v, const
 {
 	assert( m_VertexSet.IsObjID(id_v) );
 	Com::CVector2D dir = dir1;
-	dir.Normalize();
+  dir.SetNormalizedVector();
 	const Com::CVector2D vec_zero(0,0);
 	Cad::CBRepSurface::CItrVertex itrv = this->m_BRep.GetItrVertex(id_v);
 	if( itrv.CountEdge() < 2 ){ return itrv; }

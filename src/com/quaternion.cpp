@@ -86,13 +86,15 @@ Com::CQuaternion operator*(const CQuaternion& lhs, const CQuaternion& rhs){ /* Ž
 
 CVector3D Rotate(const CQuaternion& quat, const CVector3D& vec){
 	CQuaternion tmp(0, vec);
-	tmp = quat.GetConjugate() *  tmp * quat ;
+	tmp = quat *  (tmp * quat.GetConjugate());  
+//	tmp = quat.GetConjugate() *  tmp * quat ;   
 	return tmp.GetVector();
 }
 
 CVector3D UnRotate(const CQuaternion& quat, const CVector3D& vec){
 	CQuaternion tmp(0, vec);
-	tmp = quat * tmp * quat.GetConjugate();
+	tmp = (quat.GetConjugate() *  tmp) * quat ; 
+//	tmp = quat *  tmp * quat.GetConjugate();    
 	return tmp.GetVector();
 }
 
@@ -159,6 +161,34 @@ CQuaternion CQuaternion::GetConjugate() const{
 	return tmp;
 }
 
+void CQuaternion::RotMatrix44(double* m) const
+{
+  
+	double vx=vector.x, vy=vector.y, vz=vector.z;
+  
+	m[ 0] = 1.0 - 2.0 * ( vy * vy + vz * vz );
+	m[ 4] = 2.0 * ( vx * vy - vz * real );
+	m[ 8] = 2.0 * ( vz * vx + vy * real );
+	m[12] = 0;
+  
+	m[ 1] = 2.0 * ( vx * vy + vz * real );
+	m[ 5] = 1.0 - 2.0 * ( vz * vz + vx * vx );
+	m[ 9] = 2.0 * ( vy * vz - vx * real );
+	m[13] = 0.0;
+  
+	m[ 2] = 2.0 * ( vz * vx - vy * real );
+	m[ 6] = 2.0 * ( vy * vz + vx * real );
+	m[10] = 1.0 - 2.0 * ( vy * vy + vx * vx );    
+	m[14] = 0.0;  
+  
+  m[ 3] = 0.0;
+  m[ 7] = 0.0;
+  m[11] = 0.0;
+  m[15] = 1.0;  
+}
+
+
+
 void CQuaternion::RotMatrix33(double* m) const
 {
 	double vx=vector.x, vy=vector.y, vz=vector.z;
@@ -192,7 +222,7 @@ void CQuaternion::AxisToQuat(const CVector3D &axis )
 		return;
 	}
 	vector = axis;
-	vector.Normalize();
+	vector.SetNormalizedVector();
 	vector *= sin( phi * 0.5 );
 	real = cos( phi * 0.5 );
 }
@@ -204,7 +234,7 @@ void CQuaternion::VectorTrans(const CVector3D& a_vector, const CVector3D& b_vect
 		vector.SetZero();
 		return;
 	}
-	vector.Normalize();
+	vector.SetNormalizedVector();
 	double cos_theta = Dot(a_vector, b_vector) / ( a_vector.Length() * b_vector.Length() );
 	real = sqrt( 0.5*(1+cos_theta) );
 	vector *= sqrt( 0.5*(1-cos_theta) );
@@ -215,3 +245,22 @@ double CQuaternion::Length()
 {
 	return sqrt( real*real + vector.DLength() );
 }
+
+CQuaternion Com::SphericalLinearInterp(const CQuaternion& q0, const CQuaternion& q1, double t)
+{  
+  
+  double qr = q0.real * q1.real + Com::Dot(q0.vector,q1.vector);
+  double ss = 1.0 - qr * qr;
+  
+  if (ss == 0.0) { return q0; }
+  double sp = sqrt(ss);
+  double ph = acos(qr);
+  double pt = ph * t;
+  double t1 = sin(pt) / sp;
+  double t0 = sin(ph - pt) / sp;    
+  CQuaternion q;
+  q.real = t0*q0.real + t1*q1.real;
+  q.vector = t0*q0.vector + t1*q1.vector;
+  return q;
+}
+

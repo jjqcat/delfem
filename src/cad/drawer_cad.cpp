@@ -52,7 +52,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "delfem/drawer_cad.h"
 #include "delfem/cad2d_interface.h"
-
+#include "delfem/vector2d.h"
 #include "delfem/mesher2d.h"
 
 using namespace Cad::View;

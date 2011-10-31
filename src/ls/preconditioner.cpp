@@ -145,7 +145,7 @@ void LsSol::CPreconditioner_ILU::SetLinearSystem(const CLinearSystem& ls)
           m_Matrix_Dia[ilss]->AddFracPtnLowUp(lev_ij, 
                                               *m_Matrix_NonDia[ilss][klss],  *m_Matrix_NonDia[klss][jlss] );
         }
-        std::cout << "   add frac ptn dia " << ilss << " " << ilss << " " << jlss << std::endl;
+//        std::cout << "   add frac ptn dia " << ilss << " " << ilss << " " << jlss << std::endl;
         if( ilss == 0 && m_afill_blk.size() > 0 ){
           m_Matrix_Dia[ilss]->AddFracPtn(lev_ij,m_afill_blk);
         }

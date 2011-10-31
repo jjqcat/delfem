@@ -44,13 +44,15 @@ CQuaternion operator*(const CQuaternion&, const CQuaternion&);
 CVector3D Rotate(const CQuaternion&, const CVector3D&);
 CVector3D UnRotate(const CQuaternion&, const CVector3D&);
 //! @}
+  
+CQuaternion SphericalLinearInterp(const CQuaternion&, const CQuaternion&, double);
 
 //! class of Quaternion
 class CQuaternion  
 {
 public:
 	CQuaternion()
-		:vector(){
+		:vector(0,0,0){
 		real = 1.0;
 	}
 	CQuaternion(const CQuaternion& rhs)
@@ -73,10 +75,13 @@ public:
 	//! initialize from axial rotation vector
 	void AxisToQuat(const CVector3D& axis);
 	void VectorTrans(const CVector3D& a_vector, const CVector3D& b_vector);
-    void RotMatrix33(double* m) const;
+  void RotMatrix33(double* m) const;
+  void RotMatrix44(double* m) const;
+  
 
 	friend bool operator==(const CQuaternion&, const CQuaternion&);
 	friend bool operator!=(const CQuaternion&, const CQuaternion&);
+  friend CQuaternion SphericalLinearInterp(const CQuaternion&, const CQuaternion&, double);
 
 	CQuaternion& operator=(const CQuaternion&);
 	CQuaternion& operator+=(const CQuaternion&);

@@ -16,6 +16,43 @@ void RenderBitmapString(float x, float y, void *font,char *string)
   }
 }
 
+void DemoChangeCameraSpecialKey(int Key, Com::View::CCamera& camera){
+  switch(Key)
+	{
+    case GLUT_KEY_PAGE_UP:
+      if( ::glutGetModifiers() && GLUT_ACTIVE_SHIFT ){
+        if( camera.IsPers() ){
+          const double tmp_fov_y = camera.GetFovY() + 10.0;
+          camera.SetFovY( tmp_fov_y );
+        }
+      }
+      else{
+        const double tmp_scale = camera.GetScale() * 0.9;
+        camera.SetScale( tmp_scale );
+      }
+      break;
+    case GLUT_KEY_PAGE_DOWN:
+      if( ::glutGetModifiers() && GLUT_ACTIVE_SHIFT ){
+        if( camera.IsPers() ){
+          const double tmp_fov_y = camera.GetFovY() - 10.0;
+          camera.SetFovY( tmp_fov_y );
+        }
+      }
+      else{
+        const double tmp_scale = camera.GetScale() * 1.111;
+        camera.SetScale( tmp_scale );
+      }
+      break;
+    case GLUT_KEY_END :
+      if( camera.IsPers() ) camera.SetIsPers(false);
+        else{ camera.SetIsPers(true); }
+      break;
+    default:
+      break;
+	}
+}
+
+// Call this function at the begining
 void ShowBackGround()
 {  
   const bool is_lighting = ::glIsEnabled(GL_LIGHTING);

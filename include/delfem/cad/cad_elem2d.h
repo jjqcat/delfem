@@ -68,19 +68,15 @@ public:
 	unsigned int ilayer;
 };
   
-  
+/*  
 double GetDist_LineSeg_Point(const Com::CVector2D& po_c,
                              const Com::CVector2D& po_s, const Com::CVector2D& po_e);
-
 double GetDist_LineSeg_LineSeg(const Com::CVector2D& po_s0, const Com::CVector2D& po_e0,
                                const Com::CVector2D& po_s1, const Com::CVector2D& po_e1);
-
-  
-
 // line-line intersection detection
 bool IsCross_LineSeg_LineSeg(const Com::CVector2D& po_s0, const Com::CVector2D& po_e0,
                              const Com::CVector2D& po_s1, const Com::CVector2D& po_e1 );
-  
+*/  
 //! circle-circle interseciton detection
 bool IsCross_Circle_Circle(const Com::CVector2D& po_c0, double radius0,
                            const Com::CVector2D& po_c1, double radius1,
@@ -106,8 +102,10 @@ public:
   CEdge2D(const CEdge2D& rhs) :
   itype(rhs.itype),
   is_left_side(rhs.is_left_side), dist(rhs.dist), 
-  aRelCoMesh(rhs.aRelCoMesh),
-  id_v_s(rhs.id_v_s), id_v_e(rhs.id_v_e), po_s(rhs.po_s), po_e(rhs.po_e){
+//  aRelCoMesh(rhs.aRelCoMesh),
+  aCoMesh(rhs.aCoMesh),  
+  id_v_s(rhs.id_v_s), id_v_e(rhs.id_v_e), po_s(rhs.po_s), po_e(rhs.po_e)
+  {
     aRelCoBezier[0] = rhs.aRelCoBezier[0];
     aRelCoBezier[1] = rhs.aRelCoBezier[1];
     aRelCoBezier[2] = rhs.aRelCoBezier[2];
@@ -207,7 +205,14 @@ public:
   }
   void SetCurve_Polyline(const std::vector<double>& aRelCo){
     this->itype = CURVE_POLYLINE;
-    this->aRelCoMesh = aRelCo;
+    aCoMesh.clear();
+    const unsigned int n = aRelCo.size()/2;
+		Com::CVector2D v0 = po_e-po_s;
+		Com::CVector2D v1(-v0.y,v0.x);
+		for(unsigned int i=0;i<n;i++){
+			Com::CVector2D po0 = po_s + v0*aRelCo[i*2+0] + v1*aRelCo[i*2+1];
+      aCoMesh.push_back(po0);
+    }      
   }
   void SetCurve_Bezier(double cx0, double cy0, double cx1, double cy1){
     this->itype = CURVE_BEZIER;
@@ -218,7 +223,22 @@ public:
   }
   
   
-  const std::vector<double>& GetCurve_Polyline() const { return aRelCoMesh; }
+  std::vector<double> GetCurve_Polyline() const { 
+    std::vector<double> res;
+    const Com::CVector2D& ps = this->po_s;
+    const Com::CVector2D& pe = this->po_e;
+    const unsigned int npo = aCoMesh.size();
+    const double sqlen = Com::SquareLength(pe-ps);
+    const Com::CVector2D& eh = (pe-ps)*(1/sqlen);
+    const Com::CVector2D ev(-eh.y,eh.x);
+    for(unsigned int ipo=0;ipo<npo;ipo++){
+      double x1 = Com::Dot(aCoMesh[ipo]-ps,eh);
+      double y1 = Com::Dot(aCoMesh[ipo]-ps,ev);
+      res.push_back(x1);
+      res.push_back(y1);    
+    }
+    return res; 
+  }
   void GetCurve_Bezier(double aRelCo[]) const{
     aRelCo[0] = aRelCoBezier[0];
     aRelCo[1] = aRelCoBezier[1];
@@ -247,8 +267,8 @@ private:
 	// type Arc
   bool is_left_side;      //!< is the arc is formed left side of the line po_s, po_e
   double dist;            //!< the minimum distance between line and arc center point
-	// type Mesh
-  std::vector<double> aRelCoMesh;	//!< メッシュの節点の辺に対する相対座標(辺の左側にあったらｙ軸＋)
+	// type Polyline
+  std::vector<Com::CVector2D> aCoMesh;  
   // type Bezier
   double aRelCoBezier[4];
 private:

@@ -18,27 +18,32 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 #include "delfem/drawer.h"
-#include "delfem/camera.h"
 #include "delfem/vector3d.h"
+#include "delfem/matrix3d.h"
 #include "delfem/quaternion.h"
 
 using namespace Com::View;
 
-Com::CBoundingBox3D CDrawerArray::GetBoundingBox( double rm[] ) const
+Com::CBoundingBox3D CDrawerArray::GetBoundingBox( const double rm[] ) const
 {
 	if( m_drawer_ary.empty() ){
 		return CBoundingBox3D(-0.5,0.5, -0.5,0.5, -0.5,0.5);
 	}	
-    CBoundingBox3D bb = m_drawer_ary[0]->GetBoundingBox(rm);
+  CBoundingBox3D bb = m_drawer_ary[0]->GetBoundingBox(rm);
 	for(unsigned int idraw=1;idraw<m_drawer_ary.size();idraw++){
         bb += m_drawer_ary[idraw]->GetBoundingBox(rm);
 	}
 	return bb;
 }
 
+Com::CBoundingBox3D CDrawerArray::GetBoundingBox( const Com::CMatrix3& rm ) const {
+  double r[9]; rm.GetElements(r);
+  return this->GetBoundingBox(r);
+}
+
 // rot is 3 by 3 matrix for rotation
 // if rot is 0 this function don't perform rotation in measuring size
-Com::CBoundingBox3D CVertexArray::GetBoundingBox( double rot[] ) const
+Com::CBoundingBox3D CVertexArray::GetBoundingBox( const double rot[] ) const
 {
 	if( pVertexArray == 0 ){ return Com::CBoundingBox3D(); }
 	if( rot == 0 )  // object axis alligned bounding box
@@ -149,6 +154,7 @@ Com::CBoundingBox3D CVertexArray::GetBoundingBox( double rot[] ) const
 	return Com::CBoundingBox3D();
 }
 
+/*
 void CDrawerArray::InitTrans(Com::View::CCamera& camera ){
 	{	// get suitable rot mode
 		unsigned int irot_mode = 0;
@@ -164,4 +170,4 @@ void CDrawerArray::InitTrans(Com::View::CCamera& camera ){
 	double rot[9];	camera.RotMatrix33(rot);
 	Com::CBoundingBox3D bb = this->GetBoundingBox( rot );
 	camera.Fit(bb);
-}
+}*/

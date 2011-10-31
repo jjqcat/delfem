@@ -38,6 +38,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "delfem/msh/meshkernel3d.h"
 #include "delfem/mesher2d.h"
 #include "delfem/mesh3d.h"
+#include "delfem/octtree3d.h"
 
 using namespace Com;
 

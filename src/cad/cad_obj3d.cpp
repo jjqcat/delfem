@@ -147,8 +147,8 @@ unsigned int Cad::CCadObj3D::AddCuboid(double len_x, double len_y, double len_z)
     {
       const Com::CVector3D& v0 = this->GetVertexCoord(aIdV[iiv]);
       const Com::CVector3D& v1 = this->GetVertexCoord(aIdV[jiv]); 
-      Com::CVector3D x = (v0-v1);        x.Normalize();
-      Com::CVector3D n = Cross(x,dir_z); n.Normalize();
+      Com::CVector3D x = (v0-v1);        x.SetNormalizedVector();
+      Com::CVector3D n = Cross(x,dir_z); n.SetNormalizedVector();
       this->m_LoopSet.AddObj( std::make_pair(id_l0,CLoop3D(v0,n,x)) );
     }
   }
@@ -226,7 +226,7 @@ bool CCadObj3D::FindIntersectionEdge
  Com::CVector2D& p_nearest)
 {  
   id_e_nearest = 0;
-  Com::CVector2D dir = poe-pos; dir.Normalize();
+  Com::CVector2D dir = poe-pos; dir.SetNormalizedVector();
   double sqdist = -1;
   for(Cad::CBRepSurface::CItrLoop pItr = m_BRep.GetItrLoop(id_l);!pItr.IsEndChild();pItr.ShiftChildLoop()){
     for(;!pItr.IsEnd();pItr++){
@@ -347,7 +347,7 @@ void Cad::CCadObj3D::LiftLoop(unsigned int id_l, Com::CVector3D dir)
   std::vector< std::vector<CLiftEdgeProp> > LoopEV;
   {
     Com::CVector3D udir = dir;
-    udir.Normalize();
+    udir.SetNormalizedVector();
     for(CBRepSurface::CItrLoop itr=m_BRep.GetItrLoop(id_l);!itr.IsEndChild();itr.ShiftChildLoop()){
       unsigned int iiul = LoopEV.size();
       LoopEV.resize(iiul+1);
@@ -430,8 +430,8 @@ void Cad::CCadObj3D::LiftLoop(unsigned int id_l, Com::CVector3D dir)
       {
         const Com::CVector3D& v0 = this->GetVertexCoord(aIdE[iiv].id_v_out);
         const Com::CVector3D& v1 = this->GetVertexCoord(aIdE[jiv].id_v_out); 
-        Com::CVector3D x = v1-v0;        x.Normalize();
-        Com::CVector3D n = Cross(x,dir); n.Normalize();
+        Com::CVector3D x = v1-v0;        x.SetNormalizedVector();
+        Com::CVector3D n = Cross(x,dir); n.SetNormalizedVector();
         this->m_LoopSet.AddObj( std::make_pair(id_l_add,CLoop3D(v0,n,x)) );
       }
     }

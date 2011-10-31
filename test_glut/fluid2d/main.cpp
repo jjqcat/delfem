@@ -48,7 +48,7 @@ void myGlutIdle(){
 	glutPostRedisplay();
 }
 
-Com::View::CCamera camera;
+Com::View::CCamera_2D camera;
 double mov_begin_x, mov_begin_y;
 bool is_animation = true;
 int imodifier;
@@ -128,7 +128,7 @@ void myGlutSpecial(int Key, int x, int y)
 		}
 		break;
 	case GLUT_KEY_HOME :
-		camera.Fit();
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );      
 		break;
 	case GLUT_KEY_END :
 		if( camera.IsPers() ) camera.SetIsPers(false);
@@ -251,7 +251,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerEdge(id_field_velo,true,world) );
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerImageBasedFlowVis(id_field_velo,world,1) );
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerStreamline(id_field_velo,world) );
-		drawer_ary.InitTrans( camera );
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );
 	}
 	else if( iprob == 1 )	// cavity flow (non-stationary storks)
 	{
@@ -297,7 +297,7 @@ void SetNewProblem()
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerVector(id_field_velo,world) );
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_press,true,world, id_field_press) );
-		drawer_ary.InitTrans( camera );
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );
 	}
 	else if( iprob == 5 ) // l shaped flow
 	{
@@ -350,7 +350,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_press,true,world, id_field_press) );
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerEdge(id_field_velo,true,world) );
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerStreamline(id_field_velo,world) );
-		drawer_ary.InitTrans( camera );
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );
 	}
 	else if( iprob == 6 )
 	{
@@ -399,7 +399,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_press,true,world,id_field_press) );
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerEdge(id_base,true,world) );
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerVector(id_field_velo,world) );
-		drawer_ary.InitTrans( camera );
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );
 	}
 	else if( iprob == 8 ){
 		fluid.SetIsStationary(false);
@@ -465,7 +465,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerEdge(id_field_velo,true,world) );
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerImageBasedFlowVis(id_field_velo,world,1) );
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerStreamline(id_field_velo,world) );
-		drawer_ary.InitTrans( camera );
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );
 	}
 	else if( iprob == 11 )	// two element array problem
 	{
@@ -516,7 +516,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_press,true,world,id_field_press) );
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerStreamline(id_field_velo,world) );
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerFaceContour(id_field_press,world) );    
-		drawer_ary.InitTrans( camera );
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );
 	}
   else if( iprob == 12 ){ // back-step flow
 		Cad::CCadObj2D cad_2d;
@@ -577,7 +577,7 @@ void SetNewProblem()
     //		drawer_ary.PushBack( new Fem::Field::View::CDrawerFaceContour(id_field_press,world) );
     //		drawer_ary.PushBack( new Fem::Field::View::CDrawerImageBasedFlowVis(id_field_velo,world,1) );
     //		drawer_ary.PushBack( new Fem::Field::View::CDrawerStreamline(id_field_velo,world) );        
-		drawer_ary.InitTrans( camera );
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );
 	}
 	if( iprob == 13 ){ // buoyant problem
 		Cad::CCadObj2D cad_2d;
@@ -633,7 +633,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_press,true,world,id_field_press) );    
     //		drawer_ary.PushBack( new Fem::Field::View::CDrawerFaceContour(id_field_press,world);
     //		drawer_ary.PushBack( new Fem::Field::View::CDrawerStreamline(id_field_velo,world) );
-		drawer_ary.InitTrans( camera );
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );
 	}
 	else if( iprob == 14 )
 	{
@@ -728,7 +728,7 @@ void SetNewProblem()
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerImageBasedFlowVis(id_field_velo,world,1) );
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerStreamline(id_field_velo,world) );
 //		drawer_ary.PushBack( new Fem::Field::View::CDrawerFaceContour(id_field_press,world) );
-		drawer_ary.InitTrans( camera );
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );
 	}
 	
 	::glMatrixMode(GL_PROJECTION);

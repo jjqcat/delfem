@@ -477,7 +477,7 @@ void Fem::Field::View::MakeStreamLine(
 }
 
 
-Com::CBoundingBox3D Fem::Field::View::CDrawerStreamline::GetBoundingBox( double rot[] ) const
+Com::CBoundingBox3D Fem::Field::View::CDrawerStreamline::GetBoundingBox( const double rot[] ) const
 {
 	if( aStLine.empty() ){ return Com::CBoundingBox3D(); }
 	if( aStLine[0].empty() ){ return Com::CBoundingBox3D(); }

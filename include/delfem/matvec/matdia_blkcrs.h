@@ -50,28 +50,33 @@ public:
 	@param[in] len_colrow ブロックのサイズ
 	*/
 	CMatDia_BlkCrs(const unsigned int nblk_colrow, const unsigned int len_colrow);
-	//! デフォルトコンストラクタ
+  CMatDia_BlkCrs(unsigned int nblk, const std::vector<unsigned int>& alen) : m_valDia_Blk(0), m_DiaValPtr(0)
+  {
+    this->Initialize(nblk,alen, nblk,alen);
+  }
+  
+  //! デフォルトコンストラクタ
 	CMatDia_BlkCrs();
 	//! デストラクタ
 	virtual ~CMatDia_BlkCrs();
 
     
-    // Mat_BlkCrsクラスの隠蔽
-    virtual bool Initialize(unsigned int nblk_col, const std::vector<unsigned int>& alen_col, 
-                            unsigned int nblk_row, const std::vector<unsigned int>& alen_row);
-    bool Initialize(unsigned int nblk, const std::vector<unsigned int>& alen){
-        return this->Initialize(nblk,alen, nblk,alen);
-    }
-    // Mat_BlkCrsクラスの隠蔽
-    virtual bool Initialize(unsigned int nblk_col, unsigned int len_col,
-                            unsigned int nblk_row, unsigned int len_row );
-    bool Initialize(unsigned int nblk, unsigned int len){
-        return this->Initialize(nblk,len, nblk,len);
-    }
-
+  // Mat_BlkCrsクラスの隠蔽
+  virtual bool Initialize(unsigned int nblk_col, const std::vector<unsigned int>& alen_col, 
+                          unsigned int nblk_row, const std::vector<unsigned int>& alen_row);
+  bool Initialize(unsigned int nblk, const std::vector<unsigned int>& alen){
+    return this->Initialize(nblk,alen, nblk,alen);
+  }
+  // Mat_BlkCrsクラスの隠蔽
+  virtual bool Initialize(unsigned int nblk_col, unsigned int len_col,
+                          unsigned int nblk_row, unsigned int len_row );
+  bool Initialize(unsigned int nblk, unsigned int len){
+    return this->Initialize(nblk,len, nblk,len);
+  }
+  
 	//! パターンを全て消去　RowPtr,Valはメモリ解放
 	virtual bool DeletePattern();
-    bool AddPattern(const Com::CIndexedArray& crs);
+  bool AddPattern(const Com::CIndexedArray& crs);
 	bool AddPattern(const CMatDia_BlkCrs& rhs, const bool isnt_trans);
 	bool AddPattern(const CMatDia_BlkCrs& rhs, const COrdering_Blk& order);
 	bool AddPattern(const CMat_BlkCrs& m1, const CMatDia_BlkCrs& m2, const CMat_BlkCrs& m3);

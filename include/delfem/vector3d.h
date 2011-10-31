@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 /*! @file
-@brief ３次元ベクトルクラス(Com::CVector3D)の実装
+@brief 3 dimentional vector clas (Com::CVector3D)
 @author Nobuyuki Umetani
 */
 
@@ -32,9 +32,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #define NEARLY_ZERO 1.e-16
 
+
 namespace Com
 {
 
+// rule about naming, the method starts "Set" change it self (not const)
 class CVector3D;
 
 //! @{
@@ -44,7 +46,7 @@ CVector3D operator*(double, const CVector3D&);
 CVector3D operator*(const CVector3D&, double);
 //! @}
 
-//! ３次元ベクトルクラス
+//! 3 dimentional vector class
 class CVector3D  
 {
 public:
@@ -58,6 +60,7 @@ public:
 	void SetVector(double vx, double vy, double vz){ x = vx; y = vy; z = vz; }
 
 	inline const CVector3D operator-() const{ return -1.0*(*this); }
+	inline const CVector3D operator+() const{ return *this; }  
 	inline CVector3D& operator=(const CVector3D& rhs){
 		if( this != &rhs ){ x = rhs.x; y = rhs.y; z = rhs.z; }
 		return *this;
@@ -79,6 +82,19 @@ public:
 		x /= d; y /= d; z /= d;
 		return *this;
 	}
+  inline double operator[](int i) const{
+    if( i == 0 ) return x;
+    if( i == 1 ) return y;
+    if( i == 2 ) return z;
+    return 0;
+  }
+  inline double& operator[](int i){
+    if( i == 0 ) return x;
+    if( i == 1 ) return y;
+    if( i == 2 ) return z;
+    assert(0);
+    return x;
+  }  
 	inline CVector3D operator+(){ return *this; }
 	inline CVector3D operator-(){ return CVector3D(-x,-y,-z); }
 
@@ -90,18 +106,18 @@ public:
 
 	inline double Length()  const{ return sqrt( x*x+y*y+z*z ); }
 	inline double DLength() const{ return x*x+y*y+z*z; }
-	void Normalize();
+	void SetNormalizedVector();
 	void SetZero();
 public:
-	double x;	//!< ｘ座標値
-	double y;	//!< ｙ座標値
-	double z;	//!< ｚ座標値
+	double x;	//!< x axis coordinate
+	double y;	//!< y axis coordinate
+	double z;	//!< z axis coordinate 
 };
 
 //! @{
 	
 /*! 
-@brief 内積の計算
+@brief inner product
 */
 inline double Dot(const Com::CVector3D &arg1, const Com::CVector3D &arg2)
 {
@@ -109,7 +125,7 @@ inline double Dot(const Com::CVector3D &arg1, const Com::CVector3D &arg2)
 }
 
 /*! 
-@brief 外積の計算
+@brief cross product
 */
 inline Com::CVector3D Cross(const Com::CVector3D& arg1, const Com::CVector3D& arg2)
 {
@@ -120,62 +136,48 @@ inline Com::CVector3D Cross(const Com::CVector3D& arg1, const Com::CVector3D& ar
 	return temp;
 }
 
-//! 足し算
+//! add
 inline CVector3D operator + (const CVector3D& lhs, const CVector3D& rhs){
 	CVector3D temp = lhs;
 	temp += rhs;
 	return temp;
 }
 
-//! 引き算
+//! subtract
 inline CVector3D operator - (const CVector3D& lhs, const CVector3D& rhs){
 	CVector3D temp = lhs;
 	temp -= rhs;
 	return temp;
 }
 
-//! 実数倍
+//! scale
 inline CVector3D operator * (double d, const CVector3D& rhs){
 	CVector3D temp = rhs;
 	temp *= d;
 	return temp;
 }
+  
+//! scale
+inline CVector3D operator * (const CVector3D& vec, double d){
+  CVector3D temp = vec;
+  temp *= d;
+  return temp;
+}  
 
-//! 実数で割る
+//! divide by real number
 inline CVector3D operator / (const CVector3D& vec, double d){
 	CVector3D temp = vec;
 	temp /= d;
 	return temp;
 }
-
-
-//! 実数倍
-inline CVector3D operator * (const CVector3D& vec, double d){
-	CVector3D temp = vec;
-	temp *= d;
-	return temp;
-}
-//! @}
   
-static void GetVertical2Vector
-(const CVector3D& vec_n, 
- CVector3D& vec_x, CVector3D& vec_y)
+inline std::ostream &operator<<(std::ostream &output, const CVector3D& v)
 {
-  vec_x = Cross(CVector3D(0,1,0),vec_n);
-  const double len = vec_x.Length();
-  if( len < 1.0e-10 ){
-    vec_x = Cross(CVector3D(1,0,0),vec_n);  // z????
-    vec_x.Normalize();
-    vec_y = Cross(vec_n,vec_x);  // x????
-  }
-  else{
-    const double invlen = 1.0/len;
-    vec_x *= invlen;
-    vec_y = Cross(vec_n,vec_x);
-  }
-}    
-
-  
+  output.setf(std::ios::scientific);
+  output << v.x << " " << v.y << " " << v.z; 
+  return output;
+}
+    
 
 inline double ScalarTripleProduct3D(const double a[], const double b[], const double c[]){
 	return a[0]*(b[1]*c[2] - b[2]*c[1]) 
@@ -197,6 +199,11 @@ inline double Length3D(const double v[3]){
     return sqrt( v[0]*v[0] + v[1]*v[1] + v[2]*v[2] );
 }  
 
+static inline double SquareDistance3D(const double p0[3], const double p1[3]){
+  return (p1[0]-p0[0])*(p1[0]-p0[0]) + (p1[1]-p0[1])*(p1[1]-p0[1]) + (p1[2]-p0[2])*(p1[2]-p0[2]);
+}
+  
+  
 static inline double Distance3D(const double p0[3], const double p1[3]){
   return sqrt( (p1[0]-p0[0])*(p1[0]-p0[0]) + (p1[1]-p0[1])*(p1[1]-p0[1]) + (p1[2]-p0[2])*(p1[2]-p0[2]) );
 }
@@ -259,137 +266,7 @@ static void GetVertical2Vector3D
   }
 }  
   
-
-//!< ３×３の行列
-class CMatrix3
-{
-public:
-  CMatrix3(const CVector3D& vec0){
-    this->SetSpinTensor(vec0);
-  }
-  CMatrix3(){}
-  CMatrix3(double m[9]){ for(unsigned int i=0;i<9;i++){ mat[i]=m[i]; } }
-  ////
-  CVector3D MatVec(const CVector3D& vec0) const{
-    CVector3D vec1;
-    vec1.x = mat[0]*vec0.x + mat[1]*vec0.y + mat[2]*vec0.z;
-    vec1.y = mat[3]*vec0.x + mat[4]*vec0.y + mat[5]*vec0.z;
-    vec1.z = mat[6]*vec0.x + mat[7]*vec0.y + mat[8]*vec0.z;
-    return vec1;
-  }
-  void MatVec(const double vec0[], double vec1[]) const{
-    vec1[0] = mat[0]*vec0[0] + mat[1]*vec0[1] + mat[2]*vec0[2];
-    vec1[1] = mat[3]*vec0[0] + mat[4]*vec0[1] + mat[5]*vec0[2];
-    vec1[2] = mat[6]*vec0[0] + mat[7]*vec0[1] + mat[8]*vec0[2];
-  }
-  void MatVecTrans(const double vec0[], double vec1[]) const{
-    vec1[0] = mat[0]*vec0[0] + mat[3]*vec0[1] + mat[6]*vec0[2];
-    vec1[1] = mat[1]*vec0[0] + mat[4]*vec0[1] + mat[7]*vec0[2];
-    vec1[2] = mat[2]*vec0[0] + mat[5]*vec0[1] + mat[8]*vec0[2];
-  }
-  CVector3D MatVecTrans(const CVector3D& vec0) const{
-    CVector3D vec1;
-    vec1.x = mat[0]*vec0.x + mat[3]*vec0.y + mat[6]*vec0.z;
-    vec1.y = mat[1]*vec0.x + mat[4]*vec0.y + mat[7]*vec0.z;
-    vec1.z = mat[2]*vec0.x + mat[5]*vec0.y + mat[8]*vec0.z;
-    return vec1;
-  }
-  CMatrix3 MatMat(const CMatrix3& mat0) const{
-    CMatrix3 m;
-    for(unsigned int i=0;i<3;i++){
-      for(unsigned int j=0;j<3;j++){
-        m.mat[i*3+j] = mat[i*3+0]*mat0.mat[0*3+j] + mat[i*3+1]*mat0.mat[1*3+j] + mat[i*3+2]*mat0.mat[2*3+j];
-      }
-    }
-    return m;
-  }
-  CMatrix3 MatMatTrans(const CMatrix3& mat0) const{
-    CMatrix3 m;
-    for(unsigned int i=0;i<3;i++){
-      for(unsigned int j=0;j<3;j++){
-        m.mat[i*3+j] = 
-        mat[0*3+i]*mat0.mat[0*3+j] 
-        + mat[1*3+i]*mat0.mat[1*3+j] 
-        + mat[2*3+i]*mat0.mat[2*3+j];
-      }
-    }
-    return m;
-  }
-  void SetRotMatrix_Rodrigues(const double vec[]){
-    const double sqlen = vec[0]*vec[0]+vec[1]*vec[1]+vec[2]*vec[2];
-    const double tmp1 = 1.0/(1+0.25*sqlen);
-		mat[0] = 1+tmp1*(       +0.5*vec[0]*vec[0]-0.5*sqlen);
-    mat[1] =  +tmp1*(-vec[2]+0.5*vec[0]*vec[1]          );
-    mat[2] =  +tmp1*(+vec[1]+0.5*vec[0]*vec[2]          );
-    mat[3] =  +tmp1*(+vec[2]+0.5*vec[1]*vec[0]          );
-    mat[4] = 1+tmp1*(       +0.5*vec[1]*vec[1]-0.5*sqlen);
-    mat[5] =  +tmp1*(-vec[0]+0.5*vec[1]*vec[2]          );
-    mat[6] =  +tmp1*(-vec[1]+0.5*vec[2]*vec[0]          );  
-    mat[7] =  +tmp1*(+vec[0]+0.5*vec[2]*vec[1]          );   
-    mat[8] = 1+tmp1*(       +0.5*vec[2]*vec[2]-0.5*sqlen);
-  }
-  void SetRotMatrix_CRV(const double crv[]){
-    const double c0 = 0.125*( 16.0 - crv[0]*crv[0] - crv[1]*crv[1] - crv[2]*crv[2] );
-    const double tmp = 1.0/( (4.0-c0)*(4.0-c0) );
-    mat[0*3+0] = tmp*( (c0*c0+8*c0-16) + 2*crv[0]*crv[0] );
-    mat[0*3+1] = tmp*(                   2*crv[0]*crv[1] - 2*c0*crv[2] );
-    mat[0*3+2] = tmp*(                   2*crv[0]*crv[2] + 2*c0*crv[1] );
-    mat[1*3+0] = tmp*(                   2*crv[1]*crv[0] + 2*c0*crv[2] );
-    mat[1*3+1] = tmp*( (c0*c0+8*c0-16) + 2*crv[1]*crv[1] );
-    mat[1*3+2] = tmp*(                   2*crv[1]*crv[2] - 2*c0*crv[0] );
-    mat[2*3+0] = tmp*(                   2*crv[2]*crv[0] - 2*c0*crv[1] );
-    mat[2*3+1] = tmp*(                   2*crv[2]*crv[1] + 2*c0*crv[0] );
-    mat[2*3+2] = tmp*( (c0*c0+8*c0-16) + 2*crv[2]*crv[2] );
-  }
-  void GetCRV_RotMatrix(double crv[]) const{
-    const double smat[16] = {
-      1+mat[0*3+0]+mat[1*3+1]+mat[2*3+2],  
-      mat[2*3+1]-mat[1*3+2],
-      mat[0*3+2]-mat[2*3+0],
-      mat[1*3+0]-mat[0*3+1],
-      mat[2*3+1]-mat[1*3+2],
-      1+mat[0*3+0]-mat[1*3+1]-mat[2*3+2],
-      mat[0*3+1]+mat[1*3+0],
-      mat[0*3+2]+mat[2*3+0],
-      mat[0*3+2]-mat[2*3+0],
-      mat[1*3+0]+mat[0*3+1],
-      1-mat[0*3+0]+mat[1*3+1]-mat[2*3+2],
-      mat[1*3+2]+mat[2*3+1],
-      mat[1*3+0]-mat[0*3+1],
-      mat[0*3+2]+mat[2*3+0],
-      mat[1*3+2]+mat[2*3+1],
-      1-mat[0*3+0]-mat[1*3+1]+mat[2*3+2],
-    };
-    
-    unsigned int imax;
-    imax = ( smat[0   *4+   0] > smat[1*4+1] ) ? 0    : 1;
-    imax = ( smat[imax*4+imax] > smat[2*4+2] ) ? imax : 2;
-    imax = ( smat[imax*4+imax] > smat[3*4+3] ) ? imax : 3;
-    
-    double eparam2[4];  // オイラーパラメータ
-    eparam2[imax] = 0.5*sqrt(smat[imax*4+imax]);
-    for(unsigned int k=0;k<4;k++){
-      if( k==imax ) continue;
-      eparam2[k] = smat[imax*4+k]*0.25/eparam2[imax];
-    }
-    crv[0] = 4*eparam2[1]/(1+eparam2[0]);
-    crv[1] = 4*eparam2[2]/(1+eparam2[0]);
-    crv[2] = 4*eparam2[3]/(1+eparam2[0]);
-  }
-  void SetSpinTensor(const CVector3D& vec0){
-		mat[0] =  0;       mat[1] = -vec0.z;   mat[2] = +vec0.y;
-    mat[3] = +vec0.z;  mat[4] = 0;         mat[5] = -vec0.x;
-    mat[6] = -vec0.y;  mat[7] = +vec0.x;   mat[8] = 0;
-  }
-  void SetIdentity(double scale = 1){
-		mat[0] = scale; mat[1] = 0;     mat[2] = 0;
-    mat[3] = 0;     mat[4] = scale; mat[5] = 0;
-    mat[6] = 0;     mat[7] = 0;     mat[8] = scale;
-  }
-public:
-  double mat[9];  
-};
-
+  
 
 //! 3D bounding box class
 class CBoundingBox3D
@@ -435,6 +312,23 @@ public:
 		z_min = ( z_min < bb.z_min ) ? z_min : bb.z_min;
 		return *this;
 	}
+  CBoundingBox3D& operator+=(const CVector3D& v)
+	{
+		if( !isnt_empty ){
+			x_max = v.x;	x_min = v.x;
+			y_max = v.y;	y_min = v.y;
+			z_max = v.z;	z_min = v.z;
+      this->isnt_empty = true;
+			return *this;
+		}
+		x_max = ( x_max > v.x ) ? x_max : v.x;
+		x_min = ( x_min < v.x ) ? x_min : v.x;
+		y_max = ( y_max > v.y ) ? y_max : v.y;
+		y_min = ( y_min < v.y ) ? y_min : v.y;
+		z_max = ( z_max > v.z ) ? z_max : v.z;
+		z_min = ( z_min < v.z ) ? z_min : v.z;
+		return *this;
+	}  
 	bool IsInside(const CVector3D& vec)
 	{
 		if( !isnt_empty ) return false; // 何もない場合は常に偽
@@ -500,38 +394,9 @@ public:
 	bool isnt_empty;	//!< false if there is nothing inside
 };
 
-class COctTree
-{
-private:
-	class CCell{
-	public:
-		CCell(unsigned int iparent){ 
-			for(unsigned int i=0;i<8;i++){ data[i]=0; }
-			size = 0;
-			this->iparent = iparent;
-		}
-		int data[8];
-		int size;
-		unsigned int iparent;
-	};
-public:
-	COctTree();
-	void SetBoundingBox( const CBoundingBox3D& bb );
-	int InsertPoint( unsigned int ipo_ins, const CVector3D& vec_ins );
-
-	bool Check() const;
-	int GetIndexCell_IncludePoint( const CVector3D& vec ) const;
-	void GetAllPointInCell( unsigned int icell0, std::vector<unsigned int>& ipoins ) const;
-	void GetBoundaryOfCell(unsigned int icell0, CBoundingBox3D& bb ) const;
-	bool IsPointInSphere( double radius, const CVector3D& vec ) const;
-private:
-	std::vector< CCell > m_aCell;
-	std::vector< std::pair<unsigned int,CVector3D> > m_aVec;
-	double x_min,x_max, y_min,y_max, z_min,z_max;
-};
 
 
-//! 四面体の高さ
+//! Hight of a tetrahedra
 inline double Height(const CVector3D& v1, const CVector3D& v2, const CVector3D& v3, const CVector3D& v4){
 	// get normal vector
 	double dtmp_x = (v2.y-v1.y)*(v3.z-v1.z)-(v2.z-v1.z)*(v3.y-v1.y);
@@ -549,8 +414,29 @@ inline double Height(const CVector3D& v1, const CVector3D& v2, const CVector3D& 
 
 
 ////////////////////////////////////////////////////////////////
+  
+static void GetVertical2Vector
+(const CVector3D& vec_n, 
+ CVector3D& vec_x, CVector3D& vec_y)
+{
+  vec_x = Cross(CVector3D(0,1,0),vec_n);
+  const double len = vec_x.Length();
+  if( len < 1.0e-10 ){
+    vec_x = Cross(CVector3D(1,0,0),vec_n);  // z????
+    vec_x.SetNormalizedVector();
+    vec_y = Cross(vec_n,vec_x);  // x????
+  }
+  else{
+    const double invlen = 1.0/len;
+    vec_x *= invlen;
+    vec_y = Cross(vec_n,vec_x);
+  }
+}    
+  
+  
+  
 
-//! 四面体の体積
+//! Volume of a tetrahedra
 inline double TetVolume(const CVector3D& v1,
 						const CVector3D& v2, 
 						const CVector3D& v3, 
@@ -796,7 +682,7 @@ inline double SquareCircumradius(
 ////////////////////////////////////////////////
 
 /*! 
-外接球の半径
+curcumradius of a tetrahedra
 */
 inline double Circumradius(const CVector3D& ipo0, 
 						   const CVector3D& ipo1, 
@@ -806,18 +692,19 @@ inline double Circumradius(const CVector3D& ipo0,
 }
 
 
-inline CVector3D RotateVector(const CVector3D& vec0, const CVector3D& rot ){
+inline CVector3D RotateVector(const CVector3D& vec0, const CVector3D& rot )
+{
 	const double theta = rot.Length();
 	if( theta < 1.0e-30 ){
 		return vec0;
 	}
 	Com::CVector3D e0 = rot;
-	e0.Normalize();
+	e0.SetNormalizedVector();
 	Com::CVector3D e2 = Com::Cross(e0,vec0);
 	if( e2.Length() < 1.0e-30 ){
 		return vec0;
 	}
-	e2.Normalize();
+	e2.SetNormalizedVector();
 	Com::CVector3D e1 = Com::Cross(e2,e0);
 	assert( fabs( e1.Length() - 1 ) < 1.0e-10 );
 //	assert( e2.x*vec_0.x + e2.y*vec_0.y + e2.z*vec_0.z < 1.0e-10 );

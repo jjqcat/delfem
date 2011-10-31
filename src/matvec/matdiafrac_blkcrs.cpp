@@ -135,7 +135,7 @@ static void CalcInvMat(double* a, const unsigned int n, int& info )
 	}
 }
 
-// t‚Ítmp_buffer‚Ì‚±‚Æ
+// t is a tmporary buffer size of 9
 static inline void CalcInvMat3(double a[], double t[] )
 {
 	const double det = a[0]*a[4]*a[8] + a[3]*a[7]*a[2] + a[6]*a[1]*a[5]
@@ -1259,7 +1259,7 @@ bool CMatDiaFrac_BlkCrs::AddFracPtn(const int lev_fill)
 	if(  m_ConditionFlag == 0 ) return false;
   
 	if( m_ncrs_Blk == 0 ){
-		std::cout << "	Dia Center " << std::endl;
+//		std::cout << "	Dia Center " << std::endl;
 		return true;
 	}
   
@@ -1364,7 +1364,6 @@ bool CMatDiaFrac_BlkCrs::AddFracPtn(const int lev_fill)
 	delete[] const_cast<unsigned int*>(ColInd_pre);
 	delete[] const_cast<unsigned int*>(DiaInd_pre);
 	delete const_cast< std::vector<CRowLev>* >(pRowLev_pre);
-  std::cout << "hoge" << m_ncrs_Blk << std::endl;
 	/*
    for(unsigned int inode=0;inode<this->NBlkMatCol();inode++){
    std::cout << inode << "-->";
@@ -1390,7 +1389,7 @@ bool CMatDiaFrac_BlkCrs::AddFracPtn(const int lev_fill, const std::vector<unsign
   ////////////////
   
 	if( m_ncrs_Blk == 0 ){
-		std::cout << "	Dia Center " << std::endl;
+//		std::cout << "	Dia Center " << std::endl;
 		return true;
 	}
   
@@ -1505,7 +1504,6 @@ bool CMatDiaFrac_BlkCrs::AddFracPtn(const int lev_fill, const std::vector<unsign
 	delete[] const_cast<unsigned int*>(ColInd_pre);
 	delete[] const_cast<unsigned int*>(DiaInd_pre);
 	delete const_cast< std::vector<CRowLev>* >(pRowLev_pre);
-  std::cout << "hoge : " << m_ncrs_Blk << std::endl;
   /*	for(unsigned int inode=0;inode<this->NBlkMatCol();inode++){
    std::cout << inode << "-->";
    for(unsigned int ijcrs=m_colInd_Blk[inode];ijcrs<m_colInd_Blk[inode+1];ijcrs++){
