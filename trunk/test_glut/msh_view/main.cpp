@@ -27,8 +27,10 @@
 #include "delfem/cad/cad_svg.h"
 #include "delfem/camera.h"
 #include "delfem/drawer_gl_utility.h"
+#include "delfem/glut_utility.h"
 
-Com::View::CCamera camera;
+
+Com::View::CCamera* pCamera=0;
 double mov_begin_x, mov_begin_y;
 int imodifier;
 
@@ -41,10 +43,10 @@ void myGlutMotion( int x, int y ){
 	const double mov_end_y = (win_h-2.0*y)/win_h;
   ////
   if(      imodifier == GLUT_ACTIVE_SHIFT ){ // pan
-    camera.MousePan(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 		
+    pCamera->MousePan(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 		
 	}
 	else if( imodifier == GLUT_ACTIVE_CTRL ){ //  rotation
-    camera.MouseRotation(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 		
+    pCamera->MouseRotation(mov_begin_x,mov_begin_y,mov_end_x,mov_end_y); 		
 	}
   ////
 	mov_begin_x = mov_end_x;
@@ -58,59 +60,25 @@ void myGlutIdle(){
 
 void myGlutResize(int w, int h)
 {
-	camera.SetWindowAspect((double)w/h);
+	pCamera->SetWindowAspect((double)w/h);
 
 	::glViewport(0, 0, w, h);
 	::glMatrixMode(GL_PROJECTION);
 	::glLoadIdentity();
-	Com::View::SetProjectionTransform(camera);
+	Com::View::SetProjectionTransform(*pCamera);
 }
 
 Com::View::CDrawerArray drawer_ary;
 
 void myGlutSpecial(int Key, int x, int y)
 {
-	switch(Key)
-	{
-	case GLUT_KEY_PAGE_UP:
-		if( ::glutGetModifiers() && GLUT_ACTIVE_SHIFT ){
-			if( camera.IsPers() ){
-				const double tmp_fov_y = camera.GetFovY() + 10.0;
-				camera.SetFovY( tmp_fov_y );
-			}
-		}
-		else{
-			const double tmp_scale = camera.GetScale() * 0.9;
-			camera.SetScale( tmp_scale );
-		}
-		break;
-	case GLUT_KEY_PAGE_DOWN:
-		if( ::glutGetModifiers() && GLUT_ACTIVE_SHIFT ){
-			if( camera.IsPers() ){
-				const double tmp_fov_y = camera.GetFovY() - 10.0;
-				camera.SetFovY( tmp_fov_y );
-			}
-		}
-		else{
-			const double tmp_scale = camera.GetScale() * 1.111;
-			camera.SetScale( tmp_scale );
-		}
-		break;
-	case GLUT_KEY_HOME :
-		drawer_ary.InitTrans(camera);
-		camera.Fit();
-		break;
-	case GLUT_KEY_END :
-		if( camera.IsPers() ) camera.SetIsPers(false);
-		else{ camera.SetIsPers(true); }
-		break;
-	default:
-		break;
-	}
-	
+  DemoChangeCameraSpecialKey(Key,*pCamera);
+  if( Key == GLUT_KEY_HOME ){
+		pCamera->Fit(drawer_ary.GetBoundingBox(pCamera->GetRotMatrix3()));
+  }	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	Com::View::SetProjectionTransform(camera);
+	Com::View::SetProjectionTransform(*pCamera);
 	::glutPostRedisplay();
 }
 
@@ -125,7 +93,7 @@ void myGlutDisplay(void)
    
 	::glMatrixMode(GL_MODELVIEW);
 	::glLoadIdentity();
-	Com::View::SetModelViewTransform(camera);
+	Com::View::SetModelViewTransform(*pCamera);
 
 	drawer_ary.Draw();
 	::glutSwapBuffers();
@@ -142,10 +110,10 @@ void myGlutMouse(int button, int state, int x, int y){
 	if( button == GLUT_LEFT_BUTTON && state == GLUT_DOWN ){
 		const unsigned int size_buffer = 128;
 		unsigned int select_buffer[size_buffer];
-		Com::View::PickPre(size_buffer,select_buffer,   x,y,  5,5,   camera);
+		Com::View::PickPre(size_buffer,select_buffer,   x,y,  5,5,   *pCamera);
 		drawer_ary.DrawSelection();
 		std::vector<Com::View::SSelectedObject> aSelecObj
-			= Com::View::PickPost(select_buffer,   x,y,   camera );
+			= Com::View::PickPost(select_buffer,   x,y,   *pCamera );
 		if( aSelecObj.size() > 0 ){ drawer_ary.AddSelected( aSelecObj[0].name ); }
 		else{                       drawer_ary.ClearSelected(); }
 	}
@@ -190,7 +158,9 @@ bool SetNewProblem()
     ////
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh2D(mesh_2d) );
-		drawer_ary.InitTrans( camera );
+    if( pCamera == 0 ) delete pCamera;
+    pCamera = new Com::View::CCamera_2D;
+    pCamera->Fit( drawer_ary.GetBoundingBox( pCamera->GetRotMatrix3() ) );
 	}
 	else if( iprob == 1 )
 	{
@@ -211,7 +181,9 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh2D(mesh_2d) );
-		drawer_ary.InitTrans( camera );
+    if( pCamera == 0 ) delete pCamera;
+    pCamera = new Com::View::CCamera_2D;
+    pCamera->Fit( drawer_ary.GetBoundingBox( pCamera->GetRotMatrix3() ) );    
 	}
 	else if( iprob == 2 )
 	{
@@ -232,7 +204,9 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh2D(mesh_2d) );
-		drawer_ary.InitTrans( camera );
+    if( pCamera == 0 ) delete pCamera;
+    pCamera = new Com::View::CCamera_2D;
+    pCamera->Fit( drawer_ary.GetBoundingBox( pCamera->GetRotMatrix3() ) );        
 	}
 	else if( iprob == 3 )
 	{
@@ -265,7 +239,9 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh3D(mesh_3d) );
-		drawer_ary.InitTrans(camera);
+    if( pCamera == 0 ) delete pCamera;
+    pCamera = new Com::View::CCamera_3D;
+    pCamera->Fit( drawer_ary.GetBoundingBox( pCamera->GetRotMatrix3() ) );        
 	}
 	else if( iprob == 4 )	// load mesh of GiD
 	{
@@ -288,7 +264,9 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh3D(mesh_3d) );
-		drawer_ary.InitTrans( camera );
+    if( pCamera == 0 ) delete pCamera;
+    pCamera = new Com::View::CCamera_3D;
+    pCamera->Fit( drawer_ary.GetBoundingBox( pCamera->GetRotMatrix3() ) );        
 	}
 	else if( iprob == 5 )
 	{
@@ -304,7 +282,9 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh3D(mesh_3d) );
-		drawer_ary.InitTrans( camera );
+    if( pCamera == 0 ) delete pCamera;
+    pCamera = new Com::View::CCamera_3D;
+    pCamera->Fit( drawer_ary.GetBoundingBox( pCamera->GetRotMatrix3() ) );            
 	}
 	else if( iprob == 6 )
 	{
@@ -320,7 +300,9 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh3D(mesh_3d) );
-		drawer_ary.InitTrans( camera );
+    if( pCamera == 0 ) delete pCamera;
+    pCamera = new Com::View::CCamera_3D;
+    pCamera->Fit( drawer_ary.GetBoundingBox( pCamera->GetRotMatrix3() ) );                
 	}
 	else if( iprob == 7 )
 	{
@@ -343,7 +325,9 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh3D(mesh_3d) );
-		drawer_ary.InitTrans( camera );
+    if( pCamera == 0 ) delete pCamera;
+    pCamera = new Com::View::CCamera_3D;
+    pCamera->Fit( drawer_ary.GetBoundingBox( pCamera->GetRotMatrix3() ) );                    
 	}
 	else if( iprob == 8 )
 	{
@@ -381,7 +365,9 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh2D(mesh_2d) );
-		drawer_ary.InitTrans( camera );
+    if( pCamera == 0 ) delete pCamera;
+    pCamera = new Com::View::CCamera_2D;
+    pCamera->Fit( drawer_ary.GetBoundingBox( pCamera->GetRotMatrix3() ) );                    
 	}
 	else if( iprob == 9 )
 	{
@@ -414,7 +400,9 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh2D(mesh_2d) );
-		drawer_ary.InitTrans( camera );
+    if( pCamera == 0 ) delete pCamera;
+    pCamera = new Com::View::CCamera_2D;
+    pCamera->Fit( drawer_ary.GetBoundingBox( pCamera->GetRotMatrix3() ) );                        
 	}
 	else if( iprob == 10 )
 	{
@@ -456,7 +444,9 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh2D(mesh_2d) );
-		drawer_ary.InitTrans( camera );
+    if( pCamera == 0 ) delete pCamera;
+    pCamera = new Com::View::CCamera_2D;
+    pCamera->Fit( drawer_ary.GetBoundingBox( pCamera->GetRotMatrix3() ) );                    
 	}
 	else if( iprob == 11 )	// mesh with cut
 	{
@@ -507,7 +497,9 @@ bool SetNewProblem()
     }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh2D(mesh_2d) );
-		drawer_ary.InitTrans( camera );
+    if( pCamera == 0 ) delete pCamera;
+    pCamera = new Com::View::CCamera_2D;
+    pCamera->Fit( drawer_ary.GetBoundingBox( pCamera->GetRotMatrix3() ) );                        
 	}
 	else if( iprob == 12 )	// mesh with cut
 	{
@@ -556,7 +548,9 @@ bool SetNewProblem()
     }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh2D(mesh_2d) );
-		drawer_ary.InitTrans( camera );
+    if( pCamera == 0 ) delete pCamera;
+    pCamera = new Com::View::CCamera_2D;
+    pCamera->Fit( drawer_ary.GetBoundingBox( pCamera->GetRotMatrix3() ) );                        
 	}
 	else if( iprob == 13 ){
 		Cad::CCadObj2D cad_2d;
@@ -587,7 +581,9 @@ bool SetNewProblem()
     }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh2D(mesh_2d) );
-		drawer_ary.InitTrans( camera );
+    if( pCamera == 0 ) delete pCamera;
+    pCamera = new Com::View::CCamera_2D;
+    pCamera->Fit( drawer_ary.GetBoundingBox( pCamera->GetRotMatrix3() ) );                        
 	}  
 	if( iprob == 14 )
 	{
@@ -616,7 +612,9 @@ bool SetNewProblem()
     ////
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Msh::View::CDrawerMsh2D(mesh_2d) );
-		drawer_ary.InitTrans( camera );
+    if( pCamera == 0 ) delete pCamera;
+    pCamera = new Com::View::CCamera_2D;
+    pCamera->Fit( drawer_ary.GetBoundingBox( pCamera->GetRotMatrix3() ) );                        
 	}  
 
 	iprob++;
@@ -637,7 +635,7 @@ void myGlutKeyboard(unsigned char key, int x, int y)
 	  SetNewProblem();
 	  ::glMatrixMode(GL_PROJECTION);
 	  ::glLoadIdentity();
-	  Com::View::SetProjectionTransform(camera);
+	  Com::View::SetProjectionTransform(*pCamera);
 	  break;
   default:
     break;
@@ -660,9 +658,7 @@ int main(int argc,char* argv[])
 	::glutDisplayFunc(myGlutDisplay);
 	::glutReshapeFunc(myGlutResize);
 	::glutIdleFunc(myGlutIdle);
-  
-  camera.SetRotationMode( Com::View::ROT_3D );
-	
+  	
 	SetNewProblem();
 
     // Enter Main Loop

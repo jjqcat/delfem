@@ -83,7 +83,7 @@ public :
   void SetPointSize(unsigned int pointsize){ m_pointsize = pointsize; }
 
 	//! バウンディング・ボックスを得る
-	virtual Com::CBoundingBox3D GetBoundingBox( double rot[] ) const {
+	virtual Com::CBoundingBox3D GetBoundingBox( const double rot[] ) const {
 		return m_vertex_ary.GetBoundingBox(	rot );
 	}
 

@@ -130,7 +130,7 @@ double LsSol::CLinearSystem::FinalizeMarge()
 
 void LsSol::CLinearSystem::ClearFixedBoundaryCondition(){
 	for(unsigned int ibcflag=0;ibcflag<m_BCFlag.size();ibcflag++){
-		m_BCFlag[ibcflag]->SetAllFlagZero();
+		m_BCFlag[ibcflag]->SetAllFlag(0);
 	}
 }
 

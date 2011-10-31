@@ -30,7 +30,7 @@
 #include "delfem/cad_obj3d.h"
 #include "delfem/drawer_cad3d.h"
 
-Com::View::CCamera camera;
+Com::View::CCamera_3D camera;
 double mov_begin_x, mov_begin_y;
 int imodifier;
 Com::View::CDrawerArray drawer_ary;
@@ -169,7 +169,7 @@ void myGlutMotion( int x, int y ){
         const Cad::CLoop3D& l = cad_3d.GetLoop(id_loop_selected);
         const Com::CVector3D& o0 = l.org; 
         const Com::CVector3D& n0 = l.normal;
-        Com::CMatrix3 r = camera.RotMatrix33();      
+        Com::CMatrix3 r = camera.GetRotMatrix3();      
         Com::CVector3D d1 = r.MatVecTrans( Com::CVector3D(0,0,-1) );
         double hvh = camera.GetHalfViewHeight();
         double asp = camera.GetWindowAspect();
@@ -236,7 +236,7 @@ bool SetNewProblem()
 		unsigned int id_s0 = cad_3d.AddCuboid(1,1,1);        
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad3D(cad_3d) );    
-		drawer_ary.InitTrans(camera);
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );
   }
   if( iprob == 1 ){
 		unsigned int id_s0 = cad_3d.AddCuboid(1,1,0.7);
@@ -297,7 +297,7 @@ bool SetNewProblem()
     
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad3D(cad_3d) );    
-		drawer_ary.InitTrans(camera);
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );
 	}
   if( iprob == 2 ){
 		unsigned int id_s0 = cad_3d.AddCuboid(1,1,1);        
@@ -306,7 +306,7 @@ bool SetNewProblem()
 //    cad_3d.LiftLoop(7,cad_3d.GetLoop(7).normal*0.1);
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad3D(cad_3d) );    
-		drawer_ary.InitTrans(camera);
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );
   }
   if( iprob == 3 ){
 		unsigned int id_s0 = cad_3d.AddCuboid(1,1,1);       
@@ -319,8 +319,8 @@ bool SetNewProblem()
 //    cad_3d.AddRectLoop(7, Com::CVector2D(0.3,0.3), Com::CVector2D(0.7,0.7) );    
     cad_3d.LiftLoop(7,cad_3d.GetLoop(7).normal*0.1);        
     drawer_ary.Clear();
-		drawer_ary.PushBack( new Cad::View::CDrawer_Cad3D(cad_3d) );    
-		drawer_ary.InitTrans(camera);    
+		drawer_ary.PushBack( new Cad::View::CDrawer_Cad3D(cad_3d) );   
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );
   }
     
   

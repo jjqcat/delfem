@@ -47,7 +47,7 @@
 using namespace Fem::Ls;
 using namespace Fem::Field;
 
-Com::View::CCamera camera;
+Com::View::CCamera_3D camera;
 double mov_begin_x, mov_begin_y;
 int imodifier;
 bool is_animation = true;
@@ -279,7 +279,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerFace(id_field_disp,false,world) );
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new Fem::Field::View::CDrawerEdge(id_field_disp,true ,world) );
-		drawer_ary.InitTrans(camera);    
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3() ) );    
 	}
 
 	iprob++;

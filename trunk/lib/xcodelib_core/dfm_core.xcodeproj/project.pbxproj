@@ -26,6 +26,12 @@
 		A94452A812E899DA0099ECA5 /* field_value_setter.h in Headers */ = {isa = PBXBuildFile; fileRef = A94452A712E899DA0099ECA5 /* field_value_setter.h */; };
 		A94452B312E8A0D00099ECA5 /* field_value_setter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A94452B112E8A0D00099ECA5 /* field_value_setter.cpp */; };
 		A944563C12E8FC930099ECA5 /* glut_utility.h in Headers */ = {isa = PBXBuildFile; fileRef = A944563B12E8FC930099ECA5 /* glut_utility.h */; };
+		A98D8DFC142654AC009335EB /* cad_obj3d.h in Headers */ = {isa = PBXBuildFile; fileRef = A98D8DFA142654AC009335EB /* cad_obj3d.h */; };
+		A98D8DFD142654AC009335EB /* drawer_cad3d.h in Headers */ = {isa = PBXBuildFile; fileRef = A98D8DFB142654AC009335EB /* drawer_cad3d.h */; };
+		A98D8E01142654F5009335EB /* matrix3d.h in Headers */ = {isa = PBXBuildFile; fileRef = A98D8E00142654F5009335EB /* matrix3d.h */; };
+		A98D8E3014265D1A009335EB /* octtree3d.h in Headers */ = {isa = PBXBuildFile; fileRef = A98D8E2F14265D1A009335EB /* octtree3d.h */; };
+		A98D8E3414265E78009335EB /* octtree3d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A98D8E3314265E78009335EB /* octtree3d.cpp */; };
+		A98D90221427348A009335EB /* vector2d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A98D90211427348A009335EB /* vector2d.cpp */; };
 		A9B2597A1331087B00ECC0C5 /* cad_elem3d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A9B259771331087B00ECC0C5 /* cad_elem3d.cpp */; };
 		A9B2597B1331087B00ECC0C5 /* cad_obj3d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A9B259781331087B00ECC0C5 /* cad_obj3d.cpp */; };
 		A9B2597C1331087B00ECC0C5 /* drawer_cad3d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A9B259791331087B00ECC0C5 /* drawer_cad3d.cpp */; };
@@ -214,6 +220,12 @@
 		A94452A712E899DA0099ECA5 /* field_value_setter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = field_value_setter.h; path = ../../include/delfem/field_value_setter.h; sourceTree = SOURCE_ROOT; };
 		A94452B112E8A0D00099ECA5 /* field_value_setter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = field_value_setter.cpp; sourceTree = "<group>"; };
 		A944563B12E8FC930099ECA5 /* glut_utility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glut_utility.h; path = ../../include/delfem/glut_utility.h; sourceTree = SOURCE_ROOT; };
+		A98D8DFA142654AC009335EB /* cad_obj3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cad_obj3d.h; path = ../../include/delfem/cad_obj3d.h; sourceTree = SOURCE_ROOT; };
+		A98D8DFB142654AC009335EB /* drawer_cad3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = drawer_cad3d.h; path = ../../include/delfem/drawer_cad3d.h; sourceTree = SOURCE_ROOT; };
+		A98D8E00142654F5009335EB /* matrix3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = matrix3d.h; path = ../../include/delfem/matrix3d.h; sourceTree = SOURCE_ROOT; };
+		A98D8E2F14265D1A009335EB /* octtree3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = octtree3d.h; path = ../../include/delfem/octtree3d.h; sourceTree = SOURCE_ROOT; };
+		A98D8E3314265E78009335EB /* octtree3d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = octtree3d.cpp; sourceTree = "<group>"; };
+		A98D90211427348A009335EB /* vector2d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vector2d.cpp; sourceTree = "<group>"; };
 		A9B259771331087B00ECC0C5 /* cad_elem3d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cad_elem3d.cpp; sourceTree = "<group>"; };
 		A9B259781331087B00ECC0C5 /* cad_obj3d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cad_obj3d.cpp; sourceTree = "<group>"; };
 		A9B259791331087B00ECC0C5 /* drawer_cad3d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = drawer_cad3d.cpp; sourceTree = "<group>"; };
@@ -379,7 +391,7 @@
 		A9EDB38411A8AC2D0003AC93 /* meshkernel3d.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = meshkernel3d.cpp; sourceTree = "<group>"; };
 		A9EDB38611A8AC2D0003AC93 /* linearsystem_rigid.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = linearsystem_rigid.cpp; sourceTree = "<group>"; };
 		A9EDB38711A8AC2D0003AC93 /* linearsystem_rigidfield.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = linearsystem_rigidfield.cpp; sourceTree = "<group>"; };
-		A9EDB38811A8AC2D0003AC93 /* rigidbody.cpp */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.cpp.cpp; path = rigidbody.cpp; sourceTree = "<group>"; };
+		A9EDB38811A8AC2D0003AC93 /* rigidbody.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rigidbody.cpp; sourceTree = "<group>"; };
 		D2AAC046055464E500DB518D /* libdfm_core.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libdfm_core.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -432,6 +444,7 @@
 		A9A02973118DB8C400F2D39A /* Header */ = {
 			isa = PBXGroup;
 			children = (
+				A98D8DFA142654AC009335EB /* cad_obj3d.h */,
 				A929C08E13304FBB0072C0A4 /* tri_ary_topology.h */,
 				A929C030133048390072C0A4 /* spatial_hash_grid2d.h */,
 				A929C031133048390072C0A4 /* spatial_hash_grid3d.h */,
@@ -443,6 +456,7 @@
 				A929BFF713303FA60072C0A4 /* cad_obj2d_move.h */,
 				A9EDB28111A8ABFF0003AC93 /* camera.h */,
 				A9EDB28211A8ABFF0003AC93 /* complex.h */,
+				A98D8DFB142654AC009335EB /* drawer_cad3d.h */,
 				A9EDB28311A8ABFF0003AC93 /* drawer_cad.h */,
 				A9EDB28411A8ABFF0003AC93 /* drawer_field_edge.h */,
 				A9EDB28511A8ABFF0003AC93 /* drawer_field_face.h */,
@@ -482,6 +496,8 @@
 				A9EDB2D911A8ABFF0003AC93 /* uglyfont.h */,
 				A9EDB2DA11A8ABFF0003AC93 /* vector2d.h */,
 				A9EDB2DB11A8ABFF0003AC93 /* vector3d.h */,
+				A98D8E00142654F5009335EB /* matrix3d.h */,
+				A98D8E2F14265D1A009335EB /* octtree3d.h */,
 				A944563B12E8FC930099ECA5 /* glut_utility.h */,
 			);
 			name = Header;
@@ -631,6 +647,8 @@
 				A9EDB34211A8AC2C0003AC93 /* quaternion.cpp */,
 				A9EDB34311A8AC2C0003AC93 /* uglyfont.cpp */,
 				A9EDB34411A8AC2C0003AC93 /* vector3d.cpp */,
+				A98D8E3314265E78009335EB /* octtree3d.cpp */,
+				A98D90211427348A009335EB /* vector2d.cpp */,
 			);
 			name = com;
 			path = ../../src/com;
@@ -872,6 +890,10 @@
 				A929C08F13304FBB0072C0A4 /* tri_ary_topology.h in Headers */,
 				A929C10613305B600072C0A4 /* surface_mesh_reader.h in Headers */,
 				A920CFC41349A58900ABB546 /* cad_svg.h in Headers */,
+				A98D8DFC142654AC009335EB /* cad_obj3d.h in Headers */,
+				A98D8DFD142654AC009335EB /* drawer_cad3d.h in Headers */,
+				A98D8E01142654F5009335EB /* matrix3d.h in Headers */,
+				A98D8E3014265D1A009335EB /* octtree3d.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1007,6 +1029,8 @@
 				A9B2597B1331087B00ECC0C5 /* cad_obj3d.cpp in Sources */,
 				A9B2597C1331087B00ECC0C5 /* drawer_cad3d.cpp in Sources */,
 				A920CFC81349A75B00ABB546 /* cad_svg.cpp in Sources */,
+				A98D8E3414265E78009335EB /* octtree3d.cpp in Sources */,
+				A98D90221427348A009335EB /* vector2d.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

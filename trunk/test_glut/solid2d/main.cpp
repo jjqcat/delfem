@@ -47,7 +47,7 @@
 using namespace Fem::Ls;
 using namespace Fem::Field;
 
-Com::View::CCamera camera;
+Com::View::CCamera_2D camera;
 double mov_begin_x, mov_begin_y;
 bool is_animation = true;
 
@@ -252,7 +252,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
-		drawer_ary.InitTrans(camera);	// set view transformation
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );            
 	}
 	else if( iprob == 1 )	// save stiffness matrix for the efficency of computation
 	{
@@ -293,7 +293,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_equiv_stress,false,world,id_field_equiv_stress, 0,0.5) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
-		drawer_ary.InitTrans(camera);	// init view transformation
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );            
 	}
 	else if( iprob == 8 )	// display equivalent stress field in initial configulation
 	{
@@ -303,7 +303,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world,id_field_equiv_stress, 0,0.5) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
-		drawer_ary.InitTrans(camera);	// init view transformation
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );            
 	}
 	else if( iprob == 9 )	// thermal-solid analysis
 	{
@@ -349,7 +349,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false, world, id_field_temp, -1,1) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
-		drawer_ary.InitTrans(camera);	// set view transformation
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );            
 	}
 	else if( iprob == 10 )	// show contour in undeformed configuration
 	{
@@ -357,7 +357,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_temp,true, world, id_field_temp, -1,1) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
-		drawer_ary.InitTrans(camera);	// set view transformation
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );            
 	}
 	else if( iprob == 11 )	// stop considering thermal-effect
 	{
@@ -406,7 +406,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
-		drawer_ary.InitTrans(camera);	// set view transformation
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );            
 	}
 	else if( iprob == 13 )
 	{
@@ -466,7 +466,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 //		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_base,true,world) );
-		drawer_ary.InitTrans(camera);	// set view trnsformation
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );                
 	}
 	else if( iprob == 18 )
 	{
@@ -553,7 +553,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 //		drawer_ary.PushBack( new View::CDrawerEdge(id_base,false,world) );
-		drawer_ary.InitTrans(camera);	// set view transformation
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );                    
 	}
 	else if( iprob == 23 )
 	{
@@ -612,7 +612,7 @@ void SetNewProblem()
 		id_field_disp = solid.GetIdField_Disp();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
-		drawer_ary.InitTrans(camera);	// initialize view transmation
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );                                    
 	}
 	else if( iprob == 25 )
 	{
@@ -685,7 +685,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
-		drawer_ary.InitTrans(camera);	// set view transformation
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );                                
 	}
 	else if( iprob == 26 )
 	{
@@ -748,7 +748,7 @@ void SetNewProblem()
 //		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
-		drawer_ary.InitTrans(camera);	// set transformation
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );                            
 	}	
 	else if( iprob == 27 )
 	{	
@@ -792,7 +792,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerVector(id_field_stress,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
-		drawer_ary.InitTrans(camera);	// init view transformation
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );                            
 	}
 	else if( iprob == 28 )
 	{	
@@ -847,7 +847,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerVector(id_field_stress,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
-		drawer_ary.InitTrans(camera);	// init view transformation
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );                        
 	}
 	else if( iprob == 29 )
 	{	
@@ -902,7 +902,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerVector(id_field_stress,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
-		drawer_ary.InitTrans(camera);	// init view transformation
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );                                        
 	}
 	
 	iprob++;

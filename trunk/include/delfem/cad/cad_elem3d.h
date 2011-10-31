@@ -59,8 +59,8 @@ public:
     this->bb_      = rhs.bb_;
   }
 	CLoop3D(const Com::CVector3D& o, const Com::CVector3D& n, const Com::CVector3D& x ) : org(o), normal(n), dirx(x){
-    normal.Normalize();
-    dirx.Normalize();
+    normal.SetNormalizedVector();
+    dirx.SetNormalizedVector();
   }
 public:
   Com::CVector2D Project(const Com::CVector3D& p) const{

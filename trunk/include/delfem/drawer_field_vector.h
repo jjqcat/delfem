@@ -41,7 +41,7 @@ public:
 	CDrawerVector();
 	CDrawerVector(unsigned int id_field, const Fem::Field::CFieldWorld& world );
 	virtual ~CDrawerVector();
-	Com::CBoundingBox3D GetBoundingBox( double rot[] ) const;
+	Com::CBoundingBox3D GetBoundingBox( const double rot[] ) const;
 	virtual void DrawSelection(unsigned int idraw) const{};
 	virtual void AddSelected(const int selec_flag[]){}
 	virtual void ClearSelected(){}

@@ -47,7 +47,7 @@ void myGlutIdle(){	// call back function for idle
 	glutPostRedisplay();
 }
 
-Com::View::CCamera camera;
+Com::View::CCamera_2DH camera;
 
 void myGlutResize(int w, int h){ // call vack function for resize
 	camera.SetWindowAspect((double)w/h);
@@ -238,7 +238,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_deflect,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_deflect,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_deflect,true,world) );
-		drawer_ary.InitTrans( camera );
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3() ) );
 	}
 	else if( iprob == 1 ){
 		Msh::CMesher2D msh;
@@ -287,7 +287,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_deflect,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_deflect,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_deflect,true,world) );
-		drawer_ary.InitTrans( camera );
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3() ) );    
 	}
 
 	iprob++;

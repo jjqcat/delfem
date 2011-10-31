@@ -45,7 +45,7 @@
 using namespace Fem::Ls;
 using namespace Fem::Field;
 
-Com::View::CCamera camera;
+Com::View::CCamera_3D camera;
 double mov_begin_x, mov_begin_y;
 bool is_animation = true;
 
@@ -272,7 +272,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
-		drawer_ary.InitTrans(camera);
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );            
 	}
 	else if( iprob == 1 ){
 		solid.UnSetStationary();
@@ -311,7 +311,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
-		drawer_ary.InitTrans(camera);
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );            
 	}
 	else if( iprob == 6 ){
 		solid.SetStationary();
@@ -342,7 +342,7 @@ void SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
-		drawer_ary.InitTrans(camera);
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );            
 	}
 	else if( iprob == 8 ){
 		solid.UnSetGeometricalNonLinear();	// 幾何学的非線形性を考慮しない

@@ -118,6 +118,70 @@ void Fem::Field::View::DrawColorLegend(const CColorMap& color_map)
   ::glPopMatrix();  
 }
 
+void Fem::Field::View::DrawColorLegend2(const CColorMap& color_map)
+{  
+  ::glShadeModel(GL_SMOOTH);
+  ::glDisable(GL_CULL_FACE);
+  ::glLineWidth(1);
+  ::glColor3d(0,0,0);
+	
+  // Get View Port
+  int viewport[4];
+  glGetIntegerv(GL_VIEWPORT, viewport);
+  const double asp = (viewport[2]+1.0)/(viewport[3]+1.0);
+	
+  ::glMatrixMode(GL_PROJECTION);
+  ::glPushMatrix();
+  ::glLoadIdentity();
+  ::glOrtho(-asp,asp, -1,1, -1,1);
+  
+  ::glMatrixMode(GL_MODELVIEW);
+  ::glPushMatrix();
+  ::glLoadIdentity();
+//  ::glTranslated((asp-9*0.03)-0.05,   (1-0.05*10.5*1.7)-0.05,   0.3);
+  ::glTranslated((asp)-0.05,   (1-0.05*10.5*1.7)-0.05,   0.3);
+  
+  
+  double interval_n = 17.0;
+  const unsigned int ndiv_c = 20;
+  ::glScaled(0.03,0.05,1.0);
+  ::glBegin(GL_QUADS);
+  const double min_val = color_map.GetMin();
+  const double max_val = color_map.GetMax();
+  for(unsigned int i=0;i<ndiv_c;i++){
+    const double val0 = (max_val-min_val)*(1.0/ndiv_c)*(i+0) + min_val;
+    const double val1 = (max_val-min_val)*(1.0/ndiv_c)*(i+1) + min_val;
+    float color0[3], color1[3];
+    color_map.GetColor(color0, val0);
+    color_map.GetColor(color1, val1);
+    ::glColor3fv(color0);
+    ::glVertex2d(-3,interval_n*(1.0/ndiv_c)*i    );
+    ::glVertex2d(-0,interval_n*(1.0/ndiv_c)*i    );
+    ::glColor3fv(color1);
+    ::glVertex2d(-0,interval_n*(1.0/ndiv_c)*(i+1));
+    ::glVertex2d(-3,interval_n*(1.0/ndiv_c)*(i+1));
+  }
+  ::glEnd();
+  /*
+  ////////////////
+  ::glColor3f(0,0,0);
+  ::glTranslated(0,-0.5,0);
+  const unsigned int ndiv_n = 10;
+  for(unsigned int i=0;i<ndiv_n+1;i++){
+    double val = (max_val-min_val)*i/ndiv_n + min_val;
+    char str1[32];
+    sprintf(str1,"% 5.1e",val);
+    ::YsDrawUglyFont(str1,false,false);
+    ::glTranslated(0,+interval_n/ndiv_n,0);
+  }
+   */
+  ::glMatrixMode(GL_PROJECTION);
+  ::glPopMatrix();
+  ::glMatrixMode(GL_MODELVIEW);
+  ::glPopMatrix();  
+}
+
+
 
 
 CIndexArrayElem::CIndexArrayElem(unsigned int id_ea, unsigned int id_es, const Fem::Field::CFieldWorld& world)
@@ -391,6 +455,7 @@ bool View::CIndexArrayElem::SetColor
 
 ////////////////////////////////////////////////////////////////
 
+
 void View::CIndexArrayElem::DrawElements()
 {
 	if( this->pColor == 0 ){ 
@@ -432,3 +497,5 @@ void View::CIndexArrayElem::DrawElements()
 		::glEnd();
 	}
 }
+
+

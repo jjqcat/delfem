@@ -495,7 +495,7 @@ bool CZLinearSystem::SetFixedBoundaryCondition_Field( unsigned int id_field, con
 
 void CZLinearSystem::ClearFixedBoundaryCondition(){
 	for(unsigned int ibcflag=0;ibcflag<m_BCFlag.size();ibcflag++){
-		m_BCFlag[ibcflag]->SetAllFlagZero();
+		m_BCFlag[ibcflag]->SetAllFlag(0);
 	}
 }
 

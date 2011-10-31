@@ -41,7 +41,7 @@ class CMatDiaFrac_BlkCrs : public CMatDia_BlkCrs, public CPrecond_Blk
 {
 	friend class CMatFrac_BlkCrs;
 public:
-    CMatDiaFrac_BlkCrs() : m_ConditionFlag(-1), m_DiaInd(0), m_pRowLev(0){}
+  CMatDiaFrac_BlkCrs() : m_ConditionFlag(-1), m_DiaInd(0), m_pRowLev(0){}
 	CMatDiaFrac_BlkCrs(const unsigned int nblk_colrow, const unsigned int len_colrow);
     //! ILU(0)‚É‚æ‚éƒpƒ^[ƒ“‚Ì‰Šú‰»
 	CMatDiaFrac_BlkCrs(const CMatDia_BlkCrs& rhs);

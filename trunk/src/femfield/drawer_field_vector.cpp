@@ -74,7 +74,7 @@ CDrawerVector::~CDrawerVector(){
 	if( pData != 0 ){ delete pData; }
 }
 
-Com::CBoundingBox3D CDrawerVector::GetBoundingBox( double rot[] ) const{
+Com::CBoundingBox3D CDrawerVector::GetBoundingBox( const double rot[] ) const{
 //	if( this->pData == 0 ) return Com::CBoundingBox();
 //	return m_paVer->GetBoundingBox(rot);
 	return Com::CBoundingBox3D();

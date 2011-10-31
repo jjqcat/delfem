@@ -43,7 +43,7 @@ Fem::Eqn::CEqnSystem_Scalar2D eqn_scalar;
 double dt = 0.001;
 View::CDrawerArrayField drawer_ary;
 std::vector<Fem::Field::CFieldValueSetter> field_value_setter_ary;
-Com::View::CCamera camera;
+Com::View::CCamera_2D camera;
 double mov_begin_x, mov_begin_y;
 unsigned int id_base;
 
@@ -109,7 +109,7 @@ bool SetNewProblem()
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_val,true,world,id_field_val,-1,1) );
 //		drawer_ary.PushBack( new View::CDrawerFaceContour(id_field_val,world) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_val,true,world) );
-		drawer_ary.InitTrans(camera);	// 視線座標変換行列の初期化
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );            
 	}
 	else if( iprob == 1 ){
 		eqn_scalar.SetCapacity(10);
@@ -219,7 +219,7 @@ bool SetNewProblem()
 		const unsigned int id_field_val = eqn_scalar.GetIdField_Value();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_val,true,world,id_field_val,-1.0,1.0) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_base,true,world) );
-		drawer_ary.InitTrans(camera);
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );        
 	}
 	else if( iprob == 12 ){
 		eqn_scalar.SetSaveStiffMat(true);
@@ -281,7 +281,7 @@ bool SetNewProblem()
 		const unsigned int id_field_val = eqn_scalar.GetIdField_Value();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_val,true,world,id_field_val,-1.0,1.0) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_val,true,world) );
-		drawer_ary.InitTrans(camera);
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );    
 	}
 	else if( iprob == 16 ){
 		eqn_scalar.SetSaveStiffMat(true);
@@ -329,7 +329,7 @@ bool SetNewProblem()
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_val,true,world,id_field_val,0,500) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_val,true,world) );
-		drawer_ary.InitTrans(camera);	// 視線座標変換行列の初期化
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );
 	}
 
 	iprob++;

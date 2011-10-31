@@ -22,8 +22,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 @author Nobuyuki Umetani
 */
 
-#if !defined(MAT_CRS_H)
-#define MAT_CRS_H
+#if !defined(MAT_BLK_CRS_H)
+#define MAT_BLK_CRS_H
 
 #include <assert.h>
 #include <vector>

@@ -270,7 +270,7 @@ bool CZMatDiaFrac_BlkCrs::AddFracPtn(const int lev_fill)
 //	std::cout << "	ADDFracPtn  1" << std::endl;
 
 	if( m_ncrs_Blk == 0 ){
-		std::cout << "	Dia Center " << std::endl;
+//		std::cout << "	Dia Center " << std::endl;
 		return true;
 	}
 

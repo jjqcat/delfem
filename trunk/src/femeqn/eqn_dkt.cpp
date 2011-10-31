@@ -385,7 +385,7 @@ static void MakeLocalCoordBase(double loc_base[][3], double coord2[][2], const d
 	Com::CVector3D e0  = vec01 / vec01.Length();
 	Com::CVector3D tmp = vec02 / vec02.Length();
 	Com::CVector3D e2 = Com::Cross(e0,tmp);
-	e2.Normalize();
+	e2.SetNormalizedVector();
 	Com::CVector3D e1 = Com::Cross(e2,e0);
 	loc_base[0][0] = e0.x; loc_base[0][1] = e0.y; loc_base[0][2] = e0.z;
 	loc_base[1][0] = e1.x; loc_base[1][1] = e1.y; loc_base[1][2] = e1.z;

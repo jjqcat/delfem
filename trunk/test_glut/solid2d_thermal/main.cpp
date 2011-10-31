@@ -43,7 +43,7 @@
 using namespace Fem::Ls;
 using namespace Fem::Field;
 
-Com::View::CCamera camera;
+Com::View::CCamera_2D camera;
 double mov_begin_x, mov_begin_y;
 bool is_animation = true;
 
@@ -211,7 +211,7 @@ void SetNewProblem()
 	world.Clear();
 	unsigned int id_base = world.AddMesh( Msh::CMesher2D(cad_2d,0.1) );
 	const CIDConvEAMshCad& conv = world.GetIDConverter(id_base);
-	// îMägéUï˚íˆéÆÇ…ê›íË
+
 	scalar.SetDomain_Field(id_base,world);
 	scalar.SetCapacity(5);
 	scalar.SetAlpha(1.0);
@@ -227,15 +227,13 @@ void SetNewProblem()
 
 	solid.UpdateDomain_Field(id_base,world);
 	solid.SetRho(0.01);
-	solid.SetYoungPoisson(10.0,0.0,true);	// ÉÑÉìÉOó¶Ç∆É|ÉAÉ\Éìî‰ÇÃê›íË(ïΩñ âûóÕ)
+	solid.SetYoungPoisson(10.0,0.0,true);
 	solid.SetSaveStiffMat(false);
 	solid.SetStationary(true);
 	solid.SetTimeIntegrationParameter(dt);
-	// îMâûóÕñ‚ëËÇ…ê›íË
 	const unsigned int id_field_temp = scalar.GetIdField_Value();
 	solid.SetThermalStress(id_field_temp);
 
-	// ó¿ÇÃï–ï˚Çå≈íË
 	solid.AddFixElemAry(7,world);
 
 	drawer_ary.Clear();
@@ -245,9 +243,7 @@ void SetNewProblem()
 	drawer_ary.PushBack( new View::CDrawerFace(id_field_temp,true,world, id_field_temp,-1,1) );
 	drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,false,world) );
 	drawer_ary.PushBack( new View::CDrawerEdge(id_field_disp,true ,world) );
-
-	// Viewç¿ïWïœä∑ÇÃê›íË
-	drawer_ary.InitTrans(camera);
+  camera.Fit( drawer_ary.GetBoundingBox( camera.GetRotMatrix3() ) );
 }
 
 

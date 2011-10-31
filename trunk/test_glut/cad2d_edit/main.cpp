@@ -43,7 +43,7 @@ enum Cad::CAD_ELEM_TYPE itype_part_cad;
 int imode = 0;
 
 
-Com::View::CCamera camera;
+Com::View::CCamera_2D camera;
 Cad::CCadObj2D_Move cad_2d;
 //Cad::CCadObj2D cad_2d;
 Com::View::CDrawerArray drawer_ary;
@@ -343,8 +343,10 @@ void myGlutSpecial(int Key, int x, int y)
 		}
 		break;
 	case GLUT_KEY_HOME :
-		drawer_ary.InitTrans(camera);
-		camera.Fit();
+    {
+      double rot[9]; camera.RotMatrix33(rot);
+      camera.Fit(drawer_ary.GetBoundingBox(rot));
+    }        	
 		break;
 	case GLUT_KEY_END :
 		if( camera.IsPers() ) camera.SetIsPers(false);
@@ -422,7 +424,10 @@ bool SetNewProblem()
 		drawer_ary.Clear();
 		pDrawerCAD = new Cad::View::CDrawer_Cad2D(cad_2d);
 		drawer_ary.PushBack( pDrawerCAD );
-		drawer_ary.InitTrans( camera );
+    {
+      double rot[9]; camera.RotMatrix33(rot);
+      camera.Fit(drawer_ary.GetBoundingBox(rot));
+    }
 	}
 	else if( iprob == 1 )
 	{
@@ -444,7 +449,10 @@ bool SetNewProblem()
 		drawer_ary.Clear();
 		pDrawerCAD = new Cad::View::CDrawer_Cad2D(cad_2d);
 		drawer_ary.PushBack( pDrawerCAD );
-		drawer_ary.InitTrans( camera );
+    {
+      double rot[9]; camera.RotMatrix33(rot);
+      camera.Fit(drawer_ary.GetBoundingBox(rot));
+    }    
 	}
 	else if( iprob == 2 )
 	{
@@ -469,7 +477,10 @@ bool SetNewProblem()
 		drawer_ary.Clear();
 		pDrawerCAD = new Cad::View::CDrawer_Cad2D(cad_2d);
 		drawer_ary.PushBack( pDrawerCAD );
-		drawer_ary.InitTrans( camera );
+    {
+      double rot[9]; camera.RotMatrix33(rot);
+      camera.Fit(drawer_ary.GetBoundingBox(rot));
+    }        
 	}
 	else if( iprob == 3 ){
 		cad_2d.Clear();
@@ -495,7 +506,10 @@ bool SetNewProblem()
 		drawer_ary.Clear();
 		pDrawerCAD = new Cad::View::CDrawer_Cad2D(cad_2d);
 		drawer_ary.PushBack( pDrawerCAD );
-		drawer_ary.InitTrans( camera );
+    {
+      double rot[9]; camera.RotMatrix33(rot);
+      camera.Fit(drawer_ary.GetBoundingBox(rot));
+    }        
 	}
 	else if( iprob == 4 ){
 		cad_2d.Clear();
@@ -519,7 +533,10 @@ bool SetNewProblem()
 		drawer_ary.Clear();
 		pDrawerCAD = new Cad::View::CDrawer_Cad2D(cad_2d);
 		drawer_ary.PushBack( pDrawerCAD );
-		drawer_ary.InitTrans( camera );
+    {
+      double rot[9]; camera.RotMatrix33(rot);
+      camera.Fit(drawer_ary.GetBoundingBox(rot));
+    }            
 	}
 	else if( iprob == 5 ){
 		cad_2d.Clear();
@@ -548,8 +565,11 @@ bool SetNewProblem()
 		Cad::View::CDrawer_Cad2D* pDrawer_cad = new Cad::View::CDrawer_Cad2D(cad_2d);
 		pDrawer_cad->SetPointSize(10);
 		drawer_ary.PushBack( pDrawer_cad );
-		drawer_ary.InitTrans(camera);
-	}
+    {
+      double rot[9]; camera.RotMatrix33(rot);
+      camera.Fit(drawer_ary.GetBoundingBox(rot));
+    }        	
+  }
 	else if( iprob == 6 ){
 		cad_2d.ShiftLayer_Loop(id_l0,false);
 		cad_2d.ShiftLayer_Loop(id_l0,false);
@@ -558,7 +578,10 @@ bool SetNewProblem()
 		Cad::View::CDrawer_Cad2D* pDrawer_cad = new Cad::View::CDrawer_Cad2D(cad_2d);
 		pDrawer_cad->SetPointSize(10);
 		drawer_ary.PushBack( pDrawer_cad );
-		drawer_ary.InitTrans(camera);
+    {
+      double rot[9]; camera.RotMatrix33(rot);
+      camera.Fit(drawer_ary.GetBoundingBox(rot));
+    }        	    
 	}
 	else if( iprob == 7 )
 	{
@@ -578,7 +601,10 @@ bool SetNewProblem()
 		drawer_ary.Clear();
 		pDrawerCAD = new Cad::View::CDrawer_Cad2D(cad_2d);
 		drawer_ary.PushBack( pDrawerCAD );
-		drawer_ary.InitTrans( camera );
+    {
+      double rot[9]; camera.RotMatrix33(rot);
+      camera.Fit(drawer_ary.GetBoundingBox(rot));
+    }        	    
 	}
 	else if( iprob == 8 ){
 		cad_2d.Clear();
@@ -597,7 +623,10 @@ bool SetNewProblem()
 		drawer_ary.Clear();
 		pDrawerCAD = new Cad::View::CDrawer_Cad2D(cad_2d);
 		drawer_ary.PushBack( pDrawerCAD );
-		drawer_ary.InitTrans( camera );
+    {
+      double rot[9]; camera.RotMatrix33(rot);
+      camera.Fit(drawer_ary.GetBoundingBox(rot));
+    }        	    
 	}
 
 	::glMatrixMode(GL_PROJECTION);	

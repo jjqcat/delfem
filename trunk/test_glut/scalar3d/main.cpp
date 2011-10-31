@@ -43,7 +43,7 @@ unsigned int id_base;
 double dt = 0.02;
 View::CDrawerArrayField drawer_ary;
 std::vector<Fem::Field::CFieldValueSetter> field_value_setter_ary;
-Com::View::CCamera camera;
+Com::View::CCamera_3D camera;
 double mov_begin_x, mov_begin_y;
 
 bool SetNewProblem()
@@ -93,7 +93,7 @@ bool SetNewProblem()
 		const unsigned int id_field_val = eqn_scalar.GetIdField_Value();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_val,true,world, id_field_val,-1.0,1.0) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_val,true,world) );
-		drawer_ary.InitTrans(camera);
+    camera.Fit( drawer_ary.GetBoundingBox( camera.GetRotMatrix3() ) );
 	}
 	else if( iprob == 1 )
 	{
@@ -129,7 +129,7 @@ bool SetNewProblem()
 		const unsigned int id_field_val = eqn_scalar.GetIdField_Value();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_val,true,world, id_field_val,-1.0,1.0) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_val,true,world) );
-		drawer_ary.InitTrans(camera);
+    camera.Fit( drawer_ary.GetBoundingBox( camera.GetRotMatrix3() ) );    
 	}
 	else if( iprob == 2 )
 	{
@@ -164,7 +164,7 @@ bool SetNewProblem()
 		const unsigned int id_field_val = eqn_scalar.GetIdField_Value();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_val,true,world, id_field_val,-1.0,1.0) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_val,true,world) );
-		drawer_ary.InitTrans(camera);
+    camera.Fit( drawer_ary.GetBoundingBox( camera.GetRotMatrix3() ) );    
 	}
 	else if( iprob == 3 )
 	{
@@ -190,7 +190,7 @@ bool SetNewProblem()
 		const unsigned int id_field_val = eqn_scalar.GetIdField_Value();
 		drawer_ary.PushBack( new View::CDrawerFace(id_field_val, true,world, id_field_val,-1.0,1.0) );
 		drawer_ary.PushBack( new View::CDrawerEdge(id_field_val,true,world) );
-		drawer_ary.InitTrans(camera);
+    camera.Fit( drawer_ary.GetBoundingBox( camera.GetRotMatrix3() ) );    
 	}
 
 	iprob++;

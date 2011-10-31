@@ -186,7 +186,7 @@ public:
     }
     void Rotate(double t, double x, double y, double z){
         Com::CVector3D n(x,y,z);
-        n.Normalize();
+        n.SetNormalizedVector();
         n *= t;
         Com::CQuaternion q(n);
         double m[9];

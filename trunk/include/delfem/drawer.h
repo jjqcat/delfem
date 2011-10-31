@@ -38,6 +38,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 namespace Com{
 class CBoundingBox3D;
+  class CMatrix3;
 
 namespace View{
 
@@ -59,7 +60,7 @@ public:
 	@brief Obtain 3D Bounding Box (Com::CBoundingBox)
 	@param[in] rot : 3x3 rotation matrix
 	*/
-	virtual Com::CBoundingBox3D GetBoundingBox(double rot[]) const = 0;
+	virtual Com::CBoundingBox3D GetBoundingBox(const double rot[]) const = 0;
 	//! 選択されたオブジェクトを追加して，ハイライトさせる
 	virtual void AddSelected(const int selec_flag[]) = 0;
 	//! 選択を解除する
@@ -77,7 +78,7 @@ protected:
   bool m_is_anti_aliasing;  // アンチエリアシングするかどうか．デフォでfalse
 };
 
-class CCamera;
+//class CCamera;
 
 //! CDrawerの派生クラスのポインタを配列として格納するためのクラス
 class CDrawerArray
@@ -111,8 +112,9 @@ public:
 		for(unsigned int idraw=0;idraw<m_drawer_ary.size();idraw++){ delete m_drawer_ary[idraw]; }
 		m_drawer_ary.clear();
 	}
-	Com::CBoundingBox3D GetBoundingBox( double rot[] ) const;
-	void InitTrans(Com::View::CCamera& mvp_trans);
+	Com::CBoundingBox3D GetBoundingBox( const double rot[] ) const;
+  Com::CBoundingBox3D GetBoundingBox( const Com::CMatrix3& rm ) const;
+//	void InitTrans(Com::View::CCamera& mvp_trans);
 public:
 	std::vector<CDrawer*> m_drawer_ary;
 };
@@ -149,7 +151,7 @@ public:
   }
   // rot == 0 : return object axis bounding box
   // rot != 0 : return rotated axis bounding box (rot is 3x3 matrix)
-	Com::CBoundingBox3D GetBoundingBox( double rot[] ) const;
+	Com::CBoundingBox3D GetBoundingBox( const double rot[] ) const;
 	inline unsigned int NDim() const { return ndim; }
 	inline unsigned int NPoin() const { return npoin; }
   void EnableUVMap(bool is_uv_map){

@@ -72,6 +72,8 @@ protected:
 };
   
 void DrawColorLegend(const CColorMap& map);
+void DrawColorLegend2(const CColorMap& color_map);
+  
 
 //! IndexArray storing class for OpenGL vertex array
 class CIndexArrayElem

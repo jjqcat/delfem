@@ -31,7 +31,7 @@
 #include "delfem/cad/cad_svg.h"
 #include "delfem/drawer_cad.h"
 
-Com::View::CCamera camera;
+Com::View::CCamera_2D camera;
 double mov_begin_x, mov_begin_y;
 int imodifier;
 Com::View::CDrawerArray drawer_ary;
@@ -153,7 +153,7 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
-		drawer_ary.InitTrans(camera);
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );      
 	}
 	else if( iprob == 1 )
 	{
@@ -195,7 +195,7 @@ bool SetNewProblem()
 		}
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
-		drawer_ary.InitTrans(camera);
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );      
 	}
 	else if( iprob == 2 )
 	{
@@ -219,7 +219,7 @@ bool SetNewProblem()
     }
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
-		drawer_ary.InitTrans(camera);
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );          
 	}
 	else  if( iprob == 3 )
   {
@@ -243,7 +243,7 @@ bool SetNewProblem()
     }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
-		drawer_ary.InitTrans(camera);
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );          
 	}
 	else if( iprob == 4 )
 	{
@@ -274,7 +274,7 @@ bool SetNewProblem()
     }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
-		drawer_ary.InitTrans(camera);
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );          
 	}
 	else if( iprob == 5 )
 	{
@@ -294,7 +294,7 @@ bool SetNewProblem()
     }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
-		drawer_ary.InitTrans(camera);
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );          
 	}
 	else if( iprob == 6 )
 	{
@@ -330,7 +330,7 @@ bool SetNewProblem()
     }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
-		drawer_ary.InitTrans(camera);
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );          
 	}
 	else if( iprob == 7 )
 	{
@@ -364,7 +364,7 @@ bool SetNewProblem()
     }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
-		drawer_ary.InitTrans(camera);
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );          
 	}
 	else if( iprob == 8 ){
 		unsigned int id_e3, id_e4;
@@ -394,7 +394,7 @@ bool SetNewProblem()
     }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
-		drawer_ary.InitTrans(camera);
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );          
 	}
 	else if( iprob == 9 )
 	{
@@ -423,7 +423,7 @@ bool SetNewProblem()
     }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
-		drawer_ary.InitTrans(camera);
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );          
 	}
 	else if( iprob == 10 )
 	{
@@ -445,7 +445,7 @@ bool SetNewProblem()
     }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
-		drawer_ary.InitTrans(camera);
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );          
 	}
 	else if( iprob == 11 ){
 		{	// define initial loop
@@ -487,7 +487,7 @@ bool SetNewProblem()
     }    
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
-		drawer_ary.InitTrans(camera);
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );          
 	}
 	else if( iprob == 12 ){
     Cad::ReadSVG_AddLoopCad("../input_file/shape2d_0.svg",cad_2d);
@@ -498,7 +498,7 @@ bool SetNewProblem()
     }
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new Cad::View::CDrawer_Cad2D(cad_2d) );
-		drawer_ary.InitTrans(camera);
+    camera.Fit( drawer_ary.GetBoundingBox(camera.GetRotMatrix3()) );              
 	}
 	::glMatrixMode(GL_PROJECTION);
 	::glLoadIdentity();
