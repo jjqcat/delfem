@@ -46,11 +46,11 @@ using namespace Fem::Field;
 using namespace Fem::Ls;
 using namespace MatVec;
 
-static bool AddLinearSystem_Poisson2D_P1(
-		double alpha, double source, 
-        Fem::Ls::CLinearSystem_Field& ls, 
-		const unsigned int id_field_val, const CFieldWorld& world,
-		const unsigned int id_ea )
+static bool AddLinearSystem_Poisson2D_P1
+(double alpha, double source, 
+ Fem::Ls::CLinearSystem_Field& ls, 
+ const unsigned int id_field_val, const CFieldWorld& world,
+ const unsigned int id_ea )
 {
 //	std::cout << "Poisson2D Triangle 3-point 1st order" << std::endl;
 

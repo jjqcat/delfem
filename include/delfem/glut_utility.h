@@ -7,12 +7,21 @@
  *
  */
 
-void RenderBitmapString(float x, float y, void *font,char *string)
+#include <string.h> // for strcpy
+
+void RenderBitmapString(float x, float y, void *font,const char *string)
 {
-  char *c;
   ::glRasterPos2f(x, y);
-  for (c=string; *c != '\0'; c++) {
-	  ::glutBitmapCharacter(font, *c);
+  for(unsigned int i=0;string[i]!='\0';i++){    
+	  ::glutBitmapCharacter(font, string[i]);
+  }
+}
+
+void RenderBitmapString(float x, float y, float z, void *font,const char *string)
+{
+  ::glRasterPos3f(x,y,z);
+  for(unsigned int i=0;string[i]!='\0';i++){    
+	  ::glutBitmapCharacter(font, string[i]);
   }
 }
 

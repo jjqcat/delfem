@@ -354,10 +354,10 @@ private:
 	bool m_IsStationary;
 
 	std::vector<CEqn_Solid2D> m_aEqn;
-    double m_young_back;  // 新しく方程式要素が出来たときはこの値で初期化
-    double m_poisson_back;  // 新しく方程式要素が出来たときはこの値で初期化
-    bool m_is_plane_stress_back;  // 新しく方程式要素が出来たときはこの値で初期化
-    double m_rho_back;  // 新しく方程式要素が出来たときはこの値で初期化
+  double m_young_back;  // 新しく方程式要素が出来たときはこの値で初期化
+  double m_poisson_back;  // 新しく方程式要素が出来たときはこの値で初期化
+  bool m_is_plane_stress_back;  // 新しく方程式要素が出来たときはこの値で初期化
+  double m_rho_back;  // 新しく方程式要素が出来たときはこの値で初期化
 	bool m_is_geom_nonlin_back;
 
 	std::vector< std::pair<unsigned int,double> > m_aLoad;

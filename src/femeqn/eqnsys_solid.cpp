@@ -132,9 +132,8 @@ double CEqn_Solid3D_Linear::MakeLinearSystem(const Fem::Field::CFieldWorld& worl
 				world,
 				m_IdFieldDisp);
 		}
-	}
+	}  
 	const double norm_res = pLS->FinalizeMarge();
-
 	// ëOèàóùçsóÒÇçÏÇÈ
 	pPrec->SetValue( (*pLS).m_ls );
 
@@ -570,6 +569,22 @@ double CEqnSystem_Solid2D::MakeLinearSystem(const Fem::Field::CFieldWorld& world
 			}
 		}
 	}*/
+  /*
+  { // test of getting residual values
+    const CVector_Blk& res_c  = pLS->GetResidual(m_IdFieldDisp,CORNER,world);
+    const Fem::Field::CField& field_bc = world.GetField(3); // id_field_bc0
+    unsigned int id_ea = field_bc.GetAryIdEA()[0];
+    const CElemAry::CElemSeg& es = field_bc.GetElemSeg(id_ea,CORNER,true,world);
+    for(unsigned int ies=0;ies<es.Size();ies++){ 
+      unsigned int aNo[2]; es.GetNodes(ies,aNo);
+      unsigned int ino_v = aNo[0];
+      unsigned int ino_c = field_bc.GetMapVal2Co(ino_v);
+      double vres_x = res_c.GetValue(ino_c,0);
+      double vres_y = res_c.GetValue(ino_c,1);      
+      std::cout << ino_v << " "<< vres_x << " " << vres_y << std::endl;
+    }
+  } 
+   */
 	const double norm_res = pLS->FinalizeMarge();
 	this->m_is_cleared_value_ls = false;
 
@@ -659,7 +674,7 @@ bool CEqnSystem_Solid2D::Solve(Fem::Field::CFieldWorld& world)
 	bool is_nonlin;
 	this->EqnationProperty(is_nonlin); 
 	this->m_aItrNormRes.clear();
-	if( is_nonlin ){	// îÒê¸å`ÇÃèÍçáÇÕNewtonîΩïúÇÇµÇ»ÇØÇÍÇŒÇ¢ÇØÇ»Ç¢ÇÃÇ≈ï™ÇØÇÈ
+	if( is_nonlin ){	
 		assert( !this->m_IsSaveStiffMat );
 		if( pLS   == 0 ){ this->InitializeLinearSystem(world); }
 		if( pPrec == 0 ){ this->InitializePreconditioner();    }
@@ -676,7 +691,7 @@ bool CEqnSystem_Solid2D::Solve(Fem::Field::CFieldWorld& world)
 			{	// çsóÒÇâÇ≠
 				double conv_ratio = 1.0e-6;
 				unsigned int max_iter = 1000;
-                LsSol::CLinearSystemPreconditioner lsp( (*pLS).m_ls, *pPrec );
+        LsSol::CLinearSystemPreconditioner lsp( (*pLS).m_ls, *pPrec );
 				LsSol::Solve_PCG(conv_ratio,max_iter,lsp);
 				this->m_aItrNormRes.push_back( std::make_pair(max_iter,conv_ratio) );
 //				std::cout << max_iter << " " << conv_ratio << std::endl;

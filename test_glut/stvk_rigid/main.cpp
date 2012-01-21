@@ -43,7 +43,7 @@
 #include "delfem/drawer_field_vector.h"
 #include "delfem/drawer_field_face.h"
 
-Com::View::CCamera camera;
+Com::View::CCamera_3D camera;
 double mov_begin_x, mov_begin_y;
 int imodifier;
 
@@ -824,7 +824,7 @@ void myGlutDisplay(void)
 	Com::View::SetModelViewTransform(camera);
   
   if( is_animation ){
-    // „‘Ì‚Ì‰^“®‚ğ‰ğ‚­
+    // Ã§Ã‘Ã«ÃƒÃ‡ÃƒÃ¢^Ã¬Ã†Ã‡ï£¿Ã¢ï£¿Ã‡â‰ 
     //        StepTime();
     //        StepTime2();
     StepTime4();
@@ -910,7 +910,7 @@ void myGlutMouse(int button, int state, int x, int y){
 
 void SetProblem()
 {
-	const unsigned int nprob = 3;	// –â‘è”
+	const unsigned int nprob = 3;	// Ã±â€šÃ«Ã‹ÃªÃ®
 	static int iprob = 0;
 
     for(unsigned int icst=0;icst<apFix.size();icst++){ delete apFix[icst]; }
@@ -969,7 +969,7 @@ void SetProblem()
         ////////////////
 
 		Cad::CCadObj2D cad_2d;
- 		{	// Œ`‚ğì‚é
+ 		{	// Ã¥`Ã‡ï£¿Ã§ÃÃ‡Ãˆ
             std::vector<Com::CVector2D> vec_ary;
             vec_ary.push_back( Com::CVector2D(-1,-0.0) );
             vec_ary.push_back( Com::CVector2D( 2,-0.0) );
@@ -1014,7 +1014,7 @@ void SetProblem()
         prec_rf2.SetFillInLevel(1);
         prec_rf2.SetLinearSystem(ls_rf2);
         
-		// •`‰æƒIƒuƒWƒFƒNƒg‚Ì“o˜^
+		// Ã¯`Ã¢ÃŠÃ‰IÃ‰uÃ‰WÃ‰FÃ‰NÃ‰gÃ‡ÃƒÃ¬oÃ²^
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new View::CDrawerEdge(id_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerFace(id_disp,false,world) );
@@ -1041,7 +1041,7 @@ void SetProblem()
         ////////////////
 
 		Cad::CCadObj2D cad_2d;
- 		{	// Œ`‚ğì‚é
+ 		{	// Ã¥`Ã‡ï£¿Ã§ÃÃ‡Ãˆ
             std::vector<Com::CVector2D> vec_ary;
             vec_ary.push_back( Com::CVector2D(1.5,-0.5) );
             vec_ary.push_back( Com::CVector2D(5,  -0.5) );
@@ -1084,7 +1084,7 @@ void SetProblem()
         prec_rf2.SetFillInLevel(1);
         prec_rf2.SetLinearSystem(ls_rf2);
         
-		// •`‰æƒIƒuƒWƒFƒNƒg‚Ì“o˜^
+		// Ã¯`Ã¢ÃŠÃ‰IÃ‰uÃ‰WÃ‰FÃ‰NÃ‰gÃ‡ÃƒÃ¬oÃ²^
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new View::CDrawerEdge(id_disp,false,world) );
 		drawer_ary.PushBack( new View::CDrawerFace(id_disp,false,world) );
@@ -1121,7 +1121,7 @@ void SetProblem()
 		world.Clear();
         {
 		    Cad::CCadObj2D cad_2d;
- 		    {	// Œ`‚ğì‚é
+ 		    {	// Ã¥`Ã‡ï£¿Ã§ÃÃ‡Ãˆ
                 std::vector<Com::CVector2D> vec_ary;
                 vec_ary.push_back( Com::CVector2D(1.0,-0.5) );
                 vec_ary.push_back( Com::CVector2D(3.0,-0.5) );
@@ -1136,7 +1136,7 @@ void SetProblem()
         }
         {
 		    Cad::CCadObj2D cad_2d;
- 		    {	// Œ`‚ğì‚é
+ 		    {	// Ã¥`Ã‡ï£¿Ã§ÃÃ‡Ãˆ
                 std::vector<Com::CVector2D> vec_ary;
                 vec_ary.push_back( Com::CVector2D(4.0,-0.5) );
                 vec_ary.push_back( Com::CVector2D(6.0,-0.5) );
@@ -1194,7 +1194,7 @@ void SetProblem()
         prec_rf2.SetFillInLevel(1);
         prec_rf2.SetLinearSystem(ls_rf2);
         
-		// •`‰æƒIƒuƒWƒFƒNƒg‚Ì“o˜^
+		// Ã¯`Ã¢ÃŠÃ‰IÃ‰uÃ‰WÃ‰FÃ‰NÃ‰gÃ‡ÃƒÃ¬oÃ²^
 		drawer_ary.Clear();
 		drawer_ary.PushBack( new View::CDrawerEdge(id_disp1,false,world) );
 		drawer_ary.PushBack( new View::CDrawerFace(id_disp1,false,world) );
@@ -1217,7 +1217,7 @@ void myGlutKeyboard(unsigned char key, int x, int y)
   switch (key) {
   case 'q':
   case 'Q':
-  case '\033':  /* '\033' ‚Í ESC ‚Ì ASCII ƒR[ƒh */
+  case '\033':  /* '\033' Ã‡Ã• ESC Ã‡Ãƒ ASCII Ã‰RÃ…[Ã‰h */
 	  exit(0);
 	  break;
   case 'a':

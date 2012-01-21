@@ -513,6 +513,8 @@ bool CMatDiaFrac_BlkCrs::BackwardSubstitution( CVector_Blk& vec ) const
 	assert( vec.Len() == LenBlkCol() );
 	assert( vec.Len() == LenBlkCol() );
   
+  if( this->NBlkMatCol() == 0 ) return true;
+  
   if( LenBlkCol() == -1 || LenBlkRow() == -1 ){
     if( LenBlkCol() >= 0 || LenBlkRow() >= 0 ){
       std::cout << "Error!-->Not Implemented" << std::endl;
