@@ -76,7 +76,8 @@ bool ReadPPM_SetTexture(const std::string& fname,
 bool WritePPM_ScreenImage(const  std::string& fname);
   
 //! Draw coordinate
-class CDrawerCoord : public CDrawer{
+class CDrawerCoord : public CDrawer
+  {
 public:
   CDrawerCoord(){}
   CDrawerCoord(const CCamera& trans, unsigned int win_h );
@@ -84,7 +85,7 @@ public:
   
   // virutal functions which do nothing
   virtual void DrawSelection(unsigned int idraw) const {}
-  virtual Com::CBoundingBox3D GetBoundingBox(double rot[]) const { return Com::CBoundingBox3D(); }
+  virtual Com::CBoundingBox3D GetBoundingBox(const double rot[]) const { return Com::CBoundingBox3D(); }
   virtual void AddSelected(const int selec_flag[]){}
   virtual void ClearSelected(){}
   

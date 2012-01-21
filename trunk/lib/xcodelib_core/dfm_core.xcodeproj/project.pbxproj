@@ -465,6 +465,7 @@
 				A9EDB28811A8ABFF0003AC93 /* drawer_field_vector.h */,
 				A9EDB28911A8ABFF0003AC93 /* drawer_field.h */,
 				A9EDB28A11A8ABFF0003AC93 /* drawer_gl_utility.h */,
+				A944563B12E8FC930099ECA5 /* glut_utility.h */,
 				A9EDB28B11A8ABFF0003AC93 /* drawer_msh.h */,
 				A9EDB28C11A8ABFF0003AC93 /* drawer.h */,
 				A9EDB28D11A8ABFF0003AC93 /* elem_ary.h */,
@@ -498,7 +499,6 @@
 				A9EDB2DB11A8ABFF0003AC93 /* vector3d.h */,
 				A98D8E00142654F5009335EB /* matrix3d.h */,
 				A98D8E2F14265D1A009335EB /* octtree3d.h */,
-				A944563B12E8FC930099ECA5 /* glut_utility.h */,
 			);
 			name = Header;
 			sourceTree = "<group>";

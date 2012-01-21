@@ -88,6 +88,9 @@ public:
 				noes[inoes] = abs(pLnods[ielem*npoel+begin+inoes]); 
 			}
 		}
+    unsigned int GetNode(const unsigned int ielem, unsigned int inoes ) const{
+      return abs(pLnods[ielem*npoel+begin+inoes]); 
+    }
 		//! ß“_”Ô†‚ğİ’è
 		void SetNodes(unsigned int ielem, unsigned int idofes, int ino ){
 			pLnods[ielem*npoel+begin+idofes] = ino;

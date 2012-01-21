@@ -433,14 +433,24 @@ static void GetVertical2Vector
   }
 }    
   
-  
+inline Com::CVector3D GetMinDist_LinePoint(const Com::CVector3D& p, // point
+                                           const Com::CVector3D& s, // source
+                                           const Com::CVector3D& d) // direction 
+{
+  assert( Dot(d,d) > 1.0e-20 );
+  const Com::CVector3D ps = s-p;
+  double a = Dot(d,d);
+  double b = Dot(d,s-p);
+  double t = -b/a;
+  return s+t*d;
+}
   
 
 //! Volume of a tetrahedra
 inline double TetVolume(const CVector3D& v1,
-						const CVector3D& v2, 
-						const CVector3D& v3, 
-						const CVector3D& v4 )
+                        const CVector3D& v2, 
+                        const CVector3D& v3, 
+                        const CVector3D& v4 )
 {
 	return	
 		(   ( v2.x - v1.x )*( ( v3.y - v1.y )*( v4.z - v1.z ) - ( v4.y - v1.y )*( v3.z - v1.z ) )		

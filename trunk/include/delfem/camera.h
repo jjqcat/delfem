@@ -306,6 +306,10 @@ public:
     this->theta = theta;
     this->phi = phi;
   } 
+  void GetRotation2DH(double& theta, double& phi){
+    theta = this->theta;
+    phi = this->phi;
+  }   
   void GetRayVerticalScreen(const double& scr_x, const double& scr_y,
                             Com::CVector3D& src, Com::CVector3D& dir)
   {
