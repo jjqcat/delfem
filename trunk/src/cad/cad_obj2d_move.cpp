@@ -54,7 +54,7 @@ bool CCadObj2D_Move::SmoothingPolylineEdge(unsigned int id_e, unsigned int nitr,
   if( this->GetEdgeCurveType(id_e) != 2 ) return true;
   if( nitr == 0 ) return true;
   CEdge2D& edge = this->GetEdgeRef(id_e);
-  std::vector<double> axys = edge.GetCurve_Polyline();
+  std::vector<double> axys = edge.GetCurveRelPoint();
   assert( axys.size() % 2 == 0 );
   const unsigned int nno = axys.size()/2;
   std::vector<unsigned int> aIndNo;
@@ -92,6 +92,56 @@ bool CCadObj2D_Move::SmoothingPolylineEdge(unsigned int id_e, unsigned int nitr,
   }
   return true;
 }
+
+//! move ctrl point (index:ictrl) of edge (ID:id_e) with direction vec_delta
+bool CCadObj2D_Move::MoveEdgeCtrl
+(unsigned int id_e, unsigned int ictrl, 
+ const Com::CVector2D& vec_delta)
+{
+  
+	if( !this->IsElemID(Cad::EDGE,id_e) ) return false;
+  
+  std::vector<double> aRelCo_old;
+  {
+    const Cad::CEdge2D& e = this->GetEdge(id_e);
+    aRelCo_old = e.GetCurveRelPoint();
+  }
+  
+  CEdge2D& edge = this->GetEdgeRef(id_e);  
+  if( ictrl >= edge.GetCurvePoint().size() ) return true;
+  {
+    const Com::CVector2D& ps = edge.GetVtxCoord(true);
+    const Com::CVector2D& pe = edge.GetVtxCoord(false);    
+    const double sqlen = Com::SquareLength(pe-ps);
+    const Com::CVector2D& eh = (pe-ps)*(1/sqlen);
+    const Com::CVector2D ev(-eh.y,eh.x);
+    Com::CVector2D p0 = edge.GetCurvePoint()[ictrl] + vec_delta;
+    std::vector<double> aRelCo = edge.GetCurveRelPoint();
+    aRelCo[ictrl*2+0] = Dot(p0-ps,eh);
+    aRelCo[ictrl*2+1] = Dot(p0-ps,ev); 
+    edge.SetCurveRelPoint(aRelCo);
+  }
+  
+  std::set<unsigned int> setIdL;
+  for(CBRepSurface::CItrVertex itrv=m_BRep.GetItrVertex(edge.GetIdVtx(true));!itrv.IsEnd();itrv++){
+    setIdL.insert( itrv.GetIdLoop() );
+  }
+  for(CBRepSurface::CItrVertex itrv=m_BRep.GetItrVertex(edge.GetIdVtx(false));!itrv.IsEnd();itrv++){
+    setIdL.insert( itrv.GetIdLoop() );
+  }
+  
+  for(std::set<unsigned int>::const_iterator itrl=setIdL.begin();itrl!=setIdL.end();itrl++){
+    const unsigned int id_l = *itrl;
+    if( !m_BRep.IsElemID(Cad::LOOP,id_l) ) continue;
+    if( this->CheckLoop(id_l)!=0 ) goto FAILURE;
+	}
+	return true;
+  
+FAILURE:
+  edge.SetCurveRelPoint(aRelCo_old);
+	return true;      
+}
+
 
 // id_eのカーブをdistに通るようにする
 bool CCadObj2D_Move::DragArc(unsigned int id_e, const CVector2D& vec)

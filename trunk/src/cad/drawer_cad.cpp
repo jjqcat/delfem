@@ -214,7 +214,7 @@ CDrawerRubberBand::CDrawerRubberBand(const Cad::CCadObj2D& cad,
 
 ////////////////////////////////////////////////////////////////
 
-bool CDrawer_Cad2D::CDrawPart::Set(const Msh::CTriAry2D& TriAry)
+bool CDrawer_Cad2D::CDrawPart::SetTriAry(const Msh::CTriAry2D& TriAry)
 {
 	this->id_cad = TriAry.id_l_cad;	assert( id_cad != 0 );
 	this->id_msh = TriAry.id;		assert( id_msh != 0 );
@@ -234,7 +234,7 @@ bool CDrawer_Cad2D::CDrawPart::Set(const Msh::CTriAry2D& TriAry)
 	return true;
 }
 
-bool CDrawer_Cad2D::CDrawPart::Set(const Msh::CBarAry& BarAry)
+bool CDrawer_Cad2D::CDrawPart::SetBarAry(const Msh::CBarAry& BarAry)
 {
 	this->id_cad = BarAry.id_e_cad;	assert( id_cad != 0 );
 	this->id_msh = BarAry.id;		assert( id_msh != 0 );
@@ -249,23 +249,42 @@ bool CDrawer_Cad2D::CDrawPart::Set(const Msh::CBarAry& BarAry)
 			pIndexArray[ielem*npoel+ipoel] = BarAry.m_aBar[ielem].v[ipoel];
 		}
 	}
-    ////////////////
-    color[0]=0.0;   color[1]=0.0;   color[2]=0.0;
+  ////////////////
+  color[0]=0.0;   color[1]=0.0;   color[2]=0.0;
+	return true;
+}
+
+
+bool CDrawer_Cad2D::CDrawPart::SetVertex(const Msh::SVertex& vtx)
+{
+	this->id_cad = vtx.id_v_cad;	assert( id_cad != 0 );
+	this->id_msh = vtx.id;		assert( id_msh != 0 );
+	this->itype  = Cad::VERTEX;
+	////////////////
+	npoel = 1;
+	nelem = 1;
+	if( pIndexArray != 0 ){ delete[] pIndexArray; }
+	pIndexArray = new unsigned int [nelem*npoel];
+  pIndexArray[0] = vtx.v;
+  ////////////////
+  color[0]=0.0;   color[1]=0.0;   color[2]=0.0;
 	return true;
 }
 
 void CDrawer_Cad2D::CDrawPart::DrawElements() const
 {
-//	if( !this->is_show ) return;    // セレクションに必要
+  if( npoel == 1 ){
+    ::glDrawElements(GL_POINTS,nelem*npoel,GL_UNSIGNED_INT,pIndexArray); 
+		return;
+  }
 	if( npoel == 2 ){ 
 		::glDrawElements(GL_LINES    ,nelem*npoel,GL_UNSIGNED_INT,pIndexArray); 
 		return;
 	}
-	else if( npoel == 3 ){ 
+	if( npoel == 3 ){ 
 		::glDrawElements(GL_TRIANGLES,nelem*npoel,GL_UNSIGNED_INT,pIndexArray); 
 		return;
 	}
-	// assert( npoel == 0 );
 }
 
 ////////////////////////////////////////////////////////////////
@@ -274,15 +293,15 @@ bool CDrawer_Cad2D::UpdateCAD_TopologyGeometry(const Cad::CCadObj2D &cad_2d)
 {
 	this->sutable_rot_mode = 1;	
   //! 今までのDrawerPartの配列を一端バッファにコピーして，必要な物だけを戻す
-  std::vector<CDrawPart*> indAry_old = m_apIndexAry;
-  for(unsigned int idp=0;idp<indAry_old.size();idp++){
-    indAry_old[idp]->id_msh = 0;
-    indAry_old[idp]->is_selected = false;
+  std::vector<CDrawPart*> apDrawPart_old = m_apDrawPart;
+  for(unsigned int idp=0;idp<apDrawPart_old.size();idp++){
+    apDrawPart_old[idp]->id_msh = 0;
+    apDrawPart_old[idp]->imode_show = 0;
   }
-  m_apIndexAry.clear();
-  m_aIndexVertex.clear();  
+  m_apDrawPart.clear();
+//  m_aIndexVertex.clear();  
 
-	Msh::CMesher2D mesh(cad_2d);
+	Msh::CMesher2D mesh(cad_2d); 
 
 	int ilayer_min, ilayer_max;
 	cad_2d.GetLayerMinMax(ilayer_min, ilayer_max);
@@ -313,36 +332,36 @@ bool CDrawer_Cad2D::UpdateCAD_TopologyGeometry(const Cad::CCadObj2D &cad_2d)
 				height = (ilayer-ilayer_min)*layer_height;
 			}
       unsigned int idp0 = 0;
-      for(;idp0<indAry_old.size();idp0++){
-        if(    indAry_old[idp0]->itype == Cad::LOOP
-           && indAry_old[idp0]->id_cad == id_l )
+      for(;idp0<apDrawPart_old.size();idp0++){
+        CDrawPart& dpo = *apDrawPart_old[idp0];        
+        if( dpo.itype == Cad::LOOP && dpo.id_cad == id_l )
         {
-          indAry_old[idp0]->Set( aTriAry[ita] );
-          indAry_old[idp0]->SetHeight(height);
+          dpo.SetTriAry( aTriAry[ita] );
+          dpo.SetHeight(height);
           double cd[3];
           cad_2d.GetColor_Loop(id_l,cd);
-          indAry_old[idp0]->color[0] = (float)cd[0];
-          indAry_old[idp0]->color[1] = (float)cd[1];
-          indAry_old[idp0]->color[2] = (float)cd[2];          
-          this->m_apIndexAry.push_back( indAry_old[idp0] );
+          dpo.color[0] = (float)cd[0];
+          dpo.color[1] = (float)cd[1];
+          dpo.color[2] = (float)cd[2];          
+          this->m_apDrawPart.push_back( apDrawPart_old[idp0] );
           break;
         }
       }
-      if( idp0 == indAry_old.size() ){
+      if( idp0 == apDrawPart_old.size() ){
         CDrawPart* dp = new CDrawPart;
-        dp->Set( aTriAry[ita] );
+        dp->SetTriAry( aTriAry[ita] );
         dp->SetHeight( height );
         double cd[3];
         cad_2d.GetColor_Loop(id_l,cd);
         dp->color[0] = (float)cd[0];
         dp->color[1] = (float)cd[1];
         dp->color[2] = (float)cd[2];              
-        this->m_apIndexAry.push_back( dp );
+        this->m_apDrawPart.push_back( dp );
       }      
 		}
 	}
   
-	{	// 辺をセット
+	{	// set edge
 		const std::vector<Msh::CBarAry>& aBarAry = mesh.GetBarArySet();
     for(unsigned int ibar=0;ibar<aBarAry.size();ibar++){
       const unsigned int id_e = aBarAry[ibar].id_e_cad;
@@ -352,50 +371,80 @@ bool CDrawer_Cad2D::UpdateCAD_TopologyGeometry(const Cad::CCadObj2D &cad_2d)
 				height += (ilayer-ilayer_min+0.01)*layer_height;
 			}
       unsigned int idp0 = 0;
-      for(;idp0<indAry_old.size();idp0++){
-        if(    indAry_old[idp0]->itype  == Cad::EDGE
-           && indAry_old[idp0]->id_cad == id_e )
-        {
-          indAry_old[idp0]->Set( aBarAry[ibar] );
-          indAry_old[idp0]->SetHeight( height );
-          this->m_apIndexAry.push_back( indAry_old[idp0] );
+      for(;idp0<apDrawPart_old.size();idp0++){
+        CDrawPart& dpo = *apDrawPart_old[idp0];
+        if( dpo.itype == Cad::EDGE && dpo.id_cad == id_e ){
+          dpo.SetBarAry( aBarAry[ibar] );
+          dpo.SetHeight( height );
+          this->m_apDrawPart.push_back( &dpo );
           break;
         }
       }
-      if( idp0 == indAry_old.size() ){
+      if( idp0 == apDrawPart_old.size() ){
         CDrawPart* dp = new CDrawPart;
-        dp->Set( aBarAry[ibar] );	
+        dp->SetBarAry( aBarAry[ibar] );	
         dp->SetHeight( height );
-        this->m_apIndexAry.push_back( dp );
+        this->m_apDrawPart.push_back( dp );
       }
+      {
+        CDrawPart& dp = *m_apDrawPart[m_apDrawPart.size()-1];      
+        const CEdge2D& edge = cad_2d.GetEdge(id_e);
+        dp.aCtrlPoint.clear();      
+        dp.itype_curve = edge.GetCurveType();
+        if( edge.GetCurveType() == CURVE_ARC ){
+          Com::CVector2D po_c; double radius;
+          edge.GetCenterRadius(po_c,radius);
+          dp.aCtrlPoint.push_back(po_c);
+        }
+        else if( edge.GetCurveType() == CURVE_BEZIER ){
+          const std::vector<Com::CVector2D>& aCo = edge.GetCurvePoint();
+          dp.aCtrlPoint.push_back( aCo[0] );
+          dp.aCtrlPoint.push_back( aCo[1] );
+        }        
+      }      
 		}
 	}
   
-  for(unsigned int idp=0;idp<indAry_old.size();idp++){
-    if( indAry_old[idp]->id_msh == 0 ){
-      delete indAry_old[idp];
-    }
-  }
-  indAry_old.clear();
-  
-	{	// 頂点をセット
+	{	// set vertex
 		const std::vector<Msh::SVertex>& aVertex = mesh.GetVertexAry();
 		for(unsigned int iver=0;iver<aVertex.size();iver++){
 			const unsigned int id_v_cad = aVertex[iver].id_v_cad;
-			int ilayer = cad_2d.GetLayer(Cad::VERTEX,id_v_cad);
+			int ilayer = cad_2d.GetLayer(Cad::VERTEX,id_v_cad);      
 			const double height = (ilayer-ilayer_min+0.1)*layer_height;
+      unsigned int idp0 = 0;
+      for(;idp0<apDrawPart_old.size();idp0++){
+        CDrawPart& dpo = *apDrawPart_old[idp0];
+        if( dpo.itype == Cad::VERTEX && dpo.id_cad == id_v_cad ){
+          dpo.SetVertex( aVertex[iver] );
+          dpo.SetHeight( height );
+          this->m_apDrawPart.push_back( &dpo );
+          break;
+        }
+      }
+      if( idp0 == apDrawPart_old.size() ){
+        CDrawPart* dp = new CDrawPart;
+        dp->SetVertex( aVertex[iver] );	
+        dp->SetHeight( height );
+        this->m_apDrawPart.push_back( dp );
+      }      
+      /*
 			CDrawPart_CadVertex dpv;
 			dpv.id_cad = id_v_cad;
 			dpv.id_msh = aVertex[iver].id;
 			dpv.id_v = aVertex[iver].v;
-			dpv.is_selected = false;
-			dpv.is_show = true;
+			dpv.imode_show = 0;
 			dpv.height = height;
 			this->m_aIndexVertex.push_back( dpv );
+       */
 		}
 	}
+  
+  for(unsigned int idp=0;idp<apDrawPart_old.size();idp++){
+    if( apDrawPart_old[idp]->id_msh == 0 ){ delete apDrawPart_old[idp]; }
+  }
+  apDrawPart_old.clear();  
 
-	{	// 座標をセット
+	{	// setting coordinage
 		const std::vector<CVector2D>& aVec2D = mesh.GetVectorAry();
 		const unsigned int npoin = aVec2D.size();
 		const unsigned int ndim = 2;
@@ -418,10 +467,11 @@ bool CDrawer_Cad2D::UpdateCAD_TopologyGeometry(const Cad::CCadObj2D &cad_2d)
 void CDrawer_Cad2D::UpdateCAD_Geometry(const Cad::CCadObj2D& cad_2d)
 {
 	Msh::CMesher2D mesh(cad_2d);
-	for(unsigned int idp=0;idp<m_apIndexAry.size();idp++){
-		m_apIndexAry[idp]->Clear();
-		const unsigned int id_cad = m_apIndexAry[idp]->id_cad;
-		Cad::CAD_ELEM_TYPE itype_cad = m_apIndexAry[idp]->itype;
+	for(unsigned int idp=0;idp<m_apDrawPart.size();idp++){
+    CDrawPart& dp = *m_apDrawPart[idp];
+		dp.Clear();
+		const unsigned int id_cad = dp.id_cad;
+		Cad::CAD_ELEM_TYPE itype_cad = dp.itype;
 		if( !cad_2d.IsElemID(itype_cad,id_cad) ){ continue; }
 		const unsigned int id_msh = mesh.GetElemID_FromCadID(id_cad,itype_cad);
 		if( id_msh == 0 ) continue;
@@ -430,16 +480,33 @@ void CDrawer_Cad2D::UpdateCAD_Geometry(const Cad::CCadObj2D& cad_2d)
 		mesh.GetMshInfo(id_msh,  nelem,msh_type,iloc,id_cad0);
 		assert( id_cad0 == id_cad );
 		if( msh_type == Msh::TRI ){
-			m_apIndexAry[idp]->Set( mesh.GetTriArySet()[iloc] );
+			dp.SetTriAry( mesh.GetTriArySet()[iloc] );
       double cd[3];
       cad_2d.GetColor_Loop(id_cad0,cd);
-      m_apIndexAry[idp]->color[0] = (float)cd[0];
-      m_apIndexAry[idp]->color[1] = (float)cd[1];
-      m_apIndexAry[idp]->color[2] = (float)cd[2];
+      dp.color[0] = (float)cd[0];
+      dp.color[1] = (float)cd[1];
+      dp.color[2] = (float)cd[2];
     }
 		else if( msh_type == Msh::BAR ){
-			m_apIndexAry[idp]->Set( mesh.GetBarArySet()[iloc] );
+			dp.SetBarAry( mesh.GetBarArySet()[iloc] );
+      assert( itype_cad == EDGE );
+      const CEdge2D& edge = cad_2d.GetEdge(id_cad);      
+      dp.itype_curve = edge.GetCurveType();      
+      dp.aCtrlPoint.clear();      
+      if( edge.GetCurveType() == CURVE_ARC ){
+        Com::CVector2D po_c; double radius;
+        edge.GetCenterRadius(po_c,radius);
+        dp.aCtrlPoint.push_back(po_c);
+      }
+      else if( edge.GetCurveType() == CURVE_BEZIER ){
+        const std::vector<Com::CVector2D>& aCo = edge.GetCurvePoint();
+        dp.aCtrlPoint.push_back( aCo[0] );
+        dp.aCtrlPoint.push_back( aCo[1] );
+      }
 		}
+    else if( msh_type == Msh::VERTEX ){
+			dp.SetVertex( mesh.GetVertexAry()[iloc] );
+    }
 	}
 	
 	{	// 座標をセット
@@ -460,81 +527,59 @@ void CDrawer_Cad2D::UpdateCAD_Geometry(const Cad::CCadObj2D& cad_2d)
 	}
 }
 
-void CDrawer_Cad2D::GetCadPartID(const int selec_flag[],
-                                 Cad::CAD_ELEM_TYPE& part_type, unsigned int& part_id)
+void CDrawer_Cad2D::GetCadPartID
+(const int selec_flag[],
+ Cad::CAD_ELEM_TYPE& part_type, unsigned int& part_id, int& ictrl)
 {
-	for(unsigned int iea=0;iea<m_apIndexAry.size();iea++){
-    if( (int)m_apIndexAry[iea]->id_msh == selec_flag[1] ){
-			part_type = m_apIndexAry[iea]->itype;
-			part_id = m_apIndexAry[iea]->id_cad;  assert( part_id != 0 );
-			return;
-		}
-	}
-	for(unsigned int iv=0;iv<this->m_aIndexVertex.size();iv++){
-    if( (int)m_aIndexVertex[iv].id_msh == selec_flag[1] ){
-			part_type = Cad::VERTEX;
-			part_id = m_aIndexVertex[iv].id_cad;	assert( part_id != 0 );
-			return;
-		}
-	}
+  unsigned int idp = selec_flag[1];
+  if( idp < m_apDrawPart.size() ){
+    CDrawPart& dp = *m_apDrawPart[idp];
+    part_type = dp.itype;
+    part_id = dp.id_cad;
+    ictrl = selec_flag[2];
+    return;
+  }
 	part_type = Cad::NOT_SET;
 	part_id = 0;
 }
 
-void CDrawer_Cad2D::AddSelected(Cad::CAD_ELEM_TYPE itype, unsigned int id)
+void CDrawer_Cad2D::SetModeShow(Cad::CAD_ELEM_TYPE itype, unsigned int id, int imode_show)
 {
 	bool iflag = false;
-	if( itype == Cad::VERTEX ){
-		for(unsigned int iv=0;iv<this->m_aIndexVertex.size();iv++){
-			if( m_aIndexVertex[iv].id_cad == id ){
-				m_aIndexVertex[iv].is_selected = true;
-				assert( iflag == false );
-				iflag = true;
-			}
-		}
-	}
-	else{
-		for(unsigned int iea=0;iea<m_apIndexAry.size();iea++){
-			if( m_apIndexAry[iea]->itype == itype && m_apIndexAry[iea]->id_cad == id ){
-				m_apIndexAry[iea]->is_selected = true;
-				assert( iflag == false );
-				iflag = true;
-			}
-		}
-	}
+  for(unsigned int iea=0;iea<m_apDrawPart.size();iea++){
+    if( m_apDrawPart[iea]->itype == itype && m_apDrawPart[iea]->id_cad == id ){
+      m_apDrawPart[iea]->imode_show = imode_show;
+      assert( iflag == false );
+      iflag = true;
+    }
+  }
 }
 
-void CDrawer_Cad2D::AddSelected(const int selec_flag[])
+int CDrawer_Cad2D::GetModeShow(Cad::CAD_ELEM_TYPE itype, unsigned int id)
 {
-	for(unsigned int iea=0;iea<m_apIndexAry.size();iea++){
-    if( (int)m_apIndexAry[iea]->id_msh == selec_flag[1] ){
-			m_apIndexAry[iea]->is_selected = true;
-		}
-	}
-	for(unsigned int iv=0;iv<this->m_aIndexVertex.size();iv++){
-        if( (int)m_aIndexVertex[iv].id_msh == selec_flag[1] ){
-			m_aIndexVertex[iv].is_selected = true;
-		}
-	}
+  for(unsigned int iea=0;iea<m_apDrawPart.size();iea++){
+    if( m_apDrawPart[iea]->itype == itype && m_apDrawPart[iea]->id_cad == id ){
+      return m_apDrawPart[iea]->imode_show;
+    }
+  }
 }
 
-void CDrawer_Cad2D::ClearSelected()
+void CDrawer_Cad2D::ClearModeShow(int imode_show)
 {
-	for(unsigned int iea=0;iea<m_apIndexAry.size();iea++){
-		m_apIndexAry[iea]->is_selected = false;
-	}
-	for(unsigned int iv=0;iv<this->m_aIndexVertex.size();iv++){
-		m_aIndexVertex[iv].is_selected = false;
+	for(unsigned int iea=0;iea<m_apDrawPart.size();iea++){
+    if( m_apDrawPart[iea]->imode_show == imode_show ){ 
+      m_apDrawPart[iea]->imode_show = 0;
+    }
 	}
 }
 /*
 void CDrawer_Cad2D::Hide(Cad::CAD_ELEM_TYPE part_type, unsigned int part_id)
 {
     if( part_type == Cad::EDGE || part_type == Cad::LOOP ){
-		for(unsigned int iea=0;iea<m_apIndexAry.size();iea++){
-            if(    m_apIndexAry[iea]->id_cad == part_id
-                && m_apIndexAry[iea]->itype  == part_type){
-				m_apIndexAry[iea]->is_show = false;
+		for(unsigned int iea=0;iea<m_apDrawPart.size();iea++){
+            if(    m_apDrawPart[iea]->id_cad == part_id
+                && m_apDrawPart[iea]->itype  == part_type){
+				m_apDrawPart[iea]->is_show = false;
 			}
 		}
 	}
@@ -549,25 +594,29 @@ void CDrawer_Cad2D::Hide(Cad::CAD_ELEM_TYPE part_type, unsigned int part_id)
 */
 void CDrawer_Cad2D::SetIsShow(bool is_show, Cad::CAD_ELEM_TYPE itype_part_cad, unsigned int id_part_cad)
 {
-    if( itype_part_cad == Cad::EDGE || itype_part_cad == Cad::LOOP ){
-		for(unsigned int iea=0;iea<m_apIndexAry.size();iea++){
-            if(    m_apIndexAry[iea]->id_cad == id_part_cad
-                && m_apIndexAry[iea]->itype  == itype_part_cad ){
-				m_apIndexAry[iea]->is_show = is_show;
+  int imode = (is_show) ? 0 : -1;
+//  if( itype_part_cad == Cad::EDGE || itype_part_cad == Cad::LOOP ){
+		for(unsigned int iea=0;iea<m_apDrawPart.size();iea++){
+      if(    m_apDrawPart[iea]->id_cad == id_part_cad
+         && m_apDrawPart[iea]->itype  == itype_part_cad ){
+				m_apDrawPart[iea]->imode_show = imode;
 			}
 		}
+  /*
 	}
-    else if( itype_part_cad == Cad::VERTEX ){
+  else if( itype_part_cad == Cad::VERTEX ){
 		for(unsigned int iv=0;iv<this->m_aIndexVertex.size();iv++){
 			if( m_aIndexVertex[iv].id_cad == id_part_cad ){
-				m_aIndexVertex[iv].is_show = is_show;
+				m_aIndexVertex[iv].imode_show = imode;
 			}
 		}
 	}
+   */
 }
 
-void CDrawer_Cad2D::SetIsShow(bool is_show, 
-							  Cad::CAD_ELEM_TYPE itype_part_cad, const std::vector<unsigned int>& aIdPart )
+void CDrawer_Cad2D::SetIsShow
+(bool is_show, 
+ Cad::CAD_ELEM_TYPE itype_part_cad, const std::vector<unsigned int>& aIdPart )
 {
 	for(unsigned int i=0;i<aIdPart.size();i++){
 		unsigned int id = aIdPart[i];
@@ -575,12 +624,14 @@ void CDrawer_Cad2D::SetIsShow(bool is_show,
 	}
 }
 
-void CDrawer_Cad2D::SetRigidDisp(unsigned int id_l, double xdisp, double ydisp){	
-	for(unsigned int iea=0;iea<m_apIndexAry.size();iea++){
-        if(    m_apIndexAry[iea]->id_cad == id_l
-            && m_apIndexAry[iea]->itype  == Cad::LOOP ){
-			m_apIndexAry[iea]->xdisp = xdisp;
-			m_apIndexAry[iea]->ydisp = ydisp;
+void CDrawer_Cad2D::SetRigidDisp
+(unsigned int id_l, double xdisp, double ydisp)
+{	
+	for(unsigned int iea=0;iea<m_apDrawPart.size();iea++){
+    if(    m_apDrawPart[iea]->id_cad == id_l
+       && m_apDrawPart[iea]->itype  == Cad::LOOP ){
+			m_apDrawPart[iea]->xdisp = xdisp;
+			m_apDrawPart[iea]->ydisp = ydisp;
 		}
 	}
 }
@@ -660,6 +711,9 @@ void CDrawer_Cad2D::SetTextureScale(double tex_scale)
   }      
 }
 
+void myGlVertex2d(const Com::CVector2D& p){
+  glVertex2d(p.x,p.y);
+}
 
 void CDrawer_Cad2D::Draw() const
 {
@@ -674,15 +728,18 @@ void CDrawer_Cad2D::Draw() const
 
 	////////////////////////////////////////////////////////////////
 	// モデルの描画
+  /*
   { // draw vertecies
     ::glDisable(GL_TEXTURE_2D);
     ////////////////
     ::glPointSize(m_pointsize);
     ::glBegin(GL_POINTS);
     for(unsigned int iver=0;iver<this->m_aIndexVertex.size();iver++){
-      if( !this->m_aIndexVertex[iver].is_show ) continue;
+      if( this->m_aIndexVertex[iver].imode_show == -1 ) continue;
       const double height = this->m_aIndexVertex[iver].height;
-      if( this->m_aIndexVertex[iver].is_selected ){ ::glColor3d(1.0,1.0,0.0); }
+      if(      this->m_aIndexVertex[iver].imode_show == 1 ){ ::glColor3d(1.0,1.0,0.0); }
+      else if( this->m_aIndexVertex[iver].imode_show == 2 ){ ::glColor3d(1.0,0.0,0.0); }
+      
       else{ ::glColor3d(0.0,0.0,0.0);	}
       unsigned int ipo0 = this->m_aIndexVertex[iver].id_v;
       ::glVertex3d(m_vertex_ary.pVertexArray[ipo0*ndim+0], 
@@ -691,7 +748,8 @@ void CDrawer_Cad2D::Draw() const
     }
     ::glEnd();      
     if( is_texture ){ glEnable(GL_TEXTURE_2D); }
-  }  
+  } 
+   */
   ////
   // regist vertex array
 	::glEnableClientState(GL_VERTEX_ARRAY);
@@ -703,15 +761,28 @@ void CDrawer_Cad2D::Draw() const
     ::glLoadIdentity();
     ::glTranslated(-tex_cent_x, -tex_cent_y, 0.0);          
   }
-	for(unsigned int idp=0;idp<m_apIndexAry.size();idp++){
-    const CDrawPart* part = m_apIndexAry[idp];
-		const double height = part->height;
-		const double xdisp = part->xdisp;
-		const double ydisp = part->ydisp;
-    if(      part->itype == Cad::EDGE )	// draw edge
+  ::glPointSize(m_pointsize);
+  ::glLineWidth(m_linewidth);
+	for(unsigned int idp=0;idp<m_apDrawPart.size();idp++){
+    const CDrawPart& dp = *m_apDrawPart[idp];
+    if( dp.imode_show == -1 ) continue;
+		const double height = dp.height;
+		const double xdisp = dp.xdisp;
+		const double ydisp = dp.ydisp;
+    if( dp.itype == Cad::VERTEX ){
+      ::glDisable(GL_TEXTURE_2D);
+      const double height = dp.height;
+      if(      dp.imode_show == 1 ){ ::glColor3d(1.0,1.0,0.0); }
+      else if( dp.imode_show == 2 ){ ::glColor3d(1.0,0.0,0.0); }
+      else{ ::glColor3d(0.0,0.0,0.0);	}
+			::glTranslated(0.0,0.0, height);            
+      dp.DrawElements();
+			::glTranslated(0.0,0.0,-height);            
+      if( is_texture ){ glEnable(GL_TEXTURE_2D); }
+    }
+    if( dp.itype == Cad::EDGE )	// draw edge
     {
       ::glDisable(GL_TEXTURE_2D);
-      if( !part->is_show ) continue;
       ::glLineWidth(m_linewidth);
       if( this->m_is_anti_aliasing ){ // anti aliasing
         ::glEnable(GL_LINE_SMOOTH);
@@ -719,32 +790,67 @@ void CDrawer_Cad2D::Draw() const
         ::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         ::glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
       }
-			if( part->is_selected ){ ::glColor3d(1.0,1.0,0.0);  }
-			else{                    ::glColor3d(0.0,0.0,0.0);  }
+			if(      dp.imode_show == 1 ){ ::glColor3d(1.0,1.0,0.0);  }
+			else if( dp.imode_show == 2 ){ ::glColor3d(1.0,0.0,0.0);  }
+      else{ ::glColor3d(0,0,0); }
 			::glTranslated(0.0,0.0, height);
-			part->DrawElements();
+			dp.DrawElements();
+      if( dp.imode_show > 0 ){ // draw ctrl point        
+        ::glBegin(GL_POINTS);
+        for(unsigned int icp=0;icp<dp.aCtrlPoint.size();icp++){
+          const Com::CVector2D& cp = dp.aCtrlPoint[icp];
+          ::glVertex3d(cp.x,cp.y,0.0);
+        }    
+        ::glEnd();        
+        // draw line between ctrl point and point
+        glEnable(GL_LINE_STIPPLE);
+        glLineStipple(1 , 0xF0F0);
+        ::glPolygonStipple((const GLubyte*)m_mask);
+        ::glLineWidth(1);
+        ::glBegin(GL_LINES);
+        unsigned int ivs = dp.pIndexArray[0];        
+        unsigned int ive = dp.pIndexArray[dp.nelem*dp.npoel-1];
+        const double* pva = m_vertex_ary.pVertexArray;
+        Com::CVector2D ps(pva[ivs*2+0],pva[ivs*2+1]);
+        Com::CVector2D pe(pva[ive*2+0],pva[ive*2+1]);        
+        if( dp.itype_curve == CURVE_ARC ){
+          ::myGlVertex2d(ps);
+          ::myGlVertex2d(dp.aCtrlPoint[0]);
+          ::myGlVertex2d(pe);    
+          ::myGlVertex2d(dp.aCtrlPoint[0]);          
+        }
+        if( dp.itype_curve == CURVE_BEZIER ){
+          ::myGlVertex2d(ps);
+          ::myGlVertex2d(dp.aCtrlPoint[0]);
+          ::myGlVertex2d(pe);    
+          ::myGlVertex2d(dp.aCtrlPoint[1]);                    
+        }
+        ::glEnd();
+        ::glDisable(GL_LINE_STIPPLE);              
+      }
 			::glTranslated(0.0,0.0,-height);
       ::glDisable(GL_LINE_SMOOTH);
       ::glDisable(GL_BLEND);
       if( is_texture ){ glEnable(GL_TEXTURE_2D); }      
 		}
-    else if( part->itype == Cad::LOOP ) // draw loop
+    else if( dp.itype == Cad::LOOP ) // draw loop
     {
       ::glDisable(GL_BLEND);
-      if( part->is_selected ){
+      if( dp.imode_show > 0 ){
 				::glEnable(GL_POLYGON_STIPPLE);
 				::glPolygonStipple((const GLubyte*)m_mask);
-        ::glColor3d(1.0,1.0,0.0);
+        if( dp.imode_show == 1 ){ ::glColor3d(1.0,1.0,0.0); }
+        if( dp.imode_show == 2 ){ ::glColor3d(1.0,0.0,0.0); }
         ::glTranslated(0.0,0.0,+height+0.001);
-				part->DrawElements();
+				dp.DrawElements();
         ::glTranslated(0.0,0.0,-height-0.001);
 				::glDisable(GL_POLYGON_STIPPLE);
 			}
-      if( !part->is_show ) continue;
-      ::glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, part->color); 
-      ::glColor3fv(part->color);
+      if( dp.imode_show ) continue;
+      ::glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, dp.color); 
+      ::glColor3fv(dp.color);
 			::glTranslated(+xdisp,+ydisp,+height);
-			part->DrawElements();
+			dp.DrawElements();
 			::glTranslated(-xdisp,-ydisp,-height);
 		}
 	}
@@ -770,38 +876,26 @@ void CDrawer_Cad2D::DrawSelection(unsigned int idraw) const
 	// モデルの描画
 	::glEnableClientState(GL_VERTEX_ARRAY);
 	::glVertexPointer(ndim,GL_DOUBLE,0,m_vertex_ary.pVertexArray);
-	for(unsigned int idp=0;idp<m_apIndexAry.size();idp++){
-		const CDrawPart* part = m_apIndexAry[idp];
-		const double height = part->height;
-		::glPushName( part->id_msh);
-		if( part->itype == Cad::EDGE ){
-			::glTranslated(0.0,0.0,+height);
-			part->DrawElements();
-			::glTranslated(0.0,0.0,-height);
-		}
-		else if( part->itype == Cad::LOOP ){
-			::glTranslated(0.0,0.0,+height);
-			part->DrawElements();
-			::glTranslated(0.0,0.0,-height);
-		}
+	for(unsigned int idp=0;idp<m_apDrawPart.size();idp++){
+		const CDrawPart& dp = *m_apDrawPart[idp];
+		const double height = dp.height;
+		::glPushName(idp);
+    ::glTranslated(0.0,0.0,+height);
+    dp.DrawElements();
+    if( dp.itype == EDGE && dp.imode_show == 2){
+      for(unsigned int icp=0;icp<dp.aCtrlPoint.size();icp++){
+        const Com::CVector2D& cp = dp.aCtrlPoint[icp];
+        ::glPushName(icp);
+        ::glBegin(GL_POINTS);        
+        ::myGlVertex2d(cp);
+        ::glEnd();                      
+        ::glPopName();
+      }    
+    }
+    ::glTranslated(0.0,0.0,-height);
 		::glPopName();
 	}
-	::glDisableClientState(GL_VERTEX_ARRAY);
-
-	::glPointSize(5);
-	for(unsigned int iver=0;iver<this->m_aIndexVertex.size();iver++){
-		unsigned int ipo0 = this->m_aIndexVertex[iver].id_v;
-		double height = this->m_aIndexVertex[iver].height;
-		unsigned int id_msh = this->m_aIndexVertex[iver].id_msh;
-		::glPushName(id_msh);
-		::glBegin(GL_POINTS);
-		::glVertex3d( m_vertex_ary.pVertexArray[ipo0*ndim+0], 
-			m_vertex_ary.pVertexArray[ipo0*ndim+1], 
-			height );
-		::glEnd();
-		::glPopName();
-	}
-	
+	::glDisableClientState(GL_VERTEX_ARRAY);	
 	::glPopName();
   
   if( is_blend       ){ ::glEnable(GL_BLEND);       }

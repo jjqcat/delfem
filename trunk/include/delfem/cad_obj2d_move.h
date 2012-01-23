@@ -46,8 +46,10 @@ public:
 	bool MoveVertex( unsigned int id_v, const Com::CVector2D& vec);
   //! move vertices to each distinations 
 	bool MoveVertex( const std::vector< std::pair<unsigned int,Com::CVector2D> >& vec );
-	//! move veretex (ID:id_e) with direction vec_delta
+	//! move edge (ID:id_e) with direction vec_delta
 	bool MoveEdge(unsigned int id_e, const Com::CVector2D& vec_delta);
+	//! move ctrl point (index:ictrl) of edge (ID:id_e) with direction vec_delta
+	bool MoveEdgeCtrl(unsigned int id_e, unsigned int ictrl, const Com::CVector2D& vec_delta);  
 	//! move loop (ID:id_l) with direction vec_delta
 	bool MoveLoop(unsigned int id_l, const Com::CVector2D& vec_delta);
 

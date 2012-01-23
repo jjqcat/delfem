@@ -178,7 +178,7 @@ void CCadEdge2DPolyline::SetCadEdge(const Cad::CCadObj2D& cad_2d, const unsigned
   {
     assert( cad_2d.IsElemID(Cad::EDGE,id_e) );
     const Cad::CEdge2D& e = cad_2d.GetEdge(id_e);
-    aRelCoPoly = e.GetCurve_Polyline();
+    aRelCoPoly = e.GetCurveRelPoint();
   }
   std::vector<double> aXYs;
   const unsigned int ndiv = aRelCoPoly.size()/2+1;

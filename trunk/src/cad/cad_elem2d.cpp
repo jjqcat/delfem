@@ -67,27 +67,17 @@ void Cad::CEdge2D::GetBoundingBox( double& x_min, double& x_max, double& y_min, 
 			y_min = ( tmp_v.y < y_min ) ? tmp_v.y : y_min; 
 		}
 	}
-	else if( itype == CURVE_POLYLINE ){
-		const unsigned int n = aCoMesh.size();
+	else if( itype == CURVE_POLYLINE || itype == CURVE_BEZIER ){
+		const unsigned int n = aCo.size();
+    if( itype == CURVE_BEZIER ){ assert( n == 2 ); }       
 		for(unsigned int i=0;i<n;i++){
-			const Com::CVector2D& po0 = aCoMesh[i];
+			const Com::CVector2D& po0 = aCo[i];
 			x_min = ( po0.x < x_min ) ? po0.x : x_min; 
 			x_max = ( po0.x > x_max ) ? po0.x : x_max; 
 			y_min = ( po0.y < y_min ) ? po0.y : y_min; 
 			y_max = ( po0.y > y_max ) ? po0.y : y_max; 
     }
 	}
-  else if( itype == CURVE_BEZIER ){ // TODO : this is not correct 
-    Com::CVector2D v0 = po_e-po_s;
-		Com::CVector2D v1(-v0.y,v0.x);
-    for(unsigned int i=0;i<2;i++){
-			Com::CVector2D po0 = po_s + v0*aRelCoBezier[i*2+0] + v1*aRelCoBezier[i*2+1];
-			x_min = ( po0.x < x_min ) ? po0.x : x_min; 
-			x_max = ( po0.x > x_max ) ? po0.x : x_max; 
-			y_min = ( po0.y < y_min ) ? po0.y : y_min; 
-			y_max = ( po0.y > y_max ) ? po0.y : y_max; 
-		}    
-  }
 	else{ assert(0); abort(); }
 }
 
@@ -119,14 +109,14 @@ double Cad::CEdge2D::AreaEdge() const
 		return segment_area;
 	}
 	else if( this->itype == CURVE_POLYLINE ){
-		const unsigned int ndiv = aCoMesh.size()+1;
+		const unsigned int ndiv = aCo.size()+1;
     if( ndiv == 1 ){ return 0; }
     Com::CVector2D eh = po_e-po_s; eh.SetNormalizedVector();
 		Com::CVector2D ev(eh.y,-eh.x);
     double area = 0;
 		for(unsigned int idiv=0;idiv<ndiv;idiv++){
-      Com::CVector2D poi0 = (idiv==0     ) ? po_s : aCoMesh[idiv-1];
-      Com::CVector2D poi1 = (idiv==ndiv-1) ? po_e : aCoMesh[idiv+0];      
+      Com::CVector2D poi0 = (idiv==0     ) ? po_s : aCo[idiv-1];
+      Com::CVector2D poi1 = (idiv==ndiv-1) ? po_e : aCo[idiv+0];      
       double h0 = Com::Dot(poi0-po_s,ev);
       double h1 = Com::Dot(poi1-po_s,ev);
       double divx = Com::Dot(poi1-poi0,eh);
@@ -135,10 +125,10 @@ double Cad::CEdge2D::AreaEdge() const
 		return area;    
 	}
   else if( this->itype == CURVE_BEZIER ){
-    const Com::CVector2D& gh = po_e - po_s;
-    const Com::CVector2D gv(-gh.y, gh.x);
-    const Com::CVector2D posc = po_s + gh*aRelCoBezier[0] + gv*aRelCoBezier[1];
-    const Com::CVector2D poec = po_s + gh*aRelCoBezier[2] + gv*aRelCoBezier[3];
+//    const Com::CVector2D& gh = po_e - po_s;
+//    const Com::CVector2D gv(-gh.y, gh.x);
+    const Com::CVector2D posc = aCo[0];//po_s + gh*aRelCoBezier[0] + gv*aRelCoBezier[1];
+    const Com::CVector2D poec = aCo[1];//po_s + gh*aRelCoBezier[2] + gv*aRelCoBezier[3];
     const unsigned int ndiv = 32;
     const double div_t = 1.0/(ndiv);
     double area = 0;
@@ -201,23 +191,23 @@ Com::CVector2D Cad::CEdge2D::GetTangentEdge(bool is_s) const {
 //		const Com::CVector2D& h0 = po_e-po_s;
 //		const Com::CVector2D v0(-h0.y,h0.x);
 		if( is_s ){
-      if( aCoMesh.empty() ){ return po_e-po_s; }
-      Com::CVector2D d = aCoMesh[1]-po_s;
+      if( aCo.empty() ){ return po_e-po_s; }
+      Com::CVector2D d = aCo[1]-po_s;
 			d.SetNormalizedVector();
 			return d;
 		}
 		else{
-      if( aCoMesh.empty() ){ return po_s-po_e; }
-			Com::CVector2D d = aCoMesh[aCoMesh.size()-1] - po_e;
+      if( aCo.empty() ){ return po_s-po_e; }
+			Com::CVector2D d = aCo[aCo.size()-1] - po_e;
 			d.SetNormalizedVector();
 			return d;
 		}    
 	}
   else if( this->itype == CURVE_BEZIER ){ // TODO:
-    const Com::CVector2D& gh = po_e - po_s;
-    const Com::CVector2D gv(-gh.y, gh.x);
-    const Com::CVector2D posc = po_s + gh*aRelCoBezier[0] + gv*aRelCoBezier[1];
-    const Com::CVector2D poec = po_s + gh*aRelCoBezier[2] + gv*aRelCoBezier[3];    
+//    const Com::CVector2D& gh = po_e - po_s;
+//    const Com::CVector2D gv(-gh.y, gh.x);
+    const Com::CVector2D posc = aCo[0]; // po_s + gh*aRelCoBezier[0] + gv*aRelCoBezier[1];
+    const Com::CVector2D poec = aCo[1]; // po_s + gh*aRelCoBezier[2] + gv*aRelCoBezier[3];    
 		Com::CVector2D d = (is_s) ? posc-po_s : poec-po_e;
 		d.SetNormalizedVector();
 		return d;
@@ -250,12 +240,12 @@ Com::CVector2D Cad::CEdge2D::GetNearestPoint(const Com::CVector2D& po_in) const
 		else{ return po_e; }
 	}
 	else if( itype == CURVE_POLYLINE ){
-		const unsigned int ndiv = aCoMesh.size()+1;
+		const unsigned int ndiv = aCo.size()+1;
 		double min_dist = Com::Distance(po_s,po_in);
 		Com::CVector2D cand = po_s;
 		for(unsigned int idiv=0;idiv<ndiv;idiv++){
-      Com::CVector2D poi0 = (idiv==0     ) ? po_s : aCoMesh[idiv-1];
-      Com::CVector2D poi1 = (idiv==ndiv-1) ? po_e : aCoMesh[idiv+0];      
+      Com::CVector2D poi0 = (idiv==0     ) ? po_s : aCo[idiv-1];
+      Com::CVector2D poi1 = (idiv==ndiv-1) ? po_e : aCo[idiv+0];      
 			if( Com::Distance(po_in,poi1) < min_dist ){ 
 				min_dist = Com::Distance(po_in,poi1);	
 				cand = poi1; 
@@ -281,13 +271,13 @@ bool Cad::CEdge2D::IsCrossEdgeSelf() const
 {
 	if( this->itype == CURVE_LINE || this->itype == CURVE_ARC ){ return false; } // line segment and arc never intersect in itself
 	if( this->itype == CURVE_POLYLINE ){	// Mesh
-		const unsigned int ndiv = aCoMesh.size()+1;
+		const unsigned int ndiv = aCo.size()+1;
 		for(unsigned int idiv=0;idiv<ndiv;idiv++){
-      Com::CVector2D poi0 = (idiv==0     ) ? po_s : aCoMesh[idiv-1];
-      Com::CVector2D poi1 = (idiv==ndiv-1) ? po_e : aCoMesh[idiv+0];            
+      Com::CVector2D poi0 = (idiv==0     ) ? po_s : aCo[idiv-1];
+      Com::CVector2D poi1 = (idiv==ndiv-1) ? po_e : aCo[idiv+0];            
 			for(unsigned int jdiv=idiv+2;jdiv<ndiv;jdiv++){
-        Com::CVector2D poj0 = (jdiv==0     ) ? po_s : aCoMesh[jdiv-1];
-        Com::CVector2D poj1 = (jdiv==ndiv-1) ? po_e : aCoMesh[jdiv+0];     
+        Com::CVector2D poj0 = (jdiv==0     ) ? po_s : aCo[jdiv-1];
+        Com::CVector2D poj1 = (jdiv==ndiv-1) ? po_e : aCo[jdiv+0];     
 				if( Com::IsCross_LineSeg_LineSeg(poi0,poi1, poj0,poj1) != 0 ){ return true; }
 			}
 		}
@@ -457,13 +447,13 @@ double Cad::CEdge2D::Distance(const CEdge2D& e1) const
 	}
 	else if( this->itype == CURVE_LINE && e1.itype == CURVE_POLYLINE ){
 //		const std::vector<double>& relcomsh1 = e1.aRelCoMesh;
-		const unsigned int ndiv1 = e1.aCoMesh.size()+1;
+		const unsigned int ndiv1 = e1.aCo.size()+1;
 //		const Com::CVector2D& h1 = e1.po_e-e1.po_s;
 //		const Com::CVector2D v1(-h1.y,h1.x);
     double min_dist = -1;
 		for(unsigned int idiv=0;idiv<ndiv1;idiv++){
-      Com::CVector2D po0 = (idiv==0      ) ? e1.po_s : e1.aCoMesh[idiv-1];
-      Com::CVector2D po1 = (idiv==ndiv1-1) ? e1.po_e : e1.aCoMesh[idiv+0];      
+      Com::CVector2D po0 = (idiv==0      ) ? e1.po_s : e1.aCo[idiv-1];
+      Com::CVector2D po1 = (idiv==ndiv1-1) ? e1.po_e : e1.aCo[idiv+0];      
 /*
 			Com::CVector2D po0;
 			if( idiv == 0 ){ po0 = e1.po_s; }
@@ -490,11 +480,11 @@ double Cad::CEdge2D::Distance(const CEdge2D& e1) const
 		double radius0;
 		this->GetCenterRadius(po_c0,radius0);
 		////////////////
-		const unsigned int ndiv1 = e1.aCoMesh.size()+1;
+		const unsigned int ndiv1 = e1.aCo.size()+1;
     double min_dist = -1;    
 		for(unsigned int idiv=0;idiv<ndiv1;idiv++){
-      Com::CVector2D po0 = (idiv==0      ) ? e1.po_s : e1.aCoMesh[idiv-1];
-      Com::CVector2D po1 = (idiv==ndiv1-1) ? e1.po_e : e1.aCoMesh[idiv+0];      
+      Com::CVector2D po0 = (idiv==0      ) ? e1.po_s : e1.aCo[idiv-1];
+      Com::CVector2D po1 = (idiv==ndiv1-1) ? e1.po_e : e1.aCo[idiv+0];      
 			////////////////
       const double dist = GetDist_LineSeg_Arc(po0,po1, po_s,po_e,po_c0,radius0,is_left_side);
       if( dist < -0.5 ) return dist;
@@ -503,16 +493,16 @@ double Cad::CEdge2D::Distance(const CEdge2D& e1) const
 		return min_dist;
 	}
 	else if( this->itype == CURVE_POLYLINE && e1.itype == CURVE_POLYLINE ){
-		const unsigned int ndiv0 = aCoMesh.size()+1;
-		const unsigned int ndiv1 = e1.aCoMesh.size()+1;
+		const unsigned int ndiv0 = aCo.size()+1;
+		const unsigned int ndiv1 = e1.aCo.size()+1;
 		////////////////
     double min_dist = -1;//GetDist_LineSeg_LineSeg(po_s,po_e,po_s1,po_e1);
 		for(unsigned int idiv=0;idiv<ndiv0;idiv++){
-      Com::CVector2D po0_i = (idiv==0      ) ? po_s : aCoMesh[idiv-1];
-      Com::CVector2D po1_i = (idiv==ndiv0-1) ? po_e : aCoMesh[idiv+0];                  
+      Com::CVector2D po0_i = (idiv==0      ) ? po_s : aCo[idiv-1];
+      Com::CVector2D po1_i = (idiv==ndiv0-1) ? po_e : aCo[idiv+0];                  
 			for(unsigned int jdiv=0;jdiv<ndiv1;jdiv++){
-        Com::CVector2D po0_j = (jdiv==0      ) ? e1.po_s : e1.aCoMesh[jdiv-1];
-        Com::CVector2D po1_j = (jdiv==ndiv1-1) ? e1.po_e : e1.aCoMesh[jdiv+0];                  
+        Com::CVector2D po0_j = (jdiv==0      ) ? e1.po_s : e1.aCo[jdiv-1];
+        Com::CVector2D po1_j = (jdiv==ndiv1-1) ? e1.po_e : e1.aCo[jdiv+0];                  
         const double dist = Com::GetDist_LineSeg_LineSeg(po0_i,po1_i,po0_j,po1_j);
         if( dist < -0.5 ) return -1;
         if( min_dist < -0.5 || dist < min_dist ){ min_dist = dist; }        
@@ -558,10 +548,10 @@ bool Cad::CEdge2D::IsCrossEdge(const CEdge2D& e1) const
 		return false;
 	}
 	else if( this->itype == CURVE_LINE && e1.itype == CURVE_POLYLINE ){ 
-		const unsigned int ndiv1 = e1.aCoMesh.size()+1;
+		const unsigned int ndiv1 = e1.aCo.size()+1;
 		for(unsigned int idiv=0;idiv<ndiv1;idiv++){
-      Com::CVector2D po0 = (idiv==0      ) ? e1.po_s : e1.aCoMesh[idiv-1];
-      Com::CVector2D po1 = (idiv==ndiv1-1) ? e1.po_e : e1.aCoMesh[idiv+0];      
+      Com::CVector2D po0 = (idiv==0      ) ? e1.po_s : e1.aCo[idiv-1];
+      Com::CVector2D po1 = (idiv==ndiv1-1) ? e1.po_e : e1.aCo[idiv+0];      
 			if( Com::IsCross_LineSeg_LineSeg(po_s,po_e, po0,po1) != 0 ){ return true; }
 		}
 		return false;
@@ -580,10 +570,10 @@ bool Cad::CEdge2D::IsCrossEdge(const CEdge2D& e1) const
 		const Com::CVector2D& h1 = e1.po_e-e1.po_s;
 		const Com::CVector2D v1(-h1.y,h1.x);
 		////////////////
-		const unsigned int ndiv1 = e1.aCoMesh.size()+1;
+		const unsigned int ndiv1 = e1.aCo.size()+1;
 		for(unsigned int idiv=0;idiv<ndiv1;idiv++){
-      Com::CVector2D po0 = (idiv==0      ) ? e1.po_s : e1.aCoMesh[idiv-1];
-      Com::CVector2D po1 = (idiv==ndiv1-1) ? e1.po_e : e1.aCoMesh[idiv+0];      
+      Com::CVector2D po0 = (idiv==0      ) ? e1.po_s : e1.aCo[idiv-1];
+      Com::CVector2D po1 = (idiv==ndiv1-1) ? e1.po_e : e1.aCo[idiv+0];      
 			////////////////
 			double t0,t1;
 			if( !IsCross_Line_Circle(po_c0,radius0,  po0,po1, t0,t1) ){ continue; }
@@ -599,13 +589,13 @@ bool Cad::CEdge2D::IsCrossEdge(const CEdge2D& e1) const
 		const Com::CVector2D v1(-h1.y,h1.x);
 		////////////////
 //		const std::vector<double>& relcomsh0 = this->aRelCoMesh;
-		const unsigned int ndiv0 = aCoMesh.size()+1;
+		const unsigned int ndiv0 = aCo.size()+1;
 //		const std::vector<double>& relcomsh1 = e1.aRelCoMesh;
-		const unsigned int ndiv1 = e1.aCoMesh.size()+1;
+		const unsigned int ndiv1 = e1.aCo.size()+1;
 		////////////////
 		for(unsigned int idiv=0;idiv<ndiv0;idiv++){
-      Com::CVector2D po0_i = (idiv==0      ) ? po_s : aCoMesh[idiv-1];
-      Com::CVector2D po1_i = (idiv==ndiv0-1) ? po_e : aCoMesh[idiv+0];                  
+      Com::CVector2D po0_i = (idiv==0      ) ? po_s : aCo[idiv-1];
+      Com::CVector2D po1_i = (idiv==ndiv0-1) ? po_e : aCo[idiv+0];                  
 /*
 			Com::CVector2D po0_i;
 			if( idiv == 0 ){ po0_i = po_s; }
@@ -615,8 +605,8 @@ bool Cad::CEdge2D::IsCrossEdge(const CEdge2D& e1) const
 			else{ po1_i = po_s + h0*aRelCoMesh[idiv*2+0]     + v0*aRelCoMesh[idiv*2+1]; }
 */ 
 			for(unsigned int jdiv=0;jdiv<ndiv1;jdiv++){
-        Com::CVector2D po0_j = (jdiv==0      ) ? e1.po_s : e1.aCoMesh[idiv-1];
-        Com::CVector2D po1_j = (jdiv==ndiv1-1) ? e1.po_e : e1.aCoMesh[idiv+0];                  
+        Com::CVector2D po0_j = (jdiv==0      ) ? e1.po_s : e1.aCo[idiv-1];
+        Com::CVector2D po1_j = (jdiv==ndiv1-1) ? e1.po_e : e1.aCo[idiv+0];                  
 /*        
 				Com::CVector2D po0_j;
 				if( jdiv == 0 ){ po0_j = e1.po_s; }
@@ -687,14 +677,14 @@ bool Cad::CEdge2D::IsCrossEdge_ShareOnePoint(const CEdge2D& e1, bool is_share_s0
 	}
 	else if( this->itype == CURVE_LINE && e1.itype == CURVE_POLYLINE ){	// 直線と折れ線の交差
 //		const std::vector<double>& relcomsh1 = e1.aRelCoMesh;
-		const unsigned int ndiv1 = e1.aCoMesh.size()+1;
+		const unsigned int ndiv1 = e1.aCo.size()+1;
 //		Com::CVector2D v0 = e1.po_e-e1.po_s;
 //		Com::CVector2D v1(-v0.y,v0.x);
 		const unsigned int idiv_s = ( is_share_s1 ) ? 1 : 0;
 		const unsigned int idiv_e = ( is_share_s1 ) ? ndiv1 : ndiv1-1;
 		for(unsigned int idiv=idiv_s;idiv<idiv_e;idiv++){
-      Com::CVector2D po0 = (idiv==0      ) ? e1.po_s : e1.aCoMesh[idiv-1];
-      Com::CVector2D po1 = (idiv==ndiv1-1) ? e1.po_e : e1.aCoMesh[idiv+0];      
+      Com::CVector2D po0 = (idiv==0      ) ? e1.po_s : e1.aCo[idiv-1];
+      Com::CVector2D po1 = (idiv==ndiv1-1) ? e1.po_e : e1.aCo[idiv+0];      
 /*
 			Com::CVector2D po0;
 			if( idiv == 0 ){ po0 = e1.po_s; }
@@ -719,12 +709,12 @@ bool Cad::CEdge2D::IsCrossEdge_ShareOnePoint(const CEdge2D& e1, bool is_share_s0
 		const Com::CVector2D v1(-h1.y,h1.x);
 		////////////////
 //		const std::vector<double>& relcomsh1 = e1.aRelCoMesh;
-		const unsigned int ndiv1 = e1.aCoMesh.size()+1;
+		const unsigned int ndiv1 = e1.aCo.size()+1;
 		const unsigned int idiv_s = ( is_share_s1 ) ? 1 : 0;
 		const unsigned int idiv_e = ( is_share_s1 ) ? ndiv1 : ndiv1-1;
 		for(unsigned int idiv=idiv_s;idiv<idiv_e;idiv++){
-      Com::CVector2D po0 = (idiv==0      ) ? e1.po_s : e1.aCoMesh[idiv-1];
-      Com::CVector2D po1 = (idiv==ndiv1-1) ? e1.po_e : e1.aCoMesh[idiv+0];      
+      Com::CVector2D po0 = (idiv==0      ) ? e1.po_s : e1.aCo[idiv-1];
+      Com::CVector2D po1 = (idiv==ndiv1-1) ? e1.po_e : e1.aCo[idiv+0];      
       /*
 			Com::CVector2D po0;
 			if( idiv == 0 ){ po0 = e1.po_s; }
@@ -743,11 +733,11 @@ bool Cad::CEdge2D::IsCrossEdge_ShareOnePoint(const CEdge2D& e1, bool is_share_s0
 			Com::CVector2D po0, po1;
 			if( is_share_s1 ){	
         po0 = e1.po_s;	
-        po1 = e1.aCoMesh[0];//e1.po_s + h1*relcomsh1[0        ] + v1*relcomsh1[1        ]; 
+        po1 = e1.aCo[0];//e1.po_s + h1*relcomsh1[0        ] + v1*relcomsh1[1        ]; 
       }
 			else{				
         po1 = e1.po_e;	
-        po0 = e1.aCoMesh[e1.aCoMesh.size()-1];//e1.po_s + h1*relcomsh1[ndiv1*2-4] + v1*relcomsh1[ndiv1*2-3]; 
+        po0 = e1.aCo[e1.aCo.size()-1];//e1.po_s + h1*relcomsh1[ndiv1*2-4] + v1*relcomsh1[ndiv1*2-3]; 
       }	
 			////////////////
 			double t0,t1;
@@ -801,16 +791,16 @@ bool Cad::CEdge2D::IsCrossEdge_ShareOnePoint(const CEdge2D& e1, bool is_share_s0
 		const Com::CVector2D& h1 = e1.po_e-e1.po_s;
 		const Com::CVector2D v1(-h1.y,h1.x);
 		////////////////
-		const std::vector<Com::CVector2D>& relcomsh0 = this->aCoMesh;
+		const std::vector<Com::CVector2D>& relcomsh0 = this->aCo;
 		const unsigned int ndiv0 = relcomsh0.size()+1;
-		const std::vector<Com::CVector2D>& relcomsh1 = e1.aCoMesh;
+		const std::vector<Com::CVector2D>& relcomsh1 = e1.aCo;
 		const unsigned int ndiv1 = relcomsh1.size()+1;
 		const unsigned int idiv0_exc = ( is_share_s0 ) ? 0 : ndiv0-1;
 		const unsigned int idiv1_exc = ( is_share_s1 ) ? 0 : ndiv1-1;
 		////////////////
 		for(unsigned int idiv=0;idiv<ndiv0;idiv++){
-			Com::CVector2D po0_i = (idiv==0      ) ? po_s : aCoMesh[idiv-1];
-			Com::CVector2D po1_i = (idiv==ndiv0-1) ? po_e : aCoMesh[idiv+0];      
+			Com::CVector2D po0_i = (idiv==0      ) ? po_s : aCo[idiv-1];
+			Com::CVector2D po1_i = (idiv==ndiv0-1) ? po_e : aCo[idiv+0];      
       /*
 			if( idiv == 0 ){ po0_i = po_s; }
 			else{ po0_i = po_s + h0*aRelCoMesh[(idiv-1)*2+0] + v0*aRelCoMesh[(idiv-1)*2+1]; }
@@ -820,8 +810,8 @@ bool Cad::CEdge2D::IsCrossEdge_ShareOnePoint(const CEdge2D& e1, bool is_share_s0
        */
 			for(unsigned int jdiv=0;jdiv<ndiv1;jdiv++){
 				if( idiv == idiv0_exc && jdiv == idiv1_exc ) continue;
-        Com::CVector2D po0_j = (jdiv==0      ) ? e1.po_s : e1.aCoMesh[jdiv-1];
-        Com::CVector2D po1_j = (jdiv==ndiv1-1) ? e1.po_e : e1.aCoMesh[jdiv+0];      
+        Com::CVector2D po0_j = (jdiv==0      ) ? e1.po_s : e1.aCo[jdiv-1];
+        Com::CVector2D po1_j = (jdiv==ndiv1-1) ? e1.po_e : e1.aCo[jdiv+0];      
         /*
 				Com::CVector2D po0_j;
 				if( jdiv == 0 ){ po0_j = e1.po_s; }
@@ -871,10 +861,10 @@ bool Cad::CEdge2D::IsCrossEdge_ShareBothPoints(const CEdge2D& e1, bool is_share_
 		return false;
 	}
 	else if( this->itype == CURVE_LINE && e1.itype == CURVE_POLYLINE ){	// 直線と折れ線の交差
-		const unsigned int ndiv1 = e1.aCoMesh.size()+1;
+		const unsigned int ndiv1 = e1.aCo.size()+1;
 		for(unsigned int idiv=1;idiv<ndiv1-1;idiv++){
-      Com::CVector2D po0 = (idiv==0      ) ? e1.po_s : e1.aCoMesh[idiv-1];
-      Com::CVector2D po1 = (idiv==ndiv1-1) ? e1.po_e : e1.aCoMesh[idiv+0];      
+      Com::CVector2D po0 = (idiv==0      ) ? e1.po_s : e1.aCo[idiv-1];
+      Com::CVector2D po1 = (idiv==ndiv1-1) ? e1.po_e : e1.aCo[idiv+0];      
 			if( Com::IsCross_LineSeg_LineSeg(po_s,po_e, po0,po1) != 0 ){ return true; } 
 		}
 		return false;
@@ -886,10 +876,10 @@ bool Cad::CEdge2D::IsCrossEdge_ShareBothPoints(const CEdge2D& e1, bool is_share_
 		Com::CVector2D po_c0;
 		double radius0;
 		this->GetCenterRadius(po_c0,radius0);
-		const unsigned int ndiv1 = e1.aCoMesh.size()+1;
+		const unsigned int ndiv1 = e1.aCo.size()+1;
 		for(unsigned int idiv=1;idiv<ndiv1-1;idiv++){
-      Com::CVector2D po0 = (idiv==0      ) ? e1.po_s : e1.aCoMesh[idiv-1];
-      Com::CVector2D po1 = (idiv==ndiv1-1) ? e1.po_e : e1.aCoMesh[idiv+0];                  
+      Com::CVector2D po0 = (idiv==0      ) ? e1.po_s : e1.aCo[idiv-1];
+      Com::CVector2D po1 = (idiv==ndiv1-1) ? e1.po_e : e1.aCo[idiv+0];                  
 			double t0,t1;
 			if( !IsCross_Line_Circle(po_c0,radius0,  po0,po1, t0,t1) ){ continue; }
 			if( 0 < t0 && t0 < 1 && this->IsDirectionArc( po0+(po1-po0)*t0 ) == 1 ){ return true; }
@@ -906,15 +896,15 @@ bool Cad::CEdge2D::IsCrossEdge_ShareBothPoints(const CEdge2D& e1, bool is_share_
 		const Com::CVector2D& h1 = e1.po_e-e1.po_s;
 		const Com::CVector2D v1(-h1.y,h1.x);
 		////////////////
-		const unsigned int ndiv0 = aCoMesh.size()+1;
-		const unsigned int ndiv1 = e1.aCoMesh.size()+1;
+		const unsigned int ndiv0 = aCo.size()+1;
+		const unsigned int ndiv1 = e1.aCo.size()+1;
 		////////////////
 		for(unsigned int idiv=1;idiv<ndiv0-1;idiv++){
-      Com::CVector2D po0_i = (idiv==0      ) ? po_s : aCoMesh[idiv-1];
-      Com::CVector2D po1_i = (idiv==ndiv0-1) ? po_e : aCoMesh[idiv+0];                  
+      Com::CVector2D po0_i = (idiv==0      ) ? po_s : aCo[idiv-1];
+      Com::CVector2D po1_i = (idiv==ndiv0-1) ? po_e : aCo[idiv+0];                  
 			for(unsigned int jdiv=1;jdiv<ndiv1-1;jdiv++){
-        Com::CVector2D po0_j = (jdiv==0      ) ? e1.po_s : e1.aCoMesh[idiv-1];
-        Com::CVector2D po1_j = (jdiv==ndiv1-1) ? e1.po_e : e1.aCoMesh[idiv+0];                  
+        Com::CVector2D po0_j = (jdiv==0      ) ? e1.po_s : e1.aCo[idiv-1];
+        Com::CVector2D po1_j = (jdiv==ndiv1-1) ? e1.po_e : e1.aCo[idiv+0];                  
 				if( Com::IsCross_LineSeg_LineSeg(po0_i,po1_i, po0_j,po1_j) != 0 ){ return true; }
 			}
 		}
@@ -974,10 +964,10 @@ bool Cad::CEdge2D::GetNearestIntersectionPoint_AgainstHalfLine(Com::CVector2D& s
     return false;
 	}
 	else if( itype == CURVE_POLYLINE ){
-		const unsigned int ndiv = aCoMesh.size()+1;
+		const unsigned int ndiv = aCo.size()+1;
 		for(unsigned int idiv=0;idiv<ndiv;idiv++){
-      Com::CVector2D poi0 = (idiv==0     ) ? po_s : aCoMesh[idiv-1];
-      Com::CVector2D poi1 = (idiv==ndiv-1) ? po_e : aCoMesh[idiv+0];                  
+      Com::CVector2D poi0 = (idiv==0     ) ? po_s : aCo[idiv-1];
+      Com::CVector2D poi1 = (idiv==ndiv-1) ? po_e : aCo[idiv+0];                  
       const double area1 = Com::TriArea(poi0,poi1,org);
       const double area2 = Com::TriArea(poi0,poi1,end);    
       if( (area1>0) == (area2>0) ) continue;
@@ -1025,13 +1015,13 @@ int Cad::CEdge2D::NumIntersect_AgainstHalfLine(const Com::CVector2D& po_b, const
 	}
 	else if( itype == CURVE_POLYLINE ){
 //		const std::vector<double>& relcomsh = aRelCoMesh;
-		const unsigned int ndiv = aCoMesh.size()+1;
+		const unsigned int ndiv = aCo.size()+1;
 //		const Com::CVector2D& h0 = po_e-po_s;
 //		const Com::CVector2D v0(-h0.y,h0.x);
 		unsigned int icnt = 0;
 		for(unsigned int idiv=0;idiv<ndiv;idiv++){
-      Com::CVector2D poi0 = (idiv==0     ) ? po_s : aCoMesh[idiv-1];
-      Com::CVector2D poi1 = (idiv==ndiv-1) ? po_e : aCoMesh[idiv+0];                  
+      Com::CVector2D poi0 = (idiv==0     ) ? po_s : aCo[idiv-1];
+      Com::CVector2D poi1 = (idiv==ndiv-1) ? po_e : aCo[idiv+0];                  
 /*
 			Com::CVector2D poi0;
 			if( idiv == 0 ){ poi0 = po_s; }
@@ -1065,11 +1055,11 @@ double Cad::CEdge2D::GetCurveLength() const
   }
   else if( this->itype == CURVE_POLYLINE )
   {
-    const unsigned int ndiv = this->aCoMesh.size()+1;
+    const unsigned int ndiv = this->aCo.size()+1;
     double len_tot = 0;
     for(unsigned int idiv=0;idiv<ndiv;idiv++){
-      Com::CVector2D po0 = (idiv==0     ) ? po_s : aCoMesh[idiv-1];
-      Com::CVector2D po1 = (idiv==ndiv-1) ? po_e : aCoMesh[idiv+0];                  
+      Com::CVector2D po0 = (idiv==0     ) ? po_s : aCo[idiv-1];
+      Com::CVector2D po1 = (idiv==ndiv-1) ? po_e : aCo[idiv+0];                  
       len_tot += Com::Distance(po0,po1);
       /*
       double x0,y0;
@@ -1087,10 +1077,10 @@ double Cad::CEdge2D::GetCurveLength() const
   }
   else if(      this->itype == CURVE_BEZIER )
   { // TODO :  use the Sympthon's rule integration 
-    const Com::CVector2D& gh = po_e - po_s;
-    const Com::CVector2D gv(-gh.y, gh.x);
-    const Com::CVector2D posc = po_s + gh*aRelCoBezier[0] + gv*aRelCoBezier[1];
-    const Com::CVector2D poec = po_s + gh*aRelCoBezier[2] + gv*aRelCoBezier[3];
+//    const Com::CVector2D& gh = po_e - po_s;
+//    const Com::CVector2D gv(-gh.y, gh.x);
+    const Com::CVector2D posc = aCo[0];
+    const Com::CVector2D poec = aCo[1];
     const unsigned int ndiv = 16;
     const double div_t = 1.0/(ndiv);
     double edge_len = 0;
@@ -1153,9 +1143,9 @@ bool Cad::CEdge2D::GetCenterRadiusThetaLXY(Com::CVector2D& pc, double& radius,
   return true;
 }
 
-bool Cad::CEdge2D::GetCurveAsPolyline(std::vector<Com::CVector2D>& aCo, int ndiv) const
+bool Cad::CEdge2D::GetCurveAsPolyline(std::vector<Com::CVector2D>& aXY, int ndiv) const
 {
-  aCo.clear();
+  aXY.clear();
   if( ndiv <= 0 ){    // 出来るだけ点多くして忠実な曲線の表現
     if(      this->itype == CURVE_LINE ){ // 直線の場合
       return true;
@@ -1165,37 +1155,27 @@ bool Cad::CEdge2D::GetCurveAsPolyline(std::vector<Com::CVector2D>& aCo, int ndiv
       Com::CVector2D pc, lx,ly;
       this->GetCenterRadiusThetaLXY(pc,radius, theta,lx,ly);
       const unsigned int ndiv = (unsigned int)( theta*360/(5.0*6.28) ) + 1; // kink is 5 degree
-      return this->GetCurveAsPolyline(aCo,ndiv); // Beware (ndiv != 0) to avoid infinite loop in the recursive call
+      return this->GetCurveAsPolyline(aXY,ndiv); // Beware (ndiv != 0) to avoid infinite loop in the recursive call
     }
-    else if( this->itype == CURVE_POLYLINE ){ // メッシュの場合
-      aCo = aCoMesh;
-      /*
-      const Com::CVector2D& v0 = po_e - po_s;
-      const Com::CVector2D v1(-v0.y, v0.x);
-      ////////////////
-      const unsigned int npo = aRelCoMesh.size()/2;
-      for(unsigned int i=0;i<npo;i++){
-        Com::CVector2D vec0 = po_s + v0*aRelCoMesh[i*2+0] + v1*aRelCoMesh[i*2+1];
-        aCo.push_back(vec0);
-      }
-       */
+    else if( this->itype == CURVE_POLYLINE ){ // mesh
+      aXY = aCo;
       return true;
     }
     else if( this->itype == CURVE_BEZIER ){
-      return this->GetCurveAsPolyline(aCo,16);  // TODO:find good param
+      return this->GetCurveAsPolyline(aXY,16);  // TODO:find good param
     }
   }
-  else{    // elenの長さでメッシュを切る
-    aCo.reserve(ndiv);
-    if(      this->itype == CURVE_LINE ){ // 直線の場合
+  else{    // cut mesh this curve
+    aXY.reserve(ndiv);
+    if(      this->itype == CURVE_LINE ){ // line
       Com::CVector2D div_t = ( po_e - po_s )*(1.0/ndiv);
       for(unsigned int idiv=1;idiv<(unsigned int)ndiv;idiv++){
         Com::CVector2D vec0 = po_s + div_t*idiv;
-        aCo.push_back(vec0);
+        aXY.push_back(vec0);
       }
       return true;
     }
-    else if( this->itype == CURVE_ARC ){ // 円弧の場合
+    else if( this->itype == CURVE_ARC ){ // arc
       double radius, theta;
       Com::CVector2D pc, lx,ly;
       this->GetCenterRadiusThetaLXY(pc,radius, theta,lx,ly);
@@ -1203,54 +1183,31 @@ bool Cad::CEdge2D::GetCurveAsPolyline(std::vector<Com::CVector2D>& aCo, int ndiv
       for(unsigned int i=1;i<(unsigned int)ndiv;i++){
         const double cur_theta = i*div_theta;
         Com::CVector2D vec0 = ( cos(cur_theta)*lx + sin(cur_theta)*ly )*radius + pc;
-        aCo.push_back(vec0);
+        aXY.push_back(vec0);
       }
       return true;
     }
-    else if( this->itype == CURVE_POLYLINE ){ // メッシュの場合
-      const unsigned int npo_cad = aCoMesh.size();
+    else if( this->itype == CURVE_POLYLINE ){ // mesh
       double len_tot = this->GetCurveLength();
-      /*
-      for(unsigned int idiv=0;idiv<npo_cad+1;idiv++){
-        double x0,y0;
-        if( idiv == 0 ){ x0=0; y0=0; }
-        else{ x0=aRelCoMesh[idiv*2-2]; y0=aRelCoMesh[idiv*2-1]; }
-        double x1,y1;
-        if( idiv == npo_cad ){ x1=1; y1=0; }
-        else{ x1=aRelCoMesh[idiv*2+0]; y1=aRelCoMesh[idiv*2+1]; }
-        lenrel_tot += sqrt( (x0-x1)*(x0-x1) + (y0-y1)*(y0-y1) );
-      }
-       */
-      const unsigned int ndiv0 = aCoMesh.size()+1;
+      const unsigned int ndiv0 = this->aCo.size()+1;
       const unsigned int ndiv1 = ndiv;
       const unsigned int npo1 = ndiv-1;
       const double ldiv = len_tot / ndiv1;
-//      const Com::CVector2D& gh = po_e - po_s;
-//      const Com::CVector2D gv(-gh.y, gh.x);
-      aCo.reserve(npo1);
+      aXY.reserve(npo1);
       unsigned int idiv0_cur = 0;
       double ratio0_cur = 0;
       for(unsigned int ipo1=0;ipo1<npo1;ipo1++){
         double restlen0_cur = ldiv;
         for(;;){
-          assert( idiv0_cur < npo_cad+1 );
+          assert( idiv0_cur < aCo.size()+1 );
           assert( ratio0_cur >= 0 && ratio0_cur <= 1);
-          Com::CVector2D po0 = (idiv0_cur==0      ) ? po_s : aCoMesh[idiv0_cur-1];
-          Com::CVector2D po1 = (idiv0_cur==ndiv0-1) ? po_e : aCoMesh[idiv0_cur+0];                  
-          /*
-          double x0,y0;
-          if( idiv0_cur == 0 ){ x0=0; y0=0; }
-          else{ x0=aRelCoMesh[idiv0_cur*2-2]; y0=aRelCoMesh[idiv0_cur*2-1]; }
-          double x1,y1;
-          if( idiv0_cur == npo_cad ){ x1=1; y1=0; }
-          else{ x1=aRelCoMesh[idiv0_cur*2+0]; y1=aRelCoMesh[idiv0_cur*2+1]; }
-           */
-          const double len_idiv0 = Com::Distance(po0,po1);//sqrt( (x0-x1)*(x0-x1) + (y0-y1)*(y0-y1) );
+          Com::CVector2D po0 = (idiv0_cur==0      ) ? po_s : this->aCo[idiv0_cur-1];
+          Com::CVector2D po1 = (idiv0_cur==ndiv0-1) ? po_e : this->aCo[idiv0_cur+0];                  
+          const double len_idiv0 = Com::Distance(po0,po1);
           if( len_idiv0*(1-ratio0_cur) > restlen0_cur ){
             ratio0_cur += restlen0_cur/len_idiv0;
             Com::CVector2D p = po0*(1.0-ratio0_cur)+po1*ratio0_cur;
-//            const double yintp = y0*(1.0-ratio0_cur)+y1*ratio0_cur;
-            aCo.push_back( p );
+            aXY.push_back( p );
             break;
           }
           restlen0_cur -= len_idiv0*(1-ratio0_cur);
@@ -1261,15 +1218,14 @@ bool Cad::CEdge2D::GetCurveAsPolyline(std::vector<Com::CVector2D>& aCo, int ndiv
       return true;
     }
     else if( this->itype == CURVE_BEZIER ){      
-      const Com::CVector2D& gh = po_e - po_s;
-      const Com::CVector2D gv(-gh.y, gh.x);
-      const Com::CVector2D posc = po_s + gh*aRelCoBezier[0] + gv*aRelCoBezier[1];
-      const Com::CVector2D poec = po_s + gh*aRelCoBezier[2] + gv*aRelCoBezier[3];
+      assert( this->aCo.size() == 2 );
+      const Com::CVector2D posc = this->aCo[0];
+      const Com::CVector2D poec = this->aCo[1];
       const double div_t = 1.0/(ndiv);
       for(unsigned int i=1;i<(unsigned int)ndiv;i++){
         const double t = i*div_t;
         Com::CVector2D vec0 = (1-t)*(1-t)*(1-t)*po_s + 3*(1-t)*(1-t)*t*posc + 3*(1-t)*t*t*poec + t*t*t*po_e;
-        aCo.push_back(vec0);
+        aXY.push_back(vec0);
       }
       return true;
     }    
@@ -1280,9 +1236,10 @@ bool Cad::CEdge2D::GetCurveAsPolyline(std::vector<Com::CVector2D>& aCo, int ndiv
 ////////////////////////////////
 
 
-bool Cad::IsCross_Circle_Circle(const Com::CVector2D& po_c0, double radius0,
-                                const Com::CVector2D& po_c1, double radius1,
-                                Com::CVector2D& po0, Com::CVector2D& po1 )
+bool Cad::IsCross_Circle_Circle
+(const Com::CVector2D& po_c0, double radius0,
+ const Com::CVector2D& po_c1, double radius1,
+ Com::CVector2D& po0, Com::CVector2D& po1 )
 {
 	const double sq_dist = Com::SquareLength(po_c0,po_c1);
 	const double dist = sqrt( sq_dist );
@@ -1439,7 +1396,7 @@ bool Cad::CEdge2D::ConnectEdge(const Cad::CEdge2D& e1, bool is_add_ahead, bool i
 	else if( !is_add_ahead &&  is_same_dir ){ assert( id_v_s == e1.id_v_e ); }
 	else if( !is_add_ahead && !is_same_dir ){ assert( id_v_s == e1.id_v_s ); }
 	if( this->itype == CURVE_POLYLINE ){		
-		std::vector<Com::CVector2D> aPo0 = aCoMesh;
+		std::vector<Com::CVector2D> aPo0 = aCo;
     /*
 		{
 			const Com::CVector2D& ps = this->po_s;
@@ -1496,7 +1453,7 @@ bool Cad::CEdge2D::ConnectEdge(const Cad::CEdge2D& e1, bool is_add_ahead, bool i
      std::cout << i << " " << aPo2[i].x << " " << aPo2[i].y << std::endl;
      }
      std::cout << po_e.x << " " << po_e.y << std::endl;*/
-    this->aCoMesh = aPo2;
+    this->aCo = aPo2;
     /*
 		{
 			const Com::CVector2D& ps = this->po_s;
@@ -1534,13 +1491,13 @@ bool Cad::CEdge2D::Split(Cad::CEdge2D& edge_a, const Com::CVector2D& pa)
 	else if( this->itype == CURVE_POLYLINE ){
 		const Com::CVector2D& ps = this->po_s;
 		const Com::CVector2D& pe = this->po_e;
-		std::vector<Com::CVector2D> aPo = aCoMesh;
+		std::vector<Com::CVector2D> aPo = aCo;
     /*
 		{
 			const Com::CVector2D& h0 = pe-ps;
 			const Com::CVector2D v0(-h0.y,h0.x);
 			const std::vector<double>& relcomsh = this->aRelCoMesh;
-			const unsigned int npo = aCoMesh.size();
+			const unsigned int npo = aCo.size();
 			aPo.resize(npo);
 			for(unsigned ipo=0;ipo<npo;ipo++){
 				aPo[ipo] = ps + h0*relcomsh[ipo*2+0] + v0*relcomsh[ipo*2+1];
@@ -1578,7 +1535,7 @@ bool Cad::CEdge2D::Split(Cad::CEdge2D& edge_a, const Com::CVector2D& pa)
 		if( ipo0_e > 0 ){
 			this->itype = CURVE_POLYLINE;
 			const unsigned int npo = ipo0_e+1;
-			this->aCoMesh.resize(npo);
+			this->aCo.resize(npo);
 //			const double sqlen = Com::SquareLength(pa-ps);
 //			const Com::CVector2D& eh = (pa-ps)*(1/sqlen);
 //			const Com::CVector2D ev(-eh.y,eh.x);
@@ -1589,7 +1546,7 @@ bool Cad::CEdge2D::Split(Cad::CEdge2D& edge_a, const Com::CVector2D& pa)
 //				double y1 = Com::Dot(aPo[ipo]-ps,ev);
 //				this->aRelCoMesh[ipo*2+0] = x1;
 //				this->aRelCoMesh[ipo*2+1] = y1;
-        this->aCoMesh[ipo] = aPo[ipo];
+        this->aCo[ipo] = aPo[ipo];
 			}
 		}
 		else{ this->itype = CURVE_LINE; }
@@ -1597,7 +1554,7 @@ bool Cad::CEdge2D::Split(Cad::CEdge2D& edge_a, const Com::CVector2D& pa)
 		if( ipo1_s < (int)aPo.size() ){
 			edge_a.itype = CURVE_POLYLINE;
 			const unsigned int npo = aPo.size()-ipo1_s;
-			edge_a.aCoMesh.resize(npo);
+			edge_a.aCo.resize(npo);
 //			const double sqlen = Com::SquareLength(pe-pa);
 //			const Com::CVector2D& eh = (pe-pa)*(1/sqlen);
 //			const Com::CVector2D ev(-eh.y,eh.x);
@@ -1608,7 +1565,7 @@ bool Cad::CEdge2D::Split(Cad::CEdge2D& edge_a, const Com::CVector2D& pa)
 //				double y1 = Com::Dot(aPo[ipo+ipo1_s]-pa,ev);
 //				edge_a.aRelCoMesh[ipo*2+0] = x1;
 //				edge_a.aRelCoMesh[ipo*2+1] = y1;
-        edge_a.aCoMesh[ipo] = aPo[ipo+ipo1_s];
+        edge_a.aCo[ipo] = aPo[ipo+ipo1_s];
 			}
 		}
 		else{ edge_a.itype = CURVE_LINE; }

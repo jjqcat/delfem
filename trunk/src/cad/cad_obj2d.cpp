@@ -1401,16 +1401,15 @@ bool CCadObj2D::WriteToFile_dxf(const std::string& file_name, double scale) cons
 					fprintf(fp,"  70\n8\n");
 					fprintf(fp,"  66\n1\n");          
           ////
-          const std::vector<double>& axys = edge.GetCurve_Polyline();
-          assert( axys.size() % 2 == 0 );
-          const unsigned int nno = axys.size()/2;
+          const std::vector<Com::CVector2D>& aCo = edge.GetCurvePoint();
+          const unsigned int nno = aCo.size();
           const Com::CVector2D& po_s = edge.GetVtxCoord(true);
           const Com::CVector2D& po_e = edge.GetVtxCoord(false);
-          Com::CVector2D v0 = po_e-po_s;
-          Com::CVector2D v1(-v0.y,v0.x);          
+//          Com::CVector2D v0 = po_e-po_s;
+//          Com::CVector2D v1(-v0.y,v0.x);          
           fprintf(fp,"  0\nVERTEX\n 8\n0\n 10\n%lf\n 20\n%lf\n 30\n%lf\n", po_s.x*scale, po_s.y*scale, 0.0);
           for(unsigned int ino=0;ino<nno;ino++){
-            const Com::CVector2D& p = po_s + v0*axys[ino*2+0] + v1*axys[ino*2+1];
+            const Com::CVector2D& p = aCo[ino];
             fprintf(fp,"  0\nVERTEX\n 8\n0\n 10\n%lf\n 20\n%lf\n 30\n%lf\n", p.x*scale, p.y*scale, 0.0);
           }
           fprintf(fp,"  0\nVERTEX\n 8\n0\n 10\n%lf\n 20\n%lf\n 30\n%lf\n", po_e.x*scale, po_e.y*scale, 0.0);          
@@ -1431,11 +1430,12 @@ bool CCadObj2D::WriteToFile_dxf(const std::string& file_name, double scale) cons
           ////
           const Com::CVector2D& po_s = edge.GetVtxCoord(true);
           const Com::CVector2D& po_e = edge.GetVtxCoord(false);
-          const Com::CVector2D& gh = po_e - po_s;
-          const Com::CVector2D gv(-gh.y, gh.x);
-          double aRelCo[4]; edge.GetCurve_Bezier(aRelCo);
-          const Com::CVector2D posc = po_s + gh*aRelCo[0] + gv*aRelCo[1];
-          const Com::CVector2D poec = po_s + gh*aRelCo[2] + gv*aRelCo[3];    
+//          const Com::CVector2D& gh = po_e - po_s;
+//          const Com::CVector2D gv(-gh.y, gh.x);
+//          double aRelCo[4]; edge.GetCurve_Bezier(aRelCo);
+          const std::vector<Com::CVector2D>& aCo = edge.GetCurvePoint();
+          const Com::CVector2D posc = aCo[0];// po_s + gh*aRelCo[0] + gv*aRelCo[1];
+          const Com::CVector2D poec = aCo[1];// po_s + gh*aRelCo[2] + gv*aRelCo[3];    
 //          fprintf(fp,"  0\nVERTEX\n 8\n0\n 10\n%lf\n 20\n%lf\n 30\n%lf\n", po_s.x*scale, po_s.y*scale, 0.0);
 //          fprintf(fp,"  0\nVERTEX\n 8\n0\n 10\n%lf\n 20\n%lf\n 30\n%lf\n 70\n16\n", po_s.x*scale, po_s.y*scale, 0.0);          
           const unsigned int ndiv = 32;
@@ -1578,7 +1578,7 @@ bool CCadObj2D::Serialize( Com::CSerializer& arch )
           const unsigned int i_is_left_side = (is_left_side) ? 1 : 0;
           arch.Out("%d %lf\n",i_is_left_side,dist);
         }
-        const std::vector<double>& aRelCo = e.GetCurve_Polyline();
+        const std::vector<double>& aRelCo = e.GetCurveRelPoint();
         const unsigned int n = aRelCo.size()/2;
         arch.Out("%d\n",n);
         for(unsigned int i=0;i<n;i++){

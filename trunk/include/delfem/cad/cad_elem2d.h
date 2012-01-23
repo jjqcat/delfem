@@ -102,14 +102,10 @@ public:
   CEdge2D(const CEdge2D& rhs) :
   itype(rhs.itype),
   is_left_side(rhs.is_left_side), dist(rhs.dist), 
-//  aRelCoMesh(rhs.aRelCoMesh),
-  aCoMesh(rhs.aCoMesh),  
+  aRelCo(rhs.aRelCo),
+  aCo(rhs.aCo),  
   id_v_s(rhs.id_v_s), id_v_e(rhs.id_v_e), po_s(rhs.po_s), po_e(rhs.po_e)
-  {
-    aRelCoBezier[0] = rhs.aRelCoBezier[0];
-    aRelCoBezier[1] = rhs.aRelCoBezier[1];
-    aRelCoBezier[2] = rhs.aRelCoBezier[2];
-    aRelCoBezier[3] = rhs.aRelCoBezier[3];
+  {  
   }
   CEdge2D() : id_v_s(0), id_v_e(0), itype(CURVE_LINE){}
   CEdge2D(unsigned int id_v_s, unsigned int id_v_e) : id_v_s(id_v_s), id_v_e(id_v_e), itype(CURVE_LINE){}
@@ -118,6 +114,16 @@ public:
     po_s = ps;
     po_e = pe;
     bb_.isnt_empty = false;
+    unsigned int n = aRelCo.size()/2;
+    aCo.resize(n);
+    if( n > 0 ){
+      const Com::CVector2D& gh = po_e - po_s;
+      const Com::CVector2D gv(-gh.y, gh.x);
+      for(unsigned int i=0;i<n;i++){
+        const Com::CVector2D posc = po_s + gh*aRelCo[i*2+0] + gv*aRelCo[i*2+1];
+        aCo[i] = posc;
+      }      
+    }    
   }
   void SetIdVtx(unsigned int id_vs, unsigned int id_ve) const{
     this->id_v_s = id_vs;
@@ -164,24 +170,6 @@ public:
   bool GetCurveAsPolyline(std::vector<Com::CVector2D>& aCo, int ndiv) const;
   double GetCurveLength() const;
 
-  ////////////////////////////////
-
-  // Get Arc property if this curve is not arc, this returns false
-  // if is_left_side is true, this arc lies left side from the line connect start and end point of this edge (ID:id_e).
-  // The dist means how far is the center of the circle from the line connect start and end point of edge (ID:id_e).  
-  void GetCurve_Arc(bool& is_left_side, double& dist) const{
-    is_left_side = this->is_left_side;
-    dist = this->dist;
-  }  
-  /*!
-   @brief ‰~‚ª‰~ŒÊ‚ÌA‰~‚Ì’†S‚Æ”¼Œa‚ğŒvZ‚·‚é
-   @remarks ‰~ŒÊ‚¶‚á‚È‚©‚Á‚½‚çfalse‚ğ•Ô‚·
-   */
-	bool GetCenterRadius(Com::CVector2D& po_c, double& radius) const;
-  bool GetCenterRadiusThetaLXY(Com::CVector2D& pc, double& radius,
-                               double& theta, Com::CVector2D& lx, Com::CVector2D& ly) const;
-  
-    
   
 	////////////////////////////////
 	
@@ -205,45 +193,65 @@ public:
   }
   void SetCurve_Polyline(const std::vector<double>& aRelCo){
     this->itype = CURVE_POLYLINE;
-    aCoMesh.clear();
+    this->aRelCo = aRelCo;
+    aCo.clear();
     const unsigned int n = aRelCo.size()/2;
 		Com::CVector2D v0 = po_e-po_s;
 		Com::CVector2D v1(-v0.y,v0.x);
 		for(unsigned int i=0;i<n;i++){
 			Com::CVector2D po0 = po_s + v0*aRelCo[i*2+0] + v1*aRelCo[i*2+1];
-      aCoMesh.push_back(po0);
+      aCo.push_back(po0);
     }      
   }
   void SetCurve_Bezier(double cx0, double cy0, double cx1, double cy1){
     this->itype = CURVE_BEZIER;
-    this->aRelCoBezier[0] = cx0;
-    this->aRelCoBezier[1] = cy0;
-    this->aRelCoBezier[2] = cx1;
-    this->aRelCoBezier[3] = cy1;
+    aRelCo.resize(4);
+    this->aRelCo[0] = cx0;
+    this->aRelCo[1] = cy0;
+    this->aRelCo[2] = cx1;
+    this->aRelCo[3] = cy1;
+    Com::CVector2D v0 = po_e-po_s;
+		Com::CVector2D v1(-v0.y,v0.x);
+		for(unsigned int i=0;i<2;i++){
+			Com::CVector2D po0 = po_s + v0*aRelCo[i*2+0] + v1*aRelCo[i*2+1];
+      aCo.push_back(po0);
+    }          
   }
   
   
-  std::vector<double> GetCurve_Polyline() const { 
-    std::vector<double> res;
-    const Com::CVector2D& ps = this->po_s;
-    const Com::CVector2D& pe = this->po_e;
-    const unsigned int npo = aCoMesh.size();
-    const double sqlen = Com::SquareLength(pe-ps);
-    const Com::CVector2D& eh = (pe-ps)*(1/sqlen);
-    const Com::CVector2D ev(-eh.y,eh.x);
-    for(unsigned int ipo=0;ipo<npo;ipo++){
-      double x1 = Com::Dot(aCoMesh[ipo]-ps,eh);
-      double y1 = Com::Dot(aCoMesh[ipo]-ps,ev);
-      res.push_back(x1);
-      res.push_back(y1);    
+  ////////////////////////////////
+  
+  // Get Arc property if this curve is not arc, this returns false
+  // if is_left_side is true, this arc lies left side from the line connect start and end point of this edge (ID:id_e).
+  // The dist means how far is the center of the circle from the line connect start and end point of edge (ID:id_e).  
+  void GetCurve_Arc(bool& is_left_side, double& dist) const{
+    is_left_side = this->is_left_side;
+    dist = this->dist;
+  }  
+  /*!
+   @brief ‰~‚ª‰~ŒÊ‚ÌA‰~‚Ì’†S‚Æ”¼Œa‚ğŒvZ‚·‚é
+   @remarks ‰~ŒÊ‚¶‚á‚È‚©‚Á‚½‚çfalse‚ğ•Ô‚·
+   */
+	bool GetCenterRadius(Com::CVector2D& po_c, double& radius) const;
+  bool GetCenterRadiusThetaLXY(Com::CVector2D& pc, double& radius,
+                               double& theta, Com::CVector2D& lx, Com::CVector2D& ly) const;
+      
+  std::vector<double> GetCurveRelPoint() const { 
+    return this->aRelCo;
+  }
+  void SetCurveRelPoint(const std::vector<double>& aRelCo0){ 
+    this->aRelCo = aRelCo0;
+    const Com::CVector2D& h = po_e-po_s;
+		const Com::CVector2D v(-h.y,h.x);
+    unsigned int n = aRelCo.size()/2;
+    this->aCo.resize(n);
+    for(unsigned int i=0;i<n;i++){
+      Com::CVector2D p = po_s + h*aRelCo[i*2+0] + v*aRelCo[i*2+1];
+      aCo[i] = p;
     }
-    return res; 
-  }
-  void GetCurve_Bezier(double aRelCo[]) const{
-    aRelCo[0] = aRelCoBezier[0];
-    aRelCo[1] = aRelCoBezier[1];
-    aRelCo[2] = aRelCoBezier[2];
-    aRelCo[3] = aRelCoBezier[3];    
+  }  
+  std::vector<Com::CVector2D> GetCurvePoint() const{
+    return this->aCo;
   }
   
   inline unsigned int GetIdVtx(bool is_root) const {
@@ -267,16 +275,14 @@ private:
 	// type Arc
   bool is_left_side;      //!< is the arc is formed left side of the line po_s, po_e
   double dist;            //!< the minimum distance between line and arc center point
-	// type Polyline
-  std::vector<Com::CVector2D> aCoMesh;  
-  // type Bezier
-  double aRelCoBezier[4];
+  std::vector<double> aRelCo;
 private:
 //public:
   //! Š±Âƒ`ƒFƒbƒN‚Ì‚É‚¾‚¯ˆê“I‚É•Ó‚Ì‚Q’¸“_‚ÌÀ•W‚ª‘ã“ü‚³‚ê‚é
   mutable unsigned int id_v_s, id_v_e;	//!< start vertex
   mutable Com::CVector2D po_s, po_e;
   mutable Com::CBoundingBox2D bb_;
+  mutable std::vector<Com::CVector2D> aCo;
 };
 
 //! ‚QŸŒ³Šô‰½’¸“_ƒNƒ‰ƒX

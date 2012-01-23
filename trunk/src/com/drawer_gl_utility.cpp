@@ -65,56 +65,53 @@ struct SPickedObject{
 	double max_depth;
 };
 
-void Com::View::PickPre(
-		unsigned int size_buffer, unsigned int* select_buffer,
-		unsigned int point_x, unsigned int point_y,
-		unsigned int delX, unsigned int delY,
-		const View::CCamera& mvp_trans)
-//		int win_width, int win_height)
+void Com::View::PickPre
+(unsigned int size_buffer, unsigned int* select_buffer,
+ unsigned int point_x, unsigned int point_y,
+ unsigned int delX, unsigned int delY,
+ const View::CCamera& mvp_trans)
 {
-    // Initailze Selection
-    glSelectBuffer(size_buffer, select_buffer);
-    glRenderMode(GL_SELECT);
-
-    // Get View Port
-    int viewport[4];
-    glGetIntegerv(GL_VIEWPORT, viewport);
-
-    glInitNames();
-
-    // Projection Transform From Here
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadIdentity();
-    gluPickMatrix(point_x,viewport[3]-point_y,  delX,delY,  viewport);
+  // Initailze Selection
+  glSelectBuffer(size_buffer, select_buffer);
+  glRenderMode(GL_SELECT);
+  
+  // Get View Port
+  int viewport[4];
+  glGetIntegerv(GL_VIEWPORT, viewport);
+  
+  glInitNames();
+  
+  // Projection Transform From Here
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  glLoadIdentity();
+  gluPickMatrix(point_x,viewport[3]-point_y,  delX,delY,  viewport);
 	View::SetProjectionTransform(mvp_trans);
-
-    // Model-View  Transform From Here
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-	View::SetModelViewTransform(mvp_trans);
-
+  
+  // Model-View  Transform From Here
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+	View::SetModelViewTransform(mvp_trans);    
 }
 
-std::vector<SSelectedObject> Com::View::PickPost(
-		unsigned int* const select_buffer,
-		unsigned int point_x, unsigned int point_y,
-		const View::CCamera& mvp_trans)
-//		int win_width, int win_height)
+std::vector<SSelectedObject> Com::View::PickPost
+(unsigned int* const select_buffer,
+ unsigned int point_x, unsigned int point_y,
+ const View::CCamera& mvp_trans)
 {
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
-
+  glMatrixMode(GL_PROJECTION);
+  glPopMatrix();
+  glMatrixMode(GL_MODELVIEW);
+  
 	std::vector<SSelectedObject> aSelecObj;
-
-    int nhits = glRenderMode(GL_RENDER);    // return value is number of hits
-    if(nhits<=0){ return aSelecObj; }
-
-    std::vector<SPickedObject> picked_object;
-    {   // get picked_object name and its depth
-        picked_object.resize(nhits);
-        unsigned int* ptr = select_buffer;
+  
+  int nhits = glRenderMode(GL_RENDER);    // return value is number of hits
+  if(nhits<=0){ return aSelecObj; }
+  
+  std::vector<SPickedObject> picked_object;
+  {   // get picked_object name and its depth
+    picked_object.resize(nhits);
+    unsigned int* ptr = select_buffer;
 		for(unsigned int i=0; i<picked_object.size(); i++){
 			const unsigned int name_depth = static_cast<unsigned int>(*ptr);
 			assert(name_depth<=4);
@@ -124,6 +121,10 @@ std::vector<SSelectedObject> Com::View::PickPost(
 			ptr++;
 			picked_object[i].max_depth = (float) *ptr/0x7fffffff;
 			ptr++;
+      picked_object[i].name[0] = -1;
+      picked_object[i].name[1] = -1;
+      picked_object[i].name[2] = -1;
+      picked_object[i].name[3] = -1;
 			for(unsigned int j=0; j<name_depth; j++){
 				picked_object[i].name[j] = *ptr;
 				ptr++;
@@ -140,20 +141,18 @@ std::vector<SSelectedObject> Com::View::PickPost(
 			}
 		}
 	}
-/*
-	std::cout << "Picked Object " << nhits << std::endl;
-	for(unsigned int i=0; i<picked_object.size(); i++){
-		std::cout << i << " ";
-		std::cout << picked_object[i].name_depth << " ";
-		std::cout << picked_object[i].min_depth << " ";
-		std::cout << picked_object[i].max_depth << std::endl;
-		std::cout << "   ";
-		for(unsigned int j=0; j<picked_object[i].name_depth; j++){
-			printf("%d ",picked_object[i].name[j]);
-		}
-		printf("\n");
-	}
-*/
+  std::cout << "Picked Object " << nhits << std::endl;
+  for(unsigned int i=0; i<picked_object.size(); i++){
+    std::cout << i << " ";
+    std::cout << picked_object[i].name_depth << " ";
+    std::cout << picked_object[i].min_depth << " ";
+    std::cout << picked_object[i].max_depth << std::endl;
+    std::cout << "   ";
+    for(unsigned int j=0; j<picked_object[i].name_depth; j++){
+      printf("%d ",picked_object[i].name[j]);
+    }
+    printf("\n");
+  }  
 	aSelecObj.clear();
 	for(unsigned int i=0; i<picked_object.size(); i++){
 		aSelecObj.resize( aSelecObj.size()+1 );
@@ -163,7 +162,7 @@ std::vector<SSelectedObject> Com::View::PickPost(
 		selec_obj.name[0] = picked_object[i].name[0];
 		selec_obj.name[1] = picked_object[i].name[1];
 		selec_obj.name[2] = picked_object[i].name[2];
-
+    
 		double ox,oy,oz;
 		{   
 			GLdouble mvMatrix[16],pjMatrix[16];
@@ -172,16 +171,16 @@ std::vector<SSelectedObject> Com::View::PickPost(
 			::glGetDoublev(GL_MODELVIEW_MATRIX, mvMatrix);
 			::glGetDoublev(GL_PROJECTION_MATRIX, pjMatrix);
 			::gluUnProject(
-				(double)point_x, (double)viewport[3]-point_y,
-				picked_object[i].min_depth*0.5,
-				mvMatrix, pjMatrix,	viewport,
-				&ox, &oy, &oz);
+                     (double)point_x, (double)viewport[3]-point_y,
+                     picked_object[i].min_depth*0.5,
+                     mvMatrix, pjMatrix,	viewport,
+                     &ox, &oy, &oz);
 		}
 		selec_obj.picked_pos.x = ox;
 		selec_obj.picked_pos.y = oy;
 		selec_obj.picked_pos.z = oz;
 	}
-	return aSelecObj;
+	return aSelecObj;  
 }
 
 

@@ -61,9 +61,10 @@ public:
 	@param[in] rot : 3x3 rotation matrix
 	*/
 	virtual Com::CBoundingBox3D GetBoundingBox(const double rot[]) const = 0;
-	//! 選択されたオブジェクトを追加して，ハイライトさせる
+  
+	//! 選択されたオブジェクトを追加して，ハイライトさせる(そのうち削除)
 	virtual void AddSelected(const int selec_flag[]) = 0;
-	//! 選択を解除する
+	//! 選択を解除する(そのうち削除)
 	virtual void ClearSelected() = 0;
 
   virtual void SetAntiAliasing(bool is_aa){
@@ -151,7 +152,7 @@ public:
   }
   // rot == 0 : return object axis bounding box
   // rot != 0 : return rotated axis bounding box (rot is 3x3 matrix)
-	Com::CBoundingBox3D GetBoundingBox( const double rot[] ) const;
+	Com::CBoundingBox3D GetBoundingBox( const double* rot ) const;
 	inline unsigned int NDim() const { return ndim; }
 	inline unsigned int NPoin() const { return npoin; }
   void EnableUVMap(bool is_uv_map){
