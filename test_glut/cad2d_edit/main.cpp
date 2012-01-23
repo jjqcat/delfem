@@ -614,6 +614,18 @@ void myGlutKeyboard(unsigned char key, int x, int y)
 void myGlutMenu(int value)
 {
   switch(value) {
+    case 5: // drag
+      imode = 0;
+      break;
+    case 6: // somooth curve
+      imode = 4;
+      break;
+    case 7: // delete
+      imode = 3;
+      break;
+    case 8: // sketch
+      imode = 2;
+      break;
     case 1:
       imode = 1;
       break;
@@ -661,8 +673,17 @@ int main(int argc,char* argv[])
 	::glutReshapeFunc(myGlutResize);
 	::glutIdleFunc(myGlutIdle);
 
+  // 0:drag
+  // 1:drag curve
+  // 2:add point
+  // 3:delete point
+  // 4:smooth curve  
 	::glutCreateMenu(myGlutMenu);
+  ::glutAddMenuEntry("Drag",5);
+  ::glutAddMenuEntry("Sketch",8);  
   ::glutAddMenuEntry("EditCurve", 1);
+  ::glutAddMenuEntry("SmoothCurve",6);
+  ::glutAddMenuEntry("Delete",7);
   ::glutAddMenuEntry("ChangeToLine", 2);
   ::glutAddMenuEntry("ChangeToArc", 3);
   ::glutAddMenuEntry("ChangeToPolyline", 4);

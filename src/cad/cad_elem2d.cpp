@@ -125,10 +125,8 @@ double Cad::CEdge2D::AreaEdge() const
 		return area;    
 	}
   else if( this->itype == CURVE_BEZIER ){
-//    const Com::CVector2D& gh = po_e - po_s;
-//    const Com::CVector2D gv(-gh.y, gh.x);
-    const Com::CVector2D posc = aCo[0];//po_s + gh*aRelCoBezier[0] + gv*aRelCoBezier[1];
-    const Com::CVector2D poec = aCo[1];//po_s + gh*aRelCoBezier[2] + gv*aRelCoBezier[3];
+    const Com::CVector2D posc = aCo[0];
+    const Com::CVector2D poec = aCo[1];
     const unsigned int ndiv = 32;
     const double div_t = 1.0/(ndiv);
     double area = 0;
@@ -168,28 +166,6 @@ Com::CVector2D Cad::CEdge2D::GetTangentEdge(bool is_s) const {
 		return v;
 	}
 	else if( this->itype == CURVE_POLYLINE ){
-    /*
-		const std::vector<double>& relcomsh = aRelCoMesh;
-		const unsigned int ndiv = relcomsh.size()/2+1;
-		const Com::CVector2D& h0 = po_e-po_s;
-		const Com::CVector2D v0(-h0.y,h0.x);
-		if( is_s ){
-      if( ndiv == 1 ){ return h0; }
-			Com::CVector2D d = h0*relcomsh[0] + v0*relcomsh[1];
-			d.SetNormalizedVector();
-			return d;
-		}
-		else{
-      if( ndiv == 1 ){ return h0*-1; }
-			Com::CVector2D d = po_s + h0*relcomsh[(ndiv-2)*2+0] + v0*relcomsh[(ndiv-2)*2+1] - po_e;
-			d.SetNormalizedVector();
-			return d;
-		}
-     */
-//    const std::vector<double>& relcomsh = aRelCoMesh;
-//		const unsigned int ndiv = relcomsh.size()/2+1;
-//		const Com::CVector2D& h0 = po_e-po_s;
-//		const Com::CVector2D v0(-h0.y,h0.x);
 		if( is_s ){
       if( aCo.empty() ){ return po_e-po_s; }
       Com::CVector2D d = aCo[1]-po_s;
@@ -204,10 +180,8 @@ Com::CVector2D Cad::CEdge2D::GetTangentEdge(bool is_s) const {
 		}    
 	}
   else if( this->itype == CURVE_BEZIER ){ // TODO:
-//    const Com::CVector2D& gh = po_e - po_s;
-//    const Com::CVector2D gv(-gh.y, gh.x);
-    const Com::CVector2D posc = aCo[0]; // po_s + gh*aRelCoBezier[0] + gv*aRelCoBezier[1];
-    const Com::CVector2D poec = aCo[1]; // po_s + gh*aRelCoBezier[2] + gv*aRelCoBezier[3];    
+    const Com::CVector2D posc = aCo[0]; 
+    const Com::CVector2D poec = aCo[1];
 		Com::CVector2D d = (is_s) ? posc-po_s : poec-po_e;
 		d.SetNormalizedVector();
 		return d;
@@ -446,23 +420,11 @@ double Cad::CEdge2D::Distance(const CEdge2D& e1) const
 		return min_dist;
 	}
 	else if( this->itype == CURVE_LINE && e1.itype == CURVE_POLYLINE ){
-//		const std::vector<double>& relcomsh1 = e1.aRelCoMesh;
 		const unsigned int ndiv1 = e1.aCo.size()+1;
-//		const Com::CVector2D& h1 = e1.po_e-e1.po_s;
-//		const Com::CVector2D v1(-h1.y,h1.x);
     double min_dist = -1;
 		for(unsigned int idiv=0;idiv<ndiv1;idiv++){
       Com::CVector2D po0 = (idiv==0      ) ? e1.po_s : e1.aCo[idiv-1];
       Com::CVector2D po1 = (idiv==ndiv1-1) ? e1.po_e : e1.aCo[idiv+0];      
-/*
-			Com::CVector2D po0;
-			if( idiv == 0 ){ po0 = e1.po_s; }
-			else{ po0 = e1.po_s + h1*relcomsh1[(idiv-1)*2+0] + v1*relcomsh1[(idiv-1)*2+1]; }
-			Com::CVector2D po1;
-			if( idiv == ndiv1-1 ){ po1 = e1.po_e; }
-			else{ po1 = e1.po_s + h1*relcomsh1[idiv*2+0]     + v1*relcomsh1[idiv*2+1]; }
-*/ 
-			////////////////
       const double dist = Com::GetDist_LineSeg_LineSeg(po_s,po_e,po0,po1);
       if( dist < -0.5 ) return dist;
       if( dist < min_dist || min_dist < -0.5 ){ min_dist = dist; }

@@ -141,6 +141,7 @@ std::vector<SSelectedObject> Com::View::PickPost
 			}
 		}
 	}
+  /*
   std::cout << "Picked Object " << nhits << std::endl;
   for(unsigned int i=0; i<picked_object.size(); i++){
     std::cout << i << " ";
@@ -152,7 +153,8 @@ std::vector<SSelectedObject> Com::View::PickPost
       printf("%d ",picked_object[i].name[j]);
     }
     printf("\n");
-  }  
+  } 
+   */
 	aSelecObj.clear();
 	for(unsigned int i=0; i<picked_object.size(); i++){
 		aSelecObj.resize( aSelecObj.size()+1 );

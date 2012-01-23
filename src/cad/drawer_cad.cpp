@@ -299,33 +299,15 @@ bool CDrawer_Cad2D::UpdateCAD_TopologyGeometry(const Cad::CCadObj2D &cad_2d)
     apDrawPart_old[idp]->imode_show = 0;
   }
   m_apDrawPart.clear();
-//  m_aIndexVertex.clear();  
-
-	Msh::CMesher2D mesh(cad_2d); 
-
+  
 	int ilayer_min, ilayer_max;
 	cad_2d.GetLayerMinMax(ilayer_min, ilayer_max);
-/*	{
-		const std::vector<unsigned int>& aIdL = cad_2d.GetAryElemID(Cad::LOOP);
-		{
-			assert( aIdL.size() > 0 );
-			unsigned int id_l0 = aIdL[0];
-			ilayer_min = cad_2d.GetLayer_Loop(id_l0);
-			ilayer_max = ilayer_min;
-		}
-		for(unsigned int il=0;il<aIdL.size();il++){
-			unsigned int id_l = aIdL[il];
-			int ilayer = cad_2d.GetLayer_Loop(id_l);
-			ilayer_min = ( ilayer < ilayer_min ) ? ilayer : ilayer_min;
-			ilayer_max = ( ilayer > ilayer_max ) ? ilayer : ilayer_max;
-		}
-	}*/
 	double layer_height = 1.0/(ilayer_max-ilayer_min+1); 
 
 	{	// –Ê‚ðƒZƒbƒg
-		const std::vector<Msh::CTriAry2D>& aTriAry = mesh.GetTriArySet();
-    for(unsigned int ita=0;ita<aTriAry.size();ita++){
-      const unsigned int id_l = aTriAry[ita].id_l_cad;
+    const std::vector<unsigned int>& aIdL = cad_2d.GetAryElemID(LOOP);
+    for(unsigned int iil=0;iil<aIdL.size();iil++){
+      const unsigned int id_l = aIdL[iil];
 			double height = 0;
 			{
 				unsigned int ilayer = cad_2d.GetLayer(Cad::LOOP,id_l);
@@ -335,8 +317,8 @@ bool CDrawer_Cad2D::UpdateCAD_TopologyGeometry(const Cad::CCadObj2D &cad_2d)
       for(;idp0<apDrawPart_old.size();idp0++){
         CDrawPart& dpo = *apDrawPart_old[idp0];        
         if( dpo.itype == Cad::LOOP && dpo.id_cad == id_l )
-        {
-          dpo.SetTriAry( aTriAry[ita] );
+        {          
+          dpo.id_msh = 1;          
           dpo.SetHeight(height);
           double cd[3];
           cad_2d.GetColor_Loop(id_l,cd);
@@ -349,7 +331,8 @@ bool CDrawer_Cad2D::UpdateCAD_TopologyGeometry(const Cad::CCadObj2D &cad_2d)
       }
       if( idp0 == apDrawPart_old.size() ){
         CDrawPart* dp = new CDrawPart;
-        dp->SetTriAry( aTriAry[ita] );
+        dp->id_cad = id_l;
+        dp->itype = LOOP;        
         dp->SetHeight( height );
         double cd[3];
         cad_2d.GetColor_Loop(id_l,cd);
@@ -362,9 +345,9 @@ bool CDrawer_Cad2D::UpdateCAD_TopologyGeometry(const Cad::CCadObj2D &cad_2d)
 	}
   
 	{	// set edge
-		const std::vector<Msh::CBarAry>& aBarAry = mesh.GetBarArySet();
-    for(unsigned int ibar=0;ibar<aBarAry.size();ibar++){
-      const unsigned int id_e = aBarAry[ibar].id_e_cad;
+    const std::vector<unsigned int>& aIdE = cad_2d.GetAryElemID(EDGE);
+    for(unsigned int iie=0;iie<aIdE.size();iie++){
+      const unsigned int id_e = aIdE[iie];
 			double height = 0;
 			{
 				int ilayer = cad_2d.GetLayer(Cad::EDGE,id_e);
@@ -374,7 +357,7 @@ bool CDrawer_Cad2D::UpdateCAD_TopologyGeometry(const Cad::CCadObj2D &cad_2d)
       for(;idp0<apDrawPart_old.size();idp0++){
         CDrawPart& dpo = *apDrawPart_old[idp0];
         if( dpo.itype == Cad::EDGE && dpo.id_cad == id_e ){
-          dpo.SetBarAry( aBarAry[ibar] );
+          dpo.id_msh = 1;          
           dpo.SetHeight( height );
           this->m_apDrawPart.push_back( &dpo );
           break;
@@ -382,7 +365,8 @@ bool CDrawer_Cad2D::UpdateCAD_TopologyGeometry(const Cad::CCadObj2D &cad_2d)
       }
       if( idp0 == apDrawPart_old.size() ){
         CDrawPart* dp = new CDrawPart;
-        dp->SetBarAry( aBarAry[ibar] );	
+        dp->id_cad = id_e;
+        dp->itype = EDGE;
         dp->SetHeight( height );
         this->m_apDrawPart.push_back( dp );
       }
@@ -406,16 +390,16 @@ bool CDrawer_Cad2D::UpdateCAD_TopologyGeometry(const Cad::CCadObj2D &cad_2d)
 	}
   
 	{	// set vertex
-		const std::vector<Msh::SVertex>& aVertex = mesh.GetVertexAry();
-		for(unsigned int iver=0;iver<aVertex.size();iver++){
-			const unsigned int id_v_cad = aVertex[iver].id_v_cad;
+    const std::vector<unsigned int>& aIdV = cad_2d.GetAryElemID(VERTEX);    
+		for(unsigned int iiv=0;iiv<aIdV.size();iiv++){
+			const unsigned int id_v_cad = aIdV[iiv];
 			int ilayer = cad_2d.GetLayer(Cad::VERTEX,id_v_cad);      
 			const double height = (ilayer-ilayer_min+0.1)*layer_height;
       unsigned int idp0 = 0;
       for(;idp0<apDrawPart_old.size();idp0++){
         CDrawPart& dpo = *apDrawPart_old[idp0];
         if( dpo.itype == Cad::VERTEX && dpo.id_cad == id_v_cad ){
-          dpo.SetVertex( aVertex[iver] );
+          dpo.id_msh = 1;
           dpo.SetHeight( height );
           this->m_apDrawPart.push_back( &dpo );
           break;
@@ -423,19 +407,11 @@ bool CDrawer_Cad2D::UpdateCAD_TopologyGeometry(const Cad::CCadObj2D &cad_2d)
       }
       if( idp0 == apDrawPart_old.size() ){
         CDrawPart* dp = new CDrawPart;
-        dp->SetVertex( aVertex[iver] );	
+        dp->id_cad = id_v_cad;
+        dp->itype = VERTEX;
         dp->SetHeight( height );
         this->m_apDrawPart.push_back( dp );
       }      
-      /*
-			CDrawPart_CadVertex dpv;
-			dpv.id_cad = id_v_cad;
-			dpv.id_msh = aVertex[iver].id;
-			dpv.id_v = aVertex[iver].v;
-			dpv.imode_show = 0;
-			dpv.height = height;
-			this->m_aIndexVertex.push_back( dpv );
-       */
 		}
 	}
   
@@ -443,24 +419,8 @@ bool CDrawer_Cad2D::UpdateCAD_TopologyGeometry(const Cad::CCadObj2D &cad_2d)
     if( apDrawPart_old[idp]->id_msh == 0 ){ delete apDrawPart_old[idp]; }
   }
   apDrawPart_old.clear();  
-
-	{	// setting coordinage
-		const std::vector<CVector2D>& aVec2D = mesh.GetVectorAry();
-		const unsigned int npoin = aVec2D.size();
-		const unsigned int ndim = 2;
-		m_vertex_ary.SetSize(npoin,ndim);
-		for(unsigned int ipoin=0;ipoin<npoin;ipoin++){
-			m_vertex_ary.pVertexArray[ipoin*ndim  ] = aVec2D[ipoin].x;
-			m_vertex_ary.pVertexArray[ipoin*ndim+1] = aVec2D[ipoin].y;
-		}
-    if( m_vertex_ary.pUVArray != 0 ){      
-      for(unsigned int ipoin=0;ipoin<npoin;ipoin++){
-        m_vertex_ary.pUVArray[ipoin*ndim  ] = aVec2D[ipoin].x*tex_scale;
-        m_vertex_ary.pUVArray[ipoin*ndim+1] = aVec2D[ipoin].y*tex_scale;
-      }      
-    }
-	}
-
+  
+  UpdateCAD_Geometry(cad_2d);
 	return true;
 }
 

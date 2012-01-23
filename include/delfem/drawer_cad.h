@@ -160,7 +160,7 @@ private:
 			this->Clear();
 		}
 		void Clear(){
-			delete[] pIndexArray;
+      if( pIndexArray !=0 ){ delete[] pIndexArray; }
 			pIndexArray = 0;
 			nelem = 0;
 			npoel = 0;
