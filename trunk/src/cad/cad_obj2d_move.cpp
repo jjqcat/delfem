@@ -47,11 +47,12 @@ using namespace Com;
 
 // id_eの辺ががメッシュなら，スムージングをかけて滑らかにする
 //! id_eがメッシュなら，スムージングをかけて滑らかにする
-bool CCadObj2D_Move::SmoothingPolylineEdge(unsigned int id_e, unsigned int nitr,
-                                   const Com::CVector2D& po_c, double radius)
+bool CCadObj2D_Move::SmoothingPolylineEdge
+(unsigned int id_e, unsigned int nitr,
+ const Com::CVector2D& po_c, double radius)
 {
-  if( !this->IsElemID(Cad::EDGE,id_e) ) return false;
-  if( this->GetEdgeCurveType(id_e) != 2 ) return true;
+  if( !this->IsElemID(Cad::EDGE,id_e) ) return false;  
+  if( this->GetEdgeCurveType(id_e) != CURVE_POLYLINE ) return true;
   if( nitr == 0 ) return true;
   CEdge2D& edge = this->GetEdgeRef(id_e);
   std::vector<double> axys = edge.GetCurveRelPoint();
@@ -90,6 +91,7 @@ bool CCadObj2D_Move::SmoothingPolylineEdge(unsigned int id_e, unsigned int nitr,
       axys[ino*2+1] = pod[1];
     }
   }
+  edge.SetCurveRelPoint(axys);
   return true;
 }
 
@@ -120,7 +122,7 @@ bool CCadObj2D_Move::MoveEdgeCtrl
     aRelCo[ictrl*2+0] = Dot(p0-ps,eh);
     aRelCo[ictrl*2+1] = Dot(p0-ps,ev); 
     edge.SetCurveRelPoint(aRelCo);
-  }
+  }  
   
   std::set<unsigned int> setIdL;
   for(CBRepSurface::CItrVertex itrv=m_BRep.GetItrVertex(edge.GetIdVtx(true));!itrv.IsEnd();itrv++){

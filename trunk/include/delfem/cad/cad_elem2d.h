@@ -193,7 +193,9 @@ public:
   }
   void SetCurve_Polyline(const std::vector<double>& aRelCo){
     this->itype = CURVE_POLYLINE;
-    this->aRelCo = aRelCo;
+//    this->aRelCo = aRelCo;
+    SetCurveRelPoint(aRelCo);
+    /*
     aCo.clear();
     const unsigned int n = aRelCo.size()/2;
 		Com::CVector2D v0 = po_e-po_s;
@@ -202,6 +204,7 @@ public:
 			Com::CVector2D po0 = po_s + v0*aRelCo[i*2+0] + v1*aRelCo[i*2+1];
       aCo.push_back(po0);
     }      
+     */
   }
   void SetCurve_Bezier(double cx0, double cy0, double cx1, double cy1){
     this->itype = CURVE_BEZIER;
