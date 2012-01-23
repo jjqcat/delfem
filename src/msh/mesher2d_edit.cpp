@@ -903,7 +903,7 @@ bool CMesher2D_Edit::LambdaLoop_MVC
         std::vector<double> aRelCo;
         {
           const Cad::CEdge2D& e = cad_2d.GetEdge(id_e);
-          aRelCo = e.GetCurve_Polyline();
+          aRelCo = e.GetCurveRelPoint();
         }
         unsigned int nno = aRelCo.size()/2;
         for(unsigned int ino=0;ino<nno;ino++){

@@ -50,16 +50,17 @@ namespace Msh{
 // @{
 
 //! structure of vertex
-struct SVertex{
+class SVertex{
 public:
-	SVertex() : id(0), id_v_cad(0), ilayer(0){}
+  SVertex() : id(0), id_v_cad(0), ilayer(0){}
 public:
-	unsigned int id;	//!< ID
-	unsigned int id_v_cad;	//!< vertex id in CADi0 if not related to CADj
-	int ilayer;
-	unsigned int v;	//!< index of node
+  unsigned int id;	//!< ID
+  unsigned int id_v_cad;  //!< vertex id in CAD (0 if not related to CAD)
+  int ilayer;
+  unsigned int v;	//!< index of node  
 };
-
+  
+  
 //! array of line element
 class CBarAry{
 public:
@@ -94,6 +95,8 @@ public:
 	int ilayer;
 	std::vector<SQuad2D> m_aQuad;	//!< array of 2D quadric element
 };
+  
+  
 
 ////////////////////////////////////////////////
 

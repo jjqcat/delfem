@@ -37,6 +37,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 namespace Msh{
 	class CBarAry;
 	class CTriAry2D;
+  class SVertex;
 }
 
 namespace Cad{
@@ -88,9 +89,13 @@ public :
     }
   }
 	virtual ~CDrawer_Cad2D(){
-		for(unsigned int i=0;i<m_apIndexAry.size();i++){ delete m_apIndexAry[i]; }
+    Clear();
 	}
 	// virtual関数
+  void Clear(){
+		for(unsigned int i=0;i<m_apDrawPart.size();i++){ delete m_apDrawPart[i]; }    
+    m_apDrawPart.resize(0);
+  }
 
   //! 幾何形状を更新する(トポロジーの変化は存在しないとして)
   void UpdateCAD_Geometry(const Cad::CCadObj2D&);
@@ -106,6 +111,30 @@ public :
   void SetLineWidth(unsigned int linewidth){ m_linewidth = linewidth; }
   //! 点の大きさを設定
   void SetPointSize(unsigned int pointsize){ m_pointsize = pointsize; }
+	//! get bounding box. z direction is -1 to 1.
+  // if rot==0 or no argment return object axis arrigned bounding box
+  // if rot!=0 rot should be 3x3 maxtirx and return rotated bounding box
+	virtual Com::CBoundingBox3D GetBoundingBox( const double* rot=0 ) const {
+		return m_vertex_ary.GetBoundingBox(	rot );
+	}
+  // delete someday
+	virtual void AddSelected(const int selec_flag[]){}
+	virtual void ClearSelected(){}
+  void SetIsShow(bool is_show, Cad::CAD_ELEM_TYPE part_type, unsigned int part_id);
+  void SetIsShow(bool is_show, Cad::CAD_ELEM_TYPE part_type, const std::vector<unsigned int>& aIdPart );  
+  // end delete someday
+
+	void SetModeShow(Cad::CAD_ELEM_TYPE itype, unsigned int id, int imode_show);
+  int GetModeShow(Cad::CAD_ELEM_TYPE itype, unsigned int id);
+	void ClearModeShow(int imode_show);
+    //! @}
+
+	void GetCadPartID(const int selec_flag[], Cad::CAD_ELEM_TYPE& part_type, unsigned int& part_id, int& ictrl);
+  void HideEffected(const Cad::CCadObj2D& cad_2d, Cad::CAD_ELEM_TYPE part_type, unsigned int part_id);
+  void ShowEffected(const Cad::CCadObj2D& cad_2d, Cad::CAD_ELEM_TYPE part_type, unsigned int part_id);
+  void SetRigidDisp(unsigned int id_l, double xdisp, double ydisp);
+  
+  // texture
   void SetTextureScale(double tex_scale);
   void SetTexCenter(double cent_x, double cent_y){
     this->tex_cent_x = cent_x;
@@ -114,34 +143,15 @@ public :
   void GetTexCenter(double& cent_x, double& cent_y){
     cent_x = this->tex_cent_x;
     cent_y = this->tex_cent_y;
-  }    
-	//! get bounding box. z direction is -1 to 1.
-	virtual Com::CBoundingBox3D GetBoundingBox( const double rot[] ) const {
-		return m_vertex_ary.GetBoundingBox(	rot );
-	}
-	//! Hilight表示する要素に加える(selection_flagから)
-	virtual void AddSelected(const int selec_flag[]);
-	//! Hilight表示する要素に加える
-	virtual void AddSelected(Cad::CAD_ELEM_TYPE itype, unsigned int id);
-	//! Hilight表示をやめる
-	virtual void ClearSelected();
-    //! @}
-
-	void GetCadPartID(const int selec_flag[], Cad::CAD_ELEM_TYPE& part_type, unsigned int& part_id);
-  void HideEffected(const Cad::CCadObj2D& cad_2d, Cad::CAD_ELEM_TYPE part_type, unsigned int part_id);
-  void ShowEffected(const Cad::CCadObj2D& cad_2d, Cad::CAD_ELEM_TYPE part_type, unsigned int part_id);
-  void SetIsShow(bool is_show, Cad::CAD_ELEM_TYPE part_type, unsigned int part_id);
-  void SetIsShow(bool is_show, Cad::CAD_ELEM_TYPE part_type, const std::vector<unsigned int>& aIdPart );
-  void SetRigidDisp(unsigned int id_l, double xdisp, double ydisp);
-//    void Show(Cad::CAD_ELEM_TYPE part_type, unsigned int part_id);
+  }       
   void EnableUVMap(bool is_uv_map);
-private:	
+private:
 	////////////////
 	class CDrawPart{
 	public : 
 		CDrawPart(){
 			nelem = 0; npoel = 0; pIndexArray = 0; 
-			is_selected = false; itype = Cad::VERTEX; is_show=true;
+			itype = Cad::VERTEX; imode_show = 0;
       color[0]=0; color[1]=0; color[2]=0;
 			height = 0;
 			xdisp=0; ydisp=0;
@@ -156,17 +166,17 @@ private:
 			npoel = 0;
 		}
 		void DrawElements() const;
-		bool Set(const Msh::CBarAry& BarAry);
-		bool Set(const Msh::CTriAry2D& TriAry);
+		bool SetBarAry(const Msh::CBarAry& BarAry);
+		bool SetTriAry(const Msh::CTriAry2D& TriAry);
+    bool SetVertex(const Msh::SVertex& vtx);    
 		void SetHeight(double h){ height = h; }
 	public:
-		bool is_show;
-		bool is_selected;
+    int imode_show;  // -1:not_show 0:default 1:hilight 2:selected
     float color[3];
     ////////////////
 		Cad::CAD_ELEM_TYPE itype;
 		unsigned int id_cad;
-    unsigned int id_msh;
+    unsigned int id_msh;  // the mesh id in the tesselation
     ////////////////
 		unsigned int nelem;
 		unsigned int npoel;
@@ -174,23 +184,26 @@ private:
 		////////////////
 		double height;
 		double xdisp, ydisp;
+    ////////////////
+    CURVE_TYPE itype_curve;		//!< 0:Line, 1:Arc, 2:Mesh 3:Bezier
+    std::vector<Com::CVector2D> aCtrlPoint;
 	};
+  /*
 	////////////////
 	class CDrawPart_CadVertex{
 	public:
-		unsigned int id_v;
-		unsigned int id_cad;
+    int imode_show; // -1:not_show 0:default 1:hilight 2:selected
+    unsigned int id_cad;
 		unsigned int id_msh;
-        ////////////////
-		bool is_selected;
-		bool is_show;
+		unsigned int id_v;
 		////////////////
 		double height;
 	};	
+   */
 private:
-  unsigned char m_mask[128];	//!< 選択領域をドットで見せるのためのマスク
-  std::vector<CDrawPart*> m_apIndexAry;				//! 辺や面など
-  std::vector<CDrawPart_CadVertex> m_aIndexVertex;	//! 頂点
+  unsigned char m_mask[128];	//!< mask of hilight reagion
+  std::vector<CDrawPart*> m_apDrawPart;				//! 辺や面など
+//  std::vector<CDrawPart_CadVertex> m_aIndexVertex;	//! The Vtx
   Com::View::CVertexArray m_vertex_ary;	//! vertex array
   unsigned int m_linewidth;   //!< the width of the line
   unsigned int m_pointsize;   //!< the size of vertices
