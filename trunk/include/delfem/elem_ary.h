@@ -85,11 +85,11 @@ public:
 		void GetNodes(const unsigned int& ielem, unsigned int* noes ) const {
 			for(unsigned int inoes=0;inoes<m_nnoes;inoes++){ 
 				assert( ielem*npoel+begin+inoes < nelem*npoel );
-				noes[inoes] = abs(pLnods[ielem*npoel+begin+inoes]); 
+				noes[inoes] = pLnods[ielem*npoel+begin+inoes]; 
 			}
 		}
     unsigned int GetNode(const unsigned int ielem, unsigned int inoes ) const{
-      return abs(pLnods[ielem*npoel+begin+inoes]); 
+      return pLnods[ielem*npoel+begin+inoes];
     }
 		//! ß“_”Ô†‚ðÝ’è
 		void SetNodes(unsigned int ielem, unsigned int idofes, int ino ){
