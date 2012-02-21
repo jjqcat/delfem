@@ -945,8 +945,8 @@ std::vector<int> CElemAry::AddSegment
 			unsigned int max_noes = 0;
 			for(unsigned int ielem=0;ielem<m_nElem;ielem++){
 				for(unsigned int inoel=inoel_s;inoel<inoel_e;inoel++){
-					max_noes = ( (unsigned int)abs(m_pLnods[ielem*npoel+inoel]) > max_noes ) 
-						? (unsigned int)abs(m_pLnods[ielem*npoel+inoel]) : max_noes;
+					max_noes = ( (unsigned int)m_pLnods[ielem*npoel+inoel]) > max_noes 
+						? (unsigned int)m_pLnods[ielem*npoel+inoel] : max_noes;
 				}
 			}
 			es_ary[ies].second.max_noes = max_noes;
@@ -1186,8 +1186,8 @@ int CElemAry::InitializeFromFile(const std::string& file_name, long& offset)
 				unsigned int max_noes = 0;
 				for(unsigned int ielem=0;ielem<m_nElem;ielem++){
 					for(unsigned int inoel=inoel_s;inoel<inoel_e;inoel++){
-						max_noes = ( (unsigned int)abs(m_pLnods[ielem*npoel+inoel]) > max_noes ) 
-							? (unsigned int)abs(m_pLnods[ielem*npoel+inoel]) : max_noes;
+						max_noes = ( (unsigned int)m_pLnods[ielem*npoel+inoel] > max_noes ) 
+							? (unsigned int)m_pLnods[ielem*npoel+inoel] : max_noes;
 					}
 				}
 				tmp_es_ary[ies].second.max_noes = max_noes;
